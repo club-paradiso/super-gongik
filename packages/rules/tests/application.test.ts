@@ -6,7 +6,9 @@ import {
 import { describe, expect, it } from "vitest";
 
 import {
+  COMPENSATION_RULE_BUNDLES,
   calculateAnnualLeaveAllocation,
+  type CompensationRuleBundle,
   deriveAnnualLeaveCredits,
   evaluateMonthlyCompensation,
 } from "../src";
@@ -163,5 +165,79 @@ describe("monthly compensation gating", () => {
       monthlyAmount: null,
       dailyRate: 3000,
     });
+  });
+});
+
+describe("compensation rule selection by the evaluated date", () => {
+  // Hypothetical mid-year amendment: the verified 2026 bundle split at
+  // 2026-07-01, with the second half paying 100,000 KRW more per band.
+  const [verified2026] = COMPENSATION_RULE_BUNDLES;
+  const firstHalf: CompensationRuleBundle = {
+    ...verified2026!,
+    version: "2026-H1",
+    effectiveFrom: "2026-01-01",
+    effectiveUntil: "2026-06-30",
+  };
+  const secondHalf: CompensationRuleBundle = {
+    ...verified2026!,
+    version: "2026-H2",
+    effectiveFrom: "2026-07-01",
+    effectiveUntil: "2026-12-31",
+    basePay: {
+      ...verified2026!.basePay,
+      serviceMonthBands: verified2026!.basePay.serviceMonthBands.map(
+        (band) => ({
+          ...band,
+          monthlyAmount: band.monthlyAmount + 100_000,
+        }),
+      ),
+    },
+  };
+  const bundles = [firstHalf, secondHalf];
+  const serving = profile("2026-01-05", "2027-10-04");
+
+  it("uses the bundle in force on the last day before the boundary", () => {
+    const result = evaluateMonthlyCompensation(serving, "2026-06-30", {
+      bundles,
+    });
+    expect(result.rule?.version).toBe("2026-H1");
+    expect(result.components[0]?.monthlyAmount).toBe(900_000);
+  });
+
+  it("switches bundles on the effective date instead of using January 1", () => {
+    const result = evaluateMonthlyCompensation(serving, "2026-07-01", {
+      bundles,
+    });
+    expect(result.rule?.version).toBe("2026-H2");
+    expect(result.components[0]?.monthlyAmount).toBe(1_000_000);
+  });
+
+  it("keeps every safety gate under the newer bundle", () => {
+    const unanswered = evaluateMonthlyCompensation(
+      profile("2026-01-05", "2027-10-04", null),
+      "2026-07-15",
+      { bundles },
+    );
+    expect(unanswered.rule?.version).toBe("2026-H2");
+    expect(
+      unanswered.components.every((item) => item.monthlyAmount === null),
+    ).toBe(true);
+    const partialMonth = evaluateMonthlyCompensation(
+      profile("2026-07-06", "2028-04-05"),
+      "2026-07-20",
+      { bundles },
+    );
+    expect(partialMonth.status).toBe("GATED");
+    expect(
+      partialMonth.components.every((item) => item.monthlyAmount === null),
+    ).toBe(true);
+  });
+
+  it("refuses a date covered by no bundle rather than borrowing one", () => {
+    const result = evaluateMonthlyCompensation(serving, "2026-07-01", {
+      bundles: [firstHalf],
+    });
+    expect(result.status).toBe("UNSUPPORTED");
+    expect(result.components).toEqual([]);
   });
 });

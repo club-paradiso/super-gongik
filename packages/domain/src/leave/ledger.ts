@@ -1,3 +1,4 @@
+import { findLeaveOverlaps } from "../events/validation";
 import {
   ATTENDANCE_EVENT_TYPES,
   SERVICE_EVENT_TYPES,
@@ -484,6 +485,19 @@ export function buildLeaveLedger(input: LeaveLedgerInput): LeaveLedger {
   if (balance.status === "NEEDS_WORKDAY_MINUTES") {
     warnings.push(
       "시간 단위 연가가 있어요. 1일 근무시간을 설정하기 전에는 일수와 분을 합치지 않아요.",
+    );
+  }
+  // Records saved before overlap validation existed, or imported with
+  // unresolved positions, are surfaced rather than silently summed.
+  const overlaps = findLeaveOverlaps(input.events);
+  if (overlaps.conflicts.length) {
+    warnings.push(
+      `같은 시간을 두 번 차감하는 휴가 기록이 ${overlaps.conflicts.length}쌍 있어요. 캘린더에서 하나를 수정하거나 삭제해 주세요.`,
+    );
+  }
+  if (overlaps.unresolved.length) {
+    warnings.push(
+      `같은 날 시간이 겹치는지 확인할 수 없는 휴가 기록이 ${overlaps.unresolved.length}쌍 있어요. 시작·종료 시각을 넣으면 확인할 수 있어요.`,
     );
   }
   const attendanceTotal =

@@ -6,7 +6,10 @@ import {
   type ServiceProfile,
 } from "@super-gongik/domain";
 
-import { COMPENSATION_RULE_BUNDLES } from "./bundles";
+import {
+  COMPENSATION_RULE_BUNDLES,
+  type CompensationRuleBundle,
+} from "./bundles";
 import type { RuleSourceReference } from "./calculation";
 import {
   calculateMonthlyBasePay,
@@ -85,19 +88,20 @@ function unsupported(
 export function evaluateMonthlyCompensation(
   profile: ServiceProfile,
   asOfDate: DateOnly,
+  options: { bundles?: readonly CompensationRuleBundle[] } = {},
 ): MonthlyCompensationEvaluation {
   const calendarYear = Number(asOfDate.slice(0, 4));
-  const selection = selectRuleByDate(
-    "COMPENSATION",
-    COMPENSATION_RULE_BUNDLES,
-    `${calendarYear}-01-01` as DateOnly,
-  );
+  const bundles = options.bundles ?? COMPENSATION_RULE_BUNDLES;
+  // Select by the evaluated date itself, not by the start of its year, so a
+  // rule that changes mid-year is applied from its actual effective date.
+  const selection = selectRuleByDate("COMPENSATION", bundles, asOfDate);
   if (selection.status !== "SUPPORTED") {
     return unsupported(
       asOfDate,
-      `${calendarYear}년 보수 규칙이 아직 검증되지 않아 계산하지 않아요.`,
+      `${asOfDate}에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요.`,
     );
   }
+  const ruleInput = { calculationDate: asOfDate, bundles };
 
   const bundle = selection.rule;
   const rule = {
@@ -139,7 +143,7 @@ export function evaluateMonthlyCompensation(
     "확인된 기본 보수만 계산했어요. 중식비·교통비는 조건을 확인해야 해요.";
 
   const gate = evaluateCompensationSafetyGate({
-    calendarYear,
+    ...ruleInput,
     partialMonth: isPartialServiceMonth(profile, asOfDate),
     hasPriorServiceCreditCase:
       profile.priorServiceCredit === "HAS_PRIOR_SERVICE",
@@ -173,7 +177,7 @@ export function evaluateMonthlyCompensation(
     };
     warnings.push(...gate.warnings);
   } else {
-    const pay = calculateMonthlyBasePay({ calendarYear, serviceMonthIndex });
+    const pay = calculateMonthlyBasePay({ ...ruleInput, serviceMonthIndex });
     equivalentRank =
       RANK_LABELS[String(pay.breakdown.equivalentRank)] ??
       String(pay.breakdown.equivalentRank);
@@ -189,7 +193,7 @@ export function evaluateMonthlyCompensation(
   }
 
   const meal = evaluateMealAllowance({
-    calendarYear,
+    ...ruleInput,
     mealRateConfirmedByProfile: false,
   });
   const suggested = meal.breakdown.suggestedDailyMealRate;
@@ -204,7 +208,7 @@ export function evaluateMonthlyCompensation(
   warnings.push(...meal.warnings);
 
   const transport = calculateTransportAllowance({
-    calendarYear,
+    ...ruleInput,
     commuteFareOrInstitutionApprovedTransportRate: profile.defaultCommuteCost,
     eligibleServiceDays: 0,
   });

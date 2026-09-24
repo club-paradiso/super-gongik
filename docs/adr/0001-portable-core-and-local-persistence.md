@@ -43,10 +43,32 @@ then wrote over.
    attachments are stored.
 5. **Sync-ready records, no sync yet.** Every mutable record carries
    `id` (UUID), `revision`, `createdAt`, `updatedAt`, `deletedAt`, `deviceId`.
-   Deletion is soft. Backup merge already applies the intended conflict rule
-   (union by id, higher revision then later update wins, content duplicates
-   skipped). No Supabase/cloud work was started: nothing in this sprint needs
-   it, and local recovery (JSON backup) closes the device-loss gap first.
+   Deletion is soft. No Supabase/cloud work was started: nothing in this
+   sprint needs it, and local recovery (JSON backup) closes the device-loss
+   gap first.
+6. **Restore has two explicit contracts** (`store/backup.ts`):
+   - _Merge = non-destructive recovery._ Current live records are never
+     deleted; backup tombstones are ignored for live records. Records missing
+     locally are added and records deleted locally but live in the backup are
+     restored with a new revision. Live-vs-live updates take the newer
+     revision. Anything that would charge leave twice or give a credit a
+     second confirmation is skipped, the current state kept, and the reason
+     reported. Import batches are re-derived: ACTIVE if and only if the batch
+     still has a live event or snapshot; snapshots stay deleted when their
+     batch's events could not be restored.
+   - _Replace = exact restoration._ The validated backup becomes the
+     document; only this device's id is kept, and the previous document is
+     preserved as a pre-restore copy first.
+     A future sync protocol needs real tombstone propagation and must not
+     reuse merge as-is.
+7. **Leave may never be charged twice for the same time** (enforced in
+   `events/validation.ts`, used by manual entry, import commit, restore and
+   merge). Full day vs anything, the same half day, intersecting explicit
+   times, or identical content is an error. Where records lack a position
+   (minutes without start/end, half day vs minutes — the half-day hours
+   depend on the institution schedule), the overlap is reported as
+   unresolved: manual entry requires acknowledgement and imports are not
+   pre-selected. The ledger also warns about overlaps already stored.
 
 ## Consequences for a future iOS client
 

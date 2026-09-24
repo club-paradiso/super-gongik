@@ -4,6 +4,7 @@ import {
   commitImport,
   createServiceEvent,
   deleteServiceEvent,
+  importConsistencyIssues,
   isLive,
   planImportRows,
   restoreServiceEvent,
@@ -94,6 +95,24 @@ describe("manual service-event lifecycle", () => {
     expect(restored.value.revision).toBe(4);
   });
 
+  it("refuses a second identical partial leave through the command layer (case B)", () => {
+    const ctx = context();
+    const first = unwrap(
+      createServiceEvent(
+        userDataWithProfile(),
+        partial("ANNUAL_LEAVE", "2026-09-10", 120),
+        ctx,
+      ),
+    );
+    const second = createServiceEvent(
+      first.data,
+      partial("ANNUAL_LEAVE", "2026-09-10", 120),
+      ctx,
+    );
+    expect(second.ok).toBe(false);
+    expect(!second.ok && second.errors[0]?.code).toBe("LEAVE_OVERLAP");
+  });
+
   it("refuses to restore a deleted leave that now conflicts", () => {
     const ctx = context();
     const first = unwrap(
@@ -154,6 +173,74 @@ describe("import commit and rollback", () => {
       ctx,
     );
     expect(again.ok).toBe(false);
+  });
+
+  it("reactivates a rolled-back batch when one of its events is restored", () => {
+    const ctx = context();
+    const committed = unwrap(
+      commitImport(
+        userDataWithProfile(),
+        {
+          batch: batch("batch-r"),
+          drafts: [importDraft(allDay("ANNUAL_LEAVE", "2026-06-12"), "fp-r")],
+          snapshots: [],
+        },
+        ctx,
+      ),
+    );
+    const rolledBack = unwrap(rollbackImport(committed.data, "batch-r", ctx));
+    const eventId = rolledBack.data.events[0]!.id;
+    const restored = unwrap(restoreServiceEvent(rolledBack.data, eventId, ctx));
+    expect(restored.data.imports[0]).toMatchObject({
+      status: "ACTIVE",
+      rolledBackAt: null,
+    });
+    expect(importConsistencyIssues(restored.data)).toEqual([]);
+  });
+
+  it("rejects an imported partial leave on a manual full-day leave (case A via import)", () => {
+    const ctx = context();
+    const manual = unwrap(
+      createServiceEvent(
+        userDataWithProfile(),
+        allDay("ANNUAL_LEAVE", "2026-06-12"),
+        ctx,
+      ),
+    );
+    const decisions = planImportRows(manual.data, [
+      importDraft(partial("ANNUAL_LEAVE", "2026-06-12", 120), "fp-x"),
+    ]);
+    expect(decisions[0]?.status).toBe("CONFLICT");
+    const commit = commitImport(
+      manual.data,
+      {
+        batch: batch("b"),
+        drafts: [
+          importDraft(partial("ANNUAL_LEAVE", "2026-06-12", 120), "fp-x"),
+        ],
+        snapshots: [],
+      },
+      ctx,
+    );
+    expect(commit.ok).toBe(false);
+  });
+
+  it("marks imported rows with undecidable overlap as NEW with an explicit warning", () => {
+    const ctx = context();
+    const manual = unwrap(
+      createServiceEvent(
+        userDataWithProfile(),
+        partial("ANNUAL_LEAVE", "2026-06-12", 60),
+        ctx,
+      ),
+    );
+    const [decision] = planImportRows(manual.data, [
+      importDraft(partial("ANNUAL_LEAVE", "2026-06-12", 90), "fp-y"),
+    ]);
+    expect(decision?.status).toBe("NEW");
+    expect(
+      decision?.status === "NEW" && decision.warnings.map((w) => w.code),
+    ).toContain("LEAVE_OVERLAP_UNRESOLVED");
   });
 
   it("rejects import rows that would double-charge leave inside the same file", () => {

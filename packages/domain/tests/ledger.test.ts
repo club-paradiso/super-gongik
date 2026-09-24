@@ -273,6 +273,27 @@ describe("event-derived annual leave ledger", () => {
     ).toBe("NOT_COMPARABLE");
   });
 
+  it("warns about overlapping leave already stored before validation existed", () => {
+    const data = withEvents(allDay("ANNUAL_LEAVE", "2026-06-01"));
+    const legacyDuplicate = {
+      ...data.events[0]!,
+      id: "legacy-copy",
+      timing: {
+        kind: "PARTIAL" as const,
+        durationMinutes: 120,
+        startTime: null,
+        endTime: null,
+      },
+    };
+    const result = ledger({
+      ...data,
+      events: [...data.events, legacyDuplicate],
+    });
+    expect(result.warnings.join(" ")).toContain(
+      "두 번 차감하는 휴가 기록이 1쌍",
+    );
+  });
+
   it("does not deduct attendance minutes from annual leave", () => {
     const result = ledger(
       withEvents(

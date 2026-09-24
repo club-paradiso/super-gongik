@@ -37,6 +37,8 @@ ServiceEvent {
   integer count of halves. No floating-point day value is stored.
 - `PARTIAL.durationMinutes = null` exists only for imported rows whose
   duration could not be resolved; the ledger excludes and flags them.
+- Two leave records may not charge the same time: see ADR 0001 §7 for the
+  CONFLICT / UNRESOLVED rules.
 - Leave usage is never stored separately; the ledger is recomputed from
   credits (rules), confirmations/corrections (adjustments) and events.
 - The pre-document layout (`super-gongik.service-profile.v1`,

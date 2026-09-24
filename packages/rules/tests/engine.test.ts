@@ -63,7 +63,7 @@ describe("rule contract and historical snapshots", () => {
 
   it("preserves the selected version and explanation in a snapshot", () => {
     const result = calculateMonthlyBasePay({
-      calendarYear: 2026,
+      calculationDate: "2026-10-15",
       serviceMonthIndex: 9,
     });
     const snapshot = createCalculationSnapshot(result, {

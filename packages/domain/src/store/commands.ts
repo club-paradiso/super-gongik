@@ -221,11 +221,20 @@ export function restoreServiceEvent(
     revision: existing.revision + 1,
     deviceId: context.deviceId,
   };
+  // Restoring a record of a rolled-back import makes that batch active
+  // again, so a rolled-back batch never owns live records.
+  const batchId =
+    existing.source.kind === "IMPORT" ? existing.source.batchId : null;
   return {
     ok: true,
     data: {
       ...data,
       events: data.events.map((event) => (event.id === id ? restored : event)),
+      imports: data.imports.map((record) =>
+        record.id === batchId && record.status === "ROLLED_BACK"
+          ? { ...record, status: "ACTIVE" as const, rolledBackAt: null }
+          : record,
+      ),
     },
     value: restored,
   };

@@ -7,12 +7,27 @@ import {
 import { createCalculationResult } from "./calculation";
 import { selectRuleByDate } from "./selector";
 
-function requireCompensationRule(calendarYear: number): CompensationRuleBundle {
-  const date = `${calendarYear}-01-01` as DateOnly;
+type RuleInput = {
+  /** The payment date or month day being evaluated; selects the bundle. */
+  calculationDate: DateOnly;
+  /** Injected for tests; production uses the verified bundles. */
+  bundles?: readonly CompensationRuleBundle[];
+};
+
+/** Calculation inputs as recorded in results (injected bundles excluded). */
+function publicInputs<T extends { bundles?: unknown }>(input: T) {
+  const { bundles: _bundles, ...rest } = input;
+  void _bundles;
+  return rest as Record<string, unknown>;
+}
+
+export function requireCompensationRule(
+  input: RuleInput,
+): CompensationRuleBundle {
   const selection = selectRuleByDate(
     "COMPENSATION",
-    COMPENSATION_RULE_BUNDLES,
-    date,
+    input.bundles ?? COMPENSATION_RULE_BUNDLES,
+    input.calculationDate,
   );
   if (selection.status !== "SUPPORTED") {
     throw new RangeError(selection.warnings.join(" "));
@@ -22,10 +37,11 @@ function requireCompensationRule(calendarYear: number): CompensationRuleBundle {
 }
 
 export function calculateMonthlyBasePay(input: {
-  calendarYear: number;
+  calculationDate: DateOnly;
+  bundles?: readonly CompensationRuleBundle[];
   serviceMonthIndex: number;
 }) {
-  const bundle = requireCompensationRule(input.calendarYear);
+  const bundle = requireCompensationRule(input);
   const band = bundle.basePay.serviceMonthBands.find(
     (candidate) =>
       input.serviceMonthIndex >= candidate.fromServiceMonth &&
@@ -42,7 +58,7 @@ export function calculateMonthlyBasePay(input: {
     status: "SUPPORTED" as const,
     value: { monthlyBasePay: band.monthlyAmount },
     bundle,
-    inputs: input,
+    inputs: publicInputs(input),
     breakdown: {
       equivalentRank: band.equivalentRank,
       fromServiceMonth: band.fromServiceMonth,
@@ -53,11 +69,12 @@ export function calculateMonthlyBasePay(input: {
 }
 
 export function evaluateMealAllowance(input: {
-  calendarYear: number;
+  calculationDate: DateOnly;
+  bundles?: readonly CompensationRuleBundle[];
   mealRateConfirmedByProfile: boolean;
   eligibleServiceDays?: number;
 }) {
-  const bundle = requireCompensationRule(input.calendarYear);
+  const bundle = requireCompensationRule(input);
   const suggestedRate = bundle.meal.suggestedDailyAmount;
 
   if (!input.mealRateConfirmedByProfile) {
@@ -66,7 +83,7 @@ export function evaluateMealAllowance(input: {
       status: "REQUIRES_PROFILE_CONFIRMATION" as const,
       value: null,
       bundle,
-      inputs: input,
+      inputs: publicInputs(input),
       breakdown: {
         suggestedDailyMealRate: suggestedRate,
         mustExposeAssumption: true,
@@ -82,7 +99,7 @@ export function evaluateMealAllowance(input: {
       status: "UNSUPPORTED_MISSING_CONTEXT" as const,
       value: null,
       bundle,
-      inputs: input,
+      inputs: publicInputs(input),
       breakdown: { missingFields: ["eligibleServiceDays"] },
       warnings: ["중식비 계산에는 대상 복무일 수가 필요합니다."],
     });
@@ -96,25 +113,26 @@ export function evaluateMealAllowance(input: {
       mealAllowance: suggestedRate * input.eligibleServiceDays,
     },
     bundle,
-    inputs: input,
+    inputs: publicInputs(input),
     breakdown: { eligibleServiceDays: input.eligibleServiceDays },
     assumptions: ["프로필에서 2026년 제안 중식비를 확인했습니다."],
   });
 }
 
 export function calculateTransportAllowance(input: {
-  calendarYear: number;
+  calculationDate: DateOnly;
+  bundles?: readonly CompensationRuleBundle[];
   commuteFareOrInstitutionApprovedTransportRate: number | null;
   eligibleServiceDays: number;
 }) {
-  const bundle = requireCompensationRule(input.calendarYear);
+  const bundle = requireCompensationRule(input);
   if (input.commuteFareOrInstitutionApprovedTransportRate === null) {
     return createCalculationResult({
       domain: "COMPENSATION",
       status: "UNSUPPORTED_MISSING_CONTEXT" as const,
       value: null,
       bundle,
-      inputs: input,
+      inputs: publicInputs(input),
       breakdown: {
         missingFields: ["commuteFareOrInstitutionApprovedTransportRate"],
       },
@@ -131,18 +149,19 @@ export function calculateTransportAllowance(input: {
         input.eligibleServiceDays,
     },
     bundle,
-    inputs: input,
+    inputs: publicInputs(input),
     breakdown: { eligibleServiceDays: input.eligibleServiceDays },
   });
 }
 
 export function evaluateCompensationSafetyGate(input: {
-  calendarYear: number;
+  calculationDate: DateOnly;
+  bundles?: readonly CompensationRuleBundle[];
   partialMonth?: boolean;
   periodType?: string;
   hasPriorServiceCreditCase?: boolean;
 }) {
-  const bundle = requireCompensationRule(input.calendarYear);
+  const bundle = requireCompensationRule(input);
 
   if (input.hasPriorServiceCreditCase) {
     return createCalculationResult({
@@ -150,7 +169,7 @@ export function evaluateCompensationSafetyGate(input: {
       status: "UNSUPPORTED_PENDING_PRIOR_SERVICE_PROFILE_MODEL" as const,
       value: null,
       bundle,
-      inputs: input,
+      inputs: publicInputs(input),
       breakdown: { mustNotInferCredit: true },
       warnings: [bundle.basePay.priorServiceCredit.reason],
     });
@@ -162,7 +181,7 @@ export function evaluateCompensationSafetyGate(input: {
       status: "UNSUPPORTED_PENDING_EXACT_PRORATION_ARITHMETIC" as const,
       value: null,
       bundle,
-      inputs: input,
+      inputs: publicInputs(input),
       breakdown: { mustNotGuessDivisor: true },
       warnings: [bundle.proration.firstAndLastMonth.reason],
     });
@@ -173,6 +192,6 @@ export function evaluateCompensationSafetyGate(input: {
     status: "SUPPORTED" as const,
     value: { safeToCalculateVerifiedComponents: true },
     bundle,
-    inputs: input,
+    inputs: publicInputs(input),
   });
 }

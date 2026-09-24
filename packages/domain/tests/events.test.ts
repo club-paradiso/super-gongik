@@ -5,6 +5,7 @@ import {
   serviceEventContentKey,
   validateServiceEventDraft,
   type ServiceEvent,
+  type ServiceEventDraft,
 } from "../src";
 import {
   allDay,
@@ -13,6 +14,25 @@ import {
   partial,
   userDataWithProfile,
 } from "./helpers";
+
+function timed(
+  eventType: ServiceEventDraft["eventType"],
+  startTime: string,
+  endTime: string,
+  date = "2026-09-10",
+): ServiceEventDraft {
+  const [sh, sm] = startTime.split(":").map(Number);
+  const [eh, em] = endTime.split(":").map(Number);
+  return {
+    ...partial(eventType, date, eh! * 60 + em! - (sh! * 60 + sm!)),
+    timing: {
+      kind: "PARTIAL",
+      durationMinutes: eh! * 60 + em! - (sh! * 60 + sm!),
+      startTime,
+      endTime,
+    },
+  };
+}
 
 function existing(...drafts: Parameters<typeof createServiceEvent>[1][]) {
   let data = userDataWithProfile();
@@ -106,12 +126,87 @@ describe("service event validation", () => {
     );
   });
 
-  it("warns instead of blocking partial leave on a full-day leave and outside service", () => {
+  it("blocks a partial leave on a day already charged as full-day leave (case A)", () => {
     const events = existing(allDay("ANNUAL_LEAVE", "2026-09-10"));
-    expect(codes(events, partial("SICK_LEAVE", "2026-09-10", 120))).toEqual({
+    expect(
+      codes(events, partial("ANNUAL_LEAVE", "2026-09-10", 120)).errors,
+    ).toContain("LEAVE_OVERLAP");
+    expect(
+      codes(events, partial("SICK_LEAVE", "2026-09-10", 120)).errors,
+    ).toContain("LEAVE_OVERLAP");
+    // Also inside a multi-day full-day range.
+    const range = existing(
+      allDay("ANNUAL_LEAVE", "2026-09-07", "2026-09-09", 3),
+    );
+    expect(
+      codes(range, partial("ANNUAL_LEAVE", "2026-09-08", 60)).errors,
+    ).toContain("LEAVE_OVERLAP");
+  });
+
+  it("blocks an identical partial leave, with or without times (case B)", () => {
+    const untimed = existing(partial("ANNUAL_LEAVE", "2026-09-10", 120));
+    expect(
+      codes(untimed, partial("ANNUAL_LEAVE", "2026-09-10", 120)).errors,
+    ).toContain("LEAVE_OVERLAP");
+    const timedEvents = existing(timed("ANNUAL_LEAVE", "10:00", "12:00"));
+    expect(
+      codes(timedEvents, timed("ANNUAL_LEAVE", "10:00", "12:00")).errors,
+    ).toContain("LEAVE_OVERLAP");
+  });
+
+  it("blocks partial leave whose explicit times intersect and allows disjoint times (case C)", () => {
+    const events = existing(timed("ANNUAL_LEAVE", "10:00", "12:00"));
+    expect(
+      codes(events, timed("ANNUAL_LEAVE", "11:00", "13:00")).errors,
+    ).toContain("LEAVE_OVERLAP");
+    expect(
+      codes(events, timed("SICK_LEAVE", "11:30", "11:45")).errors,
+    ).toContain("LEAVE_OVERLAP");
+    // Touching intervals do not share a minute.
+    expect(codes(events, timed("ANNUAL_LEAVE", "12:00", "13:00"))).toEqual({
       errors: [],
-      warnings: ["PARTIAL_DURING_FULL_DAY_LEAVE"],
+      warnings: [],
     });
+  });
+
+  it("flags overlaps it cannot decide instead of pretending certainty", () => {
+    const untimed = existing(partial("ANNUAL_LEAVE", "2026-09-10", 60));
+    expect(codes(untimed, partial("ANNUAL_LEAVE", "2026-09-10", 90))).toEqual({
+      errors: [],
+      warnings: ["LEAVE_OVERLAP_UNRESOLVED"],
+    });
+    expect(
+      codes(untimed, timed("SICK_LEAVE", "15:00", "16:00")).warnings,
+    ).toEqual(["LEAVE_OVERLAP_UNRESOLVED"]);
+    const half = existing(halfDay("2026-09-10", "AM"));
+    expect(
+      codes(half, timed("ANNUAL_LEAVE", "15:00", "16:00")).warnings,
+    ).toEqual(["LEAVE_OVERLAP_UNRESOLVED"]);
+    expect(codes(half, halfDay("2026-09-10", null)).warnings).toEqual([
+      "LEAVE_OVERLAP_UNRESOLVED",
+    ]);
+  });
+
+  it("does not treat attendance records as leave double-charges", () => {
+    const events = existing(allDay("ANNUAL_LEAVE", "2026-09-10"));
+    expect(codes(events, partial("OUTING", "2026-09-10", 60)).errors).toEqual(
+      [],
+    );
+  });
+
+  it("does not conflict with itself while editing", () => {
+    const events = existing(timed("ANNUAL_LEAVE", "10:00", "12:00"));
+    const result = validateServiceEventDraft(
+      timed("ANNUAL_LEAVE", "10:00", "11:00"),
+      {
+        existingEvents: events,
+        editingId: events[0]!.id,
+      },
+    );
+    expect(result.errors).toEqual([]);
+  });
+
+  it("warns about dates outside the service period", () => {
     expect(codes([], allDay("ANNUAL_LEAVE", "2026-05-01")).warnings).toContain(
       "OUTSIDE_SERVICE_PERIOD",
     );

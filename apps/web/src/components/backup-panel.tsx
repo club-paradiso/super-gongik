@@ -123,8 +123,11 @@ export function BackupPanel({
   async function merge() {
     if (!pending) return;
     const incoming = pending.data;
-    const result = await store.run((currentData) => {
-      const merged = mergeUserData(currentData, incoming);
+    const result = await store.run((currentData, context) => {
+      const merged = mergeUserData(currentData, incoming, {
+        now: context.now,
+        deviceId: context.deviceId,
+      });
       if (!merged.ok) {
         return {
           ok: false,
@@ -138,16 +141,33 @@ export function BackupPanel({
       return;
     }
     const stats = result.value;
-    const changed =
-      stats.addedEvents +
-      stats.updatedEvents +
-      stats.addedAdjustments +
-      stats.addedSnapshots +
-      stats.addedImports;
+    const parts = [
+      stats.addedEvents && `새 기록 ${stats.addedEvents}건`,
+      stats.restoredEvents && `되살린 기록 ${stats.restoredEvents}건`,
+      stats.updatedEvents && `갱신 ${stats.updatedEvents}건`,
+      stats.reactivatedImports &&
+        `다시 활성화한 가져오기 ${stats.reactivatedImports}건`,
+      stats.addedAdjustments + stats.restoredAdjustments &&
+        `연가 보정·확인 ${stats.addedAdjustments + stats.restoredAdjustments}건`,
+      stats.addedSnapshots + stats.restoredSnapshots &&
+        `기관 잔액 ${stats.addedSnapshots + stats.restoredSnapshots}건`,
+    ].filter(Boolean);
+    const kept = [
+      stats.keptLiveOverBackupDeletion &&
+        `백업에서 삭제된 기록 ${stats.keptLiveOverBackupDeletion}건은 지우지 않고 유지`,
+      stats.skippedDuplicateEvents &&
+        `중복 ${stats.skippedDuplicateEvents}건 건너뜀`,
+      stats.skippedConflictingEvents &&
+        `겹침 때문에 ${stats.skippedConflictingEvents}건은 현재 상태 유지`,
+      stats.skippedAdjustments &&
+        `연가 보정·확인 ${stats.skippedAdjustments}건 유지`,
+    ].filter(Boolean);
     setMessage(
-      changed === 0 && stats.skippedDuplicateEvents === 0
-        ? "합칠 내용이 없어요. 이 기기의 기록이 백업과 같거나 더 최신이에요. 삭제한 기록을 되살리려면 덮어쓰기를 쓰세요."
-        : `합치기 완료: 새 기록 ${stats.addedEvents}건, 갱신 ${stats.updatedEvents}건, 중복이라 건너뜀 ${stats.skippedDuplicateEvents}건.`,
+      parts.length === 0 && kept.length === 0
+        ? "합칠 내용이 없어요. 이 기기의 기록이 백업과 같아요."
+        : `합치기 완료: ${parts.length ? parts.join(", ") : "추가된 기록 없음"}.${
+            kept.length ? ` ${kept.join(", ")}.` : ""
+          }${stats.conflicts.length ? ` ${stats.conflicts.slice(0, 3).join(" ")}` : ""}`,
     );
     setPending(null);
   }
@@ -263,7 +283,7 @@ export function BackupPanel({
             <p className="field-hint">
               지금 이 기기에는 기록 {current.events}건이 있어요.
               {canMerge
-                ? " 합치기는 아무것도 지우지 않고 없는 기록만 더해요. 이 기기에서 더 최근에 고치거나 지운 기록은 그대로 둬요."
+                ? " 합치기는 이 기기의 기록을 지우지 않아요. 백업에만 있거나 이 기기에서 지운 기록을 되살리고, 휴가가 겹치게 되는 기록은 건너뛰어요."
                 : " 다른 복무 프로필의 백업이라 덮어쓰기만 할 수 있어요."}
             </p>
           ) : null}

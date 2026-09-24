@@ -25,6 +25,8 @@ import {
   userDataWithProfile,
 } from "./helpers";
 
+const MERGE_CTX = { now: "2026-09-24T05:00:00.000Z", deviceId: "device-test" };
+
 function repository<T extends KeyValueStorage>(
   storage: T = createMemoryStorage() as unknown as T,
 ) {
@@ -372,7 +374,7 @@ describe("backup, restore and export", () => {
         },
       ],
     };
-    const merged = mergeUserData(base, incoming);
+    const merged = mergeUserData(base, incoming, MERGE_CTX);
     expect(merged.ok).toBe(true);
     if (!merged.ok) return;
     expect(merged.stats).toMatchObject({
@@ -391,7 +393,7 @@ describe("backup, restore and export", () => {
       ...current,
       profile: { ...current.profile!, id: "someone-else" },
     };
-    expect(mergeUserData(current, other).ok).toBe(false);
+    expect(mergeUserData(current, other, MERGE_CTX).ok).toBe(false);
   });
 
   it("exports events as spreadsheet-safe CSV", () => {

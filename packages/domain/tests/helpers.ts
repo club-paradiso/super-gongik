@@ -11,8 +11,12 @@ export function sequentialIds(prefix = "id") {
   return () => `${prefix}-${++counter}`;
 }
 
+// A single generator for the whole test run: records created through
+// different context() calls must never share an id.
+const testIds = sequentialIds("id");
+
 export function context(now = "2026-09-24T01:00:00.000Z"): CommandContext {
-  return { now, deviceId: "device-test", createId: sequentialIds() };
+  return { now, deviceId: "device-test", createId: testIds };
 }
 
 export function userDataWithProfile(

@@ -1,4 +1,11 @@
-import { isLive, serviceEventContentKey } from "../events/model";
+import {
+  SERVICE_EVENT_TYPE_LABELS,
+  isLive,
+  serviceEventContentKey,
+  type ServiceEvent,
+} from "../events/model";
+import { compareLeaveRecords } from "../events/validation";
+import type { LeaveAdjustment } from "../leave/records";
 import {
   CURRENT_SCHEMA_VERSION,
   decodeUserData,
@@ -119,33 +126,75 @@ export function parseBackup(text: string): ParsedBackup {
 export type MergeStats = {
   addedEvents: number;
   updatedEvents: number;
+  restoredEvents: number;
+  /** Current live events the backup had deleted; merge keeps them live. */
+  keptLiveOverBackupDeletion: number;
   skippedDuplicateEvents: number;
+  skippedConflictingEvents: number;
   addedAdjustments: number;
+  restoredAdjustments: number;
+  skippedAdjustments: number;
   addedSnapshots: number;
+  restoredSnapshots: number;
   addedImports: number;
+  reactivatedImports: number;
+  profileUpdated: boolean;
+  /** Human-readable reasons for everything that was kept as-is. */
+  conflicts: string[];
 };
 
 export type MergeResult =
   | { ok: true; data: UserData; stats: MergeStats }
   | { ok: false; error: string };
 
-function newerRecord<T extends { revision: number; updatedAt: string }>(
-  a: T,
-  b: T,
-): T {
-  if (a.revision !== b.revision) return a.revision > b.revision ? a : b;
-  return a.updatedAt >= b.updatedAt ? a : b;
+type Versioned = {
+  revision: number;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+function isNewer<T extends Versioned>(candidate: T, current: T): boolean {
+  if (candidate.revision !== current.revision) {
+    return candidate.revision > current.revision;
+  }
+  return candidate.updatedAt > current.updatedAt;
+}
+
+function correctionKey(item: LeaveAdjustment) {
+  return [
+    item.kind,
+    item.creditKey ?? "",
+    item.effectiveDate,
+    item.amountHalfDays,
+    item.amountMinutes,
+    item.reason,
+  ].join("|");
 }
 
 /**
- * Merge a backup into the current document without deleting anything:
- * records are unioned by id; for the same id the higher revision (then the
- * later update) wins; an incoming live event whose content duplicates a
- * different live event is skipped so leave is never charged twice.
+ * Merge — non-destructive recovery.
+ *
+ * Contract (applies to events, adjustments, snapshots and imports alike):
+ * 1. Nothing live in the current document is ever deleted. Tombstones in the
+ *    backup never remove a current live record.
+ * 2. Records missing locally are added; records deleted locally but live in
+ *    the backup are restored (with a new revision) — the backup is treated as
+ *    recovery evidence.
+ * 3. For a record live on both sides, the newer revision wins only if it does
+ *    not create a conflict.
+ * 4. Anything that would charge the same leave twice (content duplicate or
+ *    provable time overlap) or would give one credit two confirmations is
+ *    skipped, the current state is kept, and the reason is reported.
+ * 5. Import records are re-derived from their records: a batch is ACTIVE if
+ *    and only if it has at least one live event or snapshot after the merge.
+ *    Snapshots of a batch whose events could not be restored stay deleted.
+ *
+ * Use `replaceUserData` for an exact, destructive restoration.
  */
 export function mergeUserData(
   current: UserData,
   incoming: UserData,
+  context: { now: string; deviceId: string },
 ): MergeResult {
   if (!incoming.profile) {
     return { ok: false, error: "백업에 복무 프로필이 없어 합칠 수 없어요." };
@@ -161,53 +210,202 @@ export function mergeUserData(
   const stats: MergeStats = {
     addedEvents: 0,
     updatedEvents: 0,
+    restoredEvents: 0,
+    keptLiveOverBackupDeletion: 0,
     skippedDuplicateEvents: 0,
+    skippedConflictingEvents: 0,
     addedAdjustments: 0,
+    restoredAdjustments: 0,
+    skippedAdjustments: 0,
     addedSnapshots: 0,
+    restoredSnapshots: 0,
     addedImports: 0,
+    reactivatedImports: 0,
+    profileUpdated: false,
+    conflicts: [],
   };
+  const touch = <T extends Versioned & { deviceId: string }>(
+    record: T,
+    base: T,
+  ): T => ({
+    ...record,
+    deletedAt: null,
+    revision: Math.max(record.revision, base.revision) + 1,
+    updatedAt: context.now,
+    deviceId: context.deviceId,
+  });
 
+  // ── Events ──────────────────────────────────────────────────────────────
   const events = new Map(current.events.map((event) => [event.id, event]));
-  const liveContent = new Set(
-    current.events.filter(isLive).map((event) => serviceEventContentKey(event)),
+  const liveOthers = (excludeId: string) =>
+    [...events.values()].filter(
+      (event) => isLive(event) && event.id !== excludeId,
+    );
+  const blocker = (
+    candidate: ServiceEvent,
+  ): "DUPLICATE" | "CONFLICT" | null => {
+    const others = liveOthers(candidate.id);
+    const key = serviceEventContentKey(candidate);
+    if (others.some((other) => serviceEventContentKey(other) === key)) {
+      return "DUPLICATE";
+    }
+    return others.some(
+      (other) => compareLeaveRecords(candidate, other) === "CONFLICT",
+    )
+      ? "CONFLICT"
+      : null;
+  };
+  const describe = (event: ServiceEvent) =>
+    `${event.startDate} ${SERVICE_EVENT_TYPE_LABELS[event.eventType]}`;
+
+  const orderedIncoming = [...incoming.events].sort((a, b) =>
+    a.startDate.localeCompare(b.startDate),
   );
-  for (const event of incoming.events) {
+  for (const event of orderedIncoming) {
     const existing = events.get(event.id);
-    if (existing) {
-      const winner = newerRecord(existing, event);
-      if (winner !== existing) {
-        events.set(event.id, winner);
-        stats.updatedEvents += 1;
+    if (!existing) {
+      if (!isLive(event)) {
+        events.set(event.id, event); // history only; changes nothing live
+        continue;
+      }
+      const blocked = blocker(event);
+      if (blocked === "DUPLICATE") {
+        stats.skippedDuplicateEvents += 1;
+        continue;
+      }
+      if (blocked === "CONFLICT") {
+        stats.skippedConflictingEvents += 1;
+        stats.conflicts.push(
+          `${describe(event)}: 기존 휴가와 시간이 겹쳐 추가하지 않았어요.`,
+        );
+        continue;
+      }
+      events.set(event.id, event);
+      stats.addedEvents += 1;
+      continue;
+    }
+
+    if (!isLive(event)) {
+      if (isLive(existing)) stats.keptLiveOverBackupDeletion += 1;
+      else if (isNewer(event, existing)) events.set(event.id, event);
+      continue;
+    }
+
+    if (isLive(existing)) {
+      if (!isNewer(event, existing)) continue;
+      const blocked = blocker(event);
+      if (blocked) {
+        stats.skippedConflictingEvents += 1;
+        stats.conflicts.push(
+          `${describe(event)}: 백업의 수정본이 다른 기록과 겹쳐 현재 기록을 유지했어요.`,
+        );
+        continue;
+      }
+      events.set(event.id, event);
+      stats.updatedEvents += 1;
+      continue;
+    }
+
+    const restored = touch(event, existing);
+    const blocked = blocker(restored);
+    if (blocked) {
+      if (blocked === "DUPLICATE") stats.skippedDuplicateEvents += 1;
+      else {
+        stats.skippedConflictingEvents += 1;
+        stats.conflicts.push(
+          `${describe(event)}: 되살리면 다른 휴가와 겹쳐 삭제 상태를 유지했어요.`,
+        );
       }
       continue;
     }
-    if (isLive(event) && liveContent.has(serviceEventContentKey(event))) {
-      stats.skippedDuplicateEvents += 1;
-      continue;
-    }
-    events.set(event.id, event);
-    if (isLive(event)) liveContent.add(serviceEventContentKey(event));
-    stats.addedEvents += 1;
+    events.set(event.id, restored);
+    stats.restoredEvents += 1;
   }
 
+  // ── Leave adjustments ───────────────────────────────────────────────────
   const adjustments = new Map(
     current.leaveAdjustments.map((item) => [item.id, item]),
   );
+  const adjustmentBlocker = (candidate: LeaveAdjustment): string | null => {
+    const others = [...adjustments.values()].filter(
+      (item) => isLive(item) && item.id !== candidate.id,
+    );
+    if (
+      candidate.kind === "GRANT_CONFIRMATION" &&
+      others.some(
+        (item) =>
+          item.kind === "GRANT_CONFIRMATION" &&
+          item.creditKey === candidate.creditKey,
+      )
+    ) {
+      return `${candidate.creditKey} 부여 확인값이 이미 있어 현재 값을 유지했어요.`;
+    }
+    const key = correctionKey(candidate);
+    return others.some((item) => correctionKey(item) === key) ? "" : null;
+  };
   for (const item of incoming.leaveAdjustments) {
     const existing = adjustments.get(item.id);
-    if (!existing) stats.addedAdjustments += 1;
-    adjustments.set(item.id, existing ? newerRecord(existing, item) : item);
+    if (!isLive(item)) {
+      if (!existing) adjustments.set(item.id, item);
+      else if (!isLive(existing) && isNewer(item, existing))
+        adjustments.set(item.id, item);
+      continue;
+    }
+    if (existing && isLive(existing)) {
+      if (isNewer(item, existing)) adjustments.set(item.id, item);
+      continue;
+    }
+    const candidate = existing ? touch(item, existing) : item;
+    const blocked = adjustmentBlocker(candidate);
+    if (blocked !== null) {
+      stats.skippedAdjustments += 1;
+      if (blocked) stats.conflicts.push(blocked);
+      continue;
+    }
+    adjustments.set(item.id, candidate);
+    if (existing) stats.restoredAdjustments += 1;
+    else stats.addedAdjustments += 1;
   }
+
+  // ── Imports and snapshots (batch-consistent) ────────────────────────────
+  const finalEvents = [...events.values()];
+  const batchHasLiveEvents = (batchId: string) =>
+    finalEvents.some(
+      (event) =>
+        isLive(event) &&
+        event.source.kind === "IMPORT" &&
+        event.source.batchId === batchId,
+    );
+  const batchHasEvents = (batchId: string) =>
+    finalEvents.some(
+      (event) =>
+        event.source.kind === "IMPORT" && event.source.batchId === batchId,
+    );
 
   const snapshots = new Map(
     current.leaveSnapshots.map((item) => [item.id, item]),
   );
   for (const item of incoming.leaveSnapshots) {
-    if (!snapshots.has(item.id)) {
-      snapshots.set(item.id, item);
-      stats.addedSnapshots += 1;
+    const existing = snapshots.get(item.id);
+    const batchUsable =
+      batchHasLiveEvents(item.importBatchId) ||
+      !batchHasEvents(item.importBatchId);
+    if (!existing) {
+      if (isLive(item) && !batchUsable) {
+        // Its batch's events could not come back; keep it as history only.
+        snapshots.set(item.id, { ...item, deletedAt: context.now });
+      } else {
+        snapshots.set(item.id, item);
+        if (isLive(item)) stats.addedSnapshots += 1;
+      }
+      continue;
+    }
+    if (isLive(item) && !isLive(existing) && batchUsable) {
+      snapshots.set(item.id, { ...existing, deletedAt: null });
+      stats.restoredSnapshots += 1;
     }
   }
+  const finalSnapshots = [...snapshots.values()];
 
   const imports = new Map(current.imports.map((item) => [item.id, item]));
   for (const item of incoming.imports) {
@@ -216,26 +414,72 @@ export function mergeUserData(
       stats.addedImports += 1;
     }
   }
+  const incomingImportIds = new Set(incoming.imports.map((item) => item.id));
+  for (const [id, record] of imports) {
+    if (!incomingImportIds.has(id)) continue;
+    const live =
+      batchHasLiveEvents(id) ||
+      finalSnapshots.some((item) => isLive(item) && item.importBatchId === id);
+    if (live && record.status !== "ACTIVE") {
+      imports.set(id, { ...record, status: "ACTIVE", rolledBackAt: null });
+      stats.reactivatedImports += 1;
+    } else if (!live && record.status === "ACTIVE" && batchHasEvents(id)) {
+      imports.set(id, {
+        ...record,
+        status: "ROLLED_BACK",
+        rolledBackAt: context.now,
+      });
+    }
+  }
 
-  const profile =
-    current.profile && current.profile.updatedAt >= incoming.profile.updatedAt
-      ? current.profile
-      : incoming.profile;
+  let profile = current.profile ?? incoming.profile;
+  if (
+    current.profile &&
+    incoming.profile.updatedAt > current.profile.updatedAt
+  ) {
+    profile = incoming.profile;
+    stats.profileUpdated = true;
+  }
 
   return {
     ok: true,
     data: {
       ...current,
       profile,
-      events: [...events.values()],
+      events: finalEvents,
       leaveAdjustments: [...adjustments.values()],
-      leaveSnapshots: [...snapshots.values()],
+      leaveSnapshots: finalSnapshots,
       imports: [...imports.values()].sort((a, b) =>
         b.createdAt.localeCompare(a.createdAt),
       ),
     },
     stats,
   };
+}
+
+/**
+ * Invariant every command and merge must keep: a rolled-back import batch
+ * has no live events or snapshots. (An ACTIVE batch may legitimately end up
+ * empty when the user deletes its records one by one.)
+ */
+export function importConsistencyIssues(data: UserData): string[] {
+  const issues: string[] = [];
+  for (const record of data.imports) {
+    if (record.status !== "ROLLED_BACK") continue;
+    const liveEvents = data.events.some(
+      (event) =>
+        isLive(event) &&
+        event.source.kind === "IMPORT" &&
+        event.source.batchId === record.id,
+    );
+    const liveSnapshots = data.leaveSnapshots.some(
+      (item) => isLive(item) && item.importBatchId === record.id,
+    );
+    if (liveEvents || liveSnapshots) {
+      issues.push(`${record.id}: rolled back but has live records`);
+    }
+  }
+  return issues;
 }
 
 /** Replace everything with a backup, keeping this device's identity. */

@@ -97,7 +97,11 @@ async function statusesFor(
       message:
         decision.status === "CONFLICT"
           ? (decision.errors[0]?.message ?? null)
-          : DECISION_LABELS[decision.status] || null,
+          : decision.status === "NEW"
+            ? (decision.warnings.find(
+                (warning) => warning.code === "LEAVE_OVERLAP_UNRESOLVED",
+              )?.message ?? null)
+            : DECISION_LABELS[decision.status] || null,
     });
   }
   return statuses;
@@ -181,6 +185,8 @@ export function RecordImportPanel({
               event.date &&
               event.eventType &&
               statuses.get(event.sourceRowIndex)?.decision === "NEW" &&
+              // Undecidable overlaps need an explicit opt-in.
+              !statuses.get(event.sourceRowIndex)?.message &&
               !event.warnings.some((warning) =>
                 BLOCKING_WARNING_CODES.includes(warning.code),
               ),
@@ -592,7 +598,7 @@ export function RecordImportPanel({
                   <article
                     className={
                       candidate.warnings.length ||
-                      (status && status.decision !== "NEW")
+                      (status && (status.decision !== "NEW" || status.message))
                         ? "import-event import-event--warning"
                         : "import-event"
                     }

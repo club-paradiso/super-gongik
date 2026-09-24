@@ -26,7 +26,7 @@ export type EventIssueCode =
   | "END_TIME_NOT_AFTER_START"
   | "MISSING_DURATION"
   | "LEAVE_OVERLAP"
-  | "PARTIAL_DURING_FULL_DAY_LEAVE"
+  | "LEAVE_OVERLAP_UNRESOLVED"
   | "DURATION_DIFFERS_FROM_TIMES"
   | "OUTSIDE_SERVICE_PERIOD"
   | "POSSIBLE_DUPLICATE"
@@ -83,20 +83,86 @@ const STRUCTURAL_MESSAGES: Record<string, { message: string; field: string }> =
     },
   };
 
-type Occupancy = "FULL" | "AM" | "PM" | "HALF_UNKNOWN" | "PARTIAL";
+/**
+ * Where inside a day a leave record sits, as far as the record proves it.
+ * FULL: whole day(s). HALF: the half-day unit (half may be unknown).
+ * TIMED: explicit start/end. UNTIMED: minutes without a position.
+ */
+type LeaveSlot =
+  | { kind: "FULL" }
+  | { kind: "HALF"; half: "AM" | "PM" | null }
+  | { kind: "TIMED"; start: number; end: number }
+  | { kind: "UNTIMED" };
 
-function occupancy(event: ServiceEventDraft): Occupancy {
-  if (event.timing.kind === "ALL_DAY") return "FULL";
-  if (event.timing.kind === "HALF_DAY")
-    return event.timing.half ?? "HALF_UNKNOWN";
-  return "PARTIAL";
+function leaveSlot(event: ServiceEventDraft): LeaveSlot {
+  const timing = event.timing;
+  if (timing.kind === "ALL_DAY") return { kind: "FULL" };
+  if (timing.kind === "HALF_DAY") return { kind: "HALF", half: timing.half };
+  if (timing.startTime && timing.endTime) {
+    return {
+      kind: "TIMED",
+      start: clockToMinutes(timing.startTime),
+      end: clockToMinutes(timing.endTime),
+    };
+  }
+  return { kind: "UNTIMED" };
 }
 
-function leaveOccupanciesConflict(a: Occupancy, b: Occupancy): boolean {
-  if (a === "PARTIAL" || b === "PARTIAL") return false;
-  if (a === "FULL" || b === "FULL") return true;
-  if (a === "HALF_UNKNOWN" || b === "HALF_UNKNOWN") return false;
-  return a === b;
+export type LeaveOverlapVerdict = "CONFLICT" | "UNRESOLVED" | "NONE";
+
+/**
+ * Can two leave records on overlapping dates charge the same time?
+ *
+ * - CONFLICT: provably the same time (full day vs anything, the same half,
+ *   intersecting explicit times, or identical content).
+ * - UNRESOLVED: the records do not carry enough position information to
+ *   decide (e.g. minutes without start/end, half day vs minutes; the half-day
+ *   hours depend on the institution schedule). Never silently accepted:
+ *   callers surface it as a warning that must be acknowledged.
+ * - NONE: provably disjoint (AM vs PM, non-intersecting times).
+ */
+export function compareLeaveRecords(
+  a: ServiceEventDraft,
+  b: ServiceEventDraft,
+): LeaveOverlapVerdict {
+  if (!isLeaveEventType(a.eventType) || !isLeaveEventType(b.eventType)) {
+    return "NONE";
+  }
+  if (!dateRangesOverlap(a, b)) return "NONE";
+  if (serviceEventContentKey(a) === serviceEventContentKey(b))
+    return "CONFLICT";
+
+  const x = leaveSlot(a);
+  const y = leaveSlot(b);
+  if (x.kind === "FULL" || y.kind === "FULL") return "CONFLICT";
+  if (x.kind === "HALF" && y.kind === "HALF") {
+    if (x.half === null || y.half === null) return "UNRESOLVED";
+    return x.half === y.half ? "CONFLICT" : "NONE";
+  }
+  if (x.kind === "TIMED" && y.kind === "TIMED") {
+    return x.start < y.end && y.start < x.end ? "CONFLICT" : "NONE";
+  }
+  return "UNRESOLVED";
+}
+
+/** Pairs of live leave records that already conflict or may conflict. */
+export function findLeaveOverlaps(events: readonly ServiceEvent[]): {
+  conflicts: Array<[string, string]>;
+  unresolved: Array<[string, string]>;
+} {
+  const live = events.filter(
+    (event) => isLive(event) && isLeaveEventType(event.eventType),
+  );
+  const conflicts: Array<[string, string]> = [];
+  const unresolved: Array<[string, string]> = [];
+  for (let i = 0; i < live.length; i += 1) {
+    for (let j = i + 1; j < live.length; j += 1) {
+      const verdict = compareLeaveRecords(live[i]!, live[j]!);
+      if (verdict === "CONFLICT") conflicts.push([live[i]!.id, live[j]!.id]);
+      if (verdict === "UNRESOLVED") unresolved.push([live[i]!.id, live[j]!.id]);
+    }
+  }
+  return { conflicts, unresolved };
 }
 
 /**
@@ -195,7 +261,9 @@ export function validateServiceEventDraft(
   const duplicate = others.find(
     (event) => serviceEventContentKey(event) === contentKey,
   );
-  if (duplicate) {
+  if (duplicate && !isLeaveEventType(draft.eventType)) {
+    // Leave duplicates are blocked below as LEAVE_OVERLAP; attendance and
+    // notes do not charge leave, so a duplicate only needs confirmation.
     warnings.push({
       code: "POSSIBLE_DUPLICATE",
       message: `같은 날짜·종류·시간의 기록이 이미 있어요 (${duplicate.source.kind === "IMPORT" ? "파일에서 가져옴" : "직접 입력"}). 두 번 차감되지 않도록 확인해 주세요.`,
@@ -203,39 +271,21 @@ export function validateServiceEventDraft(
   }
 
   if (isLeaveEventType(draft.eventType)) {
-    const mine = occupancy(draft);
     for (const other of others) {
-      if (!isLeaveEventType(other.eventType) || other === duplicate) continue;
-      if (!dateRangesOverlap(draft, other)) continue;
-      const theirs = occupancy(other);
+      const verdict = compareLeaveRecords(draft, other);
+      if (verdict === "NONE") continue;
       const label = SERVICE_EVENT_TYPE_LABELS[other.eventType];
-      if (leaveOccupanciesConflict(mine, theirs)) {
+      if (verdict === "CONFLICT") {
         errors.push({
           code: "LEAVE_OVERLAP",
-          message: `${other.startDate}에 이미 ${label} 기록이 있어 같은 시간을 두 번 차감하게 돼요.`,
+          message: `${other.startDate}에 이미 ${label} 기록이 있어 같은 시간을 두 번 차감하게 돼요. 기존 기록을 수정해 주세요.`,
           field: "startDate",
         });
         break;
       }
-      if (
-        (mine === "PARTIAL" && theirs === "FULL") ||
-        (mine === "FULL" && theirs === "PARTIAL")
-      ) {
-        warnings.push({
-          code: "PARTIAL_DURING_FULL_DAY_LEAVE",
-          message: `${other.startDate}의 ${label} 기록과 겹쳐요. 종일 휴가일에 시간 단위 휴가를 함께 쓰는 것이 맞는지 확인해 주세요.`,
-          field: "startDate",
-        });
-      }
-    }
-  }
-
-  if (duplicate && errors.every((issue) => issue.code !== "LEAVE_OVERLAP")) {
-    // A byte-for-byte duplicate of a leave record would double-charge it.
-    if (isLeaveEventType(draft.eventType) && draft.timing.kind !== "PARTIAL") {
-      errors.push({
-        code: "LEAVE_OVERLAP",
-        message: "같은 휴가 기록이 이미 있어요. 기존 기록을 수정해 주세요.",
+      warnings.push({
+        code: "LEAVE_OVERLAP_UNRESOLVED",
+        message: `${other.startDate}의 ${label} 기록과 시간이 겹치는지 알 수 없어요. 두 기록이 서로 다른 시간이 맞는지 확인해 주세요. 시작·종료 시각을 넣으면 정확히 확인할 수 있어요.`,
         field: "startDate",
       });
     }
