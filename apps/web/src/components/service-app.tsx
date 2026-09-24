@@ -17,6 +17,7 @@ import {
 } from "@super-gongik/domain";
 
 import { CalendarTab, type CalendarView } from "@/components/calendar-tab";
+import { PrivacyLine, SyncStatusChip } from "@/components/cloud-sync-panel";
 import { HomeTab, serviceStateLabel } from "@/components/home-tab";
 import { MoneyTab } from "@/components/money-tab";
 import { Onboarding } from "@/components/onboarding";
@@ -110,6 +111,16 @@ function Dashboard({
   );
   const activeCopy = tabCopy[activeTab];
 
+  function openSync() {
+    setActiveTab("profile");
+    // After the profile tab renders.
+    window.setTimeout(() => {
+      document
+        .getElementById("cloud-sync")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  }
+
   function openCalendar(view: CalendarView) {
     setCalendarView(view);
     setActiveTab("calendar");
@@ -151,13 +162,17 @@ function Dashboard({
         </button>
         <p className="rail-privacy">
           <LockKeyhole aria-hidden="true" size={18} />
-          정보는 이 기기에만 저장해요.
+          <PrivacyLine />
         </p>
+        <SyncStatusChip className="sync-chip--rail" onOpen={openSync} />
       </aside>
 
       <div className="app-main">
         <header className="app-header">
-          <p className="wordmark mobile-wordmark">SUPER GONGIK</p>
+          <div className="app-header__top">
+            <p className="wordmark mobile-wordmark">SUPER GONGIK</p>
+            <SyncStatusChip className="sync-chip--header" onOpen={openSync} />
+          </div>
           <div className="page-heading">
             <h1>{activeCopy.title}</h1>
             <p>{activeCopy.description}</p>

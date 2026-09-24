@@ -133,11 +133,17 @@ export function BackupPanel({
   ledger,
   store,
   compact = false,
+  incoming = null,
 }: {
   data: UserData;
   ledger: LeaveLedger | null;
   store: UserDataStore;
   compact?: boolean;
+  /**
+   * Backup text from elsewhere (a cloud backup). It goes through exactly the
+   * same parse → preview → confirm path as a file.
+   */
+  incoming?: { text: string; label: string; nonce: number } | null;
 }) {
   const [pending, setPending] = useState<Pending | null>(null);
   const [error, setError] = useState<{ title: string; body: string } | null>(
@@ -225,6 +231,10 @@ export function BackupPanel({
       });
       return;
     }
+    openText(text, file.name);
+  }
+
+  function openText(text: string, fileName: string) {
     const parsed = parseBackup(text);
     if (!parsed.ok) {
       setError({
@@ -234,7 +244,7 @@ export function BackupPanel({
       return;
     }
     setPending({
-      fileName: file.name,
+      fileName,
       data: parsed.data,
       summary: parsed.summary,
       info: parsed.info,
@@ -244,6 +254,18 @@ export function BackupPanel({
       !data.profile ||
       parsed.data.profile.id === data.profile.id;
     setMode(sameProfile ? "MERGE" : "REPLACE");
+  }
+
+  // A cloud backup handed over by the sync panel goes through the same
+  // validation, preview and confirmation as a file. Each hand-over (nonce)
+  // opens the preview once; adjusting state during render avoids an effect.
+  const [seenNonce, setSeenNonce] = useState<number | null>(null);
+  if (incoming && incoming.nonce !== seenNonce) {
+    setSeenNonce(incoming.nonce);
+    setError(null);
+    setMessage("");
+    reset();
+    openText(incoming.text, incoming.label);
   }
 
   async function apply() {

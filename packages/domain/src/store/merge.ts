@@ -576,9 +576,12 @@ export function analyzeMerge(
         resolved ?? (restore ? "RESTORED" : "LOCAL_DELETION_KEPT"),
       );
     } else if (!isLive(item) && isLive(base)) {
+      // Sync policy: a deletion is applied when this side has no live event
+      // of the batch either. That includes a snapshot-only batch, whose
+      // rollback is terminal (no command revives it), so its deletion can
+      // travel between devices.
       const apply =
         options.incomingDeletions === "APPLY_NEWER" &&
-        batchHasEvents.has(batch) &&
         !batchHasLiveEvents.has(batch);
       if (apply) snapshots.set(item.id, { ...base, deletedAt: item.deletedAt });
       log.add(
@@ -597,6 +600,12 @@ export function analyzeMerge(
   const batchHasLiveSnapshots = new Set(
     finalSnapshots.filter(isLive).map((item) => item.importBatchId),
   );
+  // Under the sync policy a snapshot-only batch's status follows its
+  // snapshots, as a batch with events follows its events.
+  const batchHasRecords = new Set(batchHasEvents);
+  if (options.incomingDeletions === "APPLY_NEWER") {
+    for (const item of finalSnapshots) batchHasRecords.add(item.importBatchId);
+  }
 
   // ── Import records (written once; status re-derived) ────────────────────
   const imports = new Map(current.imports.map((item) => [item.id, item]));
@@ -635,7 +644,7 @@ export function analyzeMerge(
     } else if (
       !live &&
       record.status === "ACTIVE" &&
-      batchHasEvents.has(item.id)
+      batchHasRecords.has(item.id)
     ) {
       record = {
         ...record,
