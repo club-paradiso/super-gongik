@@ -115,14 +115,14 @@ export type AttendanceMonth = z.infer<typeof attendanceMonthSchema>;
 
 export type AttendanceMonthInput = Pick<
   AttendanceMonth,
-  | "month"
-  | "nonWorkingDates"
-  | "dayOverrides"
-  | "hadNonPayableAbsence"
-  | "nonPayableDates"
-  | "nonPayableDatesConfirmed"
-  | "roundingPolicy"
->;
+  "month" | "nonWorkingDates" | "dayOverrides" | "hadNonPayableAbsence"
+> &
+  Partial<
+    Pick<
+      AttendanceMonth,
+      "nonPayableDates" | "nonPayableDatesConfirmed" | "roundingPolicy"
+    >
+  >;
 
 /**
  * An immutable record of a compensation evaluation as it was shown, so later
