@@ -2,10 +2,12 @@ import {
   calculateServiceMonthIndex,
   calculateServiceProgress,
   daysInMonth,
+  differenceInCalendarDays,
   isLive,
   isPartialServiceMonth,
   yearMonthOf,
   type AttendanceMonth,
+  type CompensationRoundingPolicy,
   type DateOnly,
   type ServiceEvent,
   type ServiceProfile,
@@ -54,6 +56,17 @@ export type CompensationComponent = {
   explanation: string;
 };
 
+export type BasePayAdjustment = {
+  roundingPolicy: CompensationRoundingPolicy | null;
+  nonPayableDates: DateOnly[];
+  nonPayableDatesConfirmed: boolean;
+  calendarDaysInMonth: number;
+  serviceCalendarDays: number | null;
+  payableCalendarDays: number | null;
+  rawProratedAmount: number | null;
+  roundedAmount: number | null;
+};
+
 export type MonthlyCompensationEvaluation = {
   /**
    * COMPLETE: every component calculated and a total exists.
@@ -70,6 +83,7 @@ export type MonthlyCompensationEvaluation = {
   /** Sum of all components, only when every component is CALCULATED. */
   total: number | null;
   serviceDays: MonthServiceDays | null;
+  basePayAdjustment: BasePayAdjustment | null;
   rule: {
     id: string;
     version: string;
@@ -115,6 +129,7 @@ function unsupported(
     components: [],
     total: null,
     serviceDays: null,
+    basePayAdjustment: null,
     rule: null,
     headline,
     unresolved: [headline],
@@ -128,6 +143,19 @@ function monthBounds(month: YearMonth) {
     first: `${month}-01` as DateOnly,
     last: `${month}-${String(daysInMonth(month)).padStart(2, "0")}` as DateOnly,
   };
+}
+
+function supportsTenWonTruncation(
+  policy: CompensationRoundingPolicy | null,
+): boolean {
+  return (
+    policy === "NATIONAL_TREASURY_ARTICLE_47" ||
+    policy === "INSTITUTION_CONFIRMED_TRUNCATE_SUB_10"
+  );
+}
+
+function truncateSubTenWon(amount: number): number {
+  return Math.floor(amount / 10) * 10;
 }
 
 /**
@@ -276,47 +304,113 @@ export function evaluateMonthlyCompensation(
   const sickUpperBound = sickLeaveDaysUpperBound(events, last);
   const sickLimit =
     bundle.proration.nonPayableDays.sickLeaveCumulativeLimitDays;
-  const gate = evaluateCompensationSafetyGate({
-    ...ruleInput,
-    partialMonth: isPartialServiceMonth(profile, asOfDate),
-    possibleNonPayableDays:
-      sickUpperBound > sickLimit ||
-      options.attendance?.hadNonPayableAbsence === true,
-  });
+  const partialMonth = isPartialServiceMonth(profile, asOfDate);
+  const attendance = options.attendance ?? null;
+  const exactDatesConfirmed = attendance?.nonPayableDatesConfirmed === true;
+  const exactNonPayableDates = exactDatesConfirmed
+    ? attendance.nonPayableDates
+    : [];
+  const hasUnresolvedNonPayableSignal =
+    attendance?.hadNonPayableAbsence === true && !exactDatesConfirmed;
+  const sickLeaveNeedsExactDates =
+    sickUpperBound > sickLimit && !exactDatesConfirmed;
+  const roundingPolicy = attendance?.roundingPolicy ?? null;
+  const needsAdjustedBasePay =
+    partialMonth || exactNonPayableDates.length > 0;
+  let basePayAdjustment: BasePayAdjustment | null = null;
 
   if (creditIssue) {
     base = baseComponent(creditIssue.status, creditIssue.text);
     unresolved.push(creditIssue.text);
-  } else if (gate.status === "GATED_AMBIGUOUS_PRORATION") {
-    const text = `소집·소집해제 달은 '월 보수 ÷ 그 달 일수(${daysInMonth(month)}일) × 해당 기간의 달력일수' 구조로 계산하고 휴일도 포함해요. 다만 최종 끝수 처리는 지급기관의 회계 규칙에 따라 달라질 수 있어, 기관 기준이 확인되기 전에는 최종 금액을 내지 않아요.`;
-    base = baseComponent("GATED", text);
-    unresolved.push(text);
-    warnings.push(...gate.warnings);
-  } else if (gate.status === "GATED_NON_PAYABLE_DAYS") {
-    const text =
-      sickUpperBound > sickLimit
-        ? `병가 기록이 통산 ${sickLimit}일을 넘을 수 있어요(최대 ${sickUpperBound}일). 초과 병가일은 보수 미지급 대상이고(공무상 병가 제외), 달력일 기준 하루치 구조는 확인됐지만 최종 끝수 처리와 정확한 미지급 날짜를 확인해야 계산할 수 있어요.`
-        : "복무중단·복무이탈·연가 초과 결근이 있었다고 확인한 달이에요. 달력일 기준 하루치 구조는 확인됐지만 최종 끝수 처리와 정확한 미지급 날짜가 필요해 금액은 아직 계산하지 않아요.";
-    base = baseComponent("GATED", text);
-    unresolved.push(text);
-    warnings.push(...gate.warnings);
   } else {
     serviceMonthOrdinal = callUpMonthOrdinal + (credit ?? 0);
     const pay = calculateMonthlyBasePay({ ...ruleInput, serviceMonthOrdinal });
+    const monthlyBasePay = pay.value?.monthlyBasePay ?? null;
     equivalentRank =
       RANK_LABELS[String(pay.breakdown.equivalentRank)] ??
       String(pay.breakdown.equivalentRank);
     const creditText = credit ? ` + 인정 기간 ${credit}개월` : "";
-    base = baseComponent(
-      "CALCULATED",
-      `소집월을 1개월 차로 세어 복무 ${callUpMonthOrdinal}개월 차${creditText} = ${serviceMonthOrdinal}개월 차(${equivalentRank}), ${bundle.version}년 군인 봉급표 금액이에요.`,
-      pay.value?.monthlyBasePay ?? null,
+
+    const serviceStart =
+      profile.callUpDate > first ? profile.callUpDate : first;
+    const serviceEnd =
+      profile.expectedDischargeDate < last
+        ? profile.expectedDischargeDate
+        : last;
+    const serviceCalendarDays =
+      differenceInCalendarDays(serviceEnd, serviceStart) + 1;
+    const relevantNonPayableDates = exactNonPayableDates.filter(
+      (date) => date >= serviceStart && date <= serviceEnd,
     );
-    if (!options.attendance) {
-      assumptions.push(
-        "복무중단·복무이탈·연가 초과 결근이 없는 달로 보고 기본 보수를 계산했어요.",
+    const payableCalendarDays =
+      serviceCalendarDays - relevantNonPayableDates.length;
+
+    basePayAdjustment = {
+      roundingPolicy,
+      nonPayableDates: relevantNonPayableDates,
+      nonPayableDatesConfirmed: exactDatesConfirmed,
+      calendarDaysInMonth: daysInMonth(month),
+      serviceCalendarDays,
+      payableCalendarDays,
+      rawProratedAmount: null,
+      roundedAmount: null,
+    };
+
+    if (hasUnresolvedNonPayableSignal || sickLeaveNeedsExactDates) {
+      const text = sickLeaveNeedsExactDates
+        ? `병가 기록이 통산 ${sickLimit}일을 넘을 수 있어요(최대 ${sickUpperBound}일). 공무상 여부와 실제 미지급 날짜를 전부 확인해야 기본 보수를 계산할 수 있어요.`
+        : "이 달에 미지급 사유가 있었다는 기존 기록은 있지만 정확한 날짜가 없어요. 기본 보수 미지급 날짜를 모두 확인해야 계산할 수 있어요.";
+      base = baseComponent("GATED", text);
+      unresolved.push(text);
+    } else if (needsAdjustedBasePay && !supportsTenWonTruncation(roundingPolicy)) {
+      const text =
+        roundingPolicy === "INSTITUTION_OTHER_OR_UNKNOWN"
+          ? "지급기관이 국고금 관리법 제47조의 10원 미만 절사와 다른 회계 기준을 쓴다고 확인됐어요. 그 기관의 정확한 끝수 처리 기준을 지원하기 전에는 최종 기본 보수를 계산하지 않아요."
+          : "소집·소집해제 달 또는 미지급일이 있는 달은 지급기관의 끝수 처리 기준을 확인해야 해요. 국고금 관리법 제47조 적용 또는 기관의 10원 미만 절사 적용이 명시적으로 확인된 경우에만 자동 계산해요.";
+      base = baseComponent("GATED", text);
+      unresolved.push(text);
+    } else if (needsAdjustedBasePay && monthlyBasePay !== null) {
+      const raw =
+        (monthlyBasePay / daysInMonth(month)) * payableCalendarDays;
+      const rounded = truncateSubTenWon(raw);
+      basePayAdjustment = {
+        ...basePayAdjustment,
+        rawProratedAmount: raw,
+        roundedAmount: rounded,
+      };
+      const policyText =
+        roundingPolicy === "NATIONAL_TREASURY_ARTICLE_47"
+          ? "국고금 관리법 제47조(10원 미만 끝수 미계산)"
+          : "복무기관이 확인한 10원 미만 절사 기준";
+      const nonPayableText = relevantNonPayableDates.length
+        ? ` · 미지급 ${relevantNonPayableDates.length}일 제외`
+        : "";
+      base = baseComponent(
+        "CALCULATED",
+        `${bundle.version}년 월 보수 ${monthlyBasePay.toLocaleString("ko-KR")}원 ÷ ${daysInMonth(month)}일 × 지급대상 ${payableCalendarDays}일${nonPayableText} → ${policyText} 적용 금액이에요.`,
+        rounded,
       );
+      assumptions.push(
+        `기본 보수 끝수 처리: ${policyText}. 적용 정책은 사용자가 확인한 지급기관 정보예요.`,
+      );
+      if (relevantNonPayableDates.length) {
+        assumptions.push(
+          `기본 보수 미지급 날짜: ${relevantNonPayableDates.join(", ")}.`,
+        );
+      }
+    } else {
+      base = baseComponent(
+        "CALCULATED",
+        `소집월을 1개월 차로 세어 복무 ${callUpMonthOrdinal}개월 차${creditText} = ${serviceMonthOrdinal}개월 차(${equivalentRank}), ${bundle.version}년 군인 봉급표 금액이에요.`,
+        monthlyBasePay,
+      );
+      if (!attendance) {
+        assumptions.push(
+          "복무중단·복무이탈·연가 초과 결근이 없는 달로 보고 기본 보수를 계산했어요.",
+        );
+      }
     }
+
     if (credit) {
       assumptions.push(
         `이전 복무 인정 기간 ${credit}개월은 입력한 기관 확인 값이에요.`,
@@ -497,6 +591,7 @@ export function evaluateMonthlyCompensation(
     components,
     total,
     serviceDays,
+    basePayAdjustment,
     rule,
     headline: complete
       ? `${month} 지급 기준 합계를 모든 항목이 확인된 상태로 계산했어요.`
