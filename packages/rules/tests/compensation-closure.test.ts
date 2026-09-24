@@ -720,7 +720,9 @@ describe("monthly total", () => {
       attendance: attendance("2026-10", { hadNonPayableAbsence: true }),
     });
     expect(result.components[0]?.status).toBe("GATED");
-    expect(result.components[0]?.explanation).toContain("달력일 기준 하루치 구조");
+    expect(result.components[0]?.explanation).toContain(
+      "달력일 기준 하루치 구조",
+    );
     expect(result.total).toBeNull();
   });
 });
