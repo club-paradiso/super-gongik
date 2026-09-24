@@ -1,11 +1,5 @@
-import {
-  SERVICE_EVENT_TYPE_LABELS,
-  isLive,
-  serviceEventContentKey,
-  type ServiceEvent,
-} from "../events/model";
-import { compareLeaveRecords } from "../events/validation";
-import type { LeaveAdjustment } from "../leave/records";
+import { isLive } from "../events/model";
+import { canonicalJson, sha256Hex } from "./integrity";
 import {
   CURRENT_SCHEMA_VERSION,
   decodeUserData,
@@ -13,25 +7,69 @@ import {
 } from "./schema";
 
 export const BACKUP_FORMAT = "super-gongik.backup" as const;
-export const BACKUP_FORMAT_VERSION = 1 as const;
-/** Reject absurdly large files before parsing them. */
+/**
+ * Backup envelope versions:
+ * - 1: `{ format, formatVersion, exportedAt, schemaVersion, data }`
+ * - 2: adds `integrity` (SHA-256 over canonical JSON). Version 1 files stay
+ *   readable; they are reported as having no integrity information.
+ */
+export const BACKUP_FORMAT_VERSION = 2 as const;
+export const SUPPORTED_BACKUP_FORMAT_VERSIONS = [1, 2] as const;
+/** Reject absurdly large files before parsing them (UTF-16 code units). */
 export const MAX_BACKUP_BYTES = 10 * 1024 * 1024;
+
+/**
+ * Corruption check, not authentication: the digest can be recomputed by
+ * anyone who edits the file. Covers `exportedAt`, `schemaVersion` and `data`.
+ */
+export type BackupIntegrity = {
+  algorithm: "SHA-256";
+  canonicalization: "JCS";
+  digest: string;
+};
 
 export type BackupFile = {
   format: typeof BACKUP_FORMAT;
   formatVersion: typeof BACKUP_FORMAT_VERSION;
   exportedAt: string;
   schemaVersion: number;
+  integrity: BackupIntegrity;
   data: UserData;
 };
 
+export function computeBackupDigest(input: {
+  exportedAt: unknown;
+  schemaVersion: unknown;
+  data: unknown;
+}): string {
+  return sha256Hex(
+    canonicalJson({
+      data: input.data,
+      exportedAt: input.exportedAt,
+      schemaVersion: input.schemaVersion,
+    }),
+  );
+}
+
 export function createBackup(data: UserData, exportedAt: string): BackupFile {
+  // Round-trip through JSON so the digest covers exactly what gets written
+  // (optional `undefined` members disappear on both sides).
+  const plain = JSON.parse(JSON.stringify(data)) as UserData;
   return {
     format: BACKUP_FORMAT,
     formatVersion: BACKUP_FORMAT_VERSION,
     exportedAt,
     schemaVersion: CURRENT_SCHEMA_VERSION,
-    data,
+    integrity: {
+      algorithm: "SHA-256",
+      canonicalization: "JCS",
+      digest: computeBackupDigest({
+        exportedAt,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        data: plain,
+      }),
+    },
+    data: plain,
   };
 }
 
@@ -52,9 +90,39 @@ export type BackupSummary = {
   compensationSnapshots: number;
 };
 
+export type BackupInfo = {
+  formatVersion: (typeof SUPPORTED_BACKUP_FORMAT_VERSIONS)[number];
+  exportedAt: string;
+  /** Schema version of the document inside the file, before migration. */
+  schemaVersion: number;
+  /** Set when the document was migrated up to the current schema. */
+  migratedFrom: number | null;
+  migrationIssues: string[];
+  /** `NOT_PRESENT` only for format 1 files, which predate the checksum. */
+  integrity: "VERIFIED" | "NOT_PRESENT";
+};
+
+export type BackupErrorKind =
+  /** Larger than MAX_BACKUP_BYTES. */
+  | "TOO_LARGE"
+  /** Not JSON at all. */
+  | "MALFORMED_JSON"
+  /** Looks like a SUPER GONGIK backup but the JSON is cut off or damaged. */
+  | "TRUNCATED"
+  /** Valid JSON, but not a SUPER GONGIK backup. */
+  | "FOREIGN_FILE"
+  /** Backup envelope from a newer app. */
+  | "UNSUPPORTED_FORMAT_VERSION"
+  /** The checksum does not match the content. */
+  | "INTEGRITY_MISMATCH"
+  /** The document inside was written by a newer app. */
+  | "NEWER_SCHEMA"
+  /** Envelope or document violates the schema. */
+  | "INVALID_STRUCTURE";
+
 export type ParsedBackup =
-  | { ok: true; data: UserData; summary: BackupSummary }
-  | { ok: false; error: string };
+  | { ok: true; data: UserData; summary: BackupSummary; info: BackupInfo }
+  | { ok: false; kind: BackupErrorKind; error: string };
 
 export function summarizeUserData(
   data: UserData,
@@ -74,49 +142,127 @@ export function summarizeUserData(
   };
 }
 
-/** Validate a backup completely before anything is written. */
+const fail = (kind: BackupErrorKind, error: string): ParsedBackup => ({
+  ok: false,
+  kind,
+  error,
+});
+
+const DIGEST_PATTERN = /^[0-9a-f]{64}$/;
+
+/**
+ * Validate a backup completely before anything is written. Pure: never
+ * touches storage, so callers can preview and cancel freely.
+ */
 export function parseBackup(text: string): ParsedBackup {
   if (text.length > MAX_BACKUP_BYTES) {
-    return { ok: false, error: "백업 파일이 너무 커요 (10MB 초과)." };
+    return fail("TOO_LARGE", "백업 파일이 너무 커요 (10MB 초과).");
   }
 
   let value: unknown;
   try {
     value = JSON.parse(text);
   } catch {
-    return {
-      ok: false,
-      error: "JSON 형식이 아니에요. 슈퍼공익 백업 파일인지 확인해 주세요.",
-    };
+    return text.trimStart().startsWith("{") && text.includes(BACKUP_FORMAT)
+      ? fail(
+          "TRUNCATED",
+          "슈퍼공익 백업 파일이지만 내용이 잘렸거나 손상됐어요. 원래 파일을 다시 내려받아 주세요.",
+        )
+      : fail(
+          "MALFORMED_JSON",
+          "JSON 형식이 아니에요. 슈퍼공익 백업 파일인지 확인해 주세요.",
+        );
   }
 
-  if (typeof value !== "object" || value === null) {
-    return { ok: false, error: "슈퍼공익 백업 파일이 아니에요." };
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return fail("FOREIGN_FILE", "슈퍼공익 백업 파일이 아니에요.");
   }
-  const file = value as Partial<BackupFile>;
+  const file = value as Record<string, unknown>;
   if (file.format !== BACKUP_FORMAT) {
-    return { ok: false, error: "슈퍼공익 백업 파일이 아니에요." };
+    return fail("FOREIGN_FILE", "슈퍼공익 백업 파일이 아니에요.");
   }
-  if (file.formatVersion !== BACKUP_FORMAT_VERSION) {
-    return {
-      ok: false,
-      error: `지원하지 않는 백업 형식 버전(${String(file.formatVersion)})이에요. 앱을 최신으로 업데이트해 주세요.`,
-    };
+
+  const formatVersion = file.formatVersion;
+  if (
+    typeof formatVersion === "number" &&
+    Number.isInteger(formatVersion) &&
+    formatVersion > BACKUP_FORMAT_VERSION
+  ) {
+    return fail(
+      "UNSUPPORTED_FORMAT_VERSION",
+      `더 새로운 앱에서 만든 백업 형식(${formatVersion})이에요. 앱을 최신으로 업데이트한 뒤 복원해 주세요.`,
+    );
+  }
+  if (formatVersion !== 1 && formatVersion !== 2) {
+    return fail(
+      "INVALID_STRUCTURE",
+      `알 수 없는 백업 형식 버전(${String(formatVersion)})이에요.`,
+    );
+  }
+
+  let integrity: BackupInfo["integrity"] = "NOT_PRESENT";
+  if (formatVersion === 2) {
+    const declared = file.integrity as Partial<BackupIntegrity> | undefined;
+    if (
+      typeof declared !== "object" ||
+      declared === null ||
+      declared.algorithm !== "SHA-256" ||
+      declared.canonicalization !== "JCS" ||
+      typeof declared.digest !== "string" ||
+      !DIGEST_PATTERN.test(declared.digest)
+    ) {
+      return fail(
+        "INVALID_STRUCTURE",
+        "백업 파일의 무결성 정보가 없거나 형식이 잘못됐어요.",
+      );
+    }
+    let actual: string;
+    try {
+      actual = computeBackupDigest({
+        exportedAt: file.exportedAt,
+        schemaVersion: file.schemaVersion,
+        data: file.data,
+      });
+    } catch {
+      return fail("INVALID_STRUCTURE", "백업 내용을 읽을 수 없어요.");
+    }
+    if (actual !== declared.digest) {
+      return fail(
+        "INTEGRITY_MISMATCH",
+        "백업 파일의 내용이 만들 때와 달라요(체크섬 불일치). 파일이 손상됐거나 수정됐을 수 있어요. 원래 파일로 다시 시도해 주세요.",
+      );
+    }
+    integrity = "VERIFIED";
+    if (
+      typeof file.exportedAt !== "string" ||
+      Number.isNaN(Date.parse(file.exportedAt))
+    ) {
+      return fail("INVALID_STRUCTURE", "백업 시각 정보가 올바르지 않아요.");
+    }
+  }
+
+  const data = file.data as { schemaVersion?: unknown } | null | undefined;
+  const dataVersion =
+    typeof data === "object" && data !== null ? data.schemaVersion : undefined;
+  if (formatVersion === 2 && file.schemaVersion !== dataVersion) {
+    return fail(
+      "INVALID_STRUCTURE",
+      "백업 머리말과 본문의 스키마 버전이 서로 달라요.",
+    );
   }
 
   const decoded = decodeUserData(file.data);
   if (decoded.kind === "NEWER_VERSION") {
-    return {
-      ok: false,
-      error:
-        "더 새로운 버전의 앱에서 만든 백업이에요. 앱을 업데이트한 뒤 복원해 주세요.",
-    };
+    return fail(
+      "NEWER_SCHEMA",
+      `더 새로운 버전의 앱(데이터 형식 ${decoded.foundVersion})에서 만든 백업이에요. 앱을 업데이트한 뒤 복원해 주세요.`,
+    );
   }
   if (decoded.kind === "INVALID") {
-    return {
-      ok: false,
-      error: `백업 내용이 올바르지 않아요 (${decoded.reason}).`,
-    };
+    return fail(
+      "INVALID_STRUCTURE",
+      `백업 내용이 올바르지 않아요 (${decoded.reason}).`,
+    );
   }
 
   const exportedAt = typeof file.exportedAt === "string" ? file.exportedAt : "";
@@ -124,435 +270,13 @@ export function parseBackup(text: string): ParsedBackup {
     ok: true,
     data: decoded.data,
     summary: summarizeUserData(decoded.data, exportedAt),
-  };
-}
-
-export type MergeStats = {
-  addedEvents: number;
-  updatedEvents: number;
-  restoredEvents: number;
-  /** Current live events the backup had deleted; merge keeps them live. */
-  keptLiveOverBackupDeletion: number;
-  skippedDuplicateEvents: number;
-  skippedConflictingEvents: number;
-  addedAdjustments: number;
-  restoredAdjustments: number;
-  skippedAdjustments: number;
-  addedSnapshots: number;
-  restoredSnapshots: number;
-  addedImports: number;
-  reactivatedImports: number;
-  addedAttendanceMonths: number;
-  updatedAttendanceMonths: number;
-  addedCompensationSnapshots: number;
-  profileUpdated: boolean;
-  /** Human-readable reasons for everything that was kept as-is. */
-  conflicts: string[];
-};
-
-export type MergeResult =
-  | { ok: true; data: UserData; stats: MergeStats }
-  | { ok: false; error: string };
-
-type Versioned = {
-  revision: number;
-  updatedAt: string;
-  deletedAt: string | null;
-};
-
-function isNewer<T extends Versioned>(candidate: T, current: T): boolean {
-  if (candidate.revision !== current.revision) {
-    return candidate.revision > current.revision;
-  }
-  return candidate.updatedAt > current.updatedAt;
-}
-
-function correctionKey(item: LeaveAdjustment) {
-  return [
-    item.kind,
-    item.creditKey ?? "",
-    item.effectiveDate,
-    item.amountHalfDays,
-    item.amountMinutes,
-    item.reason,
-  ].join("|");
-}
-
-/**
- * Merge — non-destructive recovery.
- *
- * Contract (applies to events, adjustments, snapshots, imports, attendance
- * months and compensation snapshots alike):
- * 1. Nothing live in the current document is ever deleted. Tombstones in the
- *    backup never remove a current live record.
- * 2. Records missing locally are added; records deleted locally but live in
- *    the backup are restored (with a new revision) — the backup is treated as
- *    recovery evidence.
- * 3. For a record live on both sides, the newer revision wins only if it does
- *    not create a conflict.
- * 4. Anything that would charge the same leave twice (content duplicate or
- *    provable time overlap) or would give one credit two confirmations is
- *    skipped, the current state is kept, and the reason is reported.
- * 5. Import records are re-derived from their records: a batch is ACTIVE if
- *    and only if it has at least one live event or snapshot after the merge.
- *    Snapshots of a batch whose events could not be restored stay deleted.
- *
- * Use `replaceUserData` for an exact, destructive restoration.
- */
-export function mergeUserData(
-  current: UserData,
-  incoming: UserData,
-  context: { now: string; deviceId: string },
-): MergeResult {
-  if (!incoming.profile) {
-    return { ok: false, error: "백업에 복무 프로필이 없어 합칠 수 없어요." };
-  }
-  if (current.profile && current.profile.id !== incoming.profile.id) {
-    return {
-      ok: false,
-      error:
-        "다른 복무 프로필의 백업이에요. 합치기 대신 '덮어쓰기'로만 복원할 수 있어요.",
-    };
-  }
-
-  const stats: MergeStats = {
-    addedEvents: 0,
-    updatedEvents: 0,
-    restoredEvents: 0,
-    keptLiveOverBackupDeletion: 0,
-    skippedDuplicateEvents: 0,
-    skippedConflictingEvents: 0,
-    addedAdjustments: 0,
-    restoredAdjustments: 0,
-    skippedAdjustments: 0,
-    addedSnapshots: 0,
-    restoredSnapshots: 0,
-    addedImports: 0,
-    reactivatedImports: 0,
-    addedAttendanceMonths: 0,
-    updatedAttendanceMonths: 0,
-    addedCompensationSnapshots: 0,
-    profileUpdated: false,
-    conflicts: [],
-  };
-  const touch = <T extends Versioned & { deviceId: string }>(
-    record: T,
-    base: T,
-  ): T => ({
-    ...record,
-    deletedAt: null,
-    revision: Math.max(record.revision, base.revision) + 1,
-    updatedAt: context.now,
-    deviceId: context.deviceId,
-  });
-
-  // ── Events ──────────────────────────────────────────────────────────────
-  const events = new Map(current.events.map((event) => [event.id, event]));
-  const liveOthers = (excludeId: string) =>
-    [...events.values()].filter(
-      (event) => isLive(event) && event.id !== excludeId,
-    );
-  const blocker = (
-    candidate: ServiceEvent,
-  ): "DUPLICATE" | "CONFLICT" | null => {
-    const others = liveOthers(candidate.id);
-    const key = serviceEventContentKey(candidate);
-    if (others.some((other) => serviceEventContentKey(other) === key)) {
-      return "DUPLICATE";
-    }
-    return others.some(
-      (other) => compareLeaveRecords(candidate, other) === "CONFLICT",
-    )
-      ? "CONFLICT"
-      : null;
-  };
-  const describe = (event: ServiceEvent) =>
-    `${event.startDate} ${SERVICE_EVENT_TYPE_LABELS[event.eventType]}`;
-
-  const orderedIncoming = [...incoming.events].sort((a, b) =>
-    a.startDate.localeCompare(b.startDate),
-  );
-  for (const event of orderedIncoming) {
-    const existing = events.get(event.id);
-    if (!existing) {
-      if (!isLive(event)) {
-        events.set(event.id, event); // history only; changes nothing live
-        continue;
-      }
-      const blocked = blocker(event);
-      if (blocked === "DUPLICATE") {
-        stats.skippedDuplicateEvents += 1;
-        continue;
-      }
-      if (blocked === "CONFLICT") {
-        stats.skippedConflictingEvents += 1;
-        stats.conflicts.push(
-          `${describe(event)}: 기존 휴가와 시간이 겹쳐 추가하지 않았어요.`,
-        );
-        continue;
-      }
-      events.set(event.id, event);
-      stats.addedEvents += 1;
-      continue;
-    }
-
-    if (!isLive(event)) {
-      if (isLive(existing)) stats.keptLiveOverBackupDeletion += 1;
-      else if (isNewer(event, existing)) events.set(event.id, event);
-      continue;
-    }
-
-    if (isLive(existing)) {
-      if (!isNewer(event, existing)) continue;
-      const blocked = blocker(event);
-      if (blocked) {
-        stats.skippedConflictingEvents += 1;
-        stats.conflicts.push(
-          `${describe(event)}: 백업의 수정본이 다른 기록과 겹쳐 현재 기록을 유지했어요.`,
-        );
-        continue;
-      }
-      events.set(event.id, event);
-      stats.updatedEvents += 1;
-      continue;
-    }
-
-    const restored = touch(event, existing);
-    const blocked = blocker(restored);
-    if (blocked) {
-      if (blocked === "DUPLICATE") stats.skippedDuplicateEvents += 1;
-      else {
-        stats.skippedConflictingEvents += 1;
-        stats.conflicts.push(
-          `${describe(event)}: 되살리면 다른 휴가와 겹쳐 삭제 상태를 유지했어요.`,
-        );
-      }
-      continue;
-    }
-    events.set(event.id, restored);
-    stats.restoredEvents += 1;
-  }
-
-  // ── Leave adjustments ───────────────────────────────────────────────────
-  const adjustments = new Map(
-    current.leaveAdjustments.map((item) => [item.id, item]),
-  );
-  const adjustmentBlocker = (candidate: LeaveAdjustment): string | null => {
-    const others = [...adjustments.values()].filter(
-      (item) => isLive(item) && item.id !== candidate.id,
-    );
-    if (
-      candidate.kind === "GRANT_CONFIRMATION" &&
-      others.some(
-        (item) =>
-          item.kind === "GRANT_CONFIRMATION" &&
-          item.creditKey === candidate.creditKey,
-      )
-    ) {
-      return `${candidate.creditKey} 부여 확인값이 이미 있어 현재 값을 유지했어요.`;
-    }
-    const key = correctionKey(candidate);
-    return others.some((item) => correctionKey(item) === key) ? "" : null;
-  };
-  for (const item of incoming.leaveAdjustments) {
-    const existing = adjustments.get(item.id);
-    if (!isLive(item)) {
-      if (!existing) adjustments.set(item.id, item);
-      else if (!isLive(existing) && isNewer(item, existing))
-        adjustments.set(item.id, item);
-      continue;
-    }
-    if (existing && isLive(existing)) {
-      if (isNewer(item, existing)) adjustments.set(item.id, item);
-      continue;
-    }
-    const candidate = existing ? touch(item, existing) : item;
-    const blocked = adjustmentBlocker(candidate);
-    if (blocked !== null) {
-      stats.skippedAdjustments += 1;
-      if (blocked) stats.conflicts.push(blocked);
-      continue;
-    }
-    adjustments.set(item.id, candidate);
-    if (existing) stats.restoredAdjustments += 1;
-    else stats.addedAdjustments += 1;
-  }
-
-  // ── Imports and snapshots (batch-consistent) ────────────────────────────
-  const finalEvents = [...events.values()];
-  const batchHasLiveEvents = (batchId: string) =>
-    finalEvents.some(
-      (event) =>
-        isLive(event) &&
-        event.source.kind === "IMPORT" &&
-        event.source.batchId === batchId,
-    );
-  const batchHasEvents = (batchId: string) =>
-    finalEvents.some(
-      (event) =>
-        event.source.kind === "IMPORT" && event.source.batchId === batchId,
-    );
-
-  const snapshots = new Map(
-    current.leaveSnapshots.map((item) => [item.id, item]),
-  );
-  for (const item of incoming.leaveSnapshots) {
-    const existing = snapshots.get(item.id);
-    const batchUsable =
-      batchHasLiveEvents(item.importBatchId) ||
-      !batchHasEvents(item.importBatchId);
-    if (!existing) {
-      if (isLive(item) && !batchUsable) {
-        // Its batch's events could not come back; keep it as history only.
-        snapshots.set(item.id, { ...item, deletedAt: context.now });
-      } else {
-        snapshots.set(item.id, item);
-        if (isLive(item)) stats.addedSnapshots += 1;
-      }
-      continue;
-    }
-    if (isLive(item) && !isLive(existing) && batchUsable) {
-      snapshots.set(item.id, { ...existing, deletedAt: null });
-      stats.restoredSnapshots += 1;
-    }
-  }
-  const finalSnapshots = [...snapshots.values()];
-
-  const imports = new Map(current.imports.map((item) => [item.id, item]));
-  for (const item of incoming.imports) {
-    if (!imports.has(item.id)) {
-      imports.set(item.id, item);
-      stats.addedImports += 1;
-    }
-  }
-  const incomingImportIds = new Set(incoming.imports.map((item) => item.id));
-  for (const [id, record] of imports) {
-    if (!incomingImportIds.has(id)) continue;
-    const live =
-      batchHasLiveEvents(id) ||
-      finalSnapshots.some((item) => isLive(item) && item.importBatchId === id);
-    if (live && record.status !== "ACTIVE") {
-      imports.set(id, { ...record, status: "ACTIVE", rolledBackAt: null });
-      stats.reactivatedImports += 1;
-    } else if (!live && record.status === "ACTIVE" && batchHasEvents(id)) {
-      imports.set(id, {
-        ...record,
-        status: "ROLLED_BACK",
-        rolledBackAt: context.now,
-      });
-    }
-  }
-
-  // ── Month attendance confirmations ──────────────────────────────────────
-  // One live confirmation per month. A backup's version replaces the current
-  // one only when it is a newer revision of the same record; a different
-  // record for an already-confirmed month keeps the current answer.
-  const attendance = new Map(
-    current.attendanceMonths.map((item) => [item.id, item]),
-  );
-  const liveMonthOwner = (month: string, excludeId: string) =>
-    [...attendance.values()].find(
-      (item) => isLive(item) && item.month === month && item.id !== excludeId,
-    );
-  for (const item of incoming.attendanceMonths) {
-    const existing = attendance.get(item.id);
-    if (!isLive(item)) {
-      if (!existing) attendance.set(item.id, item);
-      else if (!isLive(existing) && isNewer(item, existing))
-        attendance.set(item.id, item);
-      continue;
-    }
-    const candidate =
-      existing && !isLive(existing) ? touch(item, existing) : item;
-    if (existing && isLive(existing) && !isNewer(item, existing)) continue;
-    if (liveMonthOwner(item.month, item.id)) {
-      stats.conflicts.push(
-        `${item.month} 근무일 확인: 이미 확인한 값이 있어 현재 값을 유지했어요.`,
-      );
-      continue;
-    }
-    attendance.set(item.id, candidate);
-    if (existing) stats.updatedAttendanceMonths += 1;
-    else stats.addedAttendanceMonths += 1;
-  }
-
-  // ── Compensation snapshots (immutable history) ──────────────────────────
-  const compensationSnapshots = new Map(
-    current.compensationSnapshots.map((item) => [item.id, item]),
-  );
-  for (const item of incoming.compensationSnapshots) {
-    const existing = compensationSnapshots.get(item.id);
-    if (!existing) {
-      compensationSnapshots.set(item.id, item);
-      if (isLive(item)) stats.addedCompensationSnapshots += 1;
-      continue;
-    }
-    if (isLive(item) && !isLive(existing)) {
-      compensationSnapshots.set(item.id, touch(existing, existing));
-    }
-  }
-
-  let profile = current.profile ?? incoming.profile;
-  if (
-    current.profile &&
-    incoming.profile.updatedAt > current.profile.updatedAt
-  ) {
-    profile = incoming.profile;
-    stats.profileUpdated = true;
-  }
-
-  return {
-    ok: true,
-    data: {
-      ...current,
-      profile,
-      events: finalEvents,
-      leaveAdjustments: [...adjustments.values()],
-      leaveSnapshots: finalSnapshots,
-      imports: [...imports.values()].sort((a, b) =>
-        b.createdAt.localeCompare(a.createdAt),
-      ),
-      attendanceMonths: [...attendance.values()],
-      compensationSnapshots: [...compensationSnapshots.values()],
+    info: {
+      formatVersion,
+      exportedAt,
+      schemaVersion: dataVersion as number,
+      migratedFrom: decoded.migratedFrom,
+      migrationIssues: decoded.issues,
+      integrity,
     },
-    stats,
-  };
-}
-
-/**
- * Invariant every command and merge must keep: a rolled-back import batch
- * has no live events or snapshots. (An ACTIVE batch may legitimately end up
- * empty when the user deletes its records one by one.)
- */
-export function importConsistencyIssues(data: UserData): string[] {
-  const issues: string[] = [];
-  for (const record of data.imports) {
-    if (record.status !== "ROLLED_BACK") continue;
-    const liveEvents = data.events.some(
-      (event) =>
-        isLive(event) &&
-        event.source.kind === "IMPORT" &&
-        event.source.batchId === record.id,
-    );
-    const liveSnapshots = data.leaveSnapshots.some(
-      (item) => isLive(item) && item.importBatchId === record.id,
-    );
-    if (liveEvents || liveSnapshots) {
-      issues.push(`${record.id}: rolled back but has live records`);
-    }
-  }
-  return issues;
-}
-
-/** Replace everything with a backup, keeping this device's identity. */
-export function replaceUserData(
-  current: UserData,
-  incoming: UserData,
-): UserData {
-  return {
-    ...incoming,
-    deviceId: current.deviceId,
-    documentRevision: current.documentRevision,
-    savedAt: current.savedAt,
   };
 }

@@ -175,6 +175,16 @@ export const syncFieldsSchema = z.object({
   deletedAt: z.string().datetime({ offset: true }).nullable(),
   revision: z.number().int().positive(),
   deviceId: z.string().min(1),
+  /**
+   * Causal ancestry, optional and additive (no schema version change): for
+   * each other device, the highest revision of this record that this version
+   * is known to descend from. Written by commands and merge resolutions; see
+   * `store/sync-contract.ts`. Older app versions drop it, which can only
+   * cause extra conflicts, never a silent overwrite.
+   */
+  supersedes: z
+    .record(z.string().min(1), z.number().int().positive())
+    .optional(),
 });
 
 export type SyncFields = z.infer<typeof syncFieldsSchema>;

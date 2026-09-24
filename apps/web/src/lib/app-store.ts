@@ -8,7 +8,7 @@ import {
   type UserDataStore,
 } from "@super-gongik/domain";
 
-import { createBrowserStorage } from "./browser-storage";
+import { browserWriteLock, createBrowserStorage } from "./browser-storage";
 
 let store: UserDataStore | null = null;
 
@@ -20,6 +20,7 @@ export function getAppStore(): UserDataStore {
         createId,
       }),
       createId,
+      writeLock: browserWriteLock(),
     });
   }
   return store;

@@ -46,21 +46,31 @@ then wrote over.
    Deletion is soft. No Supabase/cloud work was started: nothing in this
    sprint needs it, and local recovery (JSON backup) closes the device-loss
    gap first.
-6. **Restore has two explicit contracts** (`store/backup.ts`):
+6. **Restore has two explicit contracts** (`store/restore.ts`,
+   `store/merge.ts`; full rules in [BACKUP_AND_SYNC.md](../BACKUP_AND_SYNC.md)).
+   Both are previewed with `planRestore` (pure) before `store.restore`
+   writes the whole document in one save.
    - _Merge = non-destructive recovery._ Current live records are never
-     deleted; backup tombstones are ignored for live records. Records missing
-     locally are added and records deleted locally but live in the backup are
-     restored with a new revision. Live-vs-live updates take the newer
-     revision. Anything that would charge leave twice or give a credit a
-     second confirmation is skipped, the current state kept, and the reason
-     reported. Import batches are re-derived: ACTIVE if and only if the batch
-     still has a live event or snapshot; snapshots stay deleted when their
-     batch's events could not be restored.
+     deleted; newer backup tombstones are reported, not applied. A version
+     wins only if it provably descends from the other: same device and a
+     higher revision, or recorded ancestry (`supersedes`, an optional
+     additive field). Revision size alone is not a clock across devices.
+     Concurrent versions are structured conflicts that block the merge until
+     the user picks a side; the pick is written as a new version descending
+     from both, so the conflict never reopens. A stale copy does not
+     resurrect a newer local deletion unless the user explicitly opts in
+     (`restoreLocallyDeleted`). _Changed in #25: previously local deletions
+     were always resurrected, and a higher number or a later `updatedAt`
+     won._ Anything that would charge leave twice or give a credit a second
+     confirmation is skipped, the current state kept, and the reason
+     reported. Import batches are re-derived: ACTIVE if and only if the
+     batch still has a live event or snapshot.
    - _Replace = exact restoration._ The validated backup becomes the
-     document; only this device's id is kept, and the previous document is
-     preserved as a pre-restore copy first.
-     A future sync protocol needs real tombstone propagation and must not
-     reuse merge as-is.
+     document; only this device's id and write counter are kept, a
+     pre-restore copy is written first, and replacing existing data requires
+     an explicit destructive confirmation.
+     These are local backup rules. Remote sync is not implemented and would
+     need more than this contract (docs/BACKUP_AND_SYNC.md §6, §9).
 7. **Leave may never be charged twice for the same time** (enforced in
    `events/validation.ts`, used by manual entry, import commit, restore and
    merge). Full day vs anything, the same half day, intersecting explicit

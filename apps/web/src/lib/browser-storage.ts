@@ -1,4 +1,29 @@
-import type { KeyValueStorage } from "@super-gongik/domain";
+import type { KeyValueStorage, WriteLock } from "@super-gongik/domain";
+
+/** Lock name shared by every tab and window of this origin. */
+export const USER_DATA_LOCK = "super-gongik:user-data";
+
+/**
+ * Cross-tab write serialization via the Web Locks API (Chromium, Firefox,
+ * Safari 15.4+). Returns undefined where it is missing; the store then falls
+ * back to compare-and-set, which detects most but not all concurrent writes
+ * (see docs/BACKUP_AND_SYNC.md).
+ */
+export function browserWriteLock(): WriteLock | undefined {
+  if (typeof navigator === "undefined" || !navigator.locks?.request) {
+    return undefined;
+  }
+  const locks = navigator.locks;
+  return <T>(task: () => Promise<T>) =>
+    new Promise<T>((resolve, reject) => {
+      // The lock is held until the task settles.
+      locks
+        .request(USER_DATA_LOCK, { mode: "exclusive" }, () =>
+          task().then(resolve, reject),
+        )
+        .catch(reject);
+    });
+}
 
 /**
  * `localStorage` adapter for the domain persistence port.
@@ -29,6 +54,14 @@ export function createBrowserStorage(): KeyValueStorage {
     },
     async removeItem(key) {
       storage().removeItem(key);
+    },
+    async compareAndSet(key, expected, value) {
+      // One synchronous block: no other script in this browsing context can
+      // run between the check and the write.
+      const target = storage();
+      if (target.getItem(key) !== expected) return false;
+      target.setItem(key, value);
+      return true;
     },
     async keys() {
       const target = storage();

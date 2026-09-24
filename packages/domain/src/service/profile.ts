@@ -163,6 +163,12 @@ export type ServiceProfile = ValidServiceProfileInput & {
   localProfileId: string;
   createdAt: string;
   updatedAt: string;
+  /**
+   * Content digests of profile versions this one replaced (optional,
+   * additive). The profile has no revision; this is its only ordering
+   * evidence for merges. See `store/sync-contract.ts`.
+   */
+  supersedes?: string[];
 };
 
 export type ProfileMetadata = {
@@ -222,6 +228,10 @@ export const storedServiceProfileSchema = serviceProfileInputSchema.extend({
   localProfileId: z.string().min(1),
   createdAt: z.string().datetime({ offset: true }),
   updatedAt: z.string().datetime({ offset: true }),
+  supersedes: z
+    .array(z.string().regex(/^[0-9a-f]{16}$/))
+    .max(32)
+    .optional(),
 });
 
 export function parseServiceProfile(value: unknown): ServiceProfile {
