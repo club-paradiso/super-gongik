@@ -1,0 +1,34 @@
+name: Apply Prettier once
+permissions:
+  contents: write
+on:
+  push:
+    branches:
+      - feat/final-rule-gap-closure
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feat/final-rule-gap-closure
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.22.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec prettier --write docs/COMPENSATION_POLICY_2026.md
+      - name: Commit formatting if needed
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/COMPENSATION_POLICY_2026.md
+          git commit -m "style: apply prettier to compensation policy"
+          git push origin HEAD:feat/final-rule-gap-closure
