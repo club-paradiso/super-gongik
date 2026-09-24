@@ -11,6 +11,7 @@ import {
   saveCompensationSnapshot,
   yearMonthOf,
   type AttendanceDayOverride,
+  type CompensationRoundingPolicy,
   type DateOnly,
   type ServiceProfile,
   type UserData,
@@ -156,7 +157,7 @@ export function MoneyTab({
         </strong>
         <small>
           {compensation.total !== null
-            ? "기본 보수 + 중식비 + 교통비. 출장 여비와 공제는 빠져 있어요."
+            ? "기본 보수 + 중식비 + 교통비. 확인된 기본 보수 미지급일은 기본 보수에 반영돼요."
             : "모든 항목이 계산될 때만 합계를 보여요. 일부만 더한 금액은 보여주지 않아요."}
         </small>
       </div>
@@ -365,6 +366,16 @@ function AttendanceEditor({
   const [hadAbsence, setHadAbsence] = useState(
     existing?.hadNonPayableAbsence ?? false,
   );
+  const [nonPayableDates, setNonPayableDates] = useState<Set<DateOnly>>(
+    new Set(existing?.nonPayableDates ?? []),
+  );
+  const [nonPayableDatesConfirmed, setNonPayableDatesConfirmed] = useState(
+    existing?.nonPayableDatesConfirmed ?? false,
+  );
+  const [roundingPolicy, setRoundingPolicy] =
+    useState<CompensationRoundingPolicy | null>(
+      existing?.roundingPolicy ?? null,
+    );
 
   // Scheduled in-service weekdays can be marked as holidays; days the records
   // leave open need an explicit meal/transport decision.
@@ -379,6 +390,15 @@ function AttendanceEditor({
 
   function toggleNonWorking(date: DateOnly) {
     setNonWorking((current) => {
+      const next = new Set(current);
+      if (next.has(date)) next.delete(date);
+      else next.add(date);
+      return next;
+    });
+  }
+
+  function toggleNonPayable(date: DateOnly) {
+    setNonPayableDates((current) => {
       const next = new Set(current);
       if (next.has(date)) next.delete(date);
       else next.add(date);
@@ -426,6 +446,9 @@ function AttendanceEditor({
               : [],
           ),
           hadNonPayableAbsence: hadAbsence,
+          nonPayableDates: [...nonPayableDates],
+          nonPayableDatesConfirmed,
+          roundingPolicy,
         },
         context,
       ),
@@ -524,13 +547,72 @@ function AttendanceEditor({
         </fieldset>
       ) : null}
 
-      <label className="check-row">
-        <input
-          checked={hadAbsence}
-          onChange={(event) => setHadAbsence(event.target.checked)}
-          type="checkbox"
-        />
-        이 달에 복무중단·복무이탈·연가를 넘긴 결근이 있었어요
+      <fieldset className="form-field choice-field">
+        <legend>기본 보수 미지급 날짜</legend>
+        <p className="field-hint">
+          복무중단·복무이탈·연가 초과 결근·보수 미지급 병가처럼 기본 보수를
+          받지 않는 날짜만 표시하세요. 중식비·교통비 판단과는 별개예요.
+        </p>
+        <div className="day-grid">
+          {days
+            .filter((day) => day.kind !== "OUTSIDE_SERVICE")
+            .map((day) => (
+              <label className="day-toggle" key={`nonpay-${day.date}`}>
+                <input
+                  checked={nonPayableDates.has(day.date)}
+                  onChange={() => toggleNonPayable(day.date)}
+                  type="checkbox"
+                />
+                <span>{dayLabel(day.date)}</span>
+                <small>{nonPayableDates.has(day.date) ? "미지급" : "지급"}</small>
+              </label>
+            ))}
+        </div>
+        <label className="check-row">
+          <input
+            checked={nonPayableDatesConfirmed}
+            onChange={(event) =>
+              setNonPayableDatesConfirmed(event.target.checked)
+            }
+            type="checkbox"
+          />
+          이 달의 기본 보수 미지급 날짜를 전부 확인했어요
+        </label>
+        <label className="check-row">
+          <input
+            checked={hadAbsence}
+            onChange={(event) => setHadAbsence(event.target.checked)}
+            type="checkbox"
+          />
+          정확한 날짜를 아직 모르는 미지급 사유가 남아 있어요
+        </label>
+      </fieldset>
+
+      <label className="form-field">
+        <span>기본 보수 끝수 처리</span>
+        <select
+          value={roundingPolicy ?? ""}
+          onChange={(event) =>
+            setRoundingPolicy(
+              (event.target.value || null) as CompensationRoundingPolicy | null,
+            )
+          }
+        >
+          <option value="">아직 확인하지 않음</option>
+          <option value="NATIONAL_TREASURY_ARTICLE_47">
+            국고금 관리법 제47조 적용 확인 (10원 미만 버림)
+          </option>
+          <option value="INSTITUTION_CONFIRMED_TRUNCATE_SUB_10">
+            기관에서 10원 미만 절사 적용을 직접 확인
+          </option>
+          <option value="INSTITUTION_OTHER_OR_UNKNOWN">
+            기관이 다른 방식 사용 / 정확한 방식 미확인
+          </option>
+        </select>
+        <small>
+          국가기관 이름만 보고 자동 선택하지 않아요. 지급 회계 기준을 실제로
+          확인한 경우에만 선택하세요.
+        </small>
       </label>
 
       <Button onClick={() => void save()} type="button">
