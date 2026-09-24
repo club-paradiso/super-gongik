@@ -171,13 +171,9 @@ describe("deriveMonthNonPayableDates", () => {
 
   it("fails closed when ordinary sick leave has no provable charged dates", () => {
     const subject = profile();
-    const prior = event(
-      "SICK_LEAVE",
-      "2026-06-01",
-      "2026-06-30",
-      30,
-      { sickLeaveCategory: "ORDINARY" },
-    );
+    const prior = event("SICK_LEAVE", "2026-06-01", "2026-06-30", 30, {
+      sickLeaveCategory: "ORDINARY",
+    });
     const partial: ServiceEvent = {
       ...event("SICK_LEAVE", "2026-07-10", "2026-07-10", 1, {
         sickLeaveCategory: "ORDINARY",
