@@ -20,13 +20,7 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec prettier --write \
-          apps/web/src/components/money-tab.tsx \
-          packages/domain/src/compensation/records.ts \
-          packages/domain/src/store/commands.ts \
-          packages/rules/compensation/2026.json \
-          packages/rules/src/monthly-compensation.ts \
-          packages/rules/tests/compensation-closure.test.ts
+      - run: pnpm exec prettier --write apps/web/src/components/money-tab.tsx packages/domain/src/compensation/records.ts packages/domain/src/store/commands.ts packages/rules/compensation/2026.json packages/rules/src/monthly-compensation.ts packages/rules/tests/compensation-closure.test.ts
       - name: Commit formatting if needed
         run: |
           if [ -z "$(git status --porcelain)" ]; then
