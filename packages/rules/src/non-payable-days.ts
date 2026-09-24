@@ -60,6 +60,24 @@ function monthOf(date: DateOnly): YearMonth {
   return date.slice(0, 7) as YearMonth;
 }
 
+function sickLeaveUpperBoundThrough(
+  events: readonly ServiceEvent[],
+  through: DateOnly,
+): number {
+  return events
+    .filter(
+      (event) =>
+        isLive(event) &&
+        event.eventType === "SICK_LEAVE" &&
+        compareDateOnly(event.startDate, through) <= 0,
+    )
+    .reduce(
+      (sum, event) =>
+        sum + (event.timing.kind === "ALL_DAY" ? event.timing.dayCount : 1),
+      0,
+    );
+}
+
 function liveAttendance(
   attendanceMonths: readonly AttendanceMonth[],
   month: YearMonth,
@@ -199,7 +217,9 @@ export function deriveMonthNonPayableDates(input: {
   let ordinaryCumulativeDaysThroughMonth: number | null = 0;
   let publicDutyDaysIgnored = 0;
 
-  if (currentOrdinaryOrUnknown.length > 0) {
+  const sickUpperBound = sickLeaveUpperBoundThrough(liveEvents, last);
+
+  if (currentOrdinaryOrUnknown.length > 0 && sickUpperBound > 30) {
     const ordinaryDates: Array<{ date: DateOnly; eventId: string }> = [];
     let sickHistoryResolved = true;
 
