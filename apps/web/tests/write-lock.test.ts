@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { USER_DATA_LOCK, browserWriteLock } from "../src/lib/browser-storage";
+import {
+  USER_DATA_LOCK,
+  browserWriteLock,
+  createBrowserStorage,
+} from "../src/lib/browser-storage";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -48,5 +52,25 @@ describe("browser write lock", () => {
     await expect(
       lock(async () => Promise.reject(new Error("boom"))),
     ).rejects.toThrow("boom");
+  });
+});
+
+describe("localStorage adapter", () => {
+  it("commits with compareAndSet only when the stored text is unchanged", async () => {
+    const values = new Map<string, string>();
+    vi.stubGlobal("window", {
+      localStorage: {
+        getItem: (key: string) => values.get(key) ?? null,
+        setItem: (key: string, value: string) => values.set(key, value),
+        removeItem: (key: string) => values.delete(key),
+        key: () => null,
+        length: 0,
+      },
+    });
+    const storage = createBrowserStorage();
+    expect(await storage.compareAndSet!("k", null, "one")).toBe(true);
+    expect(await storage.compareAndSet!("k", null, "two")).toBe(false);
+    expect(await storage.compareAndSet!("k", "one", "three")).toBe(true);
+    expect(values.get("k")).toBe("three");
   });
 });

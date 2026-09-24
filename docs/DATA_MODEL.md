@@ -37,7 +37,8 @@ ServiceEvent {
   timing: ALL_DAY{dayCount} | HALF_DAY{half} | PARTIAL{durationMinutes|null, startTime, endTime},
   title, note, status: CONFIRMED,
   source: MANUAL | IMPORT{batchId, format, fileName, fingerprint, confidence, sourceRowIndex},
-  createdAt, updatedAt, deletedAt, revision, deviceId
+  createdAt, updatedAt, deletedAt, revision, deviceId,
+  supersedes?  // optional causal ancestry, see BACKUP_AND_SYNC.md §6
 }
 ```
 

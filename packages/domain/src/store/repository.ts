@@ -25,6 +25,19 @@ export interface KeyValueStorage {
   removeItem(key: string): Promise<void>;
   /** Optional key listing, used to purge every local copy on request. */
   keys?(): Promise<string[]>;
+  /**
+   * Optional atomic compare-and-set: write `value` only if the key still
+   * holds exactly `expected` (null = absent), with no other writer able to
+   * interleave between the check and the write. Returns whether it wrote.
+   * Providers that can do this (localStorage in one synchronous block,
+   * an IndexedDB transaction) should; the repository then commits a
+   * document only if nobody saved since it was read.
+   */
+  compareAndSet?(
+    key: string,
+    expected: string | null,
+    value: string,
+  ): Promise<boolean>;
 }
 
 /** Every key this app writes starts with this prefix (legacy ones included). */
@@ -81,8 +94,8 @@ export class StorageWriteError extends Error {
  */
 export class ConcurrentWriteError extends StorageWriteError {
   constructor(
-    readonly expectedRevision: number,
-    readonly storedRevision: number,
+    readonly expectedRevision: number | null,
+    readonly storedRevision: number | null,
   ) {
     super(
       "다른 탭이나 창에서 방금 데이터를 저장했어요. 덮어쓰지 않았어요.",
@@ -321,13 +334,27 @@ export function createUserDataRepository(
           );
         }
       }
+      let committed = true;
       try {
-        await storage.setItem(STORAGE_KEYS.current, serialized);
+        if (storage.compareAndSet) {
+          // Commit only if the live document is still exactly what we read:
+          // closes the gap between the check above and this write.
+          committed = await storage.compareAndSet(
+            STORAGE_KEYS.current,
+            existing,
+            serialized,
+          );
+        } else {
+          await storage.setItem(STORAGE_KEYS.current, serialized);
+        }
       } catch (error) {
         throw new StorageWriteError(
           "기기 저장 공간이 부족하거나 쓸 수 없어 저장하지 않았어요. 이전 데이터는 그대로예요.",
           error,
         );
+      }
+      if (!committed) {
+        throw new ConcurrentWriteError(options.expectedRevision ?? null, null);
       }
       lastGood = serialized;
       lastGoodRevision = valid.data.documentRevision;
@@ -381,6 +408,11 @@ export function createMemoryStorage(
     },
     async keys() {
       return [...values.keys()];
+    },
+    async compareAndSet(key, expected, value) {
+      if ((values.get(key) ?? null) !== expected) return false;
+      values.set(key, value);
+      return true;
     },
     dump() {
       return Object.fromEntries(values);

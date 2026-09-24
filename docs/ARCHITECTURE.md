@@ -133,7 +133,10 @@ implemented.
 Recommended initial conflict handling:
 
 - append-only event records: union by immutable id
-- editable metadata: latest valid revision wins
+- editable metadata: a version wins only if it provably descends from the
+  other (same device and higher revision, or recorded ancestry); a higher
+  revision number alone is not enough across devices
+  (see [BACKUP_AND_SYNC.md](./BACKUP_AND_SYNC.md) §6)
 - destructive conflicts: preserve both versions and surface recovery path
 
 ## 8. Authentication model

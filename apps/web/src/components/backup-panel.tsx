@@ -426,9 +426,9 @@ export function BackupPanel({
           {effectiveMode === "MERGE" ? (
             <div className="restore-mode-note">
               <p>
-                <strong>합치기</strong>는 이 기기의 기록을 지우지 않아요. 같은
-                기기에서 더 나중에 고친 기록만 가져오고, 같은 내용은 두 번 넣지
-                않아요. 다른 기기에서 따로 고친 기록은 직접 골라요.
+                <strong>합치기</strong>는 이 기기의 기록을 지우지 않아요. 나중에
+                고친 것이 확인되는 기록만 가져오고, 같은 내용은 두 번 넣지
+                않아요. 양쪽에서 따로 고친 기록은 직접 골라요.
               </p>
               {incomingDeletionsSkipped ? (
                 <p>

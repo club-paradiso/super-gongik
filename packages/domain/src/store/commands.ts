@@ -34,6 +34,7 @@ import {
   type ServiceProfileInput,
 } from "../service/profile";
 import { createEmptyUserData, type UserData } from "./schema";
+import { nextVersion, profileAfterEdit } from "./sync-contract";
 
 export type CommandContext = {
   now: string;
@@ -88,7 +89,10 @@ export function editProfile(
   const current = requireProfile(data);
   if (!current) return fail("복무 프로필이 없어요.");
   try {
-    const profile = updateServiceProfile(current, input, context.now);
+    const profile = profileAfterEdit(
+      current,
+      updateServiceProfile(current, input, context.now),
+    );
     return { ok: true, data: { ...data, profile }, value: profile };
   } catch {
     return fail("입력한 날짜와 금액을 다시 확인해 주세요.");
@@ -166,9 +170,7 @@ export function updateServiceEvent(
   const updated = serviceEventSchema.parse({
     ...existing,
     ...validation.draft,
-    updatedAt: context.now,
-    revision: existing.revision + 1,
-    deviceId: context.deviceId,
+    ...nextVersion(existing, context),
   });
   return {
     ok: true,
@@ -191,9 +193,7 @@ export function deleteServiceEvent(
   const deleted: ServiceEvent = {
     ...existing,
     deletedAt: context.now,
-    updatedAt: context.now,
-    revision: existing.revision + 1,
-    deviceId: context.deviceId,
+    ...nextVersion(existing, context),
   };
   return {
     ok: true,
@@ -226,9 +226,7 @@ export function restoreServiceEvent(
   const restored: ServiceEvent = {
     ...existing,
     deletedAt: null,
-    updatedAt: context.now,
-    revision: existing.revision + 1,
-    deviceId: context.deviceId,
+    ...nextVersion(existing, context),
   };
   // Restoring a record of a rolled-back import makes that batch active
   // again, so a rolled-back batch never owns live records.
@@ -465,9 +463,7 @@ export function rollbackImport(
       return {
         ...event,
         deletedAt: context.now,
-        updatedAt: context.now,
-        revision: event.revision + 1,
-        deviceId: context.deviceId,
+        ...nextVersion(event, context),
       };
     }
     return event;
@@ -548,8 +544,7 @@ export function confirmLeaveCredit(
             ? {
                 ...item,
                 deletedAt: context.now,
-                updatedAt: context.now,
-                revision: item.revision + 1,
+                ...nextVersion(item, context),
               }
             : item,
         ),
@@ -624,9 +619,7 @@ export function deleteLeaveAdjustment(
           ? {
               ...item,
               deletedAt: context.now,
-              updatedAt: context.now,
-              revision: item.revision + 1,
-              deviceId: context.deviceId,
+              ...nextVersion(item, context),
             }
           : item,
       ),
@@ -670,10 +663,10 @@ export function saveAttendanceMonth(
     id: existing?.id ?? context.createId(),
     serviceProfileId: profile.id,
     createdAt: existing?.createdAt ?? context.now,
-    updatedAt: context.now,
     deletedAt: null,
-    revision: existing ? existing.revision + 1 : 1,
-    deviceId: context.deviceId,
+    ...(existing
+      ? nextVersion(existing, context)
+      : { revision: 1, updatedAt: context.now, deviceId: context.deviceId }),
   });
   if (!parsed.success) {
     return fail(
@@ -742,9 +735,7 @@ export function deleteCompensationSnapshot(
           ? {
               ...item,
               deletedAt: context.now,
-              updatedAt: context.now,
-              revision: item.revision + 1,
-              deviceId: context.deviceId,
+              ...nextVersion(item, context),
             }
           : item,
       ),

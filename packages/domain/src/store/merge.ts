@@ -25,8 +25,12 @@ import {
   OutcomeLog,
   compareImmutable,
   compareRevisioned,
+  descendsFrom,
   conflictKey,
   payloadKey,
+  profileSupersedes,
+  settleProfile,
+  settledVersion,
   versionInfo,
   type CollectionCounts,
   type ConflictResolution,
@@ -194,12 +198,13 @@ const byId = <T extends { id: string }>(a: T, b: T) =>
  * Record contract (every revisioned collection — events, adjustments,
  * attendance months, compensation snapshots; see `compareRevisioned`):
  * 1. Same payload (ignoring write metadata) is a no-op.
- * 2. Along one device's history (same `deviceId`) the higher revision wins.
- * 3. Different payloads that cannot be ordered — equal revisions, or
- *    versions last written by different devices — are structured conflicts.
- *    Nothing is applied until every conflict has an explicit resolution;
- *    the chosen side is kept verbatim, so repeating a merge with the same
- *    resolutions is idempotent.
+ * 2. If one version provably descends from the other (`descendsFrom`: same
+ *    device and higher revision, or recorded ancestry), it wins.
+ * 3. Concurrent versions — equal revisions, or unequal revisions with no
+ *    provable ancestry — are structured conflicts. Nothing is applied until
+ *    every conflict has an explicit resolution; the chosen content is
+ *    written as a new version above and descending from both, so merging
+ *    either old branch again is a no-op instead of a reopened conflict.
  * 4. A stale copy from the same device never resurrects a newer local
  *    deletion, unless the caller passes `restoreLocallyDeleted` (an explicit
  *    user choice); the restored record then gets a revision above both.
@@ -214,8 +219,8 @@ const byId = <T extends { id: string }>(a: T, b: T) =>
  * - Leave snapshots and import records are written once. Differing content
  *   under one id is a conflict. Their live/rolled-back state follows the
  *   events of their import batch.
- * - The profile has neither a revision nor a device id: any difference is a
- *   conflict.
+ * - The profile has no revision: it is ordered only by its digest ancestry
+ *   (`supersedes`); otherwise any difference is a conflict.
  *
  * Neither input is mutated. `documentRevision`, `deviceId` and `savedAt`
  * always come from `current`: they describe this device's storage, not the
@@ -266,11 +271,10 @@ export function analyzeMerge(
     });
     log.add(collection, local.id, "CONFLICT");
   };
-  const bump = <T extends Revisioned>(chosen: T, other: T): T => ({
+  /** `chosen`'s content as a new version above and descending from both. */
+  const settle = <T extends Revisioned>(chosen: T, other: T): T => ({
     ...chosen,
-    revision: Math.max(chosen.revision, other.revision) + 1,
-    updatedAt: context.now,
-    deviceId: context.deviceId,
+    ...settledVersion(chosen, other, context),
   });
 
   /** Shared per-record rules for every revisioned collection. */
@@ -309,6 +313,12 @@ export function analyzeMerge(
       const verdict = compareRevisioned(existing, item);
       switch (verdict) {
         case "IDENTICAL":
+          // Same content. Still adopt a newer version's metadata (revision,
+          // ancestry) when it provably descends from ours, so this device's
+          // next edit builds on the settled history instead of forking it.
+          if (descendsFrom(item, existing) && !descendsFrom(existing, item)) {
+            put(item);
+          }
           log.add(collection, item.id, "UNCHANGED");
           break;
         case "DIVERGENT":
@@ -325,14 +335,17 @@ export function analyzeMerge(
             );
             break;
           }
-          // The chosen side is kept verbatim: no revision is invented, so
-          // applying the same choices again yields the same document.
-          if (choice === "INCOMING") {
-            if (isLive(item)) {
-              if (!tryPut(item, "UPDATE")) break;
-            } else {
-              put(item);
-            }
+          // The chosen content becomes a new version that descends from
+          // both branches, so merging either branch again finds an ancestor
+          // and never reopens this conflict.
+          const resolved =
+            choice === "LOCAL"
+              ? settle(existing, item)
+              : settle(item, existing);
+          if (choice === "INCOMING" && isLive(resolved)) {
+            if (!tryPut(resolved, "UPDATE")) break;
+          } else {
+            put(resolved);
           }
           log.add(
             collection,
@@ -346,7 +359,7 @@ export function analyzeMerge(
             if (!options.restoreLocallyDeleted) {
               log.add(collection, item.id, "LOCAL_DELETION_KEPT");
             } else if (
-              tryPut({ ...bump(item, existing), deletedAt: null }, "RESTORE")
+              tryPut({ ...settle(item, existing), deletedAt: null }, "RESTORE")
             ) {
               log.add(collection, item.id, "RESTORED");
             }
@@ -385,18 +398,26 @@ export function analyzeMerge(
   } else if (payloadKey(current.profile) === payloadKey(incoming.profile)) {
     log.add("profile", profile.id, "UNCHANGED");
   } else {
-    // The profile has neither a revision nor a device id, and wall clocks on
-    // two devices prove nothing, so any difference needs a human choice.
+    // The profile has no revision and wall clocks prove nothing; only its
+    // digest ancestry (`supersedes`) can order two versions.
+    const local = current.profile;
+    const other = incoming.profile;
+    const localAfter = profileSupersedes(local, other);
+    const incomingAfter = profileSupersedes(other, local);
     const choice = resolutionFor("profile", profile.id);
-    if (!choice) {
-      conflict(
-        "profile",
-        current.profile,
-        incoming.profile,
-        "UNVERSIONED_DIVERGENT",
-      );
+    if (localAfter && !incomingAfter) {
+      log.add("profile", profile.id, "RETAINED_LOCAL");
+    } else if (incomingAfter && !localAfter) {
+      profile = other;
+      log.add("profile", profile.id, "UPDATED");
+    } else if (!choice) {
+      conflict("profile", local, other, "UNVERSIONED_DIVERGENT");
     } else {
-      profile = choice === "LOCAL" ? current.profile : incoming.profile;
+      profile = settleProfile(
+        choice === "LOCAL" ? local : other,
+        choice === "LOCAL" ? other : local,
+        context.now,
+      );
       log.add(
         "profile",
         profile.id,
@@ -708,7 +729,8 @@ export function analyzeMerge(
       count("attendanceMonths", "UPDATED") +
       count("attendanceMonths", "RESTORED"),
     addedCompensationSnapshots: count("compensationSnapshots", "ADDED"),
-    profileUpdated: count("profile", "RESOLVED_INCOMING") > 0,
+    profileUpdated:
+      count("profile", "UPDATED") + count("profile", "RESOLVED_INCOMING") > 0,
     conflicts: messages,
   };
 

@@ -13,10 +13,10 @@ import {
   type UserDataStore,
   type WriteLock,
 } from "../src";
-import { fullDocument } from "./fixtures";
 import { allDay, sequentialIds, userDataWithProfile } from "./helpers";
 
 const NOW = "2026-09-24T07:00:00.000Z";
+const N = 4; // documentRevision every scenario starts from
 
 /** An exclusive lock shared by several stores, like one origin's Web Locks. */
 function sharedLock(): WriteLock {
@@ -28,71 +28,90 @@ function sharedLock(): WriteLock {
   };
 }
 
+type Op = "read" | "commit";
+
 /**
- * One backing map seen through per-tab views. Every operation yields to the
- * timer queue first, so two tabs' async steps interleave in a fixed order
- * (Node runs zero-delay timers FIFO) — as far apart as a real browser can.
+ * One backing store seen by several tabs. Each tab's view can be told to
+ * stop right before its next read of, or commit to, the live document, so a
+ * race is forced step by step with promises — no timers, no sleeps.
  */
-function sharedStorage(initial: Record<string, string> = {}) {
-  const inner = createMemoryStorage(initial);
-  const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
-  const view = (): KeyValueStorage => ({
-    async getItem(key) {
-      await tick();
-      return inner.getItem(key);
-    },
-    async setItem(key, value) {
-      await tick();
-      return inner.setItem(key, value);
-    },
-    async removeItem(key) {
-      await tick();
-      return inner.removeItem(key);
-    },
-    keys: () => inner.keys!(),
+function controlledStorage(options: { atomicCompareAndSet: boolean }) {
+  const inner = createMemoryStorage({
+    [STORAGE_KEYS.current]: JSON.stringify({
+      ...userDataWithProfile(),
+      documentRevision: N,
+    }),
   });
-  return { inner, view };
+  const log: string[] = [];
+  const gates = new Map<string, { reached: () => void; wait: Promise<void> }>();
+
+  async function checkpoint(tab: string, op: Op) {
+    log.push(`${tab}:${op}`);
+    const gate = gates.get(`${tab}:${op}`);
+    if (!gate) return;
+    gates.delete(`${tab}:${op}`);
+    gate.reached();
+    await gate.wait;
+  }
+
+  function view(tab: string): KeyValueStorage {
+    const storage: KeyValueStorage = {
+      async getItem(key) {
+        if (key === STORAGE_KEYS.current) await checkpoint(tab, "read");
+        return inner.getItem(key);
+      },
+      async setItem(key, value) {
+        if (key === STORAGE_KEYS.current) await checkpoint(tab, "commit");
+        return inner.setItem(key, value);
+      },
+      removeItem: (key) => inner.removeItem(key),
+      keys: () => inner.keys!(),
+    };
+    if (options.atomicCompareAndSet) {
+      storage.compareAndSet = async (key, expected, value) => {
+        if (key === STORAGE_KEYS.current) await checkpoint(tab, "commit");
+        return inner.compareAndSet!(key, expected, value);
+      };
+    }
+    return storage;
+  }
+
+  /** Stop `tab` before its next `op`; resolves when it got there. */
+  function pause(tab: string, op: Op) {
+    let release: () => void = () => undefined;
+    let reached: () => void = () => undefined;
+    const arrived = new Promise<void>((resolve) => (reached = resolve));
+    const wait = new Promise<void>((resolve) => (release = resolve));
+    gates.set(`${tab}:${op}`, { reached, wait });
+    return { arrived, release: () => release() };
+  }
+
+  function stored() {
+    const doc = JSON.parse(inner.dump()[STORAGE_KEYS.current]!) as UserData;
+    return {
+      revision: doc.documentRevision,
+      dates: doc.events
+        .filter(isLive)
+        .map((event) => event.startDate)
+        .sort(),
+    };
+  }
+
+  return { view, pause, log, stored, inner };
 }
 
-/** A view that stops after its next read of the live document until released. */
-function pausingView(base: KeyValueStorage) {
-  let pauseNext = false;
-  let release: () => void = () => undefined;
-  let reached: () => void = () => undefined;
-  const view: KeyValueStorage = {
-    ...base,
-    async getItem(key) {
-      const value = await base.getItem(key);
-      if (pauseNext && key === STORAGE_KEYS.current) {
-        pauseNext = false;
-        reached();
-        await new Promise<void>((resolve) => (release = resolve));
-      }
-      return value;
-    },
-  };
-  return {
-    view,
-    /** Pause after the next read; resolves once that read happened. */
-    arm() {
-      pauseNext = true;
-      return new Promise<void>((resolve) => (reached = resolve));
-    },
-    release: () => release(),
-  };
+/** Let every runnable promise chain progress (bounded, deterministic). */
+async function settle() {
+  for (let i = 0; i < 200; i += 1) await Promise.resolve();
 }
 
-function openStore(
-  storage: KeyValueStorage,
-  name: string,
-  writeLock?: WriteLock,
-) {
+function openStore(storage: KeyValueStorage, name: string, lock?: WriteLock) {
   const createId = sequentialIds(name);
   return createUserDataStore({
     repository: createUserDataRepository(storage, { now: () => NOW, createId }),
     now: () => new Date(NOW),
     createId,
-    writeLock,
+    writeLock: lock,
   });
 }
 
@@ -102,84 +121,220 @@ function ready(store: UserDataStore): UserData {
   return snapshot.data;
 }
 
-const seed = () =>
-  JSON.stringify({ ...userDataWithProfile(), documentRevision: 4 });
-
 const addLeave =
   (date: string) =>
   (data: UserData, ctx: Parameters<Parameters<UserDataStore["run"]>[0]>[1]) =>
     createServiceEvent(data, allDay("ANNUAL_LEAVE", date), ctx);
 
-function storedEvents(inner: ReturnType<typeof createMemoryStorage>) {
-  const doc = JSON.parse(inner.dump()[STORAGE_KEYS.current]!) as UserData;
-  return {
-    revision: doc.documentRevision,
-    dates: doc.events
-      .filter(isLive)
-      .map((event) => event.startDate)
-      .sort(),
-  };
+/** A backup to REPLACE with: the same profile plus one leave on `date`. */
+function backupWith(date: string): UserData {
+  const created = createServiceEvent(
+    userDataWithProfile(),
+    allDay("ANNUAL_LEAVE", date),
+    { now: NOW, deviceId: "backup", createId: sequentialIds(`bk-${date}`) },
+  );
+  if (!created.ok) throw new Error("fixture");
+  return created.data;
 }
 
-describe("two tabs writing at the same time", () => {
-  it("with the shared write lock, simultaneous writes from the same revision both survive", async () => {
-    const { inner, view } = sharedStorage({ [STORAGE_KEYS.current]: seed() });
-    const lock = sharedLock();
-    const tabA = openStore(view(), "a", lock);
-    const tabB = openStore(view(), "b", lock);
-    await Promise.all([tabA.load(), tabB.load()]);
-    expect(ready(tabA).documentRevision).toBe(ready(tabB).documentRevision);
+const replace = (store: UserDataStore, date: string) =>
+  store.restore(backupWith(date), {
+    mode: "REPLACE",
+    expectedDocumentRevision: N,
+    confirmDestructive: true,
+  });
 
-    const [a, b] = await Promise.all([
-      tabA.run(addLeave("2026-09-10")),
-      tabB.run(addLeave("2026-09-11")),
-    ]);
-    expect(a.ok && b.ok).toBe(true);
-    expect(storedEvents(inner)).toEqual({
-      revision: 6,
+async function tabs(options: { lock: boolean; atomicCompareAndSet?: boolean }) {
+  const storage = controlledStorage({
+    atomicCompareAndSet: options.atomicCompareAndSet ?? true,
+  });
+  const lock = options.lock ? sharedLock() : undefined;
+  const a = openStore(storage.view("A"), "a", lock);
+  const b = openStore(storage.view("B"), "b", lock);
+  await Promise.all([a.load(), b.load()]);
+  expect(ready(a).documentRevision).toBe(N);
+  expect(ready(b).documentRevision).toBe(N);
+  storage.log.length = 0;
+  return { storage, a, b };
+}
+
+describe("with the cross-tab write lock (Web Locks browsers)", () => {
+  for (const [first, second] of [
+    ["A", "B"],
+    ["B", "A"],
+  ] as const) {
+    it(`${first} reads N and stops before commit; ${second}'s write waits without even reading; both changes survive`, async () => {
+      const { storage, ...stores } = await tabs({ lock: true });
+      const one = stores[first === "A" ? "a" : "b"];
+      const two = stores[second === "A" ? "a" : "b"];
+      const gate = storage.pause(first, "commit");
+
+      const firstWrite = one.run(addLeave("2026-09-10"));
+      await gate.arrived; // first tab read revision N and is about to commit
+      const secondWrite = two.run(addLeave("2026-09-11"));
+      await settle();
+      // The second tab is blocked on the lock: it has not read anything.
+      expect(storage.log.filter((entry) => entry.startsWith(second))).toEqual(
+        [],
+      );
+
+      gate.release();
+      const results = await Promise.all([firstWrite, secondWrite]);
+      expect(results.every((result) => result.ok)).toBe(true);
+      expect(storage.stored()).toEqual({
+        revision: N + 2,
+        dates: ["2026-09-10", "2026-09-11"],
+      });
+    });
+  }
+
+  it("a restore stopped before commit holds off a normal write, which then builds on the restored document", async () => {
+    const { storage, a, b } = await tabs({ lock: true });
+    const gate = storage.pause("A", "commit");
+    const restoring = replace(a, "2026-10-01");
+    await gate.arrived;
+    const writing = b.run(addLeave("2026-10-02"));
+    await settle();
+    expect(storage.log.filter((entry) => entry.startsWith("B"))).toEqual([]);
+    gate.release();
+
+    expect((await restoring).ok).toBe(true);
+    expect((await writing).ok).toBe(true);
+    expect(storage.stored()).toEqual({
+      revision: N + 2,
+      dates: ["2026-10-01", "2026-10-02"],
+    });
+  });
+
+  it("a write stopped before commit makes a restore previewed at N wait, then report STALE_PREVIEW", async () => {
+    const { storage, a, b } = await tabs({ lock: true });
+    const gate = storage.pause("B", "commit");
+    const writing = b.run(addLeave("2026-10-02"));
+    await gate.arrived;
+    const restoring = replace(a, "2026-10-01");
+    await settle();
+    gate.release();
+
+    expect((await writing).ok).toBe(true);
+    expect(await restoring).toMatchObject({ ok: false, code: "STALE_PREVIEW" });
+    expect(storage.stored()).toEqual({
+      revision: N + 1,
+      dates: ["2026-10-02"],
+    });
+  });
+
+  it("two restores from the same preview: exactly one applies", async () => {
+    const { storage, a, b } = await tabs({ lock: true });
+    const gate = storage.pause("A", "commit");
+    const first = replace(a, "2026-10-01");
+    await gate.arrived;
+    const second = replace(b, "2026-10-05");
+    await settle();
+    gate.release();
+
+    expect((await first).ok).toBe(true);
+    expect(await second).toMatchObject({ ok: false, code: "STALE_PREVIEW" });
+    expect(storage.stored()).toEqual({
+      revision: N + 1,
+      dates: ["2026-10-01"],
+    });
+  });
+});
+
+describe("without a lock (Web Locks unavailable): atomic compare-and-set", () => {
+  it("A reads N, B reads N, A stops before commit, B attempts its write, A commits, B continues: B retries and both survive", async () => {
+    const { storage, a, b } = await tabs({ lock: false });
+    const gateA = storage.pause("A", "commit");
+    const gateB = storage.pause("B", "commit");
+
+    const writeA = a.run(addLeave("2026-09-10"));
+    await gateA.arrived; // A has read revision N
+    const writeB = b.run(addLeave("2026-09-11"));
+    await gateB.arrived; // B has read revision N too
+    gateA.release();
+    expect((await writeA).ok).toBe(true); // A commits N+1
+    gateB.release(); // B's compare-and-set now fails; it re-runs on N+1
+
+    expect((await writeB).ok).toBe(true);
+    expect(storage.stored()).toEqual({
+      revision: N + 2,
+      dates: ["2026-09-10", "2026-09-11"],
+    });
+    // B really did get refused once and read again.
+    expect(storage.log.filter((entry) => entry === "B:commit")).toHaveLength(2);
+  });
+
+  it("reverse order: B commits first while A waits before commit; A retries and both survive", async () => {
+    const { storage, a, b } = await tabs({ lock: false });
+    const gateA = storage.pause("A", "commit");
+    const writeA = a.run(addLeave("2026-09-10"));
+    await gateA.arrived;
+    expect((await b.run(addLeave("2026-09-11"))).ok).toBe(true);
+    gateA.release();
+
+    expect((await writeA).ok).toBe(true);
+    expect(storage.stored()).toEqual({
+      revision: N + 2,
       dates: ["2026-09-10", "2026-09-11"],
     });
   });
 
-  it("the same interleaving without any lock is exactly the race the lock closes", async () => {
-    // Documents the residual risk on browsers without Web Locks: both tabs
-    // pass the compare-and-set before either writes, and one change is lost.
-    const { inner, view } = sharedStorage({ [STORAGE_KEYS.current]: seed() });
-    const tabA = openStore(view(), "a");
-    const tabB = openStore(view(), "b");
-    await Promise.all([tabA.load(), tabB.load()]);
-    await Promise.all([
-      tabA.run(addLeave("2026-09-10")),
-      tabB.run(addLeave("2026-09-11")),
-    ]);
-    expect(storedEvents(inner).dates).toHaveLength(1);
+  it("a restore whose commit is overtaken by a write reports STALE_PREVIEW and keeps the write", async () => {
+    const { storage, a, b } = await tabs({ lock: false });
+    const gate = storage.pause("A", "commit");
+    const restoring = replace(a, "2026-10-01");
+    await gate.arrived;
+    expect((await b.run(addLeave("2026-10-02"))).ok).toBe(true);
+    gate.release();
+
+    expect(await restoring).toMatchObject({ ok: false, code: "STALE_PREVIEW" });
+    expect(storage.stored()).toEqual({
+      revision: N + 1,
+      dates: ["2026-10-02"],
+    });
   });
 
-  it("without a lock, compare-and-set still catches a write that landed after the base was read, and the command is re-run on the newer base", async () => {
-    const { inner, view } = sharedStorage({ [STORAGE_KEYS.current]: seed() });
-    const paused = pausingView(view());
-    const tabA = openStore(paused.view, "a");
-    const tabB = openStore(view(), "b");
-    await Promise.all([tabA.load(), tabB.load()]);
+  it("a write whose commit is overtaken by a restore re-runs on the restored document", async () => {
+    const { storage, a, b } = await tabs({ lock: false });
+    const gate = storage.pause("B", "commit");
+    const writing = b.run(addLeave("2026-10-02"));
+    await gate.arrived;
+    expect((await replace(a, "2026-10-01")).ok).toBe(true);
+    gate.release();
 
-    // Tab A reads revision 4 as its base, then stalls before writing.
-    const reached = paused.arm();
-    const pending = tabA.run(addLeave("2026-09-10"));
-    await reached;
-    // Tab B writes revision 5 meanwhile.
-    expect((await tabB.run(addLeave("2026-09-11"))).ok).toBe(true);
-    paused.release();
+    expect((await writing).ok).toBe(true);
+    expect(storage.stored()).toEqual({
+      revision: N + 2,
+      dates: ["2026-10-01", "2026-10-02"],
+    });
+  });
 
-    const result = await pending;
-    expect(result.ok).toBe(true);
-    expect(storedEvents(inner)).toEqual({
-      revision: 6,
-      dates: ["2026-09-10", "2026-09-11"],
+  it("two restores from the same preview: exactly one applies", async () => {
+    const { storage, a, b } = await tabs({ lock: false });
+    const gateA = storage.pause("A", "commit");
+    const gateB = storage.pause("B", "commit");
+    const first = replace(a, "2026-10-01");
+    await gateA.arrived;
+    const second = replace(b, "2026-10-05");
+    await gateB.arrived;
+    gateA.release();
+    expect((await first).ok).toBe(true);
+    gateB.release();
+
+    expect(await second).toMatchObject({ ok: false, code: "STALE_PREVIEW" });
+    expect(storage.stored()).toEqual({
+      revision: N + 1,
+      dates: ["2026-10-01"],
     });
   });
 
   it("the repository refuses a stale base outright", async () => {
-    const storage = createMemoryStorage({ [STORAGE_KEYS.current]: seed() });
+    const storage = createMemoryStorage({
+      [STORAGE_KEYS.current]: JSON.stringify({
+        ...userDataWithProfile(),
+        documentRevision: N,
+      }),
+    });
     const repo = createUserDataRepository(storage, {
       now: () => NOW,
       createId: sequentialIds("r"),
@@ -187,65 +342,29 @@ describe("two tabs writing at the same time", () => {
     const before = storage.dump();
     await expect(
       repo.save(
-        { ...userDataWithProfile(), documentRevision: 4 },
-        { expectedRevision: 3 },
+        { ...userDataWithProfile(), documentRevision: N },
+        { expectedRevision: N - 1 },
       ),
     ).rejects.toBeInstanceOf(ConcurrentWriteError);
     expect(storage.dump()).toEqual(before);
   });
 });
 
-describe("restore racing another tab", () => {
-  it("a write landing between re-plan and save turns the restore into STALE_PREVIEW and keeps the other tab's write", async () => {
-    const { inner, view } = sharedStorage({
-      [STORAGE_KEYS.current]: JSON.stringify({
-        ...fullDocument(),
-        documentRevision: 4,
-      }),
+describe("degraded provider: no lock and no atomic compare-and-set", () => {
+  it("documents the residual race: a check-then-write gap can lose a change", async () => {
+    // Not the production path (the localStorage adapter implements
+    // compareAndSet). Kept so the documented degraded guarantee is tested,
+    // not assumed.
+    const { storage, a, b } = await tabs({
+      lock: false,
+      atomicCompareAndSet: false,
     });
-    const paused = pausingView(view());
-    const tabA = openStore(paused.view, "a");
-    const tabB = openStore(view(), "b");
-    await Promise.all([tabA.load(), tabB.load()]);
-    const previewedAt = ready(tabA).documentRevision;
-
-    const reached = paused.arm();
-    const restoring = tabA.restore(fullDocument(), {
-      mode: "REPLACE",
-      expectedDocumentRevision: previewedAt,
-      confirmDestructive: true,
-    });
-    await reached; // tab A re-read revision 4 and re-planned against it
-    expect((await tabB.run(addLeave("2026-10-20"))).ok).toBe(true);
-    const afterB = inner.dump()[STORAGE_KEYS.current];
-    paused.release();
-
-    expect(await restoring).toMatchObject({ ok: false, code: "STALE_PREVIEW" });
-    expect(inner.dump()[STORAGE_KEYS.current]).toBe(afterB);
-  });
-
-  it("with the shared lock, a restore and a write are serialized and the restore reports the stale preview", async () => {
-    const { inner, view } = sharedStorage({
-      [STORAGE_KEYS.current]: JSON.stringify({
-        ...fullDocument(),
-        documentRevision: 4,
-      }),
-    });
-    const lock = sharedLock();
-    const tabA = openStore(view(), "a", lock);
-    const tabB = openStore(view(), "b", lock);
-    await Promise.all([tabA.load(), tabB.load()]);
-
-    const [write, restore] = await Promise.all([
-      tabB.run(addLeave("2026-10-20")),
-      tabA.restore(fullDocument(), {
-        mode: "REPLACE",
-        expectedDocumentRevision: 4,
-        confirmDestructive: true,
-      }),
-    ]);
-    expect(write.ok).toBe(true);
-    expect(restore).toMatchObject({ ok: false, code: "STALE_PREVIEW" });
-    expect(storedEvents(inner).dates).toContain("2026-10-20");
+    const gate = storage.pause("A", "commit");
+    const writeA = a.run(addLeave("2026-09-10"));
+    await gate.arrived; // A passed its revision check
+    expect((await b.run(addLeave("2026-09-11"))).ok).toBe(true);
+    gate.release();
+    expect((await writeA).ok).toBe(true);
+    expect(storage.stored().dates).toEqual(["2026-09-10"]); // B's change lost
   });
 });

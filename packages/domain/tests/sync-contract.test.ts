@@ -8,6 +8,7 @@ import {
   isLive,
   mergeUserData,
   planRestore,
+  editProfile,
   saveAttendanceMonth,
   updateServiceEvent,
   userDataSchema,
@@ -150,6 +151,35 @@ describe("same-device history: revisions order versions", () => {
     expect(result.counts.events).toEqual({ UNCHANGED: 1 });
   });
 
+  it("a genuine same-device sequence rev1 → rev2 → rev3 always settles on rev3", () => {
+    const { base: rev1, id } = shared();
+    const rev2 = edit(rev1, id, "2", device("origin"));
+    const rev3 = edit(rev2, id, "3", device("origin"));
+    for (const older of [rev1, rev2]) {
+      expect(eventOf(merged(older, rev3).data, id)).toEqual(eventOf(rev3, id));
+      expect(eventOf(merged(rev3, older).data, id)).toEqual(eventOf(rev3, id));
+    }
+  });
+
+  it("the same content under unequal revisions from different devices needs no human choice", () => {
+    const { base, id } = shared();
+    const onA = edit(base, id, "같은 결론", device("device-a")); // rev2
+    const onB = edit(
+      edit(base, id, "중간", device("device-b")),
+      id,
+      "같은 결론",
+      device("device-b"),
+    ); // rev3
+    for (const [a, b] of [
+      [onA, onB],
+      [onB, onA],
+    ] as const) {
+      const result = merged(a, b);
+      expect(result.counts.events).toEqual({ UNCHANGED: 1 });
+      expect(eventOf(result.data, id)).toEqual(eventOf(a, id));
+    }
+  });
+
   it("E. an older copy from the same device cannot resurrect a newer deletion", () => {
     const { base: backup, id } = shared();
     const deleted = must(deleteServiceEvent(backup, id, device("origin"))).data;
@@ -248,12 +278,14 @@ describe("independent devices: revision counters are not a clock", () => {
     });
   });
 
-  it("unequal-revision divergent edits from different devices never pick a silent winner", () => {
+  it("unequal-revision divergent edits from different devices never pick a silent winner (rev2 vs rev4)", () => {
     const { base, id } = shared();
     const onA = edit(base, id, "A 메모", device("device-a")); // rev2
     let onB = base;
-    for (let i = 0; i < 5; i += 1)
-      onB = edit(onB, id, `B 메모 ${i}`, device("device-b")); // rev6
+    for (let i = 0; i < 3; i += 1)
+      onB = edit(onB, id, `B 메모 ${i}`, device("device-b")); // rev4
+    expect(eventOf(onA, id).revision).toBe(2);
+    expect(eventOf(onB, id).revision).toBe(4);
     for (const [a, b] of [
       [onA, onB],
       [onB, onA],
@@ -318,32 +350,61 @@ describe("independent devices: revision counters are not a clock", () => {
     );
   });
 
-  it("D. an explicit resolution applies the chosen side verbatim and is idempotent with the same choice", () => {
+  it("D. an explicit resolution writes a version above both branches, and re-merging either branch is a stable no-op", () => {
     const { base, id } = shared();
-    const here = edit(base, id, "여기", device("here"));
+    const here = edit(base, id, "여기", device("here")); // rev2 (here)
     const there = edit(
       edit(base, id, "저기1", device("there")),
       id,
       "저기",
       device("there"),
-    );
+    ); // rev3 (there)
     const key = `events:${id}`;
 
-    const keepLocal = merged(here, there, { resolutions: { [key]: "LOCAL" } });
-    expect(eventOf(keepLocal.data, id)).toEqual(eventOf(here, id));
-    expect(keepLocal.counts.events.RESOLVED_LOCAL).toBe(1);
-    expect(
-      merged(keepLocal.data, there, { resolutions: { [key]: "LOCAL" } }).data,
-    ).toEqual(keepLocal.data);
-    // Without an answer the same file asks again: nothing proves order.
-    expect(conflictsOf(keepLocal.data, there)).toHaveLength(1);
+    for (const choice of ["LOCAL", "INCOMING"] as const) {
+      const once = merged(here, there, { resolutions: { [key]: choice } });
+      const resolved = eventOf(once.data, id);
+      expect(resolved.note).toBe(choice === "LOCAL" ? "여기" : "저기");
+      // Above both inputs, written by this device, descending from both.
+      expect(resolved.revision).toBe(4);
+      expect(resolved.deviceId).toBe(MERGE_CTX.deviceId);
+      expect(resolved.updatedAt).toBe(MERGE_CTX.now);
+      expect(resolved.supersedes).toEqual({ here: 2, origin: 1, there: 3 });
+      expect(once.counts.events[`RESOLVED_${choice}`]).toBe(1);
 
-    const takeIncoming = merged(here, there, {
-      resolutions: { [key]: "INCOMING" },
-    });
-    expect(eventOf(takeIncoming.data, id)).toEqual(eventOf(there, id));
-    // Now identical: re-merging needs no answer at all.
-    expect(merged(takeIncoming.data, there).data).toEqual(takeIncoming.data);
+      // Merging the same old branch again: no conflict, no change, with or
+      // without the resolution map.
+      for (const oldBranch of [there, here]) {
+        const again = merged(once.data, oldBranch);
+        expect(again.data).toEqual(once.data);
+        expect(again.conflicts).toEqual([]);
+        expect(
+          merged(once.data, oldBranch, { resolutions: { [key]: choice } }).data,
+        ).toEqual(once.data);
+      }
+      // A device still on an old branch adopts the resolution without
+      // being asked: it descends from what that device has.
+      const adopted = merged(there, once.data);
+      expect(eventOf(adopted.data, id)).toEqual(resolved);
+      // ...and its next edit builds on the settled history, no new conflict.
+      const nextEdit = edit(adopted.data, id, "그 다음", device("there"));
+      expect(eventOf(merged(once.data, nextEdit).data, id).note).toBe(
+        "그 다음",
+      );
+    }
+  });
+
+  it("a record edited here after it came from another device keeps its lineage, so the other device's older copy is not a conflict", () => {
+    const { base, id } = shared(); // created on "origin" (rev1)
+    const editedHere = edit(base, id, "여기서 이어서 수정", device("here")); // rev2
+    expect(eventOf(editedHere, id).supersedes).toEqual({ origin: 1 });
+    const result = merged(editedHere, base);
+    expect(eventOf(result.data, id)).toEqual(eventOf(editedHere, id));
+    expect(result.counts.events.RETAINED_LOCAL).toBe(1);
+    // And the origin device takes the newer edit.
+    expect(eventOf(merged(base, editedHere).data, id)).toEqual(
+      eventOf(editedHere, id),
+    );
   });
 
   it("D. divergence is detected in every collection, including records without revisions", () => {
@@ -372,7 +433,7 @@ describe("independent devices: revision counters are not a clock", () => {
     expect(typeOf("profile")).toBe("UNVERSIONED_DIVERGENT");
   });
 
-  it("a newer profile timestamp on another device does not silently win", () => {
+  it("a newer profile timestamp on another device does not silently win; a resolution is stable", () => {
     const data = userDataWithProfile();
     const edited = {
       ...data,
@@ -383,11 +444,39 @@ describe("independent devices: revision counters are not a clock", () => {
       },
     };
     expect(conflictsOf(data, edited)[0]!.type).toBe("UNVERSIONED_DIVERGENT");
-    const taken = merged(data, edited, {
-      resolutions: { [`profile:${data.profile!.id}`]: "INCOMING" },
-    });
-    expect(taken.data.profile).toEqual(edited.profile);
-    expect(taken.stats.profileUpdated).toBe(true);
+    const key = `profile:${data.profile!.id}`;
+    for (const choice of ["LOCAL", "INCOMING"] as const) {
+      const taken = merged(data, edited, { resolutions: { [key]: choice } });
+      expect(taken.data.profile!.defaultCommuteCost).toBe(
+        choice === "LOCAL" ? null : 3000,
+      );
+      expect(taken.stats.profileUpdated).toBe(choice === "INCOMING");
+      for (const oldBranch of [data, edited]) {
+        expect(merged(taken.data, oldBranch).data).toEqual(taken.data);
+      }
+    }
+  });
+
+  it("a profile edited through the app supersedes its earlier content", () => {
+    const data = userDataWithProfile();
+    const edited = must(
+      editProfile(
+        data,
+        {
+          callUpDate: "2026-05-04",
+          expectedDischargeDate: "2028-02-03",
+          serviceCategory: null,
+          workplaceType: null,
+          defaultCommuteCost: 4200,
+          defaultMealAllowanceOverride: null,
+          timezone: "Asia/Seoul",
+        },
+        device("origin"),
+      ),
+    ).data;
+    expect(edited.profile!.supersedes).toHaveLength(1);
+    expect(merged(edited, data).data.profile).toEqual(edited.profile);
+    expect(merged(data, edited).data.profile).toEqual(edited.profile);
   });
 });
 
@@ -474,7 +563,15 @@ describe("reconnecting stale devices", () => {
     const kept = merged(busy, elsewhere, {
       resolutions: { [`events:${id}`]: "LOCAL" },
     });
-    expect(sortedRecords(kept.data)).toEqual(sortedRecords(busy));
+    // Busy's content, now recorded as descending from both branches.
+    expect(eventOf(kept.data, id)).toMatchObject({
+      ...eventOf(busy, id),
+      revision: 8,
+      deviceId: MERGE_CTX.deviceId,
+      updatedAt: MERGE_CTX.now,
+      supersedes: { "device-b": 2, origin: 7 },
+    });
+    expect(merged(kept.data, elsewhere).data).toEqual(kept.data);
   });
 });
 

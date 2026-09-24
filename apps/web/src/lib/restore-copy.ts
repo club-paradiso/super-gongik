@@ -84,7 +84,7 @@ export function restoreErrorTitle(code: RestoreFailureCode): string {
     case "PRESERVE_FAILED":
       return "안전 사본을 만들지 못해 멈췄어요.";
     case "STALE_PREVIEW":
-      return "미리보기 이후 데이터가 바뀌었어요.";
+      return "다시 확인이 필요해요.";
     default:
       return "복원하지 않았어요.";
   }
@@ -93,7 +93,7 @@ export function restoreErrorTitle(code: RestoreFailureCode): string {
 export const CONFLICT_TYPE_COPY: Record<MergeConflict["type"], string> = {
   EQUAL_VERSION_DIVERGENT: "같은 버전인데 내용이 달라요.",
   CROSS_DEVICE_DIVERGENT:
-    "서로 다른 기기에서 따로 고쳐졌어요. 버전 숫자만으로는 어느 쪽이 나중인지 알 수 없어요.",
+    "양쪽에서 따로 고쳐졌어요. 어느 쪽이 다른 쪽을 보고 고쳤는지 증명할 기록이 없어요.",
   IMMUTABLE_RECORD_DIVERGENT:
     "한 번 저장되면 바뀌지 않는 기록인데 내용이 달라요.",
   UNVERSIONED_DIVERGENT:

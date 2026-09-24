@@ -55,6 +55,14 @@ export function createBrowserStorage(): KeyValueStorage {
     async removeItem(key) {
       storage().removeItem(key);
     },
+    async compareAndSet(key, expected, value) {
+      // One synchronous block: no other script in this browsing context can
+      // run between the check and the write.
+      const target = storage();
+      if (target.getItem(key) !== expected) return false;
+      target.setItem(key, value);
+      return true;
+    },
     async keys() {
       const target = storage();
       return Array.from({ length: target.length }, (_, index) =>
