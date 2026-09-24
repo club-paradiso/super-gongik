@@ -314,8 +314,7 @@ export function evaluateMonthlyCompensation(
   const sickLeaveNeedsExactDates =
     sickUpperBound > sickLimit && !exactDatesConfirmed;
   const roundingPolicy = attendance?.roundingPolicy ?? null;
-  const needsAdjustedBasePay =
-    partialMonth || exactNonPayableDates.length > 0;
+  const needsAdjustedBasePay = partialMonth || exactNonPayableDates.length > 0;
   let basePayAdjustment: BasePayAdjustment | null = null;
 
   if (creditIssue) {
@@ -361,7 +360,10 @@ export function evaluateMonthlyCompensation(
         : "이 달에 미지급 사유가 있었다는 기존 기록은 있지만 정확한 날짜가 없어요. 기본 보수 미지급 날짜를 모두 확인해야 계산할 수 있어요.";
       base = baseComponent("GATED", text);
       unresolved.push(text);
-    } else if (needsAdjustedBasePay && !supportsTenWonTruncation(roundingPolicy)) {
+    } else if (
+      needsAdjustedBasePay &&
+      !supportsTenWonTruncation(roundingPolicy)
+    ) {
       const text =
         roundingPolicy === "INSTITUTION_OTHER_OR_UNKNOWN"
           ? "지급기관이 국고금 관리법 제47조의 10원 미만 절사와 다른 회계 기준을 쓴다고 확인됐어요. 그 기관의 정확한 끝수 처리 기준을 지원하기 전에는 최종 기본 보수를 계산하지 않아요."
@@ -369,8 +371,7 @@ export function evaluateMonthlyCompensation(
       base = baseComponent("GATED", text);
       unresolved.push(text);
     } else if (needsAdjustedBasePay && monthlyBasePay !== null) {
-      const raw =
-        (monthlyBasePay / daysInMonth(month)) * payableCalendarDays;
+      const raw = (monthlyBasePay / daysInMonth(month)) * payableCalendarDays;
       const rounded = truncateSubTenWon(raw);
       basePayAdjustment = {
         ...basePayAdjustment,

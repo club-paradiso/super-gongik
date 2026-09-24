@@ -550,8 +550,8 @@ function AttendanceEditor({
       <fieldset className="form-field choice-field">
         <legend>기본 보수 미지급 날짜</legend>
         <p className="field-hint">
-          복무중단·복무이탈·연가 초과 결근·보수 미지급 병가처럼 기본 보수를
-          받지 않는 날짜만 표시하세요. 중식비·교통비 판단과는 별개예요.
+          복무중단·복무이탈·연가 초과 결근·보수 미지급 병가처럼 기본 보수를 받지
+          않는 날짜만 표시하세요. 중식비·교통비 판단과는 별개예요.
         </p>
         <div className="day-grid">
           {days
@@ -564,7 +564,9 @@ function AttendanceEditor({
                   type="checkbox"
                 />
                 <span>{dayLabel(day.date)}</span>
-                <small>{nonPayableDates.has(day.date) ? "미지급" : "지급"}</small>
+                <small>
+                  {nonPayableDates.has(day.date) ? "미지급" : "지급"}
+                </small>
               </label>
             ))}
         </div>
