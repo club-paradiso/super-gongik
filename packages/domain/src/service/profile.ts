@@ -29,6 +29,26 @@ export const serviceProfileInputSchema = z
       .nullable()
       .default(null),
     timezone: z.string().min(1).default(SEOUL_TIME_ZONE),
+    /**
+     * Ordinary workday length at the user's institution, in minutes. Needed
+     * only to combine minute-based partial leave with day-based balances;
+     * never defaulted because schedules are institution-specific.
+     */
+    workdayMinutes: z
+      .number()
+      .int()
+      .min(60)
+      .max(24 * 60)
+      .nullable()
+      .default(null),
+    /**
+     * Whether prior service is credited toward pay grade (병역법 시행령
+     * 제62조제2항 cases). null = not answered; compensation stays gated.
+     */
+    priorServiceCredit: z
+      .enum(["NONE", "HAS_PRIOR_SERVICE"])
+      .nullable()
+      .default(null),
   })
   .superRefine((profile, context) => {
     if (
@@ -106,14 +126,14 @@ export function updateServiceProfile(
   };
 }
 
+export const storedServiceProfileSchema = serviceProfileInputSchema.extend({
+  id: z.string().min(1),
+  ownerId: z.null(),
+  localProfileId: z.string().min(1),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+});
+
 export function parseServiceProfile(value: unknown): ServiceProfile {
-  return serviceProfileInputSchema
-    .extend({
-      id: z.string().min(1),
-      ownerId: z.null(),
-      localProfileId: z.string().min(1),
-      createdAt: z.string().datetime(),
-      updatedAt: z.string().datetime(),
-    })
-    .parse(value);
+  return storedServiceProfileSchema.parse(value);
 }
