@@ -364,10 +364,11 @@ export function evaluateMonthlyCompensation(
       needsAdjustedBasePay &&
       !supportsTenWonTruncation(roundingPolicy)
     ) {
+      const prorationStructure = `월 보수 ÷ 그 달 일수(${daysInMonth(month)}일) × 지급대상 달력일수(휴일도 포함)`;
       const text =
         roundingPolicy === "INSTITUTION_OTHER_OR_UNKNOWN"
-          ? "지급기관이 국고금 관리법 제47조의 10원 미만 절사와 다른 회계 기준을 쓴다고 확인됐어요. 그 기관의 정확한 끝수 처리 기준을 지원하기 전에는 최종 기본 보수를 계산하지 않아요."
-          : "소집·소집해제 달 또는 미지급일이 있는 달은 지급기관의 끝수 처리 기준을 확인해야 해요. 국고금 관리법 제47조 적용 또는 기관의 10원 미만 절사 적용이 명시적으로 확인된 경우에만 자동 계산해요.";
+          ? `${prorationStructure} 구조까지는 확인됐지만, 지급기관이 국고금 관리법 제47조의 10원 미만 절사와 다른 회계 기준을 쓴다고 확인됐어요. 그 기관의 정확한 끝수 처리 기준을 지원하기 전에는 최종 기본 보수를 계산하지 않아요.`
+          : `${prorationStructure} 구조까지는 확인됐어요. 소집·소집해제 달 또는 미지급일이 있는 달은 지급기관의 끝수 처리 기준도 확인해야 하므로, 국고금 관리법 제47조 적용 또는 기관의 10원 미만 절사 적용이 명시적으로 확인된 경우에만 자동 계산해요.`;
       base = baseComponent("GATED", text);
       unresolved.push(text);
     } else if (needsAdjustedBasePay && monthlyBasePay !== null) {
