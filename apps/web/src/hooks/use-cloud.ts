@@ -9,6 +9,7 @@ const SERVER_STATE: CloudState = {
   phase: "UNCONFIGURED",
   email: null,
   userId: null,
+  accountSession: null,
   sync: null,
   authError: null,
   diagnostics: [],

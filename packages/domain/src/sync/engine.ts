@@ -149,6 +149,12 @@ export type SyncDiagnostic = {
  */
 export type PreviewEvidence = {
   userId: string;
+  /**
+   * The engine instance (one sign-in session) the preview was made by. A
+   * sign-out, or a switch away and back, starts a new one, so an old preview
+   * never authorizes anything afterwards.
+   */
+  sessionId: string;
   /** Local write counter at preview time (same-device bookkeeping only). */
   localRevision: number;
   generation: number;
@@ -186,6 +192,8 @@ export type EnablePreview =
 
 export type SyncEngineOptions = {
   userId: string;
+  /** Identifies this sign-in session; defaults to a fresh random id. */
+  sessionId?: string;
   store: Pick<UserDataStore, "getSnapshot" | "run">;
   transport: SyncTransport;
   state: SyncStateStore;
@@ -331,8 +339,18 @@ export function createSyncEngine(options: SyncEngineOptions) {
     for (const listener of listeners) listener();
   }
 
-  function exclusive<T>(task: () => Promise<T>): Promise<T> {
+  let disposed = false;
+  const sessionId =
+    options.sessionId ??
+    `${options.userId}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2)}`;
+
+  function exclusive<T>(work: () => Promise<T>): Promise<T> {
     const lock = options.lock;
+    // Checked when the task actually starts, not when it was queued: work
+    // queued for an account that has since been signed out or switched
+    // never runs.
+    const task = () =>
+      disposed ? Promise.reject(new SyncEngineDisposedError()) : work();
     const run = queue.then(
       () => (lock ? lock(task) : task()),
       () => (lock ? lock(task) : task()),
@@ -833,6 +851,7 @@ export function createSyncEngine(options: SyncEngineOptions) {
       kind: "READY",
       evidence: {
         userId: options.userId,
+        sessionId,
         localRevision: local.documentRevision,
         generation: pulled.account.generation,
         lastSeq: pulled.account.lastSeq,
@@ -901,7 +920,10 @@ export function createSyncEngine(options: SyncEngineOptions) {
         if (preview.kind !== "READY") return { kind: "NOT_READY" };
         const evidence = preview.evidence;
         // Re-check, immediately before acting, everything the user saw.
-        if (evidence.userId !== options.userId) {
+        if (
+          evidence.userId !== options.userId ||
+          evidence.sessionId !== sessionId
+        ) {
           return { kind: "STALE_PREVIEW", reason: "ACCOUNT" };
         }
         const local = await latestData();
@@ -929,6 +951,16 @@ export function createSyncEngine(options: SyncEngineOptions) {
 
     /** The account this engine acts for. */
     userId: options.userId,
+    /** This sign-in session (see `PreviewEvidence.sessionId`). */
+    sessionId,
+
+    /**
+     * The account was signed out or switched: refuse everything still
+     * queued or requested later. Idempotent.
+     */
+    dispose() {
+      disposed = true;
+    },
 
     sync: (reason = "manual") => exclusive(() => runSync(reason)),
 
@@ -1055,6 +1087,14 @@ export function createSyncEngine(options: SyncEngineOptions) {
     downloadBackup: (id: string) => options.transport.downloadBackup(id),
     deleteBackup: (id: string) => options.transport.deleteBackup(id),
   };
+}
+
+/** The engine's account was signed out or switched; nothing was done. */
+export class SyncEngineDisposedError extends Error {
+  constructor() {
+    super("SYNC_ENGINE_DISPOSED");
+    this.name = "SyncEngineDisposedError";
+  }
 }
 
 /** Local (non-transport) failure category carrier. */

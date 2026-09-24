@@ -89,6 +89,31 @@ function client(userId: string | null, hook?: FetchHook) {
   });
 }
 
+const token = (userId: string) =>
+  sign({
+    sub: userId,
+    role: "authenticated",
+    aud: "authenticated",
+    exp: exp(),
+  });
+
+/** A transport pinned to `userId`, as the app builds it. */
+function transportFor(
+  userId: string,
+  hook?: FetchHook,
+  sessionUser: string = userId,
+) {
+  return createSupabaseTransport(client(sessionUser, hook), {
+    identity: {
+      userId,
+      session: async () => ({
+        userId: sessionUser,
+        accessToken: token(sessionUser),
+      }),
+    },
+  });
+}
+
 function device(
   name: string,
   userId: string,
@@ -114,7 +139,7 @@ function device(
   const engine = createSyncEngine({
     userId,
     store,
-    transport: createSupabaseTransport(client(userId, hook)),
+    transport: transportFor(userId, hook),
     state: createSyncStateStore(storage, userId),
   });
   return {
@@ -262,15 +287,13 @@ describe.skipIf(!enabled)("Supabase transport against PostgREST + RLS", () => {
     const retry = await a.engine.sync();
     expect(retry.phase).toBe("IDLE");
     expect(retry.lastSummary?.pushed).toBe(0);
-    const account = await createSupabaseTransport(
-      client(userB),
-    ).ensureAccount();
+    const account = await transportFor(userB).ensureAccount();
     expect(account.lastSeq).toBe(1);
     expect(account.profileId).toBe("profile-b");
   });
 
   it("isolates accounts: another user reads nothing, anonymous calls are refused", async () => {
-    const owner = createSupabaseTransport(client(userA));
+    const owner = transportFor(userA);
     const backup = await owner.uploadBackup({
       generation: (await owner.ensureAccount()).generation,
       text: '{"secret":"a"}',
@@ -282,7 +305,7 @@ describe.skipIf(!enabled)("Supabase transport against PostgREST + RLS", () => {
     expect(backup.kind).toBe("OK");
     if (backup.kind !== "OK") throw new Error();
 
-    const other = createSupabaseTransport(client(userC));
+    const other = transportFor(userC);
     const account = await other.ensureAccount();
     const pulled = await other.pull({
       generation: account.generation,
@@ -320,13 +343,34 @@ describe.skipIf(!enabled)("Supabase transport against PostgREST + RLS", () => {
     if (ownerRows.kind !== "OK") throw new Error();
     expect(JSON.stringify(ownerRows.rows)).not.toContain("overwritten");
 
-    const anonymous = createSupabaseTransport(client(null));
-    await expect(anonymous.ensureAccount()).rejects.toMatchObject({
+    // The server itself refuses anonymous callers (no session at all).
+    const anonymous = client(null);
+    const denied = await anonymous.rpc("sync_ensure_account", {});
+    expect(denied.error).not.toBeNull();
+    expect(categorize(denied.status, denied.error)).toBe("AUTH");
+    const hidden = await anonymous.from("cloud_backups").select("id");
+    expect(hidden.error).not.toBeNull();
+  });
+
+  it("a transport pinned to A never sends a request once the session is B", async () => {
+    let requests = 0;
+    const pinnedToA = transportFor(
+      userA,
+      () => {
+        requests += 1;
+        return "PASS";
+      },
+      userB,
+    );
+    await expect(pinnedToA.ensureAccount()).rejects.toMatchObject({
       category: "AUTH",
     });
-    await expect(anonymous.listBackups()).rejects.toMatchObject({
+    await expect(
+      pinnedToA.resetCloud({ expectedGeneration: 1 }),
+    ).rejects.toMatchObject({
       category: "AUTH",
     });
+    expect(requests).toBe(0);
   });
 
   it("cloud reset stops a stale device, and backups restore through parseBackup", async () => {
@@ -358,7 +402,7 @@ describe.skipIf(!enabled)("Supabase transport against PostgREST + RLS", () => {
       block: { reason: "GENERATION_MISMATCH" },
     });
     expect(await b.engine.listBackups()).toEqual([]);
-    const transport = createSupabaseTransport(client(userD));
+    const transport = transportFor(userD);
     const pulled = await transport.pull({
       generation: 2,
       afterSeq: 0,
@@ -369,7 +413,7 @@ describe.skipIf(!enabled)("Supabase transport against PostgREST + RLS", () => {
   });
 
   it("reports an unreachable server as NETWORK", async () => {
-    const offline = createSupabaseTransport(client(userA, () => "FAIL_BEFORE"));
+    const offline = transportFor(userA, () => "FAIL_BEFORE");
     await expect(offline.ensureAccount()).rejects.toMatchObject({
       category: "NETWORK",
     });

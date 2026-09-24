@@ -156,16 +156,39 @@ function parse<T>(schema: z.ZodType<T>, value: unknown): T {
   return parsed.data;
 }
 
+/**
+ * The account a transport acts for, and how to read the current session
+ * locally (no network). The Supabase client's session is shared by every
+ * tab of the origin and can switch accounts at any moment; binding each
+ * request to a verified token of the expected user means work started for
+ * account A can never reach the server as account B.
+ */
+export type TransportIdentity = {
+  userId: string;
+  session: () => Promise<{ userId: string; accessToken: string } | null>;
+};
+
 export function createSupabaseTransport(
   client: SupabaseClient,
-  options: { timeoutMs?: number } = {},
+  options: { identity: TransportIdentity; timeoutMs?: number },
 ): SyncTransport {
   const timeout = () =>
     AbortSignal.timeout(options.timeoutMs ?? REQUEST_TIMEOUT_MS);
 
+  /** Authorization header for the expected user, or refuse. */
+  async function bearer(): Promise<string> {
+    const session = await options.identity.session();
+    if (!session || session.userId !== options.identity.userId) {
+      throw new SyncTransportError("AUTH", "ACCOUNT_CHANGED");
+    }
+    return `Bearer ${session.accessToken}`;
+  }
+
   async function rpc(name: string, args: Record<string, unknown>) {
+    const authorization = await bearer();
     const { data, error, status } = await client
       .rpc(name, args)
+      .setHeader("Authorization", authorization)
       .abortSignal(timeout());
     if (error) fail(status, error);
     return data as unknown;
@@ -241,11 +264,13 @@ export function createSupabaseTransport(
     },
 
     async listBackups() {
+      const authorization = await bearer();
       const { data, error, status } = await client
         .from("cloud_backups")
         .select(
           "id, created_at, exported_at, generation, schema_version, format_version, byte_size, digest",
         )
+        .setHeader("Authorization", authorization)
         .order("created_at", { ascending: false })
         .abortSignal(timeout());
       if (error) fail(status, error);
@@ -267,10 +292,12 @@ export function createSupabaseTransport(
     },
 
     async downloadBackup(id) {
+      const authorization = await bearer();
       const { data, error, status } = await client
         .from("cloud_backups")
         .select("content")
         .eq("id", id)
+        .setHeader("Authorization", authorization)
         .abortSignal(timeout())
         .single();
       if (error) fail(status, error);

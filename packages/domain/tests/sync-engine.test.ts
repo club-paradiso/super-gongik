@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   STORAGE_KEYS,
+  SyncEngineDisposedError,
   commitImport,
   createMemorySyncServer,
   createSyncEngine,
@@ -1203,6 +1204,41 @@ describe("consent is bound to what the user approved", () => {
     });
     expect(server.rows(OTHER_USER)).toEqual([]);
     expect(await a.storage.getItem(syncStateKey(OTHER_USER))).toBeNull();
+    // B's own, fresh preview works.
+    const previewB = await engineB.previewEnable();
+    expect(previewB).toMatchObject({ evidence: { userId: OTHER_USER } });
+    expect((await engineB.enable(previewB)).kind).toBe("ENABLED");
+    expect(server.rows(OTHER_USER)).toHaveLength(2);
+  });
+
+  it("a preview from an earlier sign-in session of the same account is stale", async () => {
+    const { server, a } = await localDevice();
+    const preview = await a.signIn(USER).previewEnable();
+    // Signed out and back in: a new engine session.
+    const again = a.signIn(USER);
+    expect(await again.enable(preview)).toEqual({
+      kind: "STALE_PREVIEW",
+      reason: "ACCOUNT",
+    });
+    expect(server.rows(USER)).toEqual([]);
+  });
+
+  it("a disposed engine (signed out / switched) refuses queued and later work", async () => {
+    const { server, a } = await localDevice();
+    const engine = a.signIn(USER);
+    const preview = await engine.previewEnable();
+    engine.dispose();
+    await expect(engine.enable(preview)).rejects.toThrow(
+      SyncEngineDisposedError,
+    );
+    await expect(engine.deleteCloudData({ userId: USER })).rejects.toThrow(
+      SyncEngineDisposedError,
+    );
+    await expect(engine.sync()).rejects.toThrow(SyncEngineDisposedError);
+    expect(
+      server.calls.filter((call) => call.op !== "pull" && call.op !== "ensure"),
+    ).toEqual([]);
+    expect(server.rows(USER)).toEqual([]);
   });
 
   it("a local write after the preview makes it stale", async () => {
@@ -1237,6 +1273,14 @@ describe("consent is bound to what the user approved", () => {
     });
     expect(await a.storage.getItem(syncStateKey(USER))).toBeNull();
     expect(server.rows(USER)).toHaveLength(1); // only the other device's profile
+    // The refreshed preview shows the new plan: a merge, not an upload.
+    const fresh = await engine.previewEnable();
+    expect(fresh).toMatchObject({
+      kind: "READY",
+      case: "MERGE",
+      remoteRecords: 1,
+      evidence: { lastSeq: 1 },
+    });
   });
 
   it("a cloud reset between preview and confirmation stays fail-closed", async () => {

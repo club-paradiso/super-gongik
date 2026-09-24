@@ -100,23 +100,36 @@ The user confirms, the checkpoint is created for the account's current
 generation, and the first sync runs.
 
 **The confirmation is bound to the preview.** A READY preview carries
-`evidence`: the account it was made for, this device's local
-`documentRevision` at preview time (local bookkeeping only), and the
+`evidence`: the account and sign-in session it was made in, this device's
+local `documentRevision` at preview time (local bookkeeping only), and the
 account's `generation`, `lastSeq` and bound profile. `enable()` re-reads all
-of them immediately before acting and returns `STALE_PREVIEW` (`ACCOUNT`,
-`LOCAL` or `REMOTE`) without changing anything if any differ; the UI then
-shows a fresh preview and asks again. A different plan never runs under an
-old confirmation.
+of them inside the sync lock immediately before acting and returns
+`STALE_PREVIEW` (`ACCOUNT`, `LOCAL` or `REMOTE`) without changing anything if
+any differ. The UI then shows a fresh preview, which the user must approve
+again. A different plan never runs under an old confirmation.
 
-**Decisions never cross accounts.** The sign-in session is shared by the
-tabs of one browser, so another tab can switch accounts. The sync panel's
-account subtree is keyed by the user id (every open confirmation, preview
-and pending choice is dropped on a switch), and every account-scoped action
-— delete cloud data, resolve conflicts, upload/delete a backup, turn sync
-off — names the account it was decided for; the controller and engine
-refuse it for any other account. Conflict resolutions are honored only for
-conflicts the merge actually has open in that run, so a stale choice can
-never force-push a record.
+**Decisions never cross accounts or sessions.** The sign-in session is
+shared by the tabs of one browser, so another tab can sign out or switch
+accounts at any time. Four layers stop a decision made for one account from
+acting on another:
+
+1. Every sign-in (including signing back into the same account) gets a new
+   session id (`CloudState.accountSession`). The sync panel's account
+   subtree is keyed by it, so open confirmations, previews, pending backup
+   deletes and conflict choices are dropped on any change.
+2. Every account-scoped action (delete cloud data, resolve conflicts,
+   upload/delete a backup, turn sync off) names the session it was decided
+   in. The controller returns `{ kind: "ACCOUNT_CHANGED" }` and does nothing
+   if that session is no longer current.
+3. The engine of a signed-out or switched account is disposed: work still
+   queued for it is refused when it would start.
+4. The Supabase transport is pinned to its user. Before each request it
+   reads the current session locally, refuses if it belongs to someone
+   else, and sends that verified user's token explicitly. A request built
+   for account A can never reach the server as account B.
+
+Conflict resolutions are honored only for conflicts the merge actually
+settled in that run, so a stale choice can never force-push a record.
 
 ## 5. Sync lifecycle
 

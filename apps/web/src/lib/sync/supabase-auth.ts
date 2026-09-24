@@ -89,6 +89,19 @@ export async function loadSupabaseAuth(
       // This device only; other devices stay signed in.
       await client.auth.signOut({ scope: "local" });
     },
-    transport: () => createSupabaseTransport(client),
+    transport: (userId) =>
+      createSupabaseTransport(client, {
+        identity: {
+          userId,
+          // Local read of the shared session; no network request.
+          session: async () => {
+            const { data } = await client.auth.getSession();
+            const session = data.session;
+            return session
+              ? { userId: session.user.id, accessToken: session.access_token }
+              : null;
+          },
+        },
+      }),
   };
 }

@@ -16,7 +16,6 @@ import {
 
 import { validateEnvironment } from "../src/env";
 import {
-  CloudAccountChangedError,
   CloudAuthError,
   createCloudController,
   type CloudAuth,
@@ -84,7 +83,8 @@ function fakeAuth(server: MemorySyncServer, users: Record<string, string>) {
       calls.push("signOut");
       session = null;
     },
-    transport: () => server.transport(session?.userId ?? null),
+    // Pinned to the user it was created for, like the Supabase transport.
+    transport: (userId) => server.transport(userId),
   };
   /** Another tab changed the shared session (Supabase broadcasts it). */
   const switchTo = (email: string) => {
@@ -280,28 +280,38 @@ describe("account switches never carry a decision over", () => {
     return { server, env };
   }
 
-  it("a delete confirmation given for A cannot reset B after the session switches", async () => {
+  it("a delete confirmation given for A cannot reset B; B needs its own", async () => {
     const { server, env } = await twoAccounts();
-    await env.controller.enable(await env.controller.previewEnable());
-    const confirmedFor = env.controller.getState().userId!;
-    expect(confirmedFor).toBe("user-a");
+    const enabled = await env.controller.enable(
+      await env.controller.previewEnable(),
+    );
+    expect(enabled.kind).toBe("ENABLED");
+    // The UI armed the confirmation while A's session was shown.
+    const confirmedFor = env.controller.getState().accountSession!;
+    expect(env.controller.getState().userId).toBe("user-a");
+
     env.switchTo("b@example.test");
     await tick();
     expect(env.controller.getState().userId).toBe("user-b");
-    await expect(env.controller.deleteCloudData(confirmedFor)).rejects.toThrow(
-      CloudAccountChangedError,
-    );
+    expect(env.controller.getState().accountSession).not.toBe(confirmedFor);
+
+    expect(await env.controller.deleteCloudData(confirmedFor)).toEqual({
+      kind: "ACCOUNT_CHANGED",
+    });
     expect(server.account("user-b")?.generation).toBe(1);
     expect(server.rows("user-b").length).toBeGreaterThan(0);
     expect(server.account("user-a")?.generation).toBe(1);
-    // B needs its own, fresh confirmation.
-    expect(await env.controller.deleteCloudData("user-b")).toMatchObject({
+
+    // A fresh confirmation, given while B is shown, works for B.
+    const fresh = env.controller.getState().accountSession!;
+    expect(await env.controller.deleteCloudData(fresh)).toMatchObject({
       ok: true,
     });
     expect(server.rows("user-b")).toEqual([]);
+    expect(server.rows("user-a").length).toBeGreaterThan(0);
   });
 
-  it("a preview approved for A cannot enable B", async () => {
+  it("a preview approved for A cannot enable B; a fresh B preview can", async () => {
     const { server, env } = await twoAccounts();
     const previewA = await env.controller.previewEnable();
     const rowsB = server.rows("user-b").length;
@@ -313,21 +323,61 @@ describe("account switches never carry a decision over", () => {
     });
     expect(server.rows("user-b")).toHaveLength(rowsB);
     expect(env.controller.getState().sync?.phase).toBe("DISABLED");
+
+    const previewB = await env.controller.previewEnable();
+    expect(previewB).toMatchObject({
+      kind: "READY",
+      evidence: { userId: "user-b" },
+    });
+    expect((await env.controller.enable(previewB)).kind).toBe("ENABLED");
+    expect(env.controller.getState().sync?.phase).toBe("IDLE");
   });
 
-  it("conflict choices and backup deletes made for A are refused under B", async () => {
-    const { env } = await twoAccounts();
+  it("conflict choices, backup actions and turning sync off decided for A are refused under B", async () => {
+    const { server, env } = await twoAccounts();
+    const sessionA = env.controller.getState().accountSession!;
     env.switchTo("b@example.test");
     await tick();
-    await expect(
-      env.controller.resolveConflicts("user-a", { "events:x": "LOCAL" }),
-    ).rejects.toThrow(CloudAccountChangedError);
-    await expect(env.controller.deleteBackup("user-a", "any")).rejects.toThrow(
-      CloudAccountChangedError,
-    );
-    await expect(env.controller.uploadBackup("user-a")).rejects.toThrow(
-      CloudAccountChangedError,
-    );
+    const changed = { kind: "ACCOUNT_CHANGED" };
+    expect(
+      await env.controller.resolveConflicts(sessionA, { "events:x": "LOCAL" }),
+    ).toEqual(changed);
+    expect(await env.controller.deleteBackup(sessionA, "any")).toEqual(changed);
+    expect(await env.controller.uploadBackup(sessionA)).toEqual(changed);
+    expect(await env.controller.disableSync(sessionA)).toEqual(changed);
+    expect(
+      server.calls.filter(
+        (call) => call.user === "user-b" && call.op === "backup",
+      ),
+    ).toEqual([]);
+  });
+
+  it("signing out invalidates every outstanding consent, even after signing back in", async () => {
+    const { server, env } = await twoAccounts();
+    const previewA = await env.controller.previewEnable();
+    const sessionA = env.controller.getState().accountSession!;
+    await env.controller.signOut();
+    expect(await env.controller.enable(previewA)).toEqual({
+      kind: "STALE_PREVIEW",
+      reason: "ACCOUNT",
+    });
+    expect(await env.controller.deleteCloudData(sessionA)).toEqual({
+      kind: "ACCOUNT_CHANGED",
+    });
+
+    // Same account again: a new session; the old consent stays dead.
+    await env.controller.sendCode("a@example.test");
+    await env.controller.verifyCode("123456");
+    expect(env.controller.getState().accountSession).not.toBe(sessionA);
+    expect(await env.controller.enable(previewA)).toEqual({
+      kind: "STALE_PREVIEW",
+      reason: "ACCOUNT",
+    });
+    expect(await env.controller.deleteCloudData(sessionA)).toEqual({
+      kind: "ACCOUNT_CHANGED",
+    });
+    expect(server.rows("user-a")).toEqual([]);
+    expect(server.account("user-a")?.generation).toBe(1);
   });
 });
 

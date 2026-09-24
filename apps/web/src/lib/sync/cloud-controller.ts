@@ -5,6 +5,7 @@ import {
   type ConflictResolution,
   type EnablePreview,
   type EnableResult,
+  type UploadBackupResponse,
   type KeyValueStorage,
   type SyncDiagnostic,
   type SyncEngine,
@@ -33,12 +34,19 @@ export type CloudSession = { userId: string; email: string | null };
 export type AuthErrorKind =
   "INVALID_EMAIL" | "INVALID_CODE" | "RATE_LIMITED" | "NETWORK" | "UNKNOWN";
 
-/** The signed-in account changed after the user made a choice. */
-export class CloudAccountChangedError extends Error {
-  constructor() {
-    super("ACCOUNT_CHANGED");
-    this.name = "CloudAccountChangedError";
-  }
+/**
+ * The signed-in account changed (or signed out) after the user made a
+ * choice; nothing was done.
+ */
+export type AccountChanged = { kind: "ACCOUNT_CHANGED" };
+export const ACCOUNT_CHANGED: AccountChanged = { kind: "ACCOUNT_CHANGED" };
+
+export function isAccountChanged(value: unknown): value is AccountChanged {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    (value as { kind?: unknown }).kind === "ACCOUNT_CHANGED"
+  );
 }
 
 export class CloudAuthError extends Error {
@@ -55,7 +63,8 @@ export type CloudAuth = {
   sendCode(email: string): Promise<void>;
   verifyCode(email: string, code: string): Promise<CloudSession>;
   signOut(): Promise<void>;
-  transport(): SyncTransport;
+  /** A transport that only ever acts as `userId` (refuses otherwise). */
+  transport(userId: string): SyncTransport;
 };
 
 export type CloudPhase =
@@ -65,6 +74,12 @@ export type CloudState = {
   phase: CloudPhase;
   email: string | null;
   userId: string | null;
+  /**
+   * The current sign-in session (new on every sign-in, account switch or
+   * re-sign-in). Account-scoped UI is keyed by it and every account-scoped
+   * action names it, so nothing decided in an earlier session can act now.
+   */
+  accountSession: string | null;
   sync: SyncStatus | null;
   /** Short, user-facing, content-free message for the last auth action. */
   authError: AuthErrorKind | null;
@@ -94,10 +109,12 @@ export function createCloudController(options: CloudControllerOptions) {
     phase: options.configured ? "GUEST" : "UNCONFIGURED",
     email: null,
     userId: null,
+    accountSession: null,
     sync: null,
     authError: null,
     diagnostics: [],
   };
+  let sessions = 0;
   let auth: CloudAuth | null = null;
   let authLoading: Promise<CloudAuth> | null = null;
   let engine: SyncEngine | null = null;
@@ -120,7 +137,13 @@ export function createCloudController(options: CloudControllerOptions) {
           void attach(session);
         } else if (!session && state.phase === "SIGNED_IN") {
           teardown();
-          set({ phase: "GUEST", email: null, userId: null, sync: null });
+          set({
+            phase: "GUEST",
+            email: null,
+            userId: null,
+            accountSession: null,
+            sync: null,
+          });
         }
       });
       return loaded;
@@ -138,6 +161,8 @@ export function createCloudController(options: CloudControllerOptions) {
     scheduler = null;
     for (const stop of detach) stop();
     detach = [];
+    // Anything still queued for the old account is refused.
+    engine?.dispose();
     engine = null;
   }
 
@@ -146,8 +171,9 @@ export function createCloudController(options: CloudControllerOptions) {
     teardown();
     const created = createSyncEngine({
       userId: session.userId,
+      sessionId: `${session.userId}#${++sessions}`,
       store: options.store,
-      transport: auth.transport(),
+      transport: auth.transport(session.userId),
       state: createSyncStateStore(options.storage, session.userId),
       now: options.now,
       lock: options.syncLock,
@@ -201,6 +227,7 @@ export function createCloudController(options: CloudControllerOptions) {
       phase: "SIGNED_IN",
       email: session.email,
       userId: session.userId,
+      accountSession: created.sessionId,
       authError: null,
       sync: await created.init(),
     });
@@ -225,13 +252,19 @@ export function createCloudController(options: CloudControllerOptions) {
     return engine;
   }
 
-  /** The engine, only if it still belongs to the expected account. */
-  function forAccount(expectedUserId: string): SyncEngine {
-    const current = requireEngine();
-    if (current.userId !== expectedUserId || state.userId !== expectedUserId) {
-      throw new CloudAccountChangedError();
+  /**
+   * The engine, only if it still belongs to the account the user decided
+   * for. Null after a sign-out or an account switch.
+   */
+  function forAccount(expectedSession: string): SyncEngine | null {
+    if (
+      !engine ||
+      engine.sessionId !== expectedSession ||
+      state.accountSession !== expectedSession
+    ) {
+      return null;
     }
-    return current;
+    return engine;
   }
 
   return {
@@ -290,6 +323,7 @@ export function createCloudController(options: CloudControllerOptions) {
         phase: options.configured ? "GUEST" : "UNCONFIGURED",
         email: null,
         userId: null,
+        accountSession: null,
         sync: null,
         authError: null,
       });
@@ -302,10 +336,18 @@ export function createCloudController(options: CloudControllerOptions) {
     /**
      * Enable with the preview the user approved. The engine re-checks the
      * preview's account, local revision and remote version and refuses a
-     * stale one (`STALE_PREVIEW`); the UI then shows a fresh preview.
+     * stale one (`STALE_PREVIEW`); the UI then shows a fresh preview for the
+     * user to approve. After a sign-out or switch the preview is stale.
      */
-    enable: (preview: EnablePreview): Promise<EnableResult> =>
-      requireEngine().enable(preview),
+    async enable(preview: EnablePreview): Promise<EnableResult> {
+      const expected =
+        preview.kind === "READY"
+          ? preview.evidence.sessionId
+          : state.accountSession;
+      const current = expected ? forAccount(expected) : null;
+      if (!current) return { kind: "STALE_PREVIEW", reason: "ACCOUNT" };
+      return current.enable(preview);
+    },
 
     syncNow: () => {
       lastAttempt = Date.now();
@@ -313,26 +355,55 @@ export function createCloudController(options: CloudControllerOptions) {
     },
 
     // Account-scoped actions name the account the user was looking at when
-    // they decided. If the session changed since (e.g. in another tab),
-    // nothing happens: a choice made for one account never acts on another.
+    // they decided. If the session changed since (sign-out, or a switch in
+    // another tab), nothing happens and the result says ACCOUNT_CHANGED: a
+    // choice made for one account never acts on another.
 
-    resolveConflicts: async (
-      expectedUserId: string,
+    async resolveConflicts(
+      expectedSession: string,
       resolutions: Record<string, ConflictResolution>,
-    ) => forAccount(expectedUserId).resolveConflicts(resolutions),
+    ): Promise<SyncStatus | AccountChanged> {
+      const current = forAccount(expectedSession);
+      return current ? current.resolveConflicts(resolutions) : ACCOUNT_CHANGED;
+    },
 
-    disableSync: async (expectedUserId: string) =>
-      forAccount(expectedUserId).disable(),
+    async disableSync(
+      expectedSession: string,
+    ): Promise<{ kind: "DISABLED" } | AccountChanged> {
+      const current = forAccount(expectedSession);
+      if (!current) return ACCOUNT_CHANGED;
+      await current.disable();
+      return { kind: "DISABLED" };
+    },
 
-    deleteCloudData: async (expectedUserId: string) =>
-      forAccount(expectedUserId).deleteCloudData({ userId: expectedUserId }),
+    async deleteCloudData(expectedSession: string) {
+      const current = forAccount(expectedSession);
+      if (!current) return ACCOUNT_CHANGED;
+      const result = await current.deleteCloudData({ userId: current.userId });
+      return !result.ok && result.reason === "ACCOUNT_MISMATCH"
+        ? ACCOUNT_CHANGED
+        : result;
+    },
 
     listBackups: () => requireEngine().listBackups(),
-    uploadBackup: async (expectedUserId: string) =>
-      forAccount(expectedUserId).uploadBackup(),
+
+    async uploadBackup(
+      expectedSession: string,
+    ): Promise<UploadBackupResponse | AccountChanged> {
+      const current = forAccount(expectedSession);
+      return current ? current.uploadBackup() : ACCOUNT_CHANGED;
+    },
+
     downloadBackup: (id: string) => requireEngine().downloadBackup(id),
-    deleteBackup: async (expectedUserId: string, id: string) =>
-      forAccount(expectedUserId).deleteBackup(id),
+    async deleteBackup(
+      expectedSession: string,
+      id: string,
+    ): Promise<{ kind: "DELETED" } | AccountChanged> {
+      const current = forAccount(expectedSession);
+      if (!current) return ACCOUNT_CHANGED;
+      await current.deleteBackup(id);
+      return { kind: "DELETED" };
+    },
 
     /** Connectivity regained (a hint; the next request decides). */
     notifyOnline() {
