@@ -836,7 +836,7 @@ describe("monthly total", () => {
     const subject = complete;
     const events = [
       {
-        ...event("SICK_LEAVE", "2026-09-01", "2026-09-10", allDay(10)),
+        ...event("SICK_LEAVE", "2026-09-01", "2026-09-30", allDay(30)),
         sickLeaveCategory: "UNKNOWN" as const,
       },
       {
