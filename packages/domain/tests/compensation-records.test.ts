@@ -106,6 +106,15 @@ describe("compensation snapshots", () => {
     expect(deleted.data.compensationSnapshots[0]?.ruleVersion).toBe("2026");
   });
 
+  it("accepts a total built from decimal user-entered rates", () => {
+    const saved = saveCompensationSnapshot(
+      userDataWithProfile(),
+      snapshotInput(1_200_000 + 2800.5 * 20),
+      context(),
+    );
+    expect(saved.ok).toBe(true);
+  });
+
   it("round-trips through a backup", () => {
     const saved = saveCompensationSnapshot(
       saveMonth(userDataWithProfile(), "2026-10").data,

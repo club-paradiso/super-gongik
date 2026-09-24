@@ -92,7 +92,8 @@ export const compensationSnapshotSchema = syncFieldsSchema.extend({
   generatedAt: z.string().datetime({ offset: true }),
   ruleId: z.string().min(1),
   ruleVersion: z.string().min(1),
-  total: z.number().int().nonnegative().nullable(),
+  // Not forced to an integer: rates are user inputs and may carry decimals.
+  total: z.number().nonnegative().nullable(),
   evaluation: z.record(z.string(), z.unknown()),
 });
 
