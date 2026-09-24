@@ -187,6 +187,24 @@ describe("service event validation", () => {
     ]);
   });
 
+  it("requires Article 41(6) compensation absences to be all-day records", () => {
+    expect(
+      codes([], partial("SERVICE_ABSENCE", "2026-09-10", 60)).errors,
+    ).toContain("COMPENSATION_ABSENCE_MUST_BE_ALL_DAY");
+    expect(
+      codes([], partial("EXCESS_ANNUAL_ABSENCE", "2026-09-10", 60)).errors,
+    ).toContain("COMPENSATION_ABSENCE_MUST_BE_ALL_DAY");
+  });
+
+  it("rejects a sick-leave compensation category on a non-sick event", () => {
+    expect(
+      codes([], {
+        ...allDay("ANNUAL_LEAVE", "2026-09-10"),
+        sickLeaveCategory: "ORDINARY",
+      }).errors,
+    ).toContain("SICK_CATEGORY_NOT_SICK_LEAVE");
+  });
+
   it("does not treat attendance records as leave double-charges", () => {
     const events = existing(allDay("ANNUAL_LEAVE", "2026-09-10"));
     expect(codes(events, partial("OUTING", "2026-09-10", 60)).errors).toEqual(
