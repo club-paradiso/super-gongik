@@ -136,27 +136,44 @@
     "paymentMode": "ACTUAL_EXPENSE",
     "walkingStillUsesPublicTransitFareBasis": true,
     "universalDefaultDailyAmount": null,
-    "requiredInputs": ["dailyRoundTripFare", "transportEligibleDays"],
+    "requiredInputs": [
+      "dailyRoundTripFare",
+      "transportEligibleDays"
+    ],
     "autoCalculateWithoutCommuteInput": false,
     "warning": "The fare depends on the user's route and region; the MMA standard defines the basis, not an amount.",
     "fareBasis": "CITY_BUS_ROUND_TRIP_CASH_FARE_OR_TRANSIT_CARD_ACTUAL_WHEN_EXTRA_COST"
   },
   "proration": {
     "firstAndLastMonth": {
-      "status": "AMBIGUOUS",
+      "status": "VERIFIED_STRUCTURE_ROUNDING_GATED",
       "verifiedStructure": "제41조⑤: 그 달의 월 보수를 일할계산한 보수일액 × 근무(소집일·소집해제일 포함)일수",
-      "verifiedDivisorCandidate": "공무원보수규정 제4조제6호: 보수의 일할계산 = 그 달의 보수 ÷ 그 달의 일수",
+      "verifiedDivisorCandidate": "VERIFIED: 공무원보수규정 제4조제6호 defines 일할계산 as monthly pay divided by the number of calendar days in that month.",
       "unresolved": [
-        "ROUNDING_OF_DAILY_AMOUNT_OR_PRODUCT",
-        "MEANING_OF_근무일수_CALENDAR_OR_WORKING_DAYS",
-        "EXPLICIT_LINK_BETWEEN_제41조⑤_AND_공무원보수규정_제4조제6호"
+        "FINAL_ROUNDING_POLICY_BY_PAYER_OR_INSTITUTION"
       ],
       "autoCalculate": false,
-      "reason": "The divisor is defined for 공무원보수규정 but no retrieved primary text fixes rounding or whether 근무일수 counts calendar days; results would differ by up to tens of won, so the month stays gated.",
-      "mmaAttachmentFinding": "NOT_FOUND: the 2026 MMA payment standard does not address proration, 근무일수, holidays in the prorated interval or rounding."
+      "reason": "The divisor and calendar-day/holiday semantics are now pinned. Final payable KRW remains gated because the nationwide rules do not prescribe one rounding rule for every paying institution: National Treasury disbursements are subject to 국고금 관리법 제47조 (discard amounts below 10 KRW), while local governments and certain public bodies may apply that rule rather than being universally bound by it.",
+      "mmaAttachmentFinding": "NOT_FOUND: the 2026 MMA payment standard does not address proration, 근무일수, holidays in the prorated interval or rounding.",
+      "verifiedCalendarDaySemantics": "OFFICIAL_INTERPRETIVE_GUIDANCE_INCLUDES_HOLIDAYS: current/official implementation guidance consistently explains that the calendar-day proration includes holidays; call-up and discharge dates are expressly included.",
+      "roundingPolicyStatus": "PAYER_OR_INSTITUTION_DEPENDENT",
+      "officialInterpretiveGuidance": [
+        {
+          "title": "병무청 지식파트너 답변 - 사회복무요원 초과병가 월급 관련 질문",
+          "date": "2024-11-13",
+          "url": "https://kin.naver.com/qna/detail.naver?dirId=603&docId=477743130",
+          "finding": "보수의 일할계산은 그 달 보수를 그 달의 일수로 나누며 휴일을 포함한다고 설명."
+        },
+        {
+          "title": "2026년도 인천광역시 교육비특별회계 예산편성 기본지침",
+          "date": "2025-11",
+          "url": "https://hbm.ice.go.kr/upload/people/na/bbs_1656/2025/11/eb415349116a398231afa18b853d3308.pdf",
+          "finding": "소집월·소집해제월: 근무일수 × 일할계산액, 일할계산은 그 달의 일수로 나누며 휴일 포함."
+        }
+      ]
     },
     "nonPayableDays": {
-      "status": "VERIFIED_BUT_NOT_IMPLEMENTED",
+      "status": "VERIFIED_STRUCTURE_ROUNDING_GATED",
       "knownCategories": [
         "SERVICE_INTERRUPTION_OR_SPLIT_SERVICE_NON_SERVICE_PERIOD",
         "UNAUTHORIZED_ABSENCE",
@@ -166,8 +183,9 @@
       "dutyRelatedSickLeaveTreatment": "PAYABLE",
       "sickLeaveCumulativeLimitDays": 30,
       "autoCalculate": false,
-      "reason": "Deducting a day needs the same unresolved daily-amount arithmetic; months that may contain a non-payable day are gated.",
-      "mmaAttachmentFinding": "NOT_FOUND: the 2026 MMA payment standard does not address non-payable days."
+      "reason": "The non-payable categories are explicit in 제41조⑥, and official MMA interpretive guidance pairs those days with the same calendar-day daily-pay concept. The app still does not emit a final deduction amount until payer/institution rounding policy and the exact non-payable dates are known.",
+      "mmaAttachmentFinding": "NOT_FOUND: the 2026 MMA payment standard does not address non-payable days.",
+      "deductionArithmeticStatus": "DAILY_RATE_STRUCTURE_SUPPORTED_BY_OFFICIAL_GUIDANCE; FINAL_ROUNDING_GATED"
     }
   },
   "calculationResultRequirements": {
@@ -189,7 +207,11 @@
   "eligibleDays": {
     "status": "VERIFIED_NEEDS_USER_INPUT",
     "supportedWorkPattern": "WEEKDAY_DAYTIME",
-    "unsupportedWorkPatterns": ["NIGHT_SHIFT_ROTATION", "RESIDENTIAL", "OTHER"],
+    "unsupportedWorkPatterns": [
+      "NIGHT_SHIFT_ROTATION",
+      "RESIDENTIAL",
+      "OTHER"
+    ],
     "unsupportedReason": "제41조④ 단서 counts a night-rotation day as two days and 제18조①6호 residential service provides board in kind; neither is modelled.",
     "fullDayLeaveTreatment": "REQUIRES_USER_DECISION",
     "fullDayLeaveBasis": "No primary source states per leave type (연가·병가·공가·특별휴가·청원휴가) whether 중식비·교통비 are paid on a full day of leave: 제41조④ says only '실비', and the MMA 2026 standard gives rates, not eligible days. Institution guidance (e.g. a 경기도교육청 accounting guideline reported to state 휴가일 미지급) is institution-specific, so the day is classified FULL_DAY_LEAVE and the user decides.",
