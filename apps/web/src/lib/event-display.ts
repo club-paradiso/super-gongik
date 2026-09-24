@@ -5,7 +5,13 @@ import {
   type ServiceEventType,
 } from "@super-gongik/domain";
 
-export type EventCategory = "leave" | "sick" | "attendance" | "duty" | "note";
+export type EventCategory =
+  | "leave"
+  | "sick"
+  | "attendance"
+  | "duty"
+  | "nonpayable"
+  | "note";
 
 export const EVENT_CATEGORY: Record<ServiceEventType, EventCategory> = {
   ANNUAL_LEAVE: "leave",
@@ -18,6 +24,9 @@ export const EVENT_CATEGORY: Record<ServiceEventType, EventCategory> = {
   EARLY_LEAVE: "attendance",
   EDUCATION: "duty",
   TRAINING: "duty",
+  SERVICE_SUSPENSION: "nonpayable",
+  SERVICE_ABSENCE: "nonpayable",
+  EXCESS_ANNUAL_ABSENCE: "nonpayable",
   USER_NOTE: "note",
 };
 
@@ -26,6 +35,7 @@ export const CATEGORY_LABELS: Record<EventCategory, string> = {
   sick: "병가",
   attendance: "근태",
   duty: "교육·훈련",
+  nonpayable: "보수 미지급",
   note: "메모",
 };
 
@@ -45,6 +55,14 @@ export const EVENT_TYPE_GROUPS: Array<{
   },
   { label: "근태", types: ["OUTING", "LATE_ARRIVAL", "EARLY_LEAVE"] },
   { label: "교육·훈련", types: ["EDUCATION", "TRAINING"] },
+  {
+    label: "보수 미지급 사유",
+    types: [
+      "SERVICE_SUSPENSION",
+      "SERVICE_ABSENCE",
+      "EXCESS_ANNUAL_ABSENCE",
+    ],
+  },
   { label: "기타", types: ["USER_NOTE"] },
 ];
 
