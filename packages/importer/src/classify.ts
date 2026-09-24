@@ -29,6 +29,18 @@ const EVENT_TYPE_SYNONYMS: Array<{
     type: "TRAINING",
     labels: ["훈련", "훈련소", "군사교육", "군사교육소집", "training"],
   },
+  {
+    type: "SERVICE_SUSPENSION",
+    labels: ["복무중단", "분할복무", "servicesuspension"],
+  },
+  {
+    type: "SERVICE_ABSENCE",
+    labels: ["복무이탈", "무단결근", "serviceabsence"],
+  },
+  {
+    type: "EXCESS_ANNUAL_ABSENCE",
+    labels: ["연가초과결근", "연가초과", "excessannualabsence"],
+  },
 ];
 
 function normalizeLabel(value: string) {
