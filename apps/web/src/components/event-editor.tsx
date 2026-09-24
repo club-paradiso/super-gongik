@@ -15,6 +15,7 @@ import {
   clockToMinutes,
   countWeekdays,
   isDateOnly,
+  isCompensationNonPayableEventType,
   isLeaveEventType,
   validateServiceEventDraft,
   type DateOnly,
@@ -22,6 +23,7 @@ import {
   type ServiceEvent,
   type ServiceEventType,
   type ServiceProfile,
+  type SickLeaveCategory,
 } from "@super-gongik/domain";
 
 import { Button } from "@/components/ui/button";
@@ -42,6 +44,7 @@ type FormState = {
   hours: string;
   minutes: string;
   durationTouched: boolean;
+  sickLeaveCategory: SickLeaveCategory | "";
   title: string;
   note: string;
 };
@@ -64,6 +67,7 @@ function initialState(event: ServiceEvent | null, date: DateOnly): FormState {
       hours: "",
       minutes: "",
       durationTouched: false,
+      sickLeaveCategory: "",
       title: "",
       note: "",
     };
@@ -84,6 +88,10 @@ function initialState(event: ServiceEvent | null, date: DateOnly): FormState {
     hours: minutes === null ? "" : String(Math.floor(minutes / 60)),
     minutes: minutes === null ? "" : String(minutes % 60),
     durationTouched: true,
+    sickLeaveCategory:
+      event.eventType === "SICK_LEAVE"
+        ? (event.sickLeaveCategory ?? "UNKNOWN")
+        : "",
     title: event.title ?? "",
     note: event.note ?? "",
   };
@@ -120,6 +128,10 @@ function buildDraft(form: FormState) {
     timing,
     title: form.title.trim() || null,
     note: form.note.trim() || null,
+    sickLeaveCategory:
+      form.eventType === "SICK_LEAVE"
+        ? form.sickLeaveCategory || "UNKNOWN"
+        : null,
   };
 }
 
@@ -175,6 +187,12 @@ export function EventEditor({
       const next = { ...current, ...patch };
       if (next.mode === "HALF_DAY" && next.eventType !== "ANNUAL_LEAVE") {
         next.mode = "PARTIAL";
+      }
+      if (
+        isCompensationNonPayableEventType(next.eventType) &&
+        next.mode !== "ALL_DAY"
+      ) {
+        next.mode = "ALL_DAY";
       }
       if (
         next.mode === "ALL_DAY" &&
@@ -275,6 +293,30 @@ export function EventEditor({
           </select>
         </label>
 
+        {form.eventType === "SICK_LEAVE" ? (
+          <label className="form-field">
+            <span>병가 구분</span>
+            <select
+              value={form.sickLeaveCategory}
+              onChange={(change) =>
+                update({
+                  sickLeaveCategory: change.target
+                    .value as SickLeaveCategory,
+                })
+              }
+            >
+              <option value="">선택해 주세요</option>
+              <option value="ORDINARY">공무 외 질병·부상</option>
+              <option value="PUBLIC_DUTY">공무수행상 질병·부상</option>
+              <option value="UNKNOWN">아직 확인하지 못함</option>
+            </select>
+            <small>
+              공무수행상 질병·부상 병가는 30일 초과 미지급 계산에서 제외돼요.
+              확인 전에는 자동 공제하지 않아요.
+            </small>
+          </label>
+        ) : null}
+
         <fieldset className="segmented" aria-label="기록 단위">
           {(
             [
@@ -294,7 +336,9 @@ export function EventEditor({
               <input
                 checked={form.mode === mode}
                 disabled={
-                  mode === "HALF_DAY" && form.eventType !== "ANNUAL_LEAVE"
+                  (mode === "HALF_DAY" && form.eventType !== "ANNUAL_LEAVE") ||
+                  (mode !== "ALL_DAY" &&
+                    isCompensationNonPayableEventType(form.eventType))
                 }
                 name="mode"
                 onChange={() => update({ mode })}
@@ -304,7 +348,12 @@ export function EventEditor({
             </label>
           ))}
         </fieldset>
-        {form.eventType !== "ANNUAL_LEAVE" ? (
+        {isCompensationNonPayableEventType(form.eventType) ? (
+          <p className="field-hint">
+            이 기록은 기본 보수 미지급일 근거로 쓰이므로 하루 단위로만
+            저장해요.
+          </p>
+        ) : form.eventType !== "ANNUAL_LEAVE" ? (
           <p className="field-hint">반일은 연가(반가)에만 쓸 수 있어요.</p>
         ) : null}
 
