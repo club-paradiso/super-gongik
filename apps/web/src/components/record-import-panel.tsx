@@ -416,7 +416,14 @@ export function RecordImportPanel({
       acceptedRows,
     );
     const snapshots = adjustedPreview.snapshots
-      .filter((snapshot) => acceptedSnapshots.has(snapshot.sourceRowIndex))
+      .filter(
+        (snapshot) =>
+          acceptedSnapshots.has(snapshot.sourceRowIndex) &&
+          snapshot.leaveType &&
+          !snapshot.warnings.some((warning) =>
+            BLOCKING_WARNING_CODES.includes(warning.code),
+          ),
+      )
       .map((snapshot) => ({
         leaveType: snapshot.leaveType,
         asOfDate: snapshot.asOfDate as `${number}-${number}-${number}` | null,
@@ -769,22 +776,35 @@ export function RecordImportPanel({
           {preview.snapshots.length ? (
             <div className="snapshot-list">
               <h3>기관이 기록한 휴가 잔액</h3>
-              {preview.snapshots.map((snapshot) => (
-                <label key={snapshot.sourceRowIndex}>
-                  <input
-                    checked={acceptedSnapshots.has(snapshot.sourceRowIndex)}
-                    onChange={() => toggleSnapshot(snapshot.sourceRowIndex)}
-                    type="checkbox"
-                  />
-                  <span>행 {snapshot.sourceRowIndex}</span>
-                  <strong>
-                    잔여 {snapshot.remainingDays ?? "—"}일
-                    {snapshot.remainingMinutes
-                      ? ` ${Math.floor(snapshot.remainingMinutes / 60)}시간 ${snapshot.remainingMinutes % 60}분`
-                      : ""}
-                  </strong>
-                </label>
-              ))}
+              {preview.snapshots.map((snapshot) => {
+                const blocked =
+                  !snapshot.leaveType ||
+                  snapshot.warnings.some((warning) =>
+                    BLOCKING_WARNING_CODES.includes(warning.code),
+                  );
+                return (
+                  <label key={snapshot.sourceRowIndex}>
+                    <input
+                      checked={acceptedSnapshots.has(snapshot.sourceRowIndex)}
+                      disabled={blocked}
+                      onChange={() => toggleSnapshot(snapshot.sourceRowIndex)}
+                      type="checkbox"
+                    />
+                    <span>행 {snapshot.sourceRowIndex}</span>
+                    <strong>
+                      잔여 {snapshot.remainingDays ?? "—"}일
+                      {snapshot.remainingMinutes
+                        ? ` ${Math.floor(snapshot.remainingMinutes / 60)}시간 ${snapshot.remainingMinutes % 60}분`
+                        : ""}
+                    </strong>
+                    {snapshot.warnings[0] ? (
+                      <small className="field-hint">
+                        {snapshot.warnings[0].message}
+                      </small>
+                    ) : null}
+                  </label>
+                );
+              })}
             </div>
           ) : null}
 
