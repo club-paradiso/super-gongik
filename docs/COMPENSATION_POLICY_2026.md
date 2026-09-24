@@ -112,10 +112,19 @@ retrieved in this environment, and it is not treated as a nationwide rule.
   certain public bodies the statute says the rule _may_ be applied, so SUPER
   GONGIK must not impose that treatment universally.
 - **Conditional execution:** partial-month and non-payable-day final amounts
-  are now executable when the exact non-payable dates are confirmed and the
+  are executable when the non-payable dates are either institution-confirmed
+  or deterministically derived from canonical service records, and the
   rounding policy is either `NATIONAL_TREASURY_ARTICLE_47` or
   `INSTITUTION_CONFIRMED_TRUNCATE_SUB_10`. Unknown or different institution
   rules remain GATED; the app never borrows the Treasury rule as a fallback.
+- **Record-derived non-payable dates:** `SERVICE_SUSPENSION`,
+  `SERVICE_ABSENCE` and `EXCESS_ANNUAL_ABSENCE` feed base-pay deductions only
+  when their charged dates are provable. Ordinary sick leave is counted toward
+  the cumulative 30-day threshold only when the record is explicitly classified
+  `ORDINARY`; `PUBLIC_DUTY` sick leave is excluded. Unknown classification,
+  partial sick leave, stale attendance evidence or an ambiguous range keeps the
+  deduction gated. A negative annual-leave balance is never treated by itself
+  as proof of an excess-leave absence.
 - **Provenance follow-up:** the stored MMA HWPX remains user-supplied with a
   recorded SHA-256; its title/date/filename/size match the official page, but
   direct server-byte comparison remains a provenance hardening task.
