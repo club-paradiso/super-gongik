@@ -2,9 +2,8 @@ name: Apply Prettier once
 permissions:
   contents: write
 on:
-  push:
-    branches:
-      - feat/payer-rounding-nonpayable-days
+  pull_request:
+    types: [opened, synchronize, reopened]
 jobs:
   format:
     runs-on: ubuntu-latest
