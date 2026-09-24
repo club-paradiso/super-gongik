@@ -1,5 +1,6 @@
 import {
-  mapColumns,
+  assessTableHeaders,
+  makeUniqueHeaders,
   parseDelimitedText,
   type ImportSourceFormat,
   type TabularAdapterResult,
@@ -30,6 +31,25 @@ export interface OcrProgress {
 export interface ParseImportFileOptions {
   allowPdfOcr?: boolean;
   onOcrProgress?: (progress: OcrProgress) => void;
+  xlsxWorksheetName?: string;
+}
+
+export interface XlsxWorksheetCandidate {
+  worksheetName: string;
+  headerRow: number;
+  kind: "EVENTS" | "SNAPSHOT";
+}
+
+export class XlsxWorksheetSelectionRequiredError extends Error {
+  readonly candidates: XlsxWorksheetCandidate[];
+
+  constructor(candidates: XlsxWorksheetCandidate[]) {
+    super(
+      "가져올 수 있는 엑셀 시트가 여러 개라 자동으로 선택하지 않았습니다. 사용할 시트를 직접 골라 주세요.",
+    );
+    this.name = "XlsxWorksheetSelectionRequiredError";
+    this.candidates = candidates;
+  }
 }
 
 export class PdfOcrRequiredError extends Error {
@@ -86,16 +106,6 @@ function excelCellValue(cell: Cell): TabularCell {
   return cell.text.trim();
 }
 
-function uniqueHeaders(values: TabularCell[]) {
-  const seen = new Map<string, number>();
-  return values.map((value, index) => {
-    const base = cellText(value) || `열 ${index + 1}`;
-    const count = seen.get(base) ?? 0;
-    seen.set(base, count + 1);
-    return count === 0 ? base : `${base} (${count + 1})`;
-  });
-}
-
 function worksheetRows(worksheet: Worksheet) {
   const rows: Array<{ rowNumber: number; values: TabularCell[] }> = [];
   worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
@@ -110,30 +120,76 @@ function worksheetRows(worksheet: Worksheet) {
   return rows;
 }
 
-function chooseExcelTable(worksheets: Worksheet[]) {
-  let best:
-    | {
-        worksheet: Worksheet;
-        rows: ReturnType<typeof worksheetRows>;
-        headerIndex: number;
-        score: number;
-      }
-    | undefined;
+type ExcelTableCandidate = {
+  worksheet: Worksheet;
+  rows: ReturnType<typeof worksheetRows>;
+  headerIndex: number;
+  headerRow: number;
+  headers: string[];
+  kind: "EVENTS" | "SNAPSHOT";
+  score: number;
+};
+
+function findExcelTableCandidates(worksheets: Worksheet[]): ExcelTableCandidate[] {
+  const candidates: ExcelTableCandidate[] = [];
 
   for (const worksheet of worksheets) {
+    if (worksheet.state && worksheet.state !== "visible") continue;
     const rows = worksheetRows(worksheet);
+    let best: ExcelTableCandidate | null = null;
+
     rows.slice(0, 30).forEach((row, headerIndex) => {
-      const score = mapColumns(row.values.map(cellText)).length;
-      if (!best || score > best.score) {
-        best = { worksheet, rows, headerIndex, score };
+      const headers = makeUniqueHeaders(row.values.map(cellText));
+      const assessment = assessTableHeaders(headers);
+      if (assessment.kind === "UNRECOGNIZED") return;
+
+      const candidate: ExcelTableCandidate = {
+        worksheet,
+        rows,
+        headerIndex,
+        headerRow: row.rowNumber,
+        headers,
+        kind: assessment.kind,
+        score: assessment.score,
+      };
+      if (
+        !best ||
+        candidate.score > best.score ||
+        (candidate.score === best.score && candidate.headerRow < best.headerRow)
+      ) {
+        best = candidate;
       }
     });
+
+    if (best) candidates.push(best);
   }
 
-  return best;
+  return candidates.sort(
+    (a, b) =>
+      b.score - a.score ||
+      a.worksheet.name.localeCompare(b.worksheet.name, "ko"),
+  );
 }
 
-export async function parseXlsxFile(file: File): Promise<TabularAdapterResult> {
+function isRepeatedExcelHeader(
+  values: TabularCell[],
+  headerValues: TabularCell[],
+): boolean {
+  const width = Math.max(values.length, headerValues.length);
+  let meaningful = 0;
+  for (let index = 0; index < width; index += 1) {
+    const value = cellText(values[index] ?? "");
+    const header = cellText(headerValues[index] ?? "");
+    if (value || header) meaningful += 1;
+    if (value !== header) return false;
+  }
+  return meaningful >= 2;
+}
+
+export async function parseXlsxFile(
+  file: File,
+  worksheetName?: string,
+): Promise<TabularAdapterResult> {
   const { Workbook } = await import("exceljs");
   const workbook = new Workbook();
   const buffer = (await file.arrayBuffer()) as unknown as Parameters<
@@ -141,33 +197,60 @@ export async function parseXlsxFile(file: File): Promise<TabularAdapterResult> {
   >[0];
   await workbook.xlsx.load(buffer);
 
-  const table = chooseExcelTable(workbook.worksheets);
-  if (!table || table.score < 2) {
+  const candidates = findExcelTableCandidates(workbook.worksheets);
+  if (candidates.length === 0) {
     throw new Error(
-      "엑셀에서 날짜/휴가종류 등으로 보이는 표 머리글을 찾지 못했습니다.",
+      "엑셀에서 개인 복무기록 또는 휴가 잔액 표 머리글을 찾지 못했습니다.",
+    );
+  }
+
+  let table: ExcelTableCandidate | undefined;
+  if (worksheetName) {
+    table = candidates.find(
+      (candidate) => candidate.worksheet.name === worksheetName,
+    );
+    if (!table) {
+      throw new Error(
+        `선택한 엑셀 시트 '${worksheetName}'에서 가져올 수 있는 표를 찾지 못했습니다.`,
+      );
+    }
+  } else if (candidates.length === 1) {
+    table = candidates[0];
+  } else {
+    throw new XlsxWorksheetSelectionRequiredError(
+      candidates.map((candidate) => ({
+        worksheetName: candidate.worksheet.name,
+        headerRow: candidate.headerRow,
+        kind: candidate.kind,
+      })),
     );
   }
 
   const headerValues = table.rows[table.headerIndex]?.values ?? [];
-  const headers = uniqueHeaders(headerValues);
   const rows: TabularRow[] = [];
+  const rowSourceIndexes: number[] = [];
 
   for (const source of table.rows.slice(table.headerIndex + 1)) {
+    if (isRepeatedExcelHeader(source.values, headerValues)) continue;
+
     const row: TabularRow = {};
     let populated = false;
-    headers.forEach((header, index) => {
+    table.headers.forEach((header, index) => {
       const value = source.values[index] ?? "";
       row[header] = value;
       if (cellText(value)) populated = true;
     });
-    if (populated) rows.push(row);
+    if (!populated) continue;
+    rows.push(row);
+    rowSourceIndexes.push(source.rowNumber);
   }
 
   return {
     format: "XLSX",
-    headers,
+    headers: table.headers,
     rows,
-    sourceLabel: table.worksheet.name,
+    rowSourceIndexes,
+    sourceLabel: `${table.worksheet.name} · 머리글 ${table.headerRow}행`,
   };
 }
 
@@ -212,8 +295,10 @@ export function tabularFromMarkdownTables(
       continue;
     }
 
-    const headers = uniqueHeaders(headerCells);
-    const score = mapColumns(headers).length;
+    const headers = makeUniqueHeaders(headerCells);
+    const assessment = assessTableHeaders(headers);
+    if (assessment.kind === "UNRECOGNIZED") continue;
+    const score = assessment.score;
     const rows: TabularRow[] = [];
 
     for (let rowIndex = index + 2; rowIndex < lines.length; rowIndex += 1) {
@@ -235,7 +320,7 @@ export function tabularFromMarkdownTables(
     }
   }
 
-  if (!best || best.score < 2) {
+  if (!best) {
     throw new Error(
       "HWP/HWPX에서 개인 복무기록 또는 휴가 잔액 표를 찾지 못했습니다. 규정표나 안내문은 사용기록으로 임의 변환하지 않습니다.",
     );
@@ -305,7 +390,10 @@ function groupPdfRows(items: PositionedPdfText[]) {
 }
 
 function headerScore(row: PdfRow) {
-  return mapColumns(row.cells.map((item) => item.text.trim())).length;
+  const headers = makeUniqueHeaders(
+    row.cells.map((item) => item.text.trim()),
+  );
+  return assessTableHeaders(headers).score;
 }
 
 function normalizePdfHeaderText(value: string) {
@@ -330,14 +418,14 @@ export function tabularFromPositionedPdfText(
     .map((row, index) => ({ row, index, score: headerScore(row) }))
     .sort((a, b) => b.score - a.score)[0];
 
-  if (!header || header.score < 2) {
+  if (!header || header.score <= 0) {
     throw new Error(
       "PDF에서 복무기록 표 구조를 찾지 못했습니다. 열 인식이 어려운 문서는 원본 형식을 확인해 주세요.",
     );
   }
 
   const headerCells = header.row.cells;
-  const headers = uniqueHeaders(headerCells.map((cell) => cell.text));
+  const headers = makeUniqueHeaders(headerCells.map((cell) => cell.text));
   const anchors = headerCells.map((cell) => cell.x);
   const boundaries = anchors.slice(0, -1).map((x, index) => {
     const next = anchors[index + 1] ?? x;
@@ -531,7 +619,7 @@ export async function parseImportFile(
   if (format === "CSV") {
     tabular = parseDelimitedText(await file.text());
   } else if (format === "XLSX") {
-    tabular = await parseXlsxFile(file);
+    tabular = await parseXlsxFile(file, options.xlsxWorksheetName);
   } else if (format === "HWP" || format === "HWPX") {
     tabular = await parseHwpFile(file);
   } else if (format === "PDF_TEXT") {
