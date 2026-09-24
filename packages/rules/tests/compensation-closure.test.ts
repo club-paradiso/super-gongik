@@ -236,12 +236,15 @@ describe("call-up and discharge months stay gated (제41조⑤, rounding unresol
     expect(result.total).toBeNull();
   });
 
-  it("states the month's own divisor, 28 days for February 2026", () => {
+  it("pins the month's divisor and holiday-inclusive calendar-day semantics", () => {
     const result = evaluateMonthlyCompensation(
       profile("2026-02-02", "2027-11-01"),
       "2026-02-10",
     );
     expect(result.components[0]?.explanation).toContain("28일");
+    expect(result.components[0]?.explanation).toContain("휴일도 포함");
+    expect(result.components[0]?.explanation).not.toContain("근무일수의 뜻");
+    expect(result.components[0]?.explanation).toContain("끝수 처리");
   });
 
   it("states 29 days for leap-year February and still returns no amount", () => {
@@ -717,6 +720,7 @@ describe("monthly total", () => {
       attendance: attendance("2026-10", { hadNonPayableAbsence: true }),
     });
     expect(result.components[0]?.status).toBe("GATED");
+    expect(result.components[0]?.explanation).toContain("달력일 기준 하루치 구조");
     expect(result.total).toBeNull();
   });
 });
