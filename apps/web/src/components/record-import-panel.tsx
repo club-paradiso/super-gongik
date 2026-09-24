@@ -525,11 +525,7 @@ export function RecordImportPanel({
       </label>
 
       {pendingXlsxFile && xlsxCandidates.length ? (
-        <div
-          className="ocr-consent"
-          role="group"
-          aria-label="엑셀 시트 선택"
-        >
+        <div className="ocr-consent" role="group" aria-label="엑셀 시트 선택">
           <FileSpreadsheet aria-hidden="true" size={24} />
           <div>
             <strong>가져올 엑셀 시트를 선택하세요.</strong>
@@ -549,9 +545,7 @@ export function RecordImportPanel({
                 <Button
                   key={candidate.worksheetName}
                   disabled={status === "PARSING"}
-                  onClick={() =>
-                    void runXlsxSelection(candidate.worksheetName)
-                  }
+                  onClick={() => void runXlsxSelection(candidate.worksheetName)}
                 >
                   {candidate.worksheetName} ·{" "}
                   {candidate.kind === "EVENTS" ? "복무기록" : "휴가 잔액"} ·

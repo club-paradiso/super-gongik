@@ -130,7 +130,9 @@ type ExcelTableCandidate = {
   score: number;
 };
 
-function findExcelTableCandidates(worksheets: Worksheet[]): ExcelTableCandidate[] {
+function findExcelTableCandidates(
+  worksheets: Worksheet[],
+): ExcelTableCandidate[] {
   const candidates: ExcelTableCandidate[] = [];
 
   for (const worksheet of worksheets) {
@@ -390,9 +392,7 @@ function groupPdfRows(items: PositionedPdfText[]) {
 }
 
 function headerScore(row: PdfRow) {
-  const headers = makeUniqueHeaders(
-    row.cells.map((item) => item.text.trim()),
-  );
+  const headers = makeUniqueHeaders(row.cells.map((item) => item.text.trim()));
   return assessTableHeaders(headers).score;
 }
 

@@ -10,9 +10,7 @@ function detectDelimiter(text: string): string {
   return (
     candidates
       .map((delimiter) => {
-        const counts = lines.map(
-          (line) => line.split(delimiter).length - 1,
-        );
+        const counts = lines.map((line) => line.split(delimiter).length - 1);
         return {
           delimiter,
           max: Math.max(...counts, 0),
@@ -21,8 +19,7 @@ function detectDelimiter(text: string): string {
         };
       })
       .sort(
-        (a, b) =>
-          b.max - a.max || b.lines - a.lines || b.total - a.total,
+        (a, b) => b.max - a.max || b.lines - a.lines || b.total - a.total,
       )[0]?.delimiter ?? ","
   );
 }

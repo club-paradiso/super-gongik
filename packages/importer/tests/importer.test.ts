@@ -239,7 +239,10 @@ describe("tabular import", () => {
     const parsed = parseDelimitedText(
       "날짜,휴가종류,총부여일수,사용일수,잔여일수\n2026-09-01,연가,15,3.5,11.5",
     );
-    const preview = await buildImportPreview(parsed, batchFor("dated-snapshot"));
+    const preview = await buildImportPreview(
+      parsed,
+      batchFor("dated-snapshot"),
+    );
     expect(preview.events).toEqual([]);
     expect(preview.snapshots).toHaveLength(1);
     expect(preview.snapshots[0]).toMatchObject({
@@ -254,7 +257,10 @@ describe("tabular import", () => {
     const parsed = parseDelimitedText(
       "휴가종류,총부여,누적사용,잔여\n연가,15,3,12",
     );
-    const preview = await buildImportPreview(parsed, batchFor("ambiguous-snapshot"));
+    const preview = await buildImportPreview(
+      parsed,
+      batchFor("ambiguous-snapshot"),
+    );
     expect(preview.snapshots).toHaveLength(1);
     expect(preview.unresolvedRowIndexes).toEqual([2]);
     expect(

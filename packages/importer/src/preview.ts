@@ -2,11 +2,7 @@ import { createId } from "@super-gongik/domain";
 
 import { classifyEventType } from "./classify";
 import { fingerprintEventCandidate } from "./fingerprint";
-import {
-  assessColumnMappings,
-  findMappedHeader,
-  mapColumns,
-} from "./mapping";
+import { assessColumnMappings, findMappedHeader, mapColumns } from "./mapping";
 import { normalizeEventRow, parseDateCell, parseQuantity } from "./normalize";
 import type {
   ColumnMapping,
