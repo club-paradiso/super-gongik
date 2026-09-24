@@ -27,7 +27,7 @@ export function getDashboardProjection(
   today: DateOnly,
 ) {
   const progress = calculateServiceProgress(profile, today);
-  const annualLeave = calculateAnnualLeaveAllocation(21).value;
+  const annualLeave = calculateAnnualLeaveAllocation(21, today).value;
 
   return {
     progress,

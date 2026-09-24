@@ -20,6 +20,8 @@ type FixtureCase = {
 };
 
 const cases = boundaryFixturesJson.cases as FixtureCase[];
+// Non-boundary leave fixtures describe the currently effective bundle.
+const CURRENT_LEAVE_DATE = "2026-08-28" as DateOnly;
 
 function numberInput(input: Record<string, unknown>, key: string): number {
   const value = input[key];
@@ -44,6 +46,7 @@ function evaluateFixture(testCase: FixtureCase): Record<string, unknown> {
     case "leave.standard-21-month-allocation": {
       const result = calculateAnnualLeaveAllocation(
         numberInput(input, "mandatoryServiceMonths"),
+        CURRENT_LEAVE_DATE,
       );
       return { status: result.status, ...result.value };
     }
@@ -51,12 +54,14 @@ function evaluateFixture(testCase: FixtureCase): Record<string, unknown> {
       const result = validateOrdinaryAnnualLeaveBalance(
         numberInput(input, "mandatoryServiceMonths"),
         numberInput(input, "requestedOrdinaryBalanceDays"),
+        CURRENT_LEAVE_DATE,
       );
       return { status: result.status, reason: result.warnings[0] };
     }
     case "leave.half-day-pair": {
       const result = calculateHalfDayAnnualLeaveCharge(
         numberInput(input, "halfDayAnnualLeaveCount"),
+        CURRENT_LEAVE_DATE,
       );
       return { status: result.status, ...result.value };
     }
