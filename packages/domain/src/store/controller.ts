@@ -88,8 +88,16 @@ export function createUserDataStore(options: {
     return next;
   }
 
-  async function load() {
-    return enqueue(async () => {
+  let loading: Promise<void> | null = null;
+
+  /**
+   * Load once. A second call (a remount, a second subscriber) returns the
+   * same promise: re-running it would read the document the first load just
+   * repaired as LOADED and silently drop the RECOVERED/MIGRATED notice.
+   * Use `refresh()` to pick up later writes.
+   */
+  function load(): Promise<void> {
+    loading ??= enqueue(async () => {
       let outcome: LoadOutcome;
       try {
         outcome = await options.repository.load();
@@ -142,6 +150,7 @@ export function createUserDataStore(options: {
         lastError,
       });
     });
+    return loading;
   }
 
   /** Re-read storage when another tab or window changed it. */

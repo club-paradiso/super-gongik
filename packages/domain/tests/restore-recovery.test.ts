@@ -410,6 +410,15 @@ describe("recovery generations and quarantine", () => {
     ).toHaveLength(1);
   });
 
+  it("a second load() (e.g. a remount) cannot swallow the recovery notice", async () => {
+    const { storage } = await twoGenerations();
+    await storage.setItem(STORAGE_KEYS.current, "{broken");
+    const store = openStore(storage, "remount");
+    await Promise.all([store.load(), store.load()]);
+    await store.load();
+    expect(ready(store).notice?.kind).toBe("RECOVERED");
+  });
+
   it("corrupt current + write failure during recovery keeps the valid previous generation", async () => {
     const { storage, faults, previous } = await twoGenerations();
     await storage.setItem(STORAGE_KEYS.current, "{broken");

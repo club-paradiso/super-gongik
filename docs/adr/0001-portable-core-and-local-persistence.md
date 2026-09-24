@@ -46,21 +46,27 @@ then wrote over.
    Deletion is soft. No Supabase/cloud work was started: nothing in this
    sprint needs it, and local recovery (JSON backup) closes the device-loss
    gap first.
-6. **Restore has two explicit contracts** (`store/backup.ts`):
+6. **Restore has two explicit contracts** (`store/restore.ts`,
+   `store/merge.ts`; full rules in [BACKUP_AND_SYNC.md](../BACKUP_AND_SYNC.md)).
+   Both are previewed with `planRestore` (pure) before `store.restore`
+   writes the whole document in one save.
    - _Merge = non-destructive recovery._ Current live records are never
-     deleted; backup tombstones are ignored for live records. Records missing
-     locally are added and records deleted locally but live in the backup are
-     restored with a new revision. Live-vs-live updates take the newer
-     revision. Anything that would charge leave twice or give a credit a
-     second confirmation is skipped, the current state kept, and the reason
-     reported. Import batches are re-derived: ACTIVE if and only if the batch
-     still has a live event or snapshot; snapshots stay deleted when their
-     batch's events could not be restored.
+     deleted; newer backup tombstones are reported, not applied. Per record,
+     the higher revision wins; equal revision with different content is a
+     structured conflict that blocks the merge until the user picks a side.
+     A stale live copy does not resurrect a newer local deletion unless the
+     user explicitly opts in (`restoreLocallyDeleted`). _Changed in #25:
+     previously local deletions were always resurrected and equal revisions
+     were decided by `updatedAt`._ Anything that would charge leave twice or
+     give a credit a second confirmation is skipped, the current state kept,
+     and the reason reported. Import batches are re-derived: ACTIVE if and
+     only if the batch still has a live event or snapshot.
    - _Replace = exact restoration._ The validated backup becomes the
-     document; only this device's id is kept, and the previous document is
-     preserved as a pre-restore copy first.
-     A future sync protocol needs real tombstone propagation and must not
-     reuse merge as-is.
+     document; only this device's id and write counter are kept, a
+     pre-restore copy is written first, and replacing existing data requires
+     an explicit destructive confirmation.
+     The same record contract is the basis for a future sync adapter
+     (`incomingDeletions: "APPLY_NEWER"`).
 7. **Leave may never be charged twice for the same time** (enforced in
    `events/validation.ts`, used by manual entry, import commit, restore and
    merge). Full day vs anything, the same half day, intersecting explicit

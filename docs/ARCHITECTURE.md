@@ -124,7 +124,11 @@ Every mutable user record should include:
 - revision integer
 - device_id
 
-Conflict policy should be explicit per record type.
+Conflict policy should be explicit per record type. The implemented,
+backend-agnostic record contract (revisions, tombstones, structured
+conflicts, what `documentRevision` does and does not mean) is specified in
+[BACKUP_AND_SYNC.md](./BACKUP_AND_SYNC.md). Remote sync itself is not
+implemented.
 
 Recommended initial conflict handling:
 
