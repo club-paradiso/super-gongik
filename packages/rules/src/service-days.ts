@@ -24,6 +24,9 @@ import {
  * - DECLARED_NON_WORKING: a scheduled weekday the user marked as a holiday
  *   or institution closure for this month.
  * - FULL_DAY_LEAVE: a scheduled day fully covered by a charged all-day leave.
+ *   This is a classification only: no primary source (제41조④, the MMA 2026
+ *   payment standard) states per leave type whether 중식비·교통비 are paid on
+ *   such a day, so eligibility stays undecided until the user decides.
  * - NEEDS_DECISION: the records do not settle attendance (half-day or
  *   minute leave, outing, late arrival, early leave, education, training, or
  *   an all-day leave whose charged dates inside its range are not provable).
@@ -42,9 +45,15 @@ export type ServiceDay = {
   kind: ServiceDayKind;
   /** Event ids that influenced the classification. */
   eventIds: string[];
-  /** null only while a NEEDS_DECISION day has no user decision. */
+  /** null while a day that requires a decision has none yet. */
   mealEligible: boolean | null;
   transportEligible: boolean | null;
+  /**
+   * true when the primary sources do not settle eligibility for this day
+   * (FULL_DAY_LEAVE and NEEDS_DECISION), so an explicit user decision is
+   * required before the month's day counts exist.
+   */
+  requiresDecision: boolean;
   /** true when the eligibility comes from the user's explicit decision. */
   decidedByUser: boolean;
 };
@@ -188,6 +197,7 @@ export function deriveMonthServiceDays(input: {
         eventIds: [],
         mealEligible: false,
         transportEligible: false,
+        requiresDecision: false,
         decidedByUser: false,
       };
     }
@@ -215,6 +225,8 @@ export function deriveMonthServiceDays(input: {
       }
     }
 
+    const requiresDecision =
+      kind === "FULL_DAY_LEAVE" || kind === "NEEDS_DECISION";
     const override = overrides.get(date);
     if (override) {
       return {
@@ -223,17 +235,21 @@ export function deriveMonthServiceDays(input: {
         eventIds,
         mealEligible: override.mealEligible,
         transportEligible: override.transportEligible,
+        requiresDecision,
         decidedByUser: true,
       };
     }
-    const eligible =
-      kind === "WORKED" ? true : kind === "NEEDS_DECISION" ? null : false;
+    // Only a plain working day (eligible) and a non-scheduled or declared
+    // non-working day (no attendance, nothing to pay) are settled without the
+    // user; every leave or partial-attendance day waits for a decision.
+    const eligible = requiresDecision ? null : kind === "WORKED";
     return {
       date,
       kind,
       eventIds,
       mealEligible: eligible,
       transportEligible: eligible,
+      requiresDecision,
       decidedByUser: false,
     };
   });
@@ -266,7 +282,7 @@ export function deriveMonthServiceDays(input: {
         ? "이 달의 공휴일·기관 휴무일을 확인해야 근무일 수를 셀 수 있어요."
         : missing.includes("MONTH_RECONFIRMATION")
           ? "확인 이후 기록이나 근무 요일이 바뀌어 이 달을 다시 확인해야 해요."
-          : "기록만으로 출근 여부를 알 수 없는 날을 정해 주세요.",
+          : "휴가·외출 등 기록이 있는 날의 중식비·교통비 지급 여부를 정해 주세요.",
     };
   }
 

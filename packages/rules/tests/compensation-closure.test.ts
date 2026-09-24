@@ -348,33 +348,47 @@ describe("eligible service days", () => {
     expect(days.missing).toContain("MONTH_CONFIRMATION");
   });
 
-  it("excludes declared holidays and full-day leave, counts the rest", () => {
+  it("excludes declared holidays and counts plain working days", () => {
     const days = deriveMonthServiceDays({
       profile: serving,
       month: "2026-10" as YearMonth,
-      events: [event("ANNUAL_LEAVE", "2026-10-13", "2026-10-14", allDay(2))],
+      events: [],
       attendance: attendance("2026-10", {
         nonWorkingDates: ["2026-10-05", "2026-10-09"] as DateOnly[],
       }),
     });
     expect(days.status).toBe("READY");
-    expect(days.mealEligibleDays).toBe(22 - 2 - 2);
-    expect(days.transportEligibleDays).toBe(18);
-    expect(days.days.find((d) => d.date === "2026-10-13")?.kind).toBe(
-      "FULL_DAY_LEAVE",
-    );
+    expect(days.mealEligibleDays).toBe(20);
+    expect(days.transportEligibleDays).toBe(20);
   });
 
-  it("charges a leave over a weekend only on scheduled days when the count proves it", () => {
-    const days = deriveMonthServiceDays({
+  it("finds a leave's charged days over a weekend but still asks about allowances", () => {
+    const leave = event("ANNUAL_LEAVE", "2026-10-16", "2026-10-19", allDay(2));
+    const undecided = deriveMonthServiceDays({
       profile: serving,
       month: "2026-10" as YearMonth,
       // Fri 16th – Mon 19th, 2 charged days = the two scheduled weekdays.
-      events: [event("ANNUAL_LEAVE", "2026-10-16", "2026-10-19", allDay(2))],
+      events: [leave],
       attendance: attendance("2026-10"),
     });
-    expect(days.status).toBe("READY");
-    expect(days.mealEligibleDays).toBe(20);
+    expect(undecided.undecidedDates).toEqual(["2026-10-16", "2026-10-19"]);
+    expect(undecided.days.find((d) => d.date === "2026-10-17")?.kind).toBe(
+      "NOT_SCHEDULED",
+    );
+    const decided = deriveMonthServiceDays({
+      profile: serving,
+      month: "2026-10" as YearMonth,
+      events: [leave],
+      attendance: attendance("2026-10", {
+        dayOverrides: ["2026-10-16", "2026-10-19"].map((date) => ({
+          date: date as DateOnly,
+          mealEligible: false,
+          transportEligible: false,
+        })),
+      }),
+    });
+    expect(decided.status).toBe("READY");
+    expect(decided.mealEligibleDays).toBe(20);
   });
 
   it("asks when an all-day leave's charged dates are not provable", () => {
@@ -499,6 +513,128 @@ describe("eligible service days", () => {
     });
     expect(days.days).toHaveLength(29);
     expect(days.mealEligibleDays).toBe(21);
+  });
+});
+
+describe("allowance eligibility by leave and attendance category", () => {
+  // No primary source (복무관리 규정 제41조④, 병무청 2026 지급 기준) states
+  // per leave type whether 중식비·교통비 are paid on a full day of leave, so
+  // every category waits for the user's decision instead of defaulting to 0.
+  const serving = profile("2026-01-05", "2027-10-04", {
+    defaultCommuteCost: 2800,
+  });
+  const date = "2026-10-20" as DateOnly;
+  const monthOf = (
+    events: ServiceEvent[],
+    extra: Partial<AttendanceMonth> = {},
+  ) =>
+    evaluateMonthlyCompensation(serving, "2026-10-15", {
+      events,
+      attendance: attendance("2026-10", extra),
+    });
+
+  it.each([
+    "ANNUAL_LEAVE",
+    "SICK_LEAVE",
+    "OFFICIAL_LEAVE",
+    "SPECIAL_LEAVE",
+    "COMPASSIONATE_LEAVE",
+  ] as const)(
+    "full-day %s is FULL_DAY_LEAVE with undecided allowances and blocks the total",
+    (eventType) => {
+      const events = [event(eventType, date, date, allDay(1))];
+      const pending = monthOf(events);
+      const day = pending.serviceDays?.days.find((d) => d.date === date);
+      expect(day).toMatchObject({
+        kind: "FULL_DAY_LEAVE",
+        requiresDecision: true,
+        mealEligible: null,
+        transportEligible: null,
+      });
+      expect(pending.components[1]?.status).toBe("NEEDS_INPUT");
+      expect(pending.components[2]?.status).toBe("NEEDS_INPUT");
+      expect(pending.total).toBeNull();
+
+      // The user's decision resolves it, including a split decision.
+      const decided = monthOf(events, {
+        dayOverrides: [{ date, mealEligible: false, transportEligible: true }],
+      });
+      expect(decided.status).toBe("COMPLETE");
+      expect(decided.components[1]?.eligibleDays).toBe(21);
+      expect(decided.components[2]?.eligibleDays).toBe(22);
+      expect(decided.total).toBe(1_200_000 + 9000 * 21 + 2800 * 22);
+    },
+  );
+
+  it.each([
+    ["half-day annual leave", "ANNUAL_LEAVE", { kind: "HALF_DAY", half: "AM" }],
+    [
+      "minute sick leave",
+      "SICK_LEAVE",
+      {
+        kind: "PARTIAL",
+        durationMinutes: 120,
+        startTime: "09:00",
+        endTime: "11:00",
+      },
+    ],
+    [
+      "outing",
+      "OUTING",
+      {
+        kind: "PARTIAL",
+        durationMinutes: 60,
+        startTime: "14:00",
+        endTime: "15:00",
+      },
+    ],
+    [
+      "late arrival",
+      "LATE_ARRIVAL",
+      {
+        kind: "PARTIAL",
+        durationMinutes: 30,
+        startTime: "09:00",
+        endTime: "09:30",
+      },
+    ],
+    [
+      "early leave",
+      "EARLY_LEAVE",
+      {
+        kind: "PARTIAL",
+        durationMinutes: 60,
+        startTime: "17:00",
+        endTime: "18:00",
+      },
+    ],
+    ["education", "EDUCATION", { kind: "ALL_DAY", dayCount: 1 }],
+    ["training", "TRAINING", { kind: "ALL_DAY", dayCount: 1 }],
+  ] as const)(
+    "%s needs a decision and blocks the total",
+    (_label, eventType, timing) => {
+      const events = [
+        event(eventType, date, date, timing as ServiceEvent["timing"]),
+      ];
+      const pending = monthOf(events);
+      expect(
+        pending.serviceDays?.days.find((d) => d.date === date),
+      ).toMatchObject({
+        kind: "NEEDS_DECISION",
+        requiresDecision: true,
+        mealEligible: null,
+      });
+      expect(pending.total).toBeNull();
+      const decided = monthOf(events, {
+        dayOverrides: [{ date, mealEligible: true, transportEligible: true }],
+      });
+      expect(decided.total).toBe(1_200_000 + 9000 * 22 + 2800 * 22);
+    },
+  );
+
+  it("ignores a user note, which says nothing about attendance", () => {
+    const result = monthOf([event("USER_NOTE", date, date, allDay(1))]);
+    expect(result.status).toBe("COMPLETE");
   });
 });
 

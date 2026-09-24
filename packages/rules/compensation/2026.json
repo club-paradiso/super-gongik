@@ -72,7 +72,7 @@
       "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
       "attachmentUrl": "https://open.mma.go.kr/caisGGGS/board/boardFileDown.do?gesipan_id=16&gsgeul_no=1517395&ilryeon_no=1",
       "retrievedAt": "2026-09-24",
-      "retrievalPath": "USER_SUPPLIED_UPLOAD (direct request from the build environment blocked: CONNECT 403 / EGRESS_BLOCKED)",
+      "retrievalPath": "USER_SUPPLIED_UPLOAD. Title, posting date, attachment name and ~30 KB size match the official MMA page as reported by the user's external check; direct byte-for-byte comparison with the server copy has not been performed (endpoint blocked from the build environment: CONNECT 403 / EGRESS_BLOCKED).",
       "attachmentExtractionStatus": "EXTRACTED_FROM_USER_SUPPLIED_COPY",
       "artifactFile": "docs/sources/2026/mma-2026-bosu-jigeup-gijun.hwpx",
       "artifactSha256": "f4bff691605807f8b20ac2c7034b0dbb052f899a2417236424cdf0faf1bfb158",
@@ -191,10 +191,17 @@
     "supportedWorkPattern": "WEEKDAY_DAYTIME",
     "unsupportedWorkPatterns": ["NIGHT_SHIFT_ROTATION", "RESIDENTIAL", "OTHER"],
     "unsupportedReason": "제41조④ 단서 counts a night-rotation day as two days and 제18조①6호 residential service provides board in kind; neither is modelled.",
-    "fullDayLeaveTreatment": "NOT_ELIGIBLE",
-    "fullDayLeaveBasis": "중식비·교통비 are 실비 for commuting attendance (제41조④); a full day of leave has no attendance.",
+    "fullDayLeaveTreatment": "REQUIRES_USER_DECISION",
+    "fullDayLeaveBasis": "No primary source states per leave type (연가·병가·공가·특별휴가·청원휴가) whether 중식비·교통비 are paid on a full day of leave: 제41조④ says only '실비', and the MMA 2026 standard gives rates, not eligible days. Institution guidance (e.g. a 경기도교육청 accounting guideline reported to state 휴가일 미지급) is institution-specific, so the day is classified FULL_DAY_LEAVE and the user decides.",
     "partialDayTreatment": "REQUIRES_USER_DECISION",
     "holidayTreatment": "USER_CONFIRMED_PER_MONTH",
-    "mmaAttachmentFinding": "NOT_FOUND: the 2026 MMA payment standard states per-day amounts but not which days qualify."
+    "mmaAttachmentFinding": "NOT_FOUND: the 2026 MMA payment standard states per-day amounts but not which days qualify.",
+    "leaveTypeEvidence": {
+      "ANNUAL_LEAVE": "AMBIGUOUS",
+      "SICK_LEAVE": "AMBIGUOUS",
+      "OFFICIAL_LEAVE": "AMBIGUOUS",
+      "SPECIAL_LEAVE": "AMBIGUOUS",
+      "COMPASSIONATE_LEAVE": "AMBIGUOUS"
+    }
   }
 }

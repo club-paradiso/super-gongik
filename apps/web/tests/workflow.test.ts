@@ -332,6 +332,30 @@ describe("end-to-end local workflow", () => {
         context,
       ),
     );
+    // The full-day leave on 9/10 still needs an allowance decision.
+    const pending = buildAppProjection(ready(store), profile, "2026-09-24");
+    expect(pending.compensation.total).toBeNull();
+    expect(pending.compensation.serviceDays?.undecidedDates).toEqual([
+      "2026-09-10",
+    ]);
+    await store.run((data, context) =>
+      saveAttendanceMonth(
+        data,
+        {
+          month: "2026-09",
+          nonWorkingDates: ["2026-09-24", "2026-09-25"],
+          dayOverrides: [
+            {
+              date: "2026-09-10",
+              mealEligible: false,
+              transportEligible: false,
+            },
+          ],
+          hadNonPayableAbsence: false,
+        },
+        context,
+      ),
+    );
     const after = buildAppProjection(ready(store), profile, "2026-09-24");
     expect(after.compensation.status).toBe("COMPLETE");
     // Month 9 → 상등병 1,200,000; 22 − 2 holidays − 1 leave = 19 days.

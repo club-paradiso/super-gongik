@@ -358,8 +358,9 @@ function AttendanceEditor({
   const [nonWorking, setNonWorking] = useState<Set<DateOnly>>(
     new Set(existing?.nonWorkingDates ?? []),
   );
-  const [overrides, setOverrides] = useState<
-    Map<DateOnly, AttendanceDayOverride>
+  // Partial decisions are kept locally; only days with both answers are saved.
+  const [decisions, setDecisions] = useState<
+    Map<DateOnly, Partial<AttendanceDayOverride>>
   >(new Map((existing?.dayOverrides ?? []).map((item) => [item.date, item])));
   const [hadAbsence, setHadAbsence] = useState(
     existing?.hadNonPayableAbsence ?? false,
@@ -374,7 +375,7 @@ function AttendanceEditor({
       (day.kind === "NEEDS_DECISION" && !nonWorking.has(day.date)) ||
       day.kind === "FULL_DAY_LEAVE",
   );
-  const decisionDays = days.filter((day) => day.kind === "NEEDS_DECISION");
+  const decisionDays = days.filter((day) => day.requiresDecision);
 
   function toggleNonWorking(date: DateOnly) {
     setNonWorking((current) => {
@@ -388,16 +389,11 @@ function AttendanceEditor({
   function decide(
     date: DateOnly,
     field: "mealEligible" | "transportEligible",
-    value: boolean,
+    value: boolean | undefined,
   ) {
-    setOverrides((current) => {
+    setDecisions((current) => {
       const next = new Map(current);
-      const base = next.get(date) ?? {
-        date,
-        mealEligible: false,
-        transportEligible: false,
-      };
-      next.set(date, { ...base, [field]: value });
+      next.set(date, { ...next.get(date), date, [field]: value });
       return next;
     });
   }
@@ -415,8 +411,19 @@ function AttendanceEditor({
         {
           month,
           nonWorkingDates: [...nonWorking],
-          dayOverrides: [...overrides.values()].filter((item) =>
-            liveDecisionDates.has(item.date),
+          dayOverrides: [...decisions.values()].flatMap((item) =>
+            item.date &&
+            liveDecisionDates.has(item.date) &&
+            typeof item.mealEligible === "boolean" &&
+            typeof item.transportEligible === "boolean"
+              ? [
+                  {
+                    date: item.date,
+                    mealEligible: item.mealEligible,
+                    transportEligible: item.transportEligible,
+                  },
+                ]
+              : [],
           ),
           hadNonPayableAbsence: hadAbsence,
         },
@@ -467,43 +474,52 @@ function AttendanceEditor({
 
       {decisionDays.filter((day) => !nonWorking.has(day.date)).length ? (
         <fieldset className="form-field choice-field">
-          <legend>기록만으로 알 수 없는 날</legend>
+          <legend>중식비·교통비 지급 여부를 정할 날</legend>
           {decisionDays
             .filter((day) => !nonWorking.has(day.date))
             .map((day) => (
               <div className="decision-row" key={day.date}>
-                <span>{dayLabel(day.date)}</span>
-                <label>
-                  <input
-                    checked={overrides.get(day.date)?.mealEligible ?? false}
-                    onChange={(event) =>
-                      decide(day.date, "mealEligible", event.target.checked)
-                    }
-                    type="checkbox"
-                  />
-                  중식비 받음
-                </label>
-                <label>
-                  <input
-                    checked={
-                      overrides.get(day.date)?.transportEligible ?? false
-                    }
-                    onChange={(event) =>
-                      decide(
-                        day.date,
-                        "transportEligible",
-                        event.target.checked,
-                      )
-                    }
-                    type="checkbox"
-                  />
-                  교통비 받음
-                </label>
+                <span>
+                  {dayLabel(day.date)}
+                  <small>{DAY_KIND_LABELS[day.kind]}</small>
+                </span>
+                {(
+                  [
+                    ["mealEligible", "중식비"],
+                    ["transportEligible", "교통비"],
+                  ] as const
+                ).map(([field, label]) => {
+                  const value = decisions.get(day.date)?.[field];
+                  return (
+                    <label key={field}>
+                      {label}
+                      <select
+                        aria-label={`${dayLabel(day.date)} ${label}`}
+                        value={value === undefined ? "" : value ? "yes" : "no"}
+                        onChange={(event) =>
+                          decide(
+                            day.date,
+                            field,
+                            event.target.value === ""
+                              ? undefined
+                              : event.target.value === "yes",
+                          )
+                        }
+                      >
+                        <option value="">미정</option>
+                        <option value="yes">받음</option>
+                        <option value="no">안 받음</option>
+                      </select>
+                    </label>
+                  );
+                })}
               </div>
             ))}
           <small>
-            반일 연가·외출·지각·조퇴·교육·훈련 날은 기관마다 처리가 달라 앱이
-            정하지 않아요. 저장하면 표시한 대로 셉니다.
+            종일 휴가를 포함해 휴가·외출·지각·조퇴·교육·훈련 날의 중식비·교통비
+            지급 여부는 법령과 병무청 지급 기준에 휴가 종류별로 정해져 있지
+            않아요. 복무기관 기준대로 둘 다 골라야 그날이 계산에 들어가요.
+            하나라도 미정이면 합계를 내지 않아요.
           </small>
         </fieldset>
       ) : null}
