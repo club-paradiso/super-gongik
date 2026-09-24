@@ -319,6 +319,8 @@ export function migrateLegacyStorage(
     leaveAdjustments: [],
     leaveSnapshots: dedupe(snapshots),
     imports: dedupe(imports),
+    attendanceMonths: [],
+    compensationSnapshots: [],
   });
 
   return { kind: "MIGRATED", data, issues };

@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+import {
+  attendanceMonthSchema,
+  compensationSnapshotSchema,
+} from "../compensation/records";
 import { serviceEventSchema } from "../events/model";
 import {
   importRecordSchema,
@@ -12,7 +16,7 @@ import { storedServiceProfileSchema } from "../service/profile";
  * The complete local user document. Every client (web today, native later)
  * persists exactly this shape, so backups and future sync share one contract.
  */
-export const CURRENT_SCHEMA_VERSION = 2 as const;
+export const CURRENT_SCHEMA_VERSION = 3 as const;
 
 export const userDataSchema = z
   .object({
@@ -26,6 +30,8 @@ export const userDataSchema = z
     leaveAdjustments: z.array(leaveAdjustmentSchema),
     leaveSnapshots: z.array(leaveSnapshotSchema),
     imports: z.array(importRecordSchema),
+    attendanceMonths: z.array(attendanceMonthSchema),
+    compensationSnapshots: z.array(compensationSnapshotSchema),
   })
   .superRefine((data, context) => {
     const ownerId = data.profile?.id ?? null;
@@ -34,6 +40,8 @@ export const userDataSchema = z
       ["leaveAdjustments", data.leaveAdjustments],
       ["leaveSnapshots", data.leaveSnapshots],
       ["imports", data.imports],
+      ["attendanceMonths", data.attendanceMonths],
+      ["compensationSnapshots", data.compensationSnapshots],
     ] as const;
 
     for (const [name, records] of collections) {
@@ -56,6 +64,19 @@ export const userDataSchema = z
         }
       });
     }
+
+    const liveMonths = new Set<string>();
+    data.attendanceMonths.forEach((record, index) => {
+      if (record.deletedAt !== null) return;
+      if (liveMonths.has(record.month)) {
+        context.addIssue({
+          code: "custom",
+          path: ["attendanceMonths", index, "month"],
+          message: `Duplicate live attendance month ${record.month}.`,
+        });
+      }
+      liveMonths.add(record.month);
+    });
   });
 
 export type UserData = z.infer<typeof userDataSchema>;
@@ -71,6 +92,8 @@ export function createEmptyUserData(deviceId: string): UserData {
     leaveAdjustments: [],
     leaveSnapshots: [],
     imports: [],
+    attendanceMonths: [],
+    compensationSnapshots: [],
   };
 }
 
@@ -92,9 +115,21 @@ type Migration = (value: Record<string, unknown>) => {
 /**
  * Document migrations keyed by the version they upgrade *from*. Version 1
  * never existed as a single document (see `legacy.ts`), so the chain starts
- * at 2. Add `2: (value) => …` here when schema version 3 is introduced.
+ * at 2.
  */
-const MIGRATIONS: Record<number, Migration> = {};
+const MIGRATIONS: Record<number, Migration> = {
+  // v3 adds month attendance confirmations and compensation snapshots. Both
+  // start empty: nothing in a v2 document can be converted into them.
+  2: (value) => ({
+    value: {
+      ...value,
+      schemaVersion: 3,
+      attendanceMonths: [],
+      compensationSnapshots: [],
+    },
+    issues: [],
+  }),
+};
 
 export function decodeUserData(value: unknown): DecodeResult {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
