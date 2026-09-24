@@ -1,0 +1,33 @@
+name: Apply attendance sprint Prettier
+permissions:
+  contents: write
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feat/derive-nonpayable-attendance
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.22.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec prettier --write apps/web/src/components/event-editor.tsx apps/web/src/components/money-tab.tsx apps/web/src/lib/event-display.ts packages/domain/src/compensation/fingerprint.ts packages/domain/src/events/model.ts packages/domain/src/events/validation.ts packages/domain/tests/events.test.ts packages/rules/src/index.ts packages/rules/src/monthly-compensation.ts packages/rules/src/service-days.ts packages/rules/src/non-payable-days.ts packages/rules/tests/compensation-closure.test.ts packages/rules/tests/non-payable-days.test.ts docs/COMPENSATION_POLICY_2026.md
+      - name: Commit formatting if needed
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/web/src/components/event-editor.tsx apps/web/src/components/money-tab.tsx apps/web/src/lib/event-display.ts packages/domain/src/compensation/fingerprint.ts packages/domain/src/events/model.ts packages/domain/src/events/validation.ts packages/domain/tests/events.test.ts packages/rules/src/index.ts packages/rules/src/monthly-compensation.ts packages/rules/src/service-days.ts packages/rules/src/non-payable-days.ts packages/rules/tests/compensation-closure.test.ts packages/rules/tests/non-payable-days.test.ts docs/COMPENSATION_POLICY_2026.md
+          git commit -m "style: apply prettier to attendance hardening"
+          git push origin HEAD:feat/derive-nonpayable-attendance
