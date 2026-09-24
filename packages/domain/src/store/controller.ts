@@ -5,6 +5,7 @@ import {
   type CommandResult,
 } from "./commands";
 import {
+  ConcurrentWriteError,
   StorageWriteError,
   type LoadOutcome,
   type UserDataRepository,
@@ -57,10 +58,22 @@ const QUARANTINE_IN_PLACE_MESSAGE =
  * the repository before publishing it. React (or SwiftUI via a JS bridge, or
  * any other UI) only subscribes to snapshots.
  */
+/**
+ * Cross-context mutual exclusion for writes (e.g. the Web Locks API shared by
+ * every tab of one origin). Must run `task` exclusively and return its result.
+ */
+export type WriteLock = <T>(task: () => Promise<T>) => Promise<T>;
+
 export function createUserDataStore(options: {
   repository: UserDataRepository;
   now?: () => Date;
   createId: () => string;
+  /**
+   * Serializes read-rebase-write across tabs. Without it, the repository's
+   * compare-and-set still refuses a write whose base another tab replaced,
+   * but cannot close the gap between its own check and write.
+   */
+  writeLock?: WriteLock;
 }) {
   const now = options.now ?? (() => new Date());
   let snapshot: StoreSnapshot = { phase: "LOADING" };
@@ -78,13 +91,21 @@ export function createUserDataStore(options: {
     return run;
   }
 
+  /** Queue in this tab, then hold the cross-tab lock for the whole task. */
+  function exclusive<T>(task: () => Promise<T>): Promise<T> {
+    const lock = options.writeLock;
+    return enqueue(lock ? () => lock(task) : task);
+  }
+
   async function persist(data: UserData): Promise<UserData> {
     const next: UserData = {
       ...data,
       documentRevision: data.documentRevision + 1,
       savedAt: now().toISOString(),
     };
-    await options.repository.save(next);
+    await options.repository.save(next, {
+      expectedRevision: data.documentRevision,
+    });
     return next;
   }
 
@@ -97,7 +118,7 @@ export function createUserDataStore(options: {
    * Use `refresh()` to pick up later writes.
    */
   function load(): Promise<void> {
-    loading ??= enqueue(async () => {
+    loading ??= exclusive(async () => {
       let outcome: LoadOutcome;
       try {
         outcome = await options.repository.load();
@@ -240,40 +261,49 @@ export function createUserDataStore(options: {
       : "저장하지 못했어요.";
   }
 
+  /** Attempts when a concurrent write from another tab is detected. */
+  const MAX_ATTEMPTS = 3;
+
   function run<T>(command: Command<T>): Promise<RunResult<T>> {
-    return enqueue(async (): Promise<RunResult<T>> => {
-      const ready = await writableBase();
-      if (!ready.ok) {
-        return {
-          ok: false,
-          errors: [{ code: "INVALID_FIELD", message: ready.message }],
-        };
-      }
-      const base = ready.base;
+    return exclusive(async (): Promise<RunResult<T>> => {
+      for (let attempt = 1; ; attempt += 1) {
+        const ready = await writableBase();
+        if (!ready.ok) {
+          return {
+            ok: false,
+            errors: [{ code: "INVALID_FIELD", message: ready.message }],
+          };
+        }
+        const base = ready.base;
 
-      const result = command(base, {
-        now: now().toISOString(),
-        deviceId: base.deviceId,
-        createId: options.createId,
-      });
-      if (!result.ok) return result;
+        // Commands are pure, so re-running one on a newer base is safe.
+        const result = command(base, {
+          now: now().toISOString(),
+          deviceId: base.deviceId,
+          createId: options.createId,
+        });
+        if (!result.ok) return result;
 
-      try {
-        const saved = await persist(result.data);
-        publish({
-          ...(snapshot as ReadySnapshot),
-          data: saved,
-          lastError: null,
-        });
-        return { ok: true, value: result.value, data: saved };
-      } catch (error) {
-        const message = writeError(error);
-        publish({
-          ...(snapshot as ReadySnapshot),
-          data: base,
-          lastError: message,
-        });
-        return { ok: false, errors: [{ code: "INVALID_FIELD", message }] };
+        try {
+          const saved = await persist(result.data);
+          publish({
+            ...(snapshot as ReadySnapshot),
+            data: saved,
+            lastError: null,
+          });
+          return { ok: true, value: result.value, data: saved };
+        } catch (error) {
+          if (error instanceof ConcurrentWriteError && attempt < MAX_ATTEMPTS) {
+            continue;
+          }
+          const message = writeError(error);
+          publish({
+            ...(snapshot as ReadySnapshot),
+            data: base,
+            lastError: message,
+          });
+          return { ok: false, errors: [{ code: "INVALID_FIELD", message }] };
+        }
       }
     });
   }
@@ -288,7 +318,7 @@ export function createUserDataStore(options: {
     incoming: UserData,
     request: StoreRestoreRequest,
   ): Promise<RestoreExecution> {
-    return enqueue(async (): Promise<RestoreExecution> => {
+    return exclusive(async (): Promise<RestoreExecution> => {
       const ready = await writableBase();
       if (!ready.ok) {
         return { ok: false, code: "READ_ONLY", message: ready.message };
@@ -322,6 +352,15 @@ export function createUserDataStore(options: {
         });
         return { ok: true, plan: execution.plan, data: saved };
       } catch (error) {
+        if (error instanceof ConcurrentWriteError) {
+          // The previewed base is gone; the user must see a fresh preview.
+          return {
+            ok: false,
+            code: "STALE_PREVIEW",
+            message:
+              "저장 직전에 다른 탭이나 창에서 데이터가 바뀌었어요. 아무것도 바꾸지 않았어요. 미리보기를 다시 확인해 주세요.",
+          };
+        }
         const message = writeError(error);
         publish({
           ...(snapshot as ReadySnapshot),

@@ -75,10 +75,36 @@ export class StorageWriteError extends Error {
   }
 }
 
+/**
+ * The stored document is no longer the one the write was based on: another
+ * tab or window saved in between. Nothing was written.
+ */
+export class ConcurrentWriteError extends StorageWriteError {
+  constructor(
+    readonly expectedRevision: number,
+    readonly storedRevision: number,
+  ) {
+    super(
+      "다른 탭이나 창에서 방금 데이터를 저장했어요. 덮어쓰지 않았어요.",
+      null,
+    );
+    this.name = "ConcurrentWriteError";
+  }
+}
+
+export type SaveOptions = {
+  /**
+   * Compare-and-set: refuse with `ConcurrentWriteError` unless the stored
+   * document still has this `documentRevision`. Skipped when nothing
+   * readable is stored.
+   */
+  expectedRevision?: number;
+};
+
 export type UserDataRepository = {
   load(): Promise<LoadOutcome>;
   /** Validates, keeps the previous generation, then replaces the document. */
-  save(data: UserData): Promise<void>;
+  save(data: UserData, options?: SaveOptions): Promise<void>;
   /** Keep a copy of the current document before a destructive restore. */
   preserveBeforeRestore(): Promise<boolean>;
   readRaw(key: string): Promise<string | null>;
@@ -95,6 +121,7 @@ export function createUserDataRepository(
 ): UserDataRepository {
   /** Last document text known to decode, to skip re-validation on save. */
   let lastGood: string | null = null;
+  let lastGoodRevision = 0;
 
   /**
    * Copy unreadable bytes to a quarantine key (reusing an identical existing
@@ -119,13 +146,19 @@ export function createUserDataRepository(
     }
   }
 
+  /** `documentRevision` of a readable document, or null if unreadable. */
+  function revisionOf(raw: string): number | null {
+    if (raw === lastGood) return lastGoodRevision;
+    const decoded = decodeUserDataText(raw);
+    if (decoded.kind !== "OK") return null;
+    lastGood = raw;
+    lastGoodRevision = decoded.data.documentRevision;
+    return lastGoodRevision;
+  }
+
   /** True when `raw` is a document this app version can read. */
   function isReadable(raw: string): boolean {
-    if (raw === lastGood) return true;
-    const decoded = decodeUserDataText(raw);
-    if (decoded.kind !== "OK") return false;
-    lastGood = raw;
-    return true;
+    return revisionOf(raw) !== null;
   }
 
   async function loadLegacy(): Promise<LoadOutcome> {
@@ -182,6 +215,7 @@ export function createUserDataRepository(
       const decoded = decodeUserDataText(raw);
       if (decoded.kind === "OK") {
         lastGood = raw;
+        lastGoodRevision = decoded.data.documentRevision;
         return decoded.migratedFrom === null
           ? { kind: "LOADED", data: decoded.data }
           : { kind: "MIGRATED", data: decoded.data, issues: decoded.issues };
@@ -229,7 +263,7 @@ export function createUserDataRepository(
       };
     },
 
-    async save(data) {
+    async save(data, options = {}) {
       const valid = userDataSchema.safeParse(data);
       if (!valid.success) {
         const issue = valid.error.issues[0];
@@ -248,6 +282,12 @@ export function createUserDataRepository(
           "기기 저장소를 읽지 못해 저장하지 않았어요. 브라우저 설정을 확인해 주세요.",
           error,
         );
+      }
+      if (existing !== null && options.expectedRevision !== undefined) {
+        const stored = revisionOf(existing);
+        if (stored !== null && stored !== options.expectedRevision) {
+          throw new ConcurrentWriteError(options.expectedRevision, stored);
+        }
       }
       if (existing !== null && existing !== serialized) {
         const decoded = isReadable(existing)
@@ -290,6 +330,7 @@ export function createUserDataRepository(
         );
       }
       lastGood = serialized;
+      lastGoodRevision = valid.data.documentRevision;
     },
 
     async preserveBeforeRestore() {

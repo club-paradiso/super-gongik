@@ -95,25 +95,38 @@ const sortedRecords = (data: UserData) => ({
   ),
 });
 
-describe("record version rules", () => {
-  it("A. a higher incoming revision replaces the local record", () => {
+function conflictsOf(current: UserData, incoming: UserData) {
+  const result = mergeUserData(current, incoming, MERGE_CTX);
+  expect(result.ok).toBe(false);
+  if (result.ok) throw new Error("expected a conflict");
+  expect(result.reason).toBe("UNRESOLVED_CONFLICTS");
+  return result.conflicts;
+}
+
+// "origin" is the device that created the record. Two documents that only
+// ever went through "origin" are one linear history (e.g. today's data and
+// last week's backup of the same phone). Any other device name is an
+// independent device.
+
+describe("same-device history: revisions order versions", () => {
+  it("A. a higher revision from the same device replaces the local record", () => {
     const { base, id } = shared();
-    const remote = edit(base, id, "원격 수정", device("remote"));
-    const result = merged(base, remote);
-    expect(eventOf(result.data, id).note).toBe("원격 수정");
+    const later = edit(base, id, "나중 수정", device("origin"));
+    const result = merged(base, later);
+    expect(eventOf(result.data, id).note).toBe("나중 수정");
     expect(eventOf(result.data, id).revision).toBe(2);
     expect(result.counts.events.UPDATED).toBe(1);
   });
 
-  it("B. a lower incoming revision never overwrites a newer local record", () => {
+  it("B. a lower revision from the same device never overwrites a newer local record", () => {
     const { base, id } = shared();
-    const local = edit(base, id, "로컬 수정", device("here"));
+    const local = edit(base, id, "로컬 수정", device("origin"));
     const result = merged(local, base);
     expect(eventOf(result.data, id)).toEqual(eventOf(local, id));
     expect(result.counts.events.RETAINED_LOCAL).toBe(1);
   });
 
-  it("C. equal revision with identical content is a no-op, whatever the write metadata", () => {
+  it("C. identical content is a no-op, whatever the revision and write metadata", () => {
     const { base, id } = shared();
     const sameContent: UserData = {
       ...base,
@@ -121,6 +134,7 @@ describe("record version rules", () => {
         event.id === id
           ? {
               ...event,
+              revision: 9,
               updatedAt: "2030-01-01T00:00:00.000Z",
               deviceId: "elsewhere",
             }
@@ -136,7 +150,129 @@ describe("record version rules", () => {
     expect(result.counts.events).toEqual({ UNCHANGED: 1 });
   });
 
-  it("D. equal revision with divergent content is a structured conflict, never a silent winner", () => {
+  it("E. an older copy from the same device cannot resurrect a newer deletion", () => {
+    const { base: backup, id } = shared();
+    const deleted = must(deleteServiceEvent(backup, id, device("origin"))).data;
+    for (const options of [{}, { incomingDeletions: "APPLY_NEWER" as const }]) {
+      const result = merged(deleted, backup, options);
+      expect(isLive(eventOf(result.data, id))).toBe(false);
+      expect(result.changes).toEqual([
+        { collection: "events", recordId: id, outcome: "LOCAL_DELETION_KEPT" },
+      ]);
+    }
+  });
+
+  it("F. restoring an older backup over a newer deletion keeps the deletion (MERGE) and says so; REPLACE shows it will come back", () => {
+    const { base: backup, id } = shared();
+    const now = must(deleteServiceEvent(backup, id, device("origin"))).data;
+
+    const plan = planRestore(now, backup, { mode: "MERGE", ...MERGE_CTX });
+    expect(plan.blocked).toBeNull();
+    expect(plan.counts.events.LOCAL_DELETION_KEPT).toBe(1);
+    expect(isLive(eventOf(plan.result!, id))).toBe(false);
+
+    const replace = planRestore(now, backup, { mode: "REPLACE", ...MERGE_CTX });
+    expect(replace.destructive).toBe(true);
+    expect(replace.counts.events.RESTORED).toBe(1);
+  });
+
+  it("F. a newer same-device deletion is reported but not applied by recovery merge; the sync policy applies it", () => {
+    const { base, id } = shared();
+    const laterDeleted = must(
+      deleteServiceEvent(base, id, device("origin")),
+    ).data;
+
+    const recovery = merged(base, laterDeleted);
+    expect(isLive(eventOf(recovery.data, id))).toBe(true);
+    expect(recovery.counts.events.INCOMING_DELETION_NOT_APPLIED).toBe(1);
+
+    const sync = merged(base, laterDeleted, {
+      incomingDeletions: "APPLY_NEWER",
+    });
+    expect(isLive(eventOf(sync.data, id))).toBe(false);
+    expect(sync.counts.events.DELETED).toBe(1);
+  });
+});
+
+describe("independent devices: revision counters are not a clock", () => {
+  it("E. a deletion on one device vs two edits on another is a conflict, not a resurrection", () => {
+    // Review scenario: base rev1; A deletes (rev2 tombstone); B edits twice
+    // from the same base (rev3 live). 3 > 2 proves nothing.
+    const { base, id } = shared();
+    const deletedOnA = must(
+      deleteServiceEvent(base, id, device("device-a")),
+    ).data;
+    const editedOnB = edit(
+      edit(base, id, "B 수정 1", device("device-b")),
+      id,
+      "B 수정 2",
+      device("device-b"),
+    );
+    expect(eventOf(deletedOnA, id).revision).toBe(2);
+    expect(eventOf(editedOnB, id).revision).toBe(3);
+
+    for (const options of [
+      {},
+      { incomingDeletions: "APPLY_NEWER" as const },
+      { restoreLocallyDeleted: true },
+    ]) {
+      const result = mergeUserData(deletedOnA, editedOnB, MERGE_CTX, options);
+      expect(result).toMatchObject({
+        ok: false,
+        reason: "UNRESOLVED_CONFLICTS",
+      });
+    }
+    expect(conflictsOf(deletedOnA, editedOnB)).toEqual([
+      {
+        key: `events:${id}`,
+        collection: "events",
+        recordId: id,
+        type: "CROSS_DEVICE_DIVERGENT",
+        local: {
+          revision: 2,
+          updatedAt: eventOf(deletedOnA, id).updatedAt,
+          deleted: true,
+        },
+        incoming: {
+          revision: 3,
+          updatedAt: eventOf(editedOnB, id).updatedAt,
+          deleted: false,
+        },
+      },
+    ]);
+    // And the other way round: B's live edits never silently win either.
+    expect(conflictsOf(editedOnB, deletedOnA)[0]).toMatchObject({
+      type: "CROSS_DEVICE_DIVERGENT",
+      local: { deleted: false },
+      incoming: { deleted: true },
+    });
+  });
+
+  it("unequal-revision divergent edits from different devices never pick a silent winner", () => {
+    const { base, id } = shared();
+    const onA = edit(base, id, "A 메모", device("device-a")); // rev2
+    let onB = base;
+    for (let i = 0; i < 5; i += 1)
+      onB = edit(onB, id, `B 메모 ${i}`, device("device-b")); // rev6
+    for (const [a, b] of [
+      [onA, onB],
+      [onB, onA],
+    ] as const) {
+      const [conflict] = conflictsOf(a, b);
+      expect(conflict).toMatchObject({
+        type: "CROSS_DEVICE_DIVERGENT",
+        recordId: id,
+      });
+      // Conflicts carry version metadata only, not user text.
+      expect(JSON.stringify(conflict)).not.toContain("메모");
+    }
+    // The plan is blocked; nothing would be written.
+    const plan = planRestore(onA, onB, { mode: "MERGE", ...MERGE_CTX });
+    expect(plan.blocked?.reason).toBe("UNRESOLVED_CONFLICTS");
+    expect(plan.result).toBeNull();
+  });
+
+  it("D. equal revision with divergent content is a structured conflict", () => {
     const { base, id } = shared();
     const here = edit(
       base,
@@ -150,16 +286,11 @@ describe("record version rules", () => {
       "저기서 쓴 비밀 메모",
       device("there", "2026-09-24T00:00:00.000Z"),
     );
-
     for (const [a, b] of [
       [here, there],
       [there, here],
     ] as const) {
-      const result = mergeUserData(a, b, MERGE_CTX);
-      expect(result.ok).toBe(false);
-      if (result.ok) return;
-      expect(result.reason).toBe("UNRESOLVED_CONFLICTS");
-      expect(result.conflicts).toEqual([
+      expect(conflictsOf(a, b)).toEqual([
         {
           key: `events:${id}`,
           collection: "events",
@@ -177,63 +308,56 @@ describe("record version rules", () => {
           },
         },
       ]);
-      // Conflicts carry version metadata only, not user text.
-      expect(JSON.stringify(result.conflicts)).not.toContain("비밀");
+      expect(JSON.stringify(conflictsOf(a, b))).not.toContain("비밀");
     }
-
-    // The later wall-clock time does not win on its own.
-    const plan = planRestore(here, there, { mode: "MERGE", ...MERGE_CTX });
-    expect(plan.blocked?.reason).toBe("UNRESOLVED_CONFLICTS");
-    expect(plan.result).toBeNull();
+    // Equal revisions from the same device conflict too.
+    const sameDevice = structuredClone(here);
+    eventOf(sameDevice, id).note = "같은 기기, 같은 버전";
+    expect(conflictsOf(here, sameDevice)[0]!.type).toBe(
+      "EQUAL_VERSION_DIVERGENT",
+    );
   });
 
-  it("D. an explicit resolution applies the chosen side above both revisions, and is then stable", () => {
+  it("D. an explicit resolution applies the chosen side verbatim and is idempotent with the same choice", () => {
     const { base, id } = shared();
     const here = edit(base, id, "여기", device("here"));
-    const there = edit(base, id, "저기", device("there"));
-
-    const keepLocal = merged(here, there, {
-      resolutions: { [`events:${id}`]: "LOCAL" },
-    });
-    expect(eventOf(keepLocal.data, id)).toMatchObject({
-      note: "여기",
-      revision: 3,
-    });
-    expect(keepLocal.counts.events.RESOLVED_LOCAL).toBe(1);
-    // Merging the same incoming copy again no longer conflicts.
-    expect(merged(keepLocal.data, there).data.events).toEqual(
-      keepLocal.data.events,
+    const there = edit(
+      edit(base, id, "저기1", device("there")),
+      id,
+      "저기",
+      device("there"),
     );
+    const key = `events:${id}`;
+
+    const keepLocal = merged(here, there, { resolutions: { [key]: "LOCAL" } });
+    expect(eventOf(keepLocal.data, id)).toEqual(eventOf(here, id));
+    expect(keepLocal.counts.events.RESOLVED_LOCAL).toBe(1);
+    expect(
+      merged(keepLocal.data, there, { resolutions: { [key]: "LOCAL" } }).data,
+    ).toEqual(keepLocal.data);
+    // Without an answer the same file asks again: nothing proves order.
+    expect(conflictsOf(keepLocal.data, there)).toHaveLength(1);
 
     const takeIncoming = merged(here, there, {
-      resolutions: { [`events:${id}`]: "INCOMING" },
+      resolutions: { [key]: "INCOMING" },
     });
-    expect(eventOf(takeIncoming.data, id)).toMatchObject({
-      note: "저기",
-      revision: 3,
-      deviceId: MERGE_CTX.deviceId,
-    });
-    expect(merged(takeIncoming.data, there).data.events).toEqual(
-      takeIncoming.data.events,
-    );
+    expect(eventOf(takeIncoming.data, id)).toEqual(eventOf(there, id));
+    // Now identical: re-merging needs no answer at all.
+    expect(merged(takeIncoming.data, there).data).toEqual(takeIncoming.data);
   });
 
   it("D. divergence is detected in every collection, including records without revisions", () => {
     const data = fullDocument();
     const divergent: UserData = JSON.parse(JSON.stringify(data));
-    divergent.profile!.defaultCommuteCost = 9999; // same updatedAt
+    divergent.profile!.defaultCommuteCost = 9999;
     divergent.leaveAdjustments[0]!.reason = "다른 사유";
     divergent.leaveSnapshots[0]!.remainingDays = 3;
     divergent.imports[0]!.fileName = "renamed.csv";
     divergent.attendanceMonths[0]!.nonWorkingDates = [];
     divergent.compensationSnapshots[0]!.total = 1;
 
-    const result = mergeUserData(data, divergent, MERGE_CTX);
-    expect(result.ok).toBe(false);
-    if (result.ok) return;
-    expect(
-      result.conflicts.map((conflict) => conflict.collection).sort(),
-    ).toEqual([
+    const conflicts = conflictsOf(data, divergent);
+    expect(conflicts.map((conflict) => conflict.collection).sort()).toEqual([
       "attendanceMonths",
       "compensationSnapshots",
       "imports",
@@ -241,77 +365,29 @@ describe("record version rules", () => {
       "leaveSnapshots",
       "profile",
     ]);
-    expect(
-      result.conflicts
-        .filter((conflict) => conflict.type === "IMMUTABLE_RECORD_DIVERGENT")
-        .map((conflict) => conflict.collection)
-        .sort(),
-    ).toEqual(["imports", "leaveSnapshots"]);
-  });
-});
-
-describe("tombstones", () => {
-  it("E. a stale edit cannot resurrect a newer deletion", () => {
-    const { base, id } = shared();
-    const staleEdit = edit(base, id, "오래된 수정", device("stale")); // rev 2
-    const deletedHere = must(
-      deleteServiceEvent(
-        edit(base, id, "x", device("here")),
-        id,
-        device("here"),
-      ),
-    ).data; // rev 3, deleted
-    for (const options of [{}, { incomingDeletions: "APPLY_NEWER" as const }]) {
-      const result = merged(deletedHere, staleEdit, options);
-      expect(isLive(eventOf(result.data, id))).toBe(false);
-      expect(result.changes).toEqual([
-        { collection: "events", recordId: id, outcome: "LOCAL_DELETION_KEPT" },
-      ]);
-    }
+    const typeOf = (collection: string) =>
+      conflicts.find((conflict) => conflict.collection === collection)!.type;
+    expect(typeOf("imports")).toBe("IMMUTABLE_RECORD_DIVERGENT");
+    expect(typeOf("leaveSnapshots")).toBe("IMMUTABLE_RECORD_DIVERGENT");
+    expect(typeOf("profile")).toBe("UNVERSIONED_DIVERGENT");
   });
 
-  it("E. deletion and edit made from the same revision conflict instead of racing", () => {
-    const { base, id } = shared();
-    const edited = edit(base, id, "수정", device("a")); // rev 2 live
-    const deleted = must(deleteServiceEvent(base, id, device("b"))).data; // rev 2 deleted
-    const result = mergeUserData(deleted, edited, MERGE_CTX);
-    expect(result).toMatchObject({ ok: false, reason: "UNRESOLVED_CONFLICTS" });
-    if (result.ok) return;
-    expect(result.conflicts[0]).toMatchObject({
-      local: { deleted: true },
-      incoming: { deleted: false },
+  it("a newer profile timestamp on another device does not silently win", () => {
+    const data = userDataWithProfile();
+    const edited = {
+      ...data,
+      profile: {
+        ...data.profile!,
+        defaultCommuteCost: 3000,
+        updatedAt: "2030-01-01T00:00:00.000Z",
+      },
+    };
+    expect(conflictsOf(data, edited)[0]!.type).toBe("UNVERSIONED_DIVERGENT");
+    const taken = merged(data, edited, {
+      resolutions: { [`profile:${data.profile!.id}`]: "INCOMING" },
     });
-  });
-
-  it("F. restoring an older backup over a newer deletion keeps the deletion (MERGE) and says so; REPLACE shows it will come back", () => {
-    const { base: backup, id } = shared();
-    const now = must(deleteServiceEvent(backup, id, device("here"))).data;
-
-    const plan = planRestore(now, backup, { mode: "MERGE", ...MERGE_CTX });
-    expect(plan.blocked).toBeNull();
-    expect(plan.counts.events.LOCAL_DELETION_KEPT).toBe(1);
-    expect(isLive(eventOf(plan.result!, id))).toBe(false);
-
-    const replace = planRestore(now, backup, { mode: "REPLACE", ...MERGE_CTX });
-    expect(replace.destructive).toBe(true);
-    expect(replace.counts.events.RESTORED).toBe(1);
-  });
-
-  it("F. a newer incoming deletion is reported but not applied by recovery merge; the sync policy applies it", () => {
-    const { base, id } = shared();
-    const remoteDeleted = must(
-      deleteServiceEvent(base, id, device("remote")),
-    ).data;
-
-    const recovery = merged(base, remoteDeleted);
-    expect(isLive(eventOf(recovery.data, id))).toBe(true);
-    expect(recovery.counts.events.INCOMING_DELETION_NOT_APPLIED).toBe(1);
-
-    const sync = merged(base, remoteDeleted, {
-      incomingDeletions: "APPLY_NEWER",
-    });
-    expect(isLive(eventOf(sync.data, id))).toBe(false);
-    expect(sync.counts.events.DELETED).toBe(1);
+    expect(taken.data.profile).toEqual(edited.profile);
+    expect(taken.stats.profileUpdated).toBe(true);
   });
 });
 
@@ -333,35 +409,20 @@ describe("duplicates and identity", () => {
 
   it("G. similar-looking but distinct records are both kept", () => {
     const base = userDataWithProfile();
+    const timed = (start: string, end: string) => ({
+      ...partial("OUTING", "2026-09-10", 60),
+      timing: {
+        kind: "PARTIAL" as const,
+        durationMinutes: 60,
+        startTime: start,
+        endTime: end,
+      },
+    });
     const morning = must(
-      createServiceEvent(
-        base,
-        {
-          ...partial("OUTING", "2026-09-10", 60),
-          timing: {
-            kind: "PARTIAL",
-            durationMinutes: 60,
-            startTime: "09:00",
-            endTime: "10:00",
-          },
-        },
-        device("a"),
-      ),
+      createServiceEvent(base, timed("09:00", "10:00"), device("a")),
     ).data;
     const afternoon = must(
-      createServiceEvent(
-        base,
-        {
-          ...partial("OUTING", "2026-09-10", 60),
-          timing: {
-            kind: "PARTIAL",
-            durationMinutes: 60,
-            startTime: "15:00",
-            endTime: "16:00",
-          },
-        },
-        device("b"),
-      ),
+      createServiceEvent(base, timed("15:00", "16:00"), device("b")),
     ).data;
     const result = merged(morning, afternoon);
     expect(result.data.events.filter(isLive)).toHaveLength(2);
@@ -369,31 +430,33 @@ describe("duplicates and identity", () => {
 });
 
 describe("reconnecting stale devices", () => {
-  it("H. a device that missed many revisions neither overwrites nor loses newer records", () => {
+  function busyHistory() {
     const { base, id } = shared();
-    // The busy device edits the event six times and adds and deletes others.
     let busy = base;
     for (let i = 0; i < 6; i += 1)
-      busy = edit(busy, id, `수정 ${i}`, device("busy"));
+      busy = edit(busy, id, `수정 ${i}`, device("origin"));
     const added = must(
       createServiceEvent(
         busy,
         allDay("ANNUAL_LEAVE", "2026-10-02"),
-        device("busy"),
+        device("origin"),
       ),
     );
     busy = must(
-      deleteServiceEvent(added.data, added.value.id, device("busy")),
+      deleteServiceEvent(added.data, added.value.id, device("origin")),
     ).data;
     busy = must(
       createServiceEvent(
         busy,
         partial("OUTING", "2026-10-05", 30),
-        device("busy"),
+        device("origin"),
       ),
     ).data;
+    return { base, busy, id };
+  }
 
-    // The stale device only has the original.
+  it("H. an old copy of the same device neither overwrites nor loses newer records", () => {
+    const { base, busy, id } = busyHistory();
     const staleIntoBusy = merged(busy, base);
     expect(sortedRecords(staleIntoBusy.data)).toEqual(sortedRecords(busy));
 
@@ -401,19 +464,35 @@ describe("reconnecting stale devices", () => {
     expect(eventOf(busyIntoStale.data, id)).toEqual(eventOf(busy, id));
     expect(sortedRecords(busyIntoStale.data)).toEqual(sortedRecords(busy));
   });
+
+  it("H. a copy edited on another device while this one moved on is a conflict, never an overwrite", () => {
+    const { base, busy, id } = busyHistory();
+    const elsewhere = edit(base, id, "다른 기기", device("device-b")); // rev2
+    const plan = planRestore(busy, elsewhere, { mode: "MERGE", ...MERGE_CTX });
+    expect(plan.blocked?.reason).toBe("UNRESOLVED_CONFLICTS");
+    expect(plan.conflicts.map((conflict) => conflict.recordId)).toEqual([id]);
+    const kept = merged(busy, elsewhere, {
+      resolutions: { [`events:${id}`]: "LOCAL" },
+    });
+    expect(sortedRecords(kept.data)).toEqual(sortedRecords(busy));
+  });
 });
 
 describe("algebraic properties", () => {
+  /** Two documents that diverged along one device's history, touching different records. */
   function divergedPair() {
     const origin = fullDocument();
-    const liveId = origin.events.find(
+    const fixture = (now = "2026-09-22T00:00:00.000Z"): CommandContext => ({
+      ...device("device-fixture", now),
+    });
+    const manual = origin.events.filter(
       (event) => isLive(event) && event.source.kind === "MANUAL",
-    )!.id;
+    );
     const a = must(
       createServiceEvent(
-        edit(origin, liveId, "A 기기 수정", device("a")),
+        edit(origin, manual[0]!.id, "A 수정", fixture()),
         allDay("ANNUAL_LEAVE", "2026-10-06"),
-        device("a"),
+        fixture(),
       ),
     ).data;
     let b = must(
@@ -425,17 +504,13 @@ describe("algebraic properties", () => {
           dayOverrides: [],
           hadNonPayableAbsence: false,
         },
-        device("b"),
+        fixture(),
       ),
     ).data;
     b = must(
-      createServiceEvent(b, partial("OUTING", "2026-10-07", 30), device("b")),
+      createServiceEvent(b, partial("OUTING", "2026-10-07", 30), fixture()),
     ).data;
-    const other = origin.events.find(
-      (event) =>
-        isLive(event) && event.id !== liveId && event.source.kind === "MANUAL",
-    )!;
-    b = must(deleteServiceEvent(b, other.id, device("b"))).data;
+    b = must(deleteServiceEvent(b, manual[1]!.id, fixture())).data;
     return { a, b };
   }
 
@@ -449,14 +524,6 @@ describe("algebraic properties", () => {
       const once = merged(a, b, options);
       const twice = merged(once.data, b, options);
       expect(twice.data).toEqual(once.data);
-      expect(
-        twice.changes.filter(
-          (change) =>
-            change.outcome !== "INCOMING_DELETION_NOT_APPLIED" &&
-            change.outcome !== "LOCAL_DELETION_KEPT" &&
-            change.outcome !== "DUPLICATE",
-        ),
-      ).toEqual([]);
     }
   });
 
@@ -466,8 +533,8 @@ describe("algebraic properties", () => {
     const ba = merged(b, a, { incomingDeletions: "APPLY_NEWER" });
     expect(sortedRecords(ab.data)).toEqual(sortedRecords(ba.data));
     // Document metadata is per device and always comes from the local side.
-    expect(ab.data.deviceId).toBe(a.deviceId);
-    expect(ba.data.deviceId).toBe(b.deviceId);
+    expect(ab.data.documentRevision).toBe(a.documentRevision);
+    expect(ba.data.documentRevision).toBe(b.documentRevision);
   });
 
   it("J. recovery merge is intentionally not commutative for deletions", () => {
@@ -477,6 +544,20 @@ describe("algebraic properties", () => {
     // A keeps the record B deleted; B keeps its own deletion.
     expect(sortedRecords(ab.data)).not.toEqual(sortedRecords(ba.data));
     expect(ab.counts.events.INCOMING_DELETION_NOT_APPLIED).toBe(1);
+  });
+
+  it("J. cross-device conflicts are symmetric: both directions stop and ask", () => {
+    const { base, id } = shared();
+    const onA = edit(base, id, "A", device("device-a"));
+    const onB = edit(
+      edit(base, id, "B1", device("device-b")),
+      id,
+      "B2",
+      device("device-b"),
+    );
+    expect(conflictsOf(onA, onB).map((c) => c.key)).toEqual(
+      conflictsOf(onB, onA).map((c) => c.key),
+    );
   });
 
   it("J. duplicate content under two ids keeps whichever the local side already has", () => {

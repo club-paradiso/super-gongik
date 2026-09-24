@@ -10,12 +10,17 @@ import { canonicalJson } from "./integrity";
  * write counter, not a distributed clock.
  *
  * Record rules (see docs/BACKUP_AND_SYNC.md for the full table):
- * - higher `revision` wins;
- * - equal revision with identical payload is a no-op;
- * - equal revision with divergent payload is a CONFLICT the caller must
- *   resolve explicitly — never a silent winner;
- * - a tombstone (`deletedAt`) is just a revision, so a stale live copy can
- *   never resurrect a newer deletion.
+ * - `revision` is a per-record edit counter. It orders versions only along
+ *   one device's history (same `deviceId`); two devices editing from the
+ *   same base both count up independently, so the bigger number proves
+ *   nothing about causality between devices;
+ * - same payload (ignoring write metadata) is a no-op, whatever the counters;
+ * - same device, different revision: the higher revision wins;
+ * - different devices, different payload: CONFLICT (`CROSS_DEVICE_DIVERGENT`)
+ *   — no causal metadata exists to pick a winner;
+ * - equal revision, different payload: CONFLICT (`EQUAL_VERSION_DIVERGENT`);
+ * - a tombstone (`deletedAt`) is part of the payload, so neither a stale live
+ *   copy nor an independent edit silently resurrects a deletion.
  */
 
 export const SYNC_COLLECTIONS = [
@@ -39,7 +44,13 @@ export type Revisioned = {
 };
 
 export type VersionVerdict =
-  "IDENTICAL" | "LOCAL_NEWER" | "INCOMING_NEWER" | "DIVERGENT";
+  | "IDENTICAL"
+  | "LOCAL_NEWER"
+  | "INCOMING_NEWER"
+  /** Equal revision, different payload. */
+  | "DIVERGENT"
+  /** Different payload written by different devices: no provable order. */
+  | "UNORDERED";
 
 /**
  * Payload used for equality: everything except write metadata. `updatedAt`
@@ -62,9 +73,13 @@ export function compareRevisioned(
   local: Revisioned,
   incoming: Revisioned,
 ): VersionVerdict {
-  if (incoming.revision > local.revision) return "INCOMING_NEWER";
-  if (incoming.revision < local.revision) return "LOCAL_NEWER";
-  return payloadKey(local) === payloadKey(incoming) ? "IDENTICAL" : "DIVERGENT";
+  if (payloadKey(local, ["revision"]) === payloadKey(incoming, ["revision"])) {
+    return "IDENTICAL";
+  }
+  if (incoming.revision === local.revision) return "DIVERGENT";
+  // Revision counters are per device; across devices they are not a clock.
+  if (incoming.deviceId !== local.deviceId) return "UNORDERED";
+  return incoming.revision > local.revision ? "INCOMING_NEWER" : "LOCAL_NEWER";
 }
 
 /** Records without a revision whose content must never change after creation. */
@@ -100,6 +115,10 @@ export function versionInfo(record: {
 export type ConflictType =
   /** Same id and version, different content: edited independently. */
   | "EQUAL_VERSION_DIVERGENT"
+  /** Different content last written by different devices; order unknown. */
+  | "CROSS_DEVICE_DIVERGENT"
+  /** The profile (no revision, no device id) differs between sides. */
+  | "UNVERSIONED_DIVERGENT"
   /** A record that is written once (import, snapshot) differs between sides. */
   | "IMMUTABLE_RECORD_DIVERGENT";
 

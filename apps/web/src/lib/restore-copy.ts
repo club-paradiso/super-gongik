@@ -90,6 +90,16 @@ export function restoreErrorTitle(code: RestoreFailureCode): string {
   }
 }
 
+export const CONFLICT_TYPE_COPY: Record<MergeConflict["type"], string> = {
+  EQUAL_VERSION_DIVERGENT: "같은 버전인데 내용이 달라요.",
+  CROSS_DEVICE_DIVERGENT:
+    "서로 다른 기기에서 따로 고쳐졌어요. 버전 숫자만으로는 어느 쪽이 나중인지 알 수 없어요.",
+  IMMUTABLE_RECORD_DIVERGENT:
+    "한 번 저장되면 바뀌지 않는 기록인데 내용이 달라요.",
+  UNVERSIONED_DIVERGENT:
+    "버전 정보가 없는 기록이라 어느 쪽이 나중인지 알 수 없어요.",
+};
+
 export function describeVersion(side: MergeConflict["local"]): string {
   const parts = [
     side.revision === null ? "버전 정보 없음" : `버전 ${side.revision}`,

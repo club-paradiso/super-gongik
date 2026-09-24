@@ -192,17 +192,21 @@ const byId = <T extends { id: string }>(a: T, b: T) =>
  * Merge two versions of one user's document.
  *
  * Record contract (every revisioned collection — events, adjustments,
- * attendance months, compensation snapshots):
- * 1. Higher revision wins; equal revision with identical payload is a no-op.
- * 2. Equal revision with divergent payload is a structured conflict. Nothing
- *    is applied until every conflict has an explicit resolution.
- * 3. A stale live copy never resurrects a newer local deletion, unless the
- *    caller passes `restoreLocallyDeleted` (an explicit user choice); the
- *    restored record then gets a revision above both sides.
- * 4. A newer incoming deletion of a live local record is applied only with
- *    `incomingDeletions: "APPLY_NEWER"` (future sync). Backup recovery keeps
- *    the live record and reports it.
- * 5. Domain invariants still hold: a record that would charge the same leave
+ * attendance months, compensation snapshots; see `compareRevisioned`):
+ * 1. Same payload (ignoring write metadata) is a no-op.
+ * 2. Along one device's history (same `deviceId`) the higher revision wins.
+ * 3. Different payloads that cannot be ordered — equal revisions, or
+ *    versions last written by different devices — are structured conflicts.
+ *    Nothing is applied until every conflict has an explicit resolution;
+ *    the chosen side is kept verbatim, so repeating a merge with the same
+ *    resolutions is idempotent.
+ * 4. A stale copy from the same device never resurrects a newer local
+ *    deletion, unless the caller passes `restoreLocallyDeleted` (an explicit
+ *    user choice); the restored record then gets a revision above both.
+ * 5. A newer same-device deletion of a live local record is applied only
+ *    with `incomingDeletions: "APPLY_NEWER"`. Backup recovery keeps the live
+ *    record and reports it.
+ * 6. Domain invariants still hold: a record that would charge the same leave
  *    twice, give one credit two confirmations or one month two attendance
  *    answers is not applied; the local state is kept and reported.
  *
@@ -210,9 +214,8 @@ const byId = <T extends { id: string }>(a: T, b: T) =>
  * - Leave snapshots and import records are written once. Differing content
  *   under one id is a conflict. Their live/rolled-back state follows the
  *   events of their import batch.
- * - The profile has only `updatedAt`: the later timestamp wins (device clocks
- *   can disagree — documented limitation); equal timestamps with different
- *   content are a conflict.
+ * - The profile has neither a revision nor a device id: any difference is a
+ *   conflict.
  *
  * Neither input is mutated. `documentRevision`, `deviceId` and `savedAt`
  * always come from `current`: they describe this device's storage, not the
@@ -303,22 +306,33 @@ export function analyzeMerge(
         continue;
       }
 
-      switch (compareRevisioned(existing, item)) {
+      const verdict = compareRevisioned(existing, item);
+      switch (verdict) {
         case "IDENTICAL":
           log.add(collection, item.id, "UNCHANGED");
           break;
-        case "DIVERGENT": {
+        case "DIVERGENT":
+        case "UNORDERED": {
           const choice = resolutionFor(collection, item.id);
           if (!choice) {
-            conflict(collection, existing, item, "EQUAL_VERSION_DIVERGENT");
+            conflict(
+              collection,
+              existing,
+              item,
+              verdict === "DIVERGENT"
+                ? "EQUAL_VERSION_DIVERGENT"
+                : "CROSS_DEVICE_DIVERGENT",
+            );
             break;
           }
-          const resolved =
-            choice === "LOCAL" ? bump(existing, item) : bump(item, existing);
-          if (choice === "INCOMING" && isLive(resolved)) {
-            if (!tryPut(resolved, "UPDATE")) break;
-          } else {
-            put(resolved);
+          // The chosen side is kept verbatim: no revision is invented, so
+          // applying the same choices again yields the same document.
+          if (choice === "INCOMING") {
+            if (isLive(item)) {
+              if (!tryPut(item, "UPDATE")) break;
+            } else {
+              put(item);
+            }
           }
           log.add(
             collection,
@@ -370,25 +384,19 @@ export function analyzeMerge(
     log.add("profile", incoming.profile.id, "ADDED");
   } else if (payloadKey(current.profile) === payloadKey(incoming.profile)) {
     log.add("profile", profile.id, "UNCHANGED");
-  } else if (incoming.profile.updatedAt > current.profile.updatedAt) {
-    profile = incoming.profile;
-    log.add("profile", profile.id, "UPDATED");
-  } else if (incoming.profile.updatedAt < current.profile.updatedAt) {
-    log.add("profile", profile.id, "RETAINED_LOCAL");
   } else {
+    // The profile has neither a revision nor a device id, and wall clocks on
+    // two devices prove nothing, so any difference needs a human choice.
     const choice = resolutionFor("profile", profile.id);
     if (!choice) {
       conflict(
         "profile",
         current.profile,
         incoming.profile,
-        "EQUAL_VERSION_DIVERGENT",
+        "UNVERSIONED_DIVERGENT",
       );
     } else {
-      profile = {
-        ...(choice === "LOCAL" ? current.profile : incoming.profile),
-        updatedAt: context.now,
-      };
+      profile = choice === "LOCAL" ? current.profile : incoming.profile;
       log.add(
         "profile",
         profile.id,
@@ -700,7 +708,7 @@ export function analyzeMerge(
       count("attendanceMonths", "UPDATED") +
       count("attendanceMonths", "RESTORED"),
     addedCompensationSnapshots: count("compensationSnapshots", "ADDED"),
-    profileUpdated: count("profile", "UPDATED") > 0,
+    profileUpdated: count("profile", "RESOLVED_INCOMING") > 0,
     conflicts: messages,
   };
 

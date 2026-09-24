@@ -90,7 +90,7 @@ async function storeWithData() {
   return { storage, faults, store };
 }
 
-/** A backup that differs from the fixture in every way a restore can. */
+/** A later backup of the same device: one record edited, one added. */
 function divergentBackup(): UserData {
   const data = fullDocument();
   const live = data.events.find(
@@ -100,7 +100,7 @@ function divergentBackup(): UserData {
     data,
     live.id,
     { ...live, note: "백업에서 수정" },
-    { now: NOW, deviceId: "backup-device", createId: sequentialIds("bk") },
+    { now: NOW, deviceId: "device-fixture", createId: sequentialIds("bk") },
   );
   if (!edited.ok) throw new Error("edit failed");
   const added = createServiceEvent(
@@ -108,7 +108,7 @@ function divergentBackup(): UserData {
     partial("OUTING", "2026-08-03", 30),
     {
       now: NOW,
-      deviceId: "backup-device",
+      deviceId: "device-fixture",
       createId: sequentialIds("bk2"),
     },
   );

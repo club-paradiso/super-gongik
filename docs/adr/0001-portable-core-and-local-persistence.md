@@ -51,13 +51,15 @@ then wrote over.
    Both are previewed with `planRestore` (pure) before `store.restore`
    writes the whole document in one save.
    - _Merge = non-destructive recovery._ Current live records are never
-     deleted; newer backup tombstones are reported, not applied. Per record,
-     the higher revision wins; equal revision with different content is a
-     structured conflict that blocks the merge until the user picks a side.
-     A stale live copy does not resurrect a newer local deletion unless the
+     deleted; newer backup tombstones are reported, not applied. Along one
+     device's history the higher revision wins; different content that
+     cannot be ordered (equal revisions, or versions last written by
+     different devices — revision counters are per device, not a clock) is
+     a structured conflict that blocks the merge until the user picks a
+     side. A stale copy does not resurrect a newer local deletion unless the
      user explicitly opts in (`restoreLocallyDeleted`). _Changed in #25:
-     previously local deletions were always resurrected and equal revisions
-     were decided by `updatedAt`._ Anything that would charge leave twice or
+     previously local deletions were always resurrected and higher numbers
+     or later `updatedAt` won._ Anything that would charge leave twice or
      give a credit a second confirmation is skipped, the current state kept,
      and the reason reported. Import batches are re-derived: ACTIVE if and
      only if the batch still has a live event or snapshot.

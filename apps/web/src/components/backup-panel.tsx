@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { downloadTextFile } from "@/lib/download";
 import {
   COLLECTION_LABELS,
+  CONFLICT_TYPE_COPY,
   PROFILE_COPY,
   describeCounts,
   describeVersion,
@@ -425,8 +426,9 @@ export function BackupPanel({
           {effectiveMode === "MERGE" ? (
             <div className="restore-mode-note">
               <p>
-                <strong>합치기</strong>는 이 기기의 기록을 지우지 않아요. 더
-                새로운 버전만 가져오고, 같은 내용은 두 번 넣지 않아요.
+                <strong>합치기</strong>는 이 기기의 기록을 지우지 않아요. 같은
+                기기에서 더 나중에 고친 기록만 가져오고, 같은 내용은 두 번 넣지
+                않아요. 다른 기기에서 따로 고친 기록은 직접 골라요.
               </p>
               {incomingDeletionsSkipped ? (
                 <p>
@@ -474,12 +476,40 @@ export function BackupPanel({
                   직접 골라야 하는 충돌 {plans.conflicts.length}건
                 </strong>
                 <br />
-                같은 버전인데 내용이 달라요. 앱이 대신 고르지 않아요.
+                어느 쪽이 나중에 고친 것인지 증명할 수 없어서, 앱이 대신 고르지
+                않아요.
               </p>
+              <div className="backup-actions">
+                {(
+                  [
+                    ["LOCAL", "모두 이 기기 값 유지"],
+                    ["INCOMING", "모두 백업 값 사용"],
+                  ] as const
+                ).map(([choice, label]) => (
+                  <Button
+                    key={choice}
+                    onClick={() =>
+                      setResolutions(
+                        Object.fromEntries(
+                          plans.conflicts.map((conflict) => [
+                            conflict.key,
+                            choice,
+                          ]),
+                        ),
+                      )
+                    }
+                    type="button"
+                    variant="outline"
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </div>
               <ul>
                 {plans.conflicts.map((conflict) => (
                   <li key={conflict.key}>
                     <strong>{COLLECTION_LABELS[conflict.collection]}</strong>
+                    <span>{CONFLICT_TYPE_COPY[conflict.type]}</span>
                     <span className="restore-conflicts__id">
                       {conflict.recordId}
                     </span>
