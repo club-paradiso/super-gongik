@@ -1,4 +1,5 @@
 export * from "./classify";
+export * from "./commit";
 export * from "./csv";
 export * from "./fingerprint";
 export * from "./mapping";

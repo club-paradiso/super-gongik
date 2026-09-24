@@ -71,9 +71,10 @@ async function sha256File(file: Blob) {
 function cellText(value: TabularCell) {
   if (value === null || value === undefined) return "";
   if (value instanceof Date) {
-    const year = value.getFullYear();
-    const month = String(value.getMonth() + 1).padStart(2, "0");
-    const day = String(value.getDate()).padStart(2, "0");
+    // Spreadsheet dates are civil dates exposed at UTC midnight.
+    const year = value.getUTCFullYear();
+    const month = String(value.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(value.getUTCDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   }
   return String(value).trim();

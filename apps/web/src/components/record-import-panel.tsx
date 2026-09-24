@@ -9,19 +9,28 @@ import {
   ScanText,
   Upload,
 } from "lucide-react";
-import { type ChangeEvent, useMemo, useState } from "react";
+import { type ChangeEvent, useEffect, useState } from "react";
 
 import {
-  buildImportCommitPlan,
+  SERVICE_EVENT_TYPES,
+  SERVICE_EVENT_TYPE_LABELS,
+  commitImport,
+  planImportRows,
+  rollbackImport,
+  type ImportRowDecision,
+  type UserData,
+  type UserDataStore,
+} from "@super-gongik/domain";
+import {
+  BLOCKING_WARNING_CODES,
+  buildImportDrafts,
   buildImportPreview,
   createImportBatchDescriptor,
   fingerprintEventCandidate,
   type CanonicalColumn,
   type ColumnMapping,
-  type ImportCommitPlan,
   type ImportPreview,
   type ImportableServiceEventType,
-  type LeaveSnapshotCandidate,
   type ServiceEventCandidate,
   type TabularAdapterResult,
 } from "@super-gongik/importer";
@@ -33,24 +42,17 @@ import {
   type OcrProgress,
   type ParseImportFileOptions,
 } from "@/lib/file-import-adapters";
-import type { StoredImportRecord } from "@/lib/service-record-storage";
+const EVENT_OPTIONS = SERVICE_EVENT_TYPES.map((value) => ({
+  value,
+  label: SERVICE_EVENT_TYPE_LABELS[value],
+}));
 
-const EVENT_OPTIONS: Array<{
-  value: ImportableServiceEventType;
-  label: string;
-}> = [
-  { value: "ANNUAL_LEAVE", label: "연가" },
-  { value: "SICK_LEAVE", label: "병가" },
-  { value: "OFFICIAL_LEAVE", label: "공가" },
-  { value: "SPECIAL_LEAVE", label: "특별휴가" },
-  { value: "COMPASSIONATE_LEAVE", label: "청원/경조휴가" },
-  { value: "OUTING", label: "외출" },
-  { value: "LATE_ARRIVAL", label: "지각" },
-  { value: "EARLY_LEAVE", label: "조퇴" },
-  { value: "EDUCATION", label: "교육" },
-  { value: "TRAINING", label: "훈련" },
-  { value: "USER_NOTE", label: "기타 기록" },
-];
+const DECISION_LABELS: Record<ImportRowDecision["status"], string> = {
+  NEW: "",
+  DUPLICATE_IMPORT: "이미 가져온 기록",
+  DUPLICATE_CONTENT: "같은 기록이 이미 있음",
+  CONFLICT: "기존 휴가와 겹침",
+};
 
 const COLUMN_OPTIONS: Array<{ value: CanonicalColumn; label: string }> = [
   { value: "date", label: "날짜" },
@@ -71,24 +73,44 @@ interface EventOverride {
   durationMinutes?: string;
 }
 
+type RowStatus = {
+  decision: ImportRowDecision["status"] | "UNRESOLVED";
+  message: string | null;
+};
+
+async function statusesFor(
+  data: UserData,
+  preview: ImportPreview,
+): Promise<Map<number, RowStatus>> {
+  const all = new Set(preview.events.map((event) => event.sourceRowIndex));
+  const { drafts, rejected } = buildImportDrafts(preview, all);
+  const statuses = new Map<number, RowStatus>();
+  for (const item of rejected) {
+    statuses.set(item.sourceRowIndex, {
+      decision: "UNRESOLVED",
+      message: item.reason,
+    });
+  }
+  for (const decision of planImportRows(data, drafts)) {
+    statuses.set(decision.draft.source.sourceRowIndex, {
+      decision: decision.status,
+      message:
+        decision.status === "CONFLICT"
+          ? (decision.errors[0]?.message ?? null)
+          : DECISION_LABELS[decision.status] || null,
+    });
+  }
+  return statuses;
+}
+
 export function RecordImportPanel({
-  fingerprints,
-  imports,
-  workdayMinutes,
-  onSetWorkdayMinutes,
-  onCommit,
-  onRollback,
+  data,
+  store,
 }: {
-  fingerprints: ReadonlySet<string>;
-  imports: StoredImportRecord[];
-  workdayMinutes: number | null;
-  onSetWorkdayMinutes: (minutes: number | null) => void;
-  onCommit: (
-    plan: ImportCommitPlan,
-    snapshots: LeaveSnapshotCandidate[],
-  ) => void;
-  onRollback: (batchId: string) => void;
+  data: UserData;
+  store: UserDataStore;
 }) {
+  const imports = data.imports;
   const [status, setStatus] = useState<"IDLE" | "PARSING" | "PREVIEW">("IDLE");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -101,13 +123,33 @@ export function RecordImportPanel({
   const [overrides, setOverrides] = useState<Record<number, EventOverride>>({});
   const [pendingOcrFile, setPendingOcrFile] = useState<File | null>(null);
   const [ocrProgress, setOcrProgress] = useState<OcrProgress | null>(null);
+  const [rowStatuses, setRowStatuses] = useState<Map<number, RowStatus>>(
+    new Map(),
+  );
 
-  const duplicateCount = useMemo(() => {
-    if (!preview) return 0;
-    return preview.events.filter(
-      (event) => event.fingerprint && fingerprints.has(event.fingerprint),
-    ).length;
-  }, [fingerprints, preview]);
+  useEffect(() => {
+    let cancelled = false;
+    if (!preview) return;
+    void statusesFor(data, preview).then((statuses) => {
+      if (!cancelled) setRowStatuses(statuses);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [data, preview]);
+
+  const duplicateCount = [...rowStatuses.values()].filter(
+    (status) =>
+      status.decision === "DUPLICATE_IMPORT" ||
+      status.decision === "DUPLICATE_CONTENT",
+  ).length;
+  const previousImportOfFile = preview?.batch.fileSha256
+    ? imports.find(
+        (record) =>
+          record.status === "ACTIVE" &&
+          record.fileSha256 === preview.batch.fileSha256,
+      )
+    : undefined;
 
   function resetPreview() {
     setStatus("IDLE");
@@ -124,6 +166,8 @@ export function RecordImportPanel({
     nextTabular: TabularAdapterResult,
     nextPreview: ImportPreview,
   ) {
+    const statuses = await statusesFor(data, nextPreview);
+    setRowStatuses(statuses);
     setTabular(nextTabular);
     setPreview(nextPreview);
     setOverrides({});
@@ -136,10 +180,9 @@ export function RecordImportPanel({
             (event) =>
               event.date &&
               event.eventType &&
+              statuses.get(event.sourceRowIndex)?.decision === "NEW" &&
               !event.warnings.some((warning) =>
-                ["AMBIGUOUS_HALF_DAY", "AMBIGUOUS_DAY_FRACTION"].includes(
-                  warning.code,
-                ),
+                BLOCKING_WARNING_CODES.includes(warning.code),
               ),
           )
           .map((event) => event.sourceRowIndex),
@@ -292,13 +335,21 @@ export function RecordImportPanel({
           : (override?.eventType ?? candidate.eventType),
       durationDays: hasDurationOverride ? null : candidate.durationDays,
       durationMinutes: validDurationMinutes,
+      halfDay: hasDurationOverride ? false : candidate.halfDay,
+      warnings: hasDurationOverride
+        ? candidate.warnings.filter(
+            (warning) => !BLOCKING_WARNING_CODES.includes(warning.code),
+          )
+        : candidate.warnings,
     };
+    if (adjusted.eventType !== "ANNUAL_LEAVE") adjusted.halfDay = false;
     adjusted.allDay =
-      (adjusted.durationDays !== null &&
+      !adjusted.halfDay &&
+      ((adjusted.durationDays !== null &&
         Number.isInteger(adjusted.durationDays)) ||
-      (adjusted.durationMinutes === null &&
-        !adjusted.startTime &&
-        !adjusted.endTime);
+        (adjusted.durationMinutes === null &&
+          !adjusted.startTime &&
+          !adjusted.endTime));
     adjusted.fingerprint =
       adjusted.date && adjusted.eventType
         ? await fingerprintEventCandidate(adjusted)
@@ -314,27 +365,66 @@ export function RecordImportPanel({
       preview.events.map((candidate) => adjustedCandidate(candidate)),
     );
     const adjustedPreview: ImportPreview = { ...preview, events };
-    const plan = buildImportCommitPlan({
-      preview: adjustedPreview,
-      acceptedRowIndexes: acceptedRows,
-      existingFingerprints: fingerprints,
-    });
-    const snapshots = adjustedPreview.snapshots.filter((snapshot) =>
-      acceptedSnapshots.has(snapshot.sourceRowIndex),
+    const { drafts, rejected } = buildImportDrafts(
+      adjustedPreview,
+      acceptedRows,
     );
+    const snapshots = adjustedPreview.snapshots
+      .filter((snapshot) => acceptedSnapshots.has(snapshot.sourceRowIndex))
+      .map((snapshot) => ({
+        leaveType: snapshot.leaveType,
+        asOfDate: snapshot.asOfDate as `${number}-${number}-${number}` | null,
+        grantedDays: snapshot.grantedDays,
+        grantedMinutes: snapshot.grantedMinutes,
+        usedDays: snapshot.usedDays,
+        usedMinutes: snapshot.usedMinutes,
+        remainingDays: snapshot.remainingDays,
+        remainingMinutes: snapshot.remainingMinutes,
+        confidence: snapshot.confidence,
+        sourceRowIndex: snapshot.sourceRowIndex,
+      }));
 
-    if (plan.events.length === 0 && snapshots.length === 0) {
+    const result = await store.run((current, context) =>
+      commitImport(
+        current,
+        { batch: preview.batch, drafts, snapshots },
+        context,
+      ),
+    );
+    if (!result.ok) {
       setError(
-        "가져올 새 기록이 없습니다. 중복 또는 미선택 항목을 확인해 주세요.",
+        [
+          result.errors[0]?.message ?? "가져오지 못했어요.",
+          ...rejected.map(
+            (item) => `행 ${item.sourceRowIndex}: ${item.reason}`,
+          ),
+        ].join(" "),
       );
       return;
     }
 
-    onCommit(plan, snapshots);
-    setMessage(
-      `${plan.events.length}개 복무기록과 ${snapshots.length}개 기관 잔액 기록을 저장했어요.`,
-    );
+    const summary = result.value;
+    const pieces = [`복무기록 ${summary.added}건`];
+    if (summary.snapshots) pieces.push(`기관 잔액 ${summary.snapshots}건`);
+    let text = `${pieces.join(", ")}을 저장했어요.`;
+    if (summary.skippedDuplicates)
+      text += ` 중복 ${summary.skippedDuplicates}건은 건너뛰었어요.`;
+    if (summary.rejected || rejected.length) {
+      text += ` 확인이 필요한 ${summary.rejected + rejected.length}건은 저장하지 않았어요.`;
+    }
+    setMessage(text);
     resetPreview();
+  }
+
+  async function rollback(batchId: string) {
+    const result = await store.run((current, context) =>
+      rollbackImport(current, batchId, context),
+    );
+    setMessage(
+      result.ok
+        ? `가져온 기록 ${result.value.removedEvents}건을 취소했어요. 직접 입력한 기록은 그대로예요.`
+        : (result.errors[0]?.message ?? "취소하지 못했어요."),
+    );
   }
 
   const parsingLabel = ocrProgress
@@ -444,9 +534,19 @@ export function RecordImportPanel({
                 복무기록 {preview.events.length}건 · 기관 잔액{" "}
                 {preview.snapshots.length}건
                 {duplicateCount ? ` · 기존 중복 ${duplicateCount}건` : ""}
+                {preview.unresolvedRowIndexes.length
+                  ? ` · 확인 필요 ${preview.unresolvedRowIndexes.length}건`
+                  : ""}
               </p>
             </div>
           </div>
+          {previousImportOfFile ? (
+            <p className="field-hint" role="note">
+              이 파일은{" "}
+              {new Date(previousImportOfFile.createdAt).toLocaleString("ko-KR")}
+              에 이미 가져왔어요. 이미 있는 행은 자동으로 건너뛰어요.
+            </p>
+          ) : null}
 
           <details className="mapping-editor">
             <summary>열 인식 결과 확인</summary>
@@ -484,14 +584,15 @@ export function RecordImportPanel({
             <div className="import-event-list">
               {preview.events.map((candidate) => {
                 const override = overrides[candidate.sourceRowIndex];
-                const duplicate = Boolean(
-                  candidate.fingerprint &&
-                  fingerprints.has(candidate.fingerprint),
-                );
+                const status = rowStatuses.get(candidate.sourceRowIndex);
+                const duplicate =
+                  status?.decision === "DUPLICATE_IMPORT" ||
+                  status?.decision === "DUPLICATE_CONTENT";
                 return (
                   <article
                     className={
-                      candidate.warnings.length
+                      candidate.warnings.length ||
+                      (status && status.decision !== "NEW")
                         ? "import-event import-event--warning"
                         : "import-event"
                     }
@@ -538,11 +639,13 @@ export function RecordImportPanel({
                       inputMode="numeric"
                       min="0"
                       placeholder={
-                        candidate.durationDays !== null
-                          ? `${candidate.durationDays}일`
-                          : candidate.allDay
-                            ? "전일"
-                            : "사용 분"
+                        candidate.halfDay
+                          ? "반일"
+                          : candidate.durationDays !== null
+                            ? `${candidate.durationDays}일`
+                            : candidate.allDay
+                              ? "종일"
+                              : "사용 분"
                       }
                       type="number"
                       value={
@@ -557,8 +660,8 @@ export function RecordImportPanel({
                       }
                     />
                     <div className="import-event__meta">
-                      {duplicate ? <span>이미 가져온 기록</span> : null}
-                      {!duplicate && candidate.warnings.length ? (
+                      {status?.message ? <span>{status.message}</span> : null}
+                      {!status?.message && candidate.warnings.length ? (
                         <span>
                           <AlertTriangle aria-hidden="true" size={14} />
                           {candidate.warnings[0]?.message}
@@ -606,29 +709,6 @@ export function RecordImportPanel({
         </div>
       ) : null}
 
-      <label className="workday-setting">
-        <span>부분 휴가 환산용 1일 근무시간</span>
-        <div>
-          <input
-            inputMode="numeric"
-            min="1"
-            placeholder="예: 480"
-            type="number"
-            value={workdayMinutes ?? ""}
-            onChange={(event) => {
-              const value = Number(event.target.value);
-              onSetWorkdayMinutes(
-                event.target.value && Number.isFinite(value) && value > 0
-                  ? value
-                  : null,
-              );
-            }}
-          />
-          <span>분</span>
-        </div>
-        <small>비워두면 부분 휴가를 임의로 일수 환산하지 않습니다.</small>
-      </label>
-
       {imports.length ? (
         <div className="import-history">
           <h3>가져오기 기록</h3>
@@ -639,6 +719,12 @@ export function RecordImportPanel({
                 <p>
                   {new Date(record.createdAt).toLocaleString("ko-KR")} · 기록{" "}
                   {record.eventCount}건
+                  {record.snapshotCount
+                    ? ` · 잔액 ${record.snapshotCount}건`
+                    : ""}
+                  {record.skippedDuplicateCount
+                    ? ` · 중복 ${record.skippedDuplicateCount}건 제외`
+                    : ""}
                 </p>
               </div>
               {record.status === "ACTIVE" ? (
@@ -649,7 +735,7 @@ export function RecordImportPanel({
                         `${record.fileName}에서 가져온 기록만 취소할까요?`,
                       )
                     ) {
-                      onRollback(record.id);
+                      void rollback(record.id);
                     }
                   }}
                   type="button"

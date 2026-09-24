@@ -1,19 +1,56 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  buildImportCommitPlan,
+  createEmptyUserData,
+  planImportRows,
+  type UserData,
+} from "@super-gongik/domain";
+
+import {
+  buildImportDrafts,
   buildImportPreview,
+  candidateToImportDraft,
   classifyEventType,
   createImportBatchDescriptor,
   fingerprintEventCandidate,
-  getImportedEventIdsForRollback,
   mapColumns,
   normalizeEventRow,
   parseDateCell,
   parseDayCount,
   parseDelimitedText,
   parseDurationMinutes,
+  parseQuantity,
 } from "../src";
+
+const batchFor = (id: string) =>
+  createImportBatchDescriptor({
+    id,
+    fileName: `${id}.csv`,
+    sourceFormat: "CSV",
+    createdAt: "2026-09-01T00:00:00.000Z",
+  });
+
+function profileData(): UserData {
+  return {
+    ...createEmptyUserData("device"),
+    profile: {
+      id: "p",
+      ownerId: null,
+      localProfileId: "p",
+      callUpDate: "2026-05-04",
+      expectedDischargeDate: "2028-02-03",
+      serviceCategory: null,
+      workplaceType: null,
+      defaultCommuteCost: null,
+      defaultMealAllowanceOverride: null,
+      timezone: "Asia/Seoul",
+      workdayMinutes: null,
+      priorServiceCredit: null,
+      createdAt: "2026-05-04T00:00:00.000Z",
+      updatedAt: "2026-05-04T00:00:00.000Z",
+    },
+  };
+}
 
 describe("tabular import", () => {
   it("parses quoted CSV and maps Korean headers", () => {
@@ -68,7 +105,7 @@ describe("tabular import", () => {
     expect(classifyEventType("정체불명휴가").eventType).toBeNull();
   });
 
-  it("does not silently convert half-day leave to 240 minutes", () => {
+  it("records 반가 as the half-day unit and never as 240 minutes", async () => {
     const row = {
       날짜: "2026-09-01",
       구분: "오후반가",
@@ -76,9 +113,79 @@ describe("tabular import", () => {
     const candidate = normalizeEventRow(row, 2, mapColumns(Object.keys(row)));
     expect(candidate.eventType).toBe("ANNUAL_LEAVE");
     expect(candidate.durationMinutes).toBeNull();
+    expect(candidate.halfDay).toBe(true);
+    expect(candidate.halfDayPart).toBe("PM");
     expect(candidate.warnings.map((warning) => warning.code)).toContain(
-      "AMBIGUOUS_HALF_DAY",
+      "HALF_DAY_UNIT",
     );
+    candidate.fingerprint = await fingerprintEventCandidate(candidate);
+    const conversion = candidateToImportDraft(candidate, batchFor("b"));
+    expect(conversion.ok && conversion.draft.draft.timing).toEqual({
+      kind: "HALF_DAY",
+      half: "PM",
+    });
+  });
+
+  it("treats 0.5일 annual leave as a half day but other fractions as ambiguous", () => {
+    const half = normalizeEventRow(
+      { 날짜: "2026-09-01", 구분: "연가", 사용일수: "0.5일" },
+      2,
+      mapColumns(["날짜", "구분", "사용일수"]),
+    );
+    expect(half.halfDay).toBe(true);
+    const sick = normalizeEventRow(
+      { 날짜: "2026-09-01", 구분: "병가", 사용일수: "0.5일" },
+      2,
+      mapColumns(["날짜", "구분", "사용일수"]),
+    );
+    expect(sick.halfDay).toBe(false);
+    expect(sick.warnings.map((warning) => warning.code)).toContain(
+      "AMBIGUOUS_DAY_FRACTION",
+    );
+  });
+
+  it("only reads bare numbers when the header states the unit", () => {
+    expect(parseQuantity("4", "사용시간")).toMatchObject({
+      ambiguousNumber: true,
+    });
+    expect(parseQuantity("4", "사용시간(시간)")).toMatchObject({
+      minutes: 240,
+    });
+    expect(parseQuantity("90", "사용시간(분)")).toMatchObject({ minutes: 90 });
+    expect(parseQuantity("20", "잔여일수")).toMatchObject({ days: 20 });
+    expect(parseDurationMinutes(4)).toBeNull();
+  });
+
+  it("refuses to fold mixed day-and-time rows into one event", async () => {
+    const candidate = normalizeEventRow(
+      { 날짜: "2026-09-01", 구분: "연가", 사용시간: "1일 4시간" },
+      2,
+      mapColumns(["날짜", "구분", "사용시간"]),
+    );
+    candidate.fingerprint = await fingerprintEventCandidate(candidate);
+    expect(candidateToImportDraft(candidate, batchFor("b")).ok).toBe(false);
+  });
+
+  it("keeps a multi-day charged count and flags the derived end date", async () => {
+    const candidate = normalizeEventRow(
+      { 날짜: "2026-06-12", 구분: "연가", 사용일수: "3일" },
+      2,
+      mapColumns(["날짜", "구분", "사용일수"]),
+    );
+    candidate.fingerprint = await fingerprintEventCandidate(candidate);
+    const conversion = candidateToImportDraft(candidate, batchFor("b"));
+    expect(conversion.ok).toBe(true);
+    if (!conversion.ok) return;
+    expect(conversion.draft.draft).toMatchObject({
+      startDate: "2026-06-12",
+      endDate: "2026-06-16",
+      timing: { kind: "ALL_DAY", dayCount: 3 },
+    });
+    expect(conversion.notes[0]).toContain("추정");
+  });
+
+  it("reads spreadsheet date cells as civil dates in any time zone", () => {
+    expect(parseDateCell(new Date(Date.UTC(2026, 8, 1)))).toBe("2026-09-01");
   });
 
   it("preserves aggregate institution leave balances as snapshots", async () => {
@@ -108,31 +215,48 @@ describe("tabular import", () => {
 });
 
 describe("preview and duplicate safety", () => {
-  it("builds a preview and commit plan that skips existing fingerprints", async () => {
+  it("converts accepted rows to canonical drafts and skips existing imports", async () => {
     const parsed = parseDelimitedText(
       "사용일자,복무상황,사용시간,비고\n2026-06-12,연가,4시간,병원\n2026-07-03,병가,8시간,진료",
     );
-    const batch = createImportBatchDescriptor({
-      id: "batch-1",
-      fileName: "복무기록.csv",
-      sourceFormat: "CSV",
-      createdAt: "2026-09-01T00:00:00.000Z",
-    });
-    const preview = await buildImportPreview(parsed, batch);
+    const preview = await buildImportPreview(parsed, batchFor("batch-1"));
     expect(preview.events).toHaveLength(2);
-    expect(preview.events[0]?.fingerprint).toBeTruthy();
-
-    const existing = new Set([preview.events[0]?.fingerprint ?? ""]);
-    const plan = buildImportCommitPlan({
-      preview,
-      acceptedRowIndexes: new Set([2, 3]),
-      existingFingerprints: existing,
+    const { drafts, rejected } = buildImportDrafts(preview, new Set([2, 3]));
+    expect(rejected).toEqual([]);
+    expect(drafts[0]?.draft.timing).toEqual({
+      kind: "PARTIAL",
+      durationMinutes: 240,
+      startTime: null,
+      endTime: null,
+    });
+    expect(drafts[0]?.source).toMatchObject({
+      batchId: "batch-1",
+      sourceRowIndex: 2,
     });
 
-    expect(plan.events).toHaveLength(1);
-    expect(plan.events[0]?.candidate.sourceRowIndex).toBe(3);
-    expect(plan.skippedDuplicateFingerprints).toHaveLength(1);
-    expect(plan.events[0]?.metadata.importBatchId).toBe("batch-1");
+    // Pretend the first row was already imported by an earlier batch.
+    const data = profileData();
+    const existing: UserData = {
+      ...data,
+      events: [
+        {
+          ...drafts[0]!.draft,
+          id: "existing",
+          serviceProfileId: "p",
+          status: "CONFIRMED",
+          source: { ...drafts[0]!.source, batchId: "older" },
+          createdAt: "2026-08-01T00:00:00.000Z",
+          updatedAt: "2026-08-01T00:00:00.000Z",
+          deletedAt: null,
+          revision: 1,
+          deviceId: "device",
+        },
+      ],
+    };
+    expect(planImportRows(existing, drafts).map((row) => row.status)).toEqual([
+      "DUPLICATE_IMPORT",
+      "NEW",
+    ]);
   });
 
   it("generates stable event fingerprints", async () => {
@@ -146,17 +270,22 @@ describe("preview and duplicate safety", () => {
     );
   });
 
-  it("selects only live events from the requested batch for rollback", () => {
-    expect(
-      getImportedEventIdsForRollback("batch-1", [
-        { id: "a", metadata: { importBatchId: "batch-1" } },
-        { id: "b", metadata: { importBatchId: "batch-2" } },
-        {
-          id: "c",
-          metadata: { importBatchId: "batch-1" },
-          deletedAt: "2026-09-01T00:00:00.000Z",
-        },
-      ]),
-    ).toEqual(["a"]);
+  it("never pre-selects rows whose duration is ambiguous", async () => {
+    const parsed = parseDelimitedText("날짜,구분,사용시간\n2026-09-01,외출,2");
+    const preview = await buildImportPreview(parsed, batchFor("b"));
+    expect(preview.unresolvedRowIndexes).toEqual([2]);
+  });
+
+  it("does not turn an aggregate balance into dated events", async () => {
+    const parsed = parseDelimitedText(
+      "휴가종류,총부여일수,사용일수,잔여일수\n연가,15,3.5,11.5",
+    );
+    const preview = await buildImportPreview(parsed, batchFor("b"));
+    expect(preview.events).toEqual([]);
+    expect(preview.snapshots[0]).toMatchObject({
+      grantedDays: 15,
+      usedDays: 3.5,
+      remainingDays: 11.5,
+    });
   });
 });

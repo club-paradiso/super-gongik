@@ -1,16 +1,13 @@
+import { createId } from "@super-gongik/domain";
+
 import { classifyEventType } from "./classify";
 import { fingerprintEventCandidate } from "./fingerprint";
 import { findMappedHeader, mapColumns } from "./mapping";
-import {
-  normalizeEventRow,
-  parseDateCell,
-  parseDayCount,
-  parseDurationMinutes,
-} from "./normalize";
+import { normalizeEventRow, parseDateCell, parseQuantity } from "./normalize";
 import type {
   ColumnMapping,
   ImportBatchDescriptor,
-  ImportCommitPlan,
+  ImportWarningCode,
   ImportPreview,
   ImportSourceFormat,
   LeaveSnapshotCandidate,
@@ -18,6 +15,14 @@ import type {
   TabularAdapterResult,
   TabularRow,
 } from "./types";
+
+/** Rows carrying these warnings are never pre-selected for commit. */
+export const BLOCKING_WARNING_CODES: readonly ImportWarningCode[] = [
+  "AMBIGUOUS_HALF_DAY",
+  "AMBIGUOUS_DAY_FRACTION",
+  "AMBIGUOUS_NUMERIC_DURATION",
+  "MIXED_DAY_AND_TIME",
+];
 
 export function createImportBatchDescriptor(input: {
   fileName: string;
@@ -27,7 +32,7 @@ export function createImportBatchDescriptor(input: {
   id?: string;
 }): ImportBatchDescriptor {
   return {
-    id: input.id ?? crypto.randomUUID(),
+    id: input.id ?? createId(),
     fileName: input.fileName,
     sourceFormat: input.sourceFormat,
     fileSha256: input.fileSha256 ?? null,
@@ -58,9 +63,14 @@ function normalizeSnapshotRow(
   const classification = classifyEventType(
     getValue(row, mappings, "eventType"),
   );
-  const granted = getValue(row, mappings, "granted");
-  const used = getValue(row, mappings, "used");
-  const remaining = getValue(row, mappings, "remaining");
+  const quantity = (target: "granted" | "used" | "remaining") =>
+    parseQuantity(
+      getValue(row, mappings, target),
+      findMappedHeader(mappings, target),
+    );
+  const granted = quantity("granted");
+  const used = quantity("used");
+  const remaining = quantity("remaining");
 
   return {
     sourceRowIndex,
@@ -68,12 +78,12 @@ function normalizeSnapshotRow(
     asOfDate:
       parseDateCell(getValue(row, mappings, "asOfDate")) ??
       parseDateCell(getValue(row, mappings, "date")),
-    grantedDays: parseDayCount(granted),
-    grantedMinutes: parseDurationMinutes(granted),
-    usedDays: parseDayCount(used),
-    usedMinutes: parseDurationMinutes(used),
-    remainingDays: parseDayCount(remaining),
-    remainingMinutes: parseDurationMinutes(remaining),
+    grantedDays: granted.days,
+    grantedMinutes: granted.minutes,
+    usedDays: used.days,
+    usedMinutes: used.minutes,
+    remainingDays: remaining.days,
+    remainingMinutes: remaining.minutes,
     confidence: classification.confidence,
     warnings: classification.warnings,
     raw: row,
@@ -116,7 +126,7 @@ export async function buildImportPreview(
       !candidate.eventType ||
       candidate.confidence < 0.7 ||
       candidate.warnings.some((warning) =>
-        ["AMBIGUOUS_HALF_DAY", "AMBIGUOUS_DAY_FRACTION"].includes(warning.code),
+        BLOCKING_WARNING_CODES.includes(warning.code),
       )
     ) {
       unresolvedRowIndexes.push(sourceRowIndex);
@@ -124,68 +134,4 @@ export async function buildImportPreview(
   }
 
   return { batch, mappings, events, snapshots, unresolvedRowIndexes };
-}
-
-export function buildImportCommitPlan(input: {
-  preview: ImportPreview;
-  acceptedRowIndexes: ReadonlySet<number>;
-  existingFingerprints?: ReadonlySet<string>;
-}): ImportCommitPlan {
-  const existing = input.existingFingerprints ?? new Set<string>();
-  const skippedDuplicateFingerprints: string[] = [];
-  const events: ImportCommitPlan["events"] = [];
-
-  for (const candidate of input.preview.events) {
-    if (!input.acceptedRowIndexes.has(candidate.sourceRowIndex)) continue;
-    if (!candidate.date || !candidate.eventType || !candidate.fingerprint) {
-      continue;
-    }
-    if (
-      candidate.durationDays !== null &&
-      !Number.isInteger(candidate.durationDays)
-    ) {
-      continue;
-    }
-
-    if (existing.has(candidate.fingerprint)) {
-      skippedDuplicateFingerprints.push(candidate.fingerprint);
-      continue;
-    }
-
-    events.push({
-      candidate,
-      metadata: {
-        importBatchId: input.preview.batch.id,
-        importSourceFormat: input.preview.batch.sourceFormat,
-        importSourceFileName: input.preview.batch.fileName,
-        importFingerprint: candidate.fingerprint,
-        importConfidence: candidate.confidence,
-        importSourceRowIndex: candidate.sourceRowIndex,
-        ...(candidate.durationDays !== null
-          ? { importDayCount: candidate.durationDays }
-          : {}),
-      },
-    });
-  }
-
-  return {
-    batch: input.preview.batch,
-    events,
-    skippedDuplicateFingerprints,
-  };
-}
-
-export function getImportedEventIdsForRollback(
-  batchId: string,
-  events: ReadonlyArray<{
-    id: string;
-    metadata?: { importBatchId?: string | null } | null;
-    deletedAt?: string | null;
-  }>,
-): string[] {
-  return events
-    .filter(
-      (event) => !event.deletedAt && event.metadata?.importBatchId === batchId,
-    )
-    .map((event) => event.id);
 }
