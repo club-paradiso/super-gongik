@@ -29,6 +29,14 @@ export interface ColumnMapping {
   confidence: number;
 }
 
+export type TabularTableKind = "EVENTS" | "SNAPSHOT" | "UNRECOGNIZED";
+
+export interface TableShapeAssessment {
+  kind: TabularTableKind;
+  score: number;
+  mappings: ColumnMapping[];
+}
+
 export type ImportWarningCode =
   | "MISSING_DATE"
   | "MISSING_EVENT_TYPE"
@@ -39,6 +47,8 @@ export type ImportWarningCode =
   | "AMBIGUOUS_HALF_DAY"
   | "AMBIGUOUS_DAY_FRACTION"
   | "AMBIGUOUS_NUMERIC_DURATION"
+  | "AMBIGUOUS_SNAPSHOT_QUANTITY"
+  | "EMPTY_SNAPSHOT"
   | "MIXED_DAY_AND_TIME"
   | "HALF_DAY_UNIT"
   | "LOW_CONFIDENCE";
@@ -102,6 +112,11 @@ export interface TabularAdapterResult {
   format: ImportSourceFormat;
   headers: string[];
   rows: TabularRow[];
+  /**
+   * Source-native 1-based row indexes when the adapter can preserve them.
+   * This keeps preview/audit metadata aligned with title rows and blank rows.
+   */
+  rowSourceIndexes?: number[];
   sourceLabel?: string | null;
 }
 
