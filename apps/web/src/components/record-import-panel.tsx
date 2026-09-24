@@ -39,8 +39,10 @@ import { Button } from "@/components/ui/button";
 import {
   parseImportFile,
   PdfOcrRequiredError,
+  XlsxWorksheetSelectionRequiredError,
   type OcrProgress,
   type ParseImportFileOptions,
+  type XlsxWorksheetCandidate,
 } from "@/lib/file-import-adapters";
 const EVENT_OPTIONS = SERVICE_EVENT_TYPES.map((value) => ({
   value,
@@ -126,6 +128,10 @@ export function RecordImportPanel({
   );
   const [overrides, setOverrides] = useState<Record<number, EventOverride>>({});
   const [pendingOcrFile, setPendingOcrFile] = useState<File | null>(null);
+  const [pendingXlsxFile, setPendingXlsxFile] = useState<File | null>(null);
+  const [xlsxCandidates, setXlsxCandidates] = useState<
+    XlsxWorksheetCandidate[]
+  >([]);
   const [ocrProgress, setOcrProgress] = useState<OcrProgress | null>(null);
   const [rowStatuses, setRowStatuses] = useState<Map<number, RowStatus>>(
     new Map(),
@@ -163,6 +169,8 @@ export function RecordImportPanel({
     setAcceptedSnapshots(new Set());
     setOverrides({});
     setPendingOcrFile(null);
+    setPendingXlsxFile(null);
+    setXlsxCandidates([]);
     setOcrProgress(null);
   }
 
@@ -176,6 +184,8 @@ export function RecordImportPanel({
     setPreview(nextPreview);
     setOverrides({});
     setPendingOcrFile(null);
+    setPendingXlsxFile(null);
+    setXlsxCandidates([]);
     setOcrProgress(null);
     setAcceptedRows(
       new Set(
@@ -198,7 +208,12 @@ export function RecordImportPanel({
       new Set(
         nextPreview.snapshots
           .filter(
-            (snapshot) => snapshot.leaveType && snapshot.confidence >= 0.7,
+            (snapshot) =>
+              snapshot.leaveType &&
+              snapshot.confidence >= 0.7 &&
+              !snapshot.warnings.some((warning) =>
+                BLOCKING_WARNING_CODES.includes(warning.code),
+              ),
           )
           .map((snapshot) => snapshot.sourceRowIndex),
       ),
@@ -243,10 +258,35 @@ export function RecordImportPanel({
         setError("");
         return;
       }
+      if (reason instanceof XlsxWorksheetSelectionRequiredError) {
+        setPendingXlsxFile(file);
+        setXlsxCandidates(reason.candidates);
+        setError("");
+        return;
+      }
       setError(
         reason instanceof Error
           ? reason.message
           : "파일을 분석하지 못했습니다.",
+      );
+    }
+  }
+
+  async function runXlsxSelection(worksheetName: string) {
+    if (!pendingXlsxFile) return;
+    const file = pendingXlsxFile;
+    setStatus("PARSING");
+    setError("");
+    setMessage("");
+
+    try {
+      await parseAndPreview(file, { xlsxWorksheetName: worksheetName });
+    } catch (reason) {
+      setStatus("IDLE");
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : "선택한 엑셀 시트를 분석하지 못했습니다.",
       );
     }
   }
@@ -477,6 +517,45 @@ export function RecordImportPanel({
         </small>
       </label>
 
+      {pendingXlsxFile && xlsxCandidates.length ? (
+        <div
+          className="ocr-consent"
+          role="group"
+          aria-label="엑셀 시트 선택"
+        >
+          <FileSpreadsheet aria-hidden="true" size={24} />
+          <div>
+            <strong>가져올 엑셀 시트를 선택하세요.</strong>
+            <p>
+              개인 복무기록 또는 휴가 잔액 표로 보이는 시트가 여러 개라 앱이
+              임의로 하나를 고르지 않았어요.
+            </p>
+            <div className="ocr-consent__actions">
+              <Button
+                variant="outline"
+                disabled={status === "PARSING"}
+                onClick={resetPreview}
+              >
+                취소
+              </Button>
+              {xlsxCandidates.map((candidate) => (
+                <Button
+                  key={candidate.worksheetName}
+                  disabled={status === "PARSING"}
+                  onClick={() =>
+                    void runXlsxSelection(candidate.worksheetName)
+                  }
+                >
+                  {candidate.worksheetName} ·{" "}
+                  {candidate.kind === "EVENTS" ? "복무기록" : "휴가 잔액"} ·
+                  머리글 {candidate.headerRow}행
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {pendingOcrFile ? (
         <div
           className="ocr-consent"
@@ -536,6 +615,9 @@ export function RecordImportPanel({
             <CheckCircle2 aria-hidden="true" size={21} />
             <div>
               <strong>{preview.batch.fileName}</strong>
+              {tabular.sourceLabel ? (
+                <small className="field-hint">{tabular.sourceLabel}</small>
+              ) : null}
               <p>
                 복무기록 {preview.events.length}건 · 기관 잔액{" "}
                 {preview.snapshots.length}건
