@@ -1,8 +1,42 @@
 # SUPER GONGIK Roadmap
 
+## Status snapshot — 2026-09-24
+
+Evidence is the code on `main` plus the `feat/web-mvp-closure` branch. "Done"
+means implemented and covered by tests; "partial" lists what is missing.
+
+| Phase                         | Status                           | Evidence / remaining                                                                                                                                                                                                    |
+| ----------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0 Product foundation          | Done                             | PRD, architecture, data model, rule-engine docs, ADR 0001                                                                                                                                                               |
+| 1 Application foundation      | Done                             | pnpm workspace, Next.js PWA, lint/format/typecheck/test/build in CI, Vercel deploy                                                                                                                                      |
+| 2 Service profile & dashboard | Done                             | `packages/domain/src/service`, onboarding, D-Day/progress, editable profile                                                                                                                                             |
+| 3 Service calendar            | Done (MVP)                       | month + agenda views, create/edit/soft-delete/undo/restore, category filter, overlap validation. Missing: recurring events, holidays calendar                                                                           |
+| 4 Leave ledger                | Done (annual) / partial (others) | balance = rule credits + confirmations + corrections − events; half-day unit; minutes; reconciliation. Other leave types are totals only; conditional bonus leave and non-duty sick-leave 30-day threshold not modelled |
+| 5 Rules engine                | Done                             | effective-date selector, lifecycle states, source metadata, fixtures, explicit calculation dates                                                                                                                        |
+| 6 Compensation                | Partial                          | verified base pay with gates (prior service, partial month, unverified year). Meal = suggested rate only, transport = contextual, no total, no persisted snapshots. Blocked on Issue #6                                 |
+| 7 Local-first storage         | Done (MVP)                       | versioned document, migrations, recovery/quarantine, cross-tab rebase, offline shell. Missing: offline queue (no remote yet)                                                                                            |
+| 8 Cloud backup & sync         | Not started                      | records are sync-ready (id/revision/deletedAt/deviceId)                                                                                                                                                                 |
+| 9 Export & privacy            | Partial                          | JSON backup + validated merge/replace restore, events CSV, leave CSV, full local wipe. Missing: compensation CSV, cloud deletion                                                                                        |
+| 10 Notifications & quality    | Not started                      | basic keyboard/focus/tap-target QA done in this sprint                                                                                                                                                                  |
+| 11 Knowledge layer            | Not started                      |                                                                                                                                                                                                                         |
+
+## Next recommended sprint
+
+1. Issue #6 source work: extract and checksum the MMA 2026 HWPX attachment,
+   pin partial-month and non-payable-day arithmetic, then enable those paths
+   with fixtures.
+2. Eligible-service-day derivation (workday calendar + events) so meal and
+   transport can become calculated components and a monthly total can exist.
+3. Non-duty sick-leave cumulative tracking (30-day service-extension rule) and
+   conditional bonus annual leave eligibility.
+4. Real-world import corpus: collect anonymized institution exports and add
+   them as adapter fixtures.
+5. Backup reminders and optional encrypted cloud backup design (Phase 8).
+6. Only then: iOS packaging decision per ADR 0001.
+
 ## Phase 0 — Product foundation
 
-Status: in progress
+Status: done
 
 Deliverables:
 

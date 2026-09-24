@@ -44,6 +44,7 @@ export function classifyEventType(value: unknown): {
   confidence: number;
   warnings: ImportWarning[];
   halfDayHint: boolean;
+  halfDayPart: "AM" | "PM" | null;
 } {
   const source = typeof value === "string" ? normalizeLabel(value) : "";
   if (!source) {
@@ -57,8 +58,15 @@ export function classifyEventType(value: unknown): {
         },
       ],
       halfDayHint: false,
+      halfDayPart: null,
     };
   }
+
+  const halfDayPart = source.includes("오전")
+    ? ("AM" as const)
+    : source.includes("오후")
+      ? ("PM" as const)
+      : null;
 
   for (const candidate of EVENT_TYPE_SYNONYMS) {
     for (const label of candidate.labels) {
@@ -69,6 +77,7 @@ export function classifyEventType(value: unknown): {
           confidence: 1,
           warnings: [],
           halfDayHint: source.includes("반가"),
+          halfDayPart,
         };
       }
       if (source.includes(normalized) || normalized.includes(source)) {
@@ -77,6 +86,7 @@ export function classifyEventType(value: unknown): {
           confidence: 0.86,
           warnings: [],
           halfDayHint: source.includes("반가"),
+          halfDayPart,
         };
       }
     }
@@ -92,5 +102,6 @@ export function classifyEventType(value: unknown): {
       },
     ],
     halfDayHint: false,
+    halfDayPart: null,
   };
 }

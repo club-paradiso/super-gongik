@@ -112,7 +112,7 @@ export function mapColumns(headers: string[]): ColumnMapping[] {
   const selectedTargets = new Set<CanonicalColumn>();
   const selectedHeaders = new Set<string>();
 
-  return candidates
+  const selected = candidates
     .sort((a, b) => b.confidence - a.confidence)
     .filter((candidate) => {
       if (
@@ -129,6 +129,31 @@ export function mapColumns(headers: string[]): ColumnMapping[] {
       (a, b) =>
         headers.indexOf(a.sourceHeader) - headers.indexOf(b.sourceHeader),
     );
+
+  return reinterpretUsageColumnInEventTables(selected);
+}
+
+/**
+ * In a dated per-event table, a lone `사용일수`/`used` column is the amount
+ * used on that row, not a cumulative balance. Only reinterpret it when the
+ * table has a date, no explicit duration and no other balance columns.
+ */
+function reinterpretUsageColumnInEventTables(
+  mappings: ColumnMapping[],
+): ColumnMapping[] {
+  const targets = new Set(mappings.map((mapping) => mapping.target));
+  if (
+    !targets.has("date") ||
+    targets.has("duration") ||
+    !targets.has("used") ||
+    targets.has("granted") ||
+    targets.has("remaining")
+  ) {
+    return mappings;
+  }
+  return mappings.map((mapping) =>
+    mapping.target === "used" ? { ...mapping, target: "duration" } : mapping,
+  );
 }
 
 export function findMappedHeader(

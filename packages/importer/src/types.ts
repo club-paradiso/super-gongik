@@ -1,5 +1,9 @@
-export type ImportSourceFormat =
-  "CSV" | "XLSX" | "PDF_TEXT" | "PDF_OCR" | "HWP" | "HWPX" | "UNKNOWN";
+import type {
+  ImportSourceFormat,
+  ServiceEventType,
+} from "@super-gongik/domain";
+
+export type { ImportSourceFormat };
 
 export type CanonicalColumn =
   | "date"
@@ -16,18 +20,8 @@ export type CanonicalColumn =
 export type TabularCell = string | number | boolean | Date | null | undefined;
 export type TabularRow = Record<string, TabularCell>;
 
-export type ImportableServiceEventType =
-  | "ANNUAL_LEAVE"
-  | "SICK_LEAVE"
-  | "OFFICIAL_LEAVE"
-  | "SPECIAL_LEAVE"
-  | "COMPASSIONATE_LEAVE"
-  | "OUTING"
-  | "LATE_ARRIVAL"
-  | "EARLY_LEAVE"
-  | "EDUCATION"
-  | "TRAINING"
-  | "USER_NOTE";
+/** Imports target the canonical domain vocabulary; there is no second list. */
+export type ImportableServiceEventType = ServiceEventType;
 
 export interface ColumnMapping {
   sourceHeader: string;
@@ -44,6 +38,9 @@ export type ImportWarningCode =
   | "UNRECOGNIZED_DURATION"
   | "AMBIGUOUS_HALF_DAY"
   | "AMBIGUOUS_DAY_FRACTION"
+  | "AMBIGUOUS_NUMERIC_DURATION"
+  | "MIXED_DAY_AND_TIME"
+  | "HALF_DAY_UNIT"
   | "LOW_CONFIDENCE";
 
 export interface ImportWarning {
@@ -60,6 +57,9 @@ export interface ServiceEventCandidate {
   durationMinutes: number | null;
   startTime: string | null;
   endTime: string | null;
+  /** Source says "반가" without an explicit duration: a rule-backed half day. */
+  halfDay: boolean;
+  halfDayPart: "AM" | "PM" | null;
   note: string | null;
   confidence: number;
   warnings: ImportWarning[];
@@ -96,25 +96,6 @@ export interface ImportPreview {
   events: ServiceEventCandidate[];
   snapshots: LeaveSnapshotCandidate[];
   unresolvedRowIndexes: number[];
-}
-
-export interface ImportedEventMetadata {
-  importBatchId: string;
-  importSourceFormat: ImportSourceFormat;
-  importSourceFileName: string;
-  importFingerprint: string;
-  importConfidence: number;
-  importSourceRowIndex: number;
-  importDayCount?: number;
-}
-
-export interface ImportCommitPlan {
-  batch: ImportBatchDescriptor;
-  events: Array<{
-    candidate: ServiceEventCandidate;
-    metadata: ImportedEventMetadata;
-  }>;
-  skippedDuplicateFingerprints: string[];
 }
 
 export interface TabularAdapterResult {

@@ -8,7 +8,44 @@
 - Keep policy versions separate from user records.
 - Preserve enough metadata to explain historical calculations.
 
-## 2. Core entities
+## 1a. Implemented document (schema version 2)
+
+The source of truth is the zod schema in `packages/domain/src/store/schema.ts`.
+The sections below describe the long-term relational target; this is what is
+stored today:
+
+```text
+UserData {
+  schemaVersion: 2, documentRevision, savedAt, deviceId,
+  profile: ServiceProfile | null      // + workdayMinutes, priorServiceCredit
+  events: ServiceEvent[]              // manual and imported, one shape
+  leaveAdjustments: LeaveAdjustment[] // GRANT_CONFIRMATION | CORRECTION
+  leaveSnapshots: LeaveSnapshot[]     // institution balance evidence
+  imports: ImportRecord[]             // batches, ACTIVE | ROLLED_BACK
+}
+
+ServiceEvent {
+  id, serviceProfileId, eventType, startDate, endDate (inclusive, Seoul civil dates),
+  timing: ALL_DAY{dayCount} | HALF_DAY{half} | PARTIAL{durationMinutes|null, startTime, endTime},
+  title, note, status: CONFIRMED,
+  source: MANUAL | IMPORT{batchId, format, fileName, fingerprint, confidence, sourceRowIndex},
+  createdAt, updatedAt, deletedAt, revision, deviceId
+}
+```
+
+- Partial usage is integer minutes; the half-day annual-leave unit is an
+  integer count of halves. No floating-point day value is stored.
+- `PARTIAL.durationMinutes = null` exists only for imported rows whose
+  duration could not be resolved; the ledger excludes and flags them.
+- Two leave records may not charge the same time: see ADR 0001 §7 for the
+  CONFLICT / UNRESOLVED rules.
+- Leave usage is never stored separately; the ledger is recomputed from
+  credits (rules), confirmations/corrections (adjustments) and events.
+- The pre-document layout (`super-gongik.service-profile.v1`,
+  `super-gongik:service-records:v1:<id>`) is migrated on first load and left
+  in place until the user wipes data.
+
+## 2. Core entities (long-term target)
 
 ### service_profile
 

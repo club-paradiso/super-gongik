@@ -4,7 +4,8 @@
 
 - `packages/domain` owns deterministic Seoul civil-date handling, the guest service profile, 21-calendar-month discharge-date derivation, D-Day, and progress.
 - `packages/rules` parses the source-derived JSON bundles, selects a single effective rule version, and returns an explainable calculation contract and replayable snapshot.
-- `apps/web` is a guest-first Next.js PWA shell. It stores only the profile in local storage and never places policy logic in React components.
+- `apps/web` is a guest-first Next.js PWA. It persists one versioned `UserData` document through the domain repository (localStorage adapter) and never places policy logic in React components. See ADR 0001.
+- Leave credits are selected by each tranche's grant date. Call-up dates before the oldest verified leave bundle (2026-04-23) produce a PENDING_CONFIRMATION credit that the user confirms from institution records.
 
 ## Safety gates retained by design
 

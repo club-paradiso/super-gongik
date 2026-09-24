@@ -11,48 +11,30 @@ The architecture must optimize for four things before feature breadth:
 
 The UI framework must not own policy logic.
 
-## 2. Proposed repository layout
+## 2. Repository layout (as built)
 
 ```text
 super-gongik/
-  apps/
-    web/
-
-  packages/
-    domain/
-      service/
-      leave/
-      compensation/
-      calendar/
-
-    rules/
-      service/
-      leave/
-      compensation/
-
-    db/
-    ui/
-    validation/
-
-  docs/
-    PRD.md
-    ARCHITECTURE.md
-    DATA_MODEL.md
-    RULE_ENGINE.md
-    ROADMAP.md
+  apps/web/                 Next.js PWA: screens, file adapters, localStorage adapter
+  packages/domain/src/
+    service/                civil dates, profile, progress
+    calendar/               month grid, weekday counting
+    events/                 canonical ServiceEvent schema + validation
+    leave/                  adjustments, snapshots, event-derived ledger
+    store/                  UserData schema, legacy migration, repository,
+                            commands, store controller, backup/merge, CSV
+  packages/rules/           effective-dated bundles, leave credits, compensation
+  packages/importer/        CSV/TSV parsing, mapping, normalization → drafts
+  docs/                     product, architecture, rule audits, ADRs
 ```
 
-## 3. Recommended stack
+## 3. Stack
 
-Initial implementation:
-
-- Next.js
-- TypeScript
-- Tailwind CSS
-- shadcn/ui
-- PostgreSQL via Supabase
-- PWA support
+- Next.js 16 / React 19 / TypeScript, pnpm workspace, Vitest
+- zod for every persisted shape
+- PWA service worker for the offline shell
 - Vercel deployment
+- No backend yet (see ADR 0001 for why Supabase was not started)
 
 The stack is replaceable. The domain package is not.
 
@@ -104,7 +86,17 @@ This prevents users from entering the same fact multiple times.
 
 ## 6. Local-first write flow
 
-Preferred behavior:
+Implemented (`packages/domain/src/store/controller.ts`):
+
+```text
+UI calls store.run(command)
+  -> re-read storage; rebase on a newer document from another tab
+  -> pure command validates and returns the next document
+  -> repository validates, keeps the previous generation, writes atomically
+  -> store publishes the new snapshot; projections recompute
+```
+
+Target once sync exists:
 
 ```text
 User action

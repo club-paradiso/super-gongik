@@ -11,6 +11,11 @@ type AnnualLeaveAllocation = {
   mustNotUseStatutoryCapAsBalance: true;
 };
 
+/**
+ * Every leave calculation requires an explicit calculation date. There is no
+ * default: a default would let a historical event silently use a future
+ * bundle.
+ */
 function requireLeaveRule(date: DateOnly): LeaveRuleBundle {
   const selection = selectRuleByDate("LEAVE", LEAVE_RULE_BUNDLES, date);
   if (selection.status !== "SUPPORTED") {
@@ -22,7 +27,7 @@ function requireLeaveRule(date: DateOnly): LeaveRuleBundle {
 
 export function calculateAnnualLeaveAllocation(
   mandatoryServiceMonths: number,
-  calculationDate: DateOnly = "2026-08-28",
+  calculationDate: DateOnly,
 ): CalculationResult<AnnualLeaveAllocation, "SUPPORTED"> {
   const bundle = requireLeaveRule(calculationDate);
   const standard = bundle.annualLeave.periodAllocation.standard21Month;
@@ -56,7 +61,7 @@ export function calculateAnnualLeaveAllocation(
 export function validateOrdinaryAnnualLeaveBalance(
   mandatoryServiceMonths: number,
   requestedOrdinaryBalanceDays: number,
-  calculationDate: DateOnly = "2026-08-28",
+  calculationDate: DateOnly,
 ) {
   const allocation = calculateAnnualLeaveAllocation(
     mandatoryServiceMonths,
@@ -90,7 +95,7 @@ export function validateOrdinaryAnnualLeaveBalance(
 
 export function calculateHalfDayAnnualLeaveCharge(
   halfDayAnnualLeaveCount: number,
-  calculationDate: DateOnly = "2026-08-28",
+  calculationDate: DateOnly,
 ) {
   const bundle = requireLeaveRule(calculationDate);
   const supported =

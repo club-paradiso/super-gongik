@@ -20,6 +20,16 @@ type FixtureCase = {
 };
 
 const cases = boundaryFixturesJson.cases as FixtureCase[];
+// Non-boundary leave fixtures describe the currently effective bundle.
+const CURRENT_LEAVE_DATE = "2026-08-28" as DateOnly;
+
+/**
+ * Compensation fixtures are stated per calendar year; they are evaluated on
+ * January 1 of that year explicitly (not by a hidden default).
+ */
+function yearStart(year: number): DateOnly {
+  return `${year}-01-01` as DateOnly;
+}
 
 function numberInput(input: Record<string, unknown>, key: string): number {
   const value = input[key];
@@ -44,6 +54,7 @@ function evaluateFixture(testCase: FixtureCase): Record<string, unknown> {
     case "leave.standard-21-month-allocation": {
       const result = calculateAnnualLeaveAllocation(
         numberInput(input, "mandatoryServiceMonths"),
+        CURRENT_LEAVE_DATE,
       );
       return { status: result.status, ...result.value };
     }
@@ -51,12 +62,14 @@ function evaluateFixture(testCase: FixtureCase): Record<string, unknown> {
       const result = validateOrdinaryAnnualLeaveBalance(
         numberInput(input, "mandatoryServiceMonths"),
         numberInput(input, "requestedOrdinaryBalanceDays"),
+        CURRENT_LEAVE_DATE,
       );
       return { status: result.status, reason: result.warnings[0] };
     }
     case "leave.half-day-pair": {
       const result = calculateHalfDayAnnualLeaveCharge(
         numberInput(input, "halfDayAnnualLeaveCount"),
+        CURRENT_LEAVE_DATE,
       );
       return { status: result.status, ...result.value };
     }
@@ -82,21 +95,21 @@ function evaluateFixture(testCase: FixtureCase): Record<string, unknown> {
     case "compensation.base-pay-month-14":
     case "compensation.base-pay-month-15-boundary": {
       const result = calculateMonthlyBasePay({
-        calendarYear: numberInput(input, "calendarYear"),
+        calculationDate: yearStart(numberInput(input, "calendarYear")),
         serviceMonthIndex: numberInput(input, "serviceMonthIndex"),
       });
       return { status: result.status, ...result.value };
     }
     case "compensation.meal-suggested-rate-unconfirmed": {
       const result = evaluateMealAllowance({
-        calendarYear: numberInput(input, "calendarYear"),
+        calculationDate: yearStart(numberInput(input, "calendarYear")),
         mealRateConfirmedByProfile: false,
       });
       return { status: result.status, ...result.breakdown };
     }
     case "compensation.transport-missing-context": {
       const result = calculateTransportAllowance({
-        calendarYear: numberInput(input, "calendarYear"),
+        calculationDate: yearStart(numberInput(input, "calendarYear")),
         commuteFareOrInstitutionApprovedTransportRate: null,
         eligibleServiceDays: numberInput(input, "eligibleServiceDays"),
       });
@@ -104,7 +117,7 @@ function evaluateFixture(testCase: FixtureCase): Record<string, unknown> {
     }
     case "compensation.partial-first-month-gated": {
       const result = evaluateCompensationSafetyGate({
-        calendarYear: numberInput(input, "calendarYear"),
+        calculationDate: yearStart(numberInput(input, "calendarYear")),
         partialMonth: true,
         periodType: stringInput(input, "periodType"),
       });
@@ -112,7 +125,7 @@ function evaluateFixture(testCase: FixtureCase): Record<string, unknown> {
     }
     case "compensation.prior-service-credit-gated": {
       const result = evaluateCompensationSafetyGate({
-        calendarYear: numberInput(input, "calendarYear"),
+        calculationDate: yearStart(numberInput(input, "calendarYear")),
         hasPriorServiceCreditCase: true,
       });
       return { status: result.status, ...result.breakdown };

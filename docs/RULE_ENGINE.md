@@ -60,6 +60,11 @@ Output:
 
 Never silently fall back to a newer or older year when no verified rule applies.
 
+The calculation date is the evaluated date itself (event date, payment date,
+or the day inside the evaluated month), never an implied January 1 of its
+year, so a rule amended mid-year applies from its actual effective date.
+Every leave and compensation function takes the date explicitly.
+
 ## 5. Calculation contract
 
 Each calculation returns more than a number.

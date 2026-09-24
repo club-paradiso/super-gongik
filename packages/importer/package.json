@@ -10,5 +10,8 @@
     "lint": "eslint . --config ../../eslint.config.mjs --max-warnings=0",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "@super-gongik/domain": "workspace:*"
   }
 }
