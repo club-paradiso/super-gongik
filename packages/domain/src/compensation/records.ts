@@ -28,6 +28,19 @@ export const attendanceDayOverrideSchema = z.object({
 
 export type AttendanceDayOverride = z.infer<typeof attendanceDayOverrideSchema>;
 
+export const COMPENSATION_ROUNDING_POLICIES = [
+  "NATIONAL_TREASURY_ARTICLE_47",
+  "INSTITUTION_CONFIRMED_TRUNCATE_SUB_10",
+  "INSTITUTION_OTHER_OR_UNKNOWN",
+] as const;
+
+export const compensationRoundingPolicySchema = z.enum(
+  COMPENSATION_ROUNDING_POLICIES,
+);
+export type CompensationRoundingPolicy = z.infer<
+  typeof compensationRoundingPolicySchema
+>;
+
 /**
  * The user's confirmation of one month's working-day facts that the app
  * cannot infer from rules: which scheduled days were holidays or institution
@@ -42,11 +55,22 @@ export const attendanceMonthSchema = syncFieldsSchema
     nonWorkingDates: z.array(dateOnlySchema),
     dayOverrides: z.array(attendanceDayOverrideSchema),
     /**
-     * 사회복무요원 복무관리 규정 제41조⑥ categories other than sick leave:
-     * 복무중단일, 복무이탈일, 연가일수를 초과한 결근일. The app does not model
-     * these events, so the user states whether any occurred.
+     * Legacy coarse flag. Existing backups may still contain only this signal.
+     * New calculations never turn it into a deduction unless exact dates are
+     * separately confirmed.
      */
-    hadNonPayableAbsence: z.boolean(),
+    hadNonPayableAbsence: z.boolean().default(false),
+    /**
+     * Exact calendar dates whose base pay is not payable under 제41조⑥.
+     * Empty is meaningful only when nonPayableDatesConfirmed is true.
+     */
+    nonPayableDates: z.array(dateOnlySchema).default([]),
+    nonPayableDatesConfirmed: z.boolean().default(false),
+    /**
+     * Explicit payer/accounting rule. null means unknown. Treasury truncation
+     * is never inferred from workplaceType or institution name.
+     */
+    roundingPolicy: compensationRoundingPolicySchema.nullable().default(null),
     /** `attendanceBasisFingerprint` of the data the user confirmed against. */
     basisFingerprint: z.string(),
   })
@@ -62,6 +86,17 @@ export const attendanceMonthSchema = syncFieldsSchema
         });
       }
       seen.add(date);
+    });
+    const unpaid = new Set<string>();
+    record.nonPayableDates.forEach((date, index) => {
+      if (!inMonth(date) || unpaid.has(date)) {
+        context.addIssue({
+          code: "custom",
+          path: ["nonPayableDates", index],
+          message: "해당 월의 중복 없는 미지급 날짜만 넣을 수 있어요.",
+        });
+      }
+      unpaid.add(date);
     });
     const overridden = new Set<string>();
     record.dayOverrides.forEach((item, index) => {
@@ -80,7 +115,13 @@ export type AttendanceMonth = z.infer<typeof attendanceMonthSchema>;
 
 export type AttendanceMonthInput = Pick<
   AttendanceMonth,
-  "month" | "nonWorkingDates" | "dayOverrides" | "hadNonPayableAbsence"
+  | "month"
+  | "nonWorkingDates"
+  | "dayOverrides"
+  | "hadNonPayableAbsence"
+  | "nonPayableDates"
+  | "nonPayableDatesConfirmed"
+  | "roundingPolicy"
 >;
 
 /**
