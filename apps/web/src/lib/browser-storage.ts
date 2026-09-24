@@ -30,6 +30,12 @@ export function createBrowserStorage(): KeyValueStorage {
     async removeItem(key) {
       storage().removeItem(key);
     },
+    async keys() {
+      const target = storage();
+      return Array.from({ length: target.length }, (_, index) =>
+        target.key(index),
+      ).filter((key): key is string => key !== null);
+    },
   };
 }
 

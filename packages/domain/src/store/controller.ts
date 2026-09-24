@@ -1,11 +1,15 @@
 import type { EventIssue } from "../events/validation";
-import type { CommandContext, CommandResult } from "./commands";
+import {
+  deleteAllData,
+  type CommandContext,
+  type CommandResult,
+} from "./commands";
 import {
   StorageWriteError,
   type LoadOutcome,
   type UserDataRepository,
 } from "./repository";
-import type { UserData } from "./schema";
+import { createEmptyUserData, type UserData } from "./schema";
 
 export type LoadNotice = Exclude<LoadOutcome, { kind: "EMPTY" | "LOADED" }>;
 
@@ -67,7 +71,24 @@ export function createUserDataStore(options: {
 
   async function load() {
     return enqueue(async () => {
-      const outcome = await options.repository.load();
+      let outcome: LoadOutcome;
+      try {
+        outcome = await options.repository.load();
+      } catch (error) {
+        // Storage itself is unavailable (blocked cookies, private mode…).
+        // Show an empty, read-only app with the reason instead of hanging.
+        publish({
+          phase: "READY",
+          data: createEmptyUserData(options.createId()),
+          notice: null,
+          readOnly: true,
+          lastError:
+            error instanceof Error
+              ? `기기 저장소를 열 수 없어요: ${error.message}`
+              : "기기 저장소를 열 수 없어요.",
+        });
+        return;
+      }
       let data = outcome.data;
       let lastError: string | null = null;
       if (outcome.kind === "MIGRATED" || outcome.kind === "RECOVERED") {
@@ -162,8 +183,30 @@ export function createUserDataStore(options: {
     });
   }
 
+  /** Delete all records, then every auxiliary copy kept for recovery. */
+  async function wipeAll(): Promise<RunResult<undefined>> {
+    const result = await run(deleteAllData);
+    if (!result.ok) return result;
+    try {
+      await options.repository.purgeAuxiliaryCopies();
+    } catch {
+      return {
+        ok: false,
+        errors: [
+          {
+            code: "INVALID_FIELD",
+            message:
+              "기록은 지웠지만 일부 복구용 사본을 지우지 못했어요. 브라우저 사이트 데이터를 삭제해 주세요.",
+          },
+        ],
+      };
+    }
+    return result;
+  }
+
   return {
     getSnapshot: () => snapshot,
+    wipeAll,
     subscribe(listener: () => void) {
       listeners.add(listener);
       return () => listeners.delete(listener);

@@ -5,7 +5,6 @@ import { type FormEvent, useState } from "react";
 
 import {
   calculateExpectedDischargeDate,
-  deleteAllData,
   editProfile,
   isDateOnly,
   type DateOnly,
@@ -76,9 +75,7 @@ export function ProfileTab({
               먼저 백업 내려받기
             </Button>
             <Button
-              onClick={() =>
-                void store.run((current) => deleteAllData(current))
-              }
+              onClick={() => void store.wipeAll()}
               type="button"
               variant="danger"
             >

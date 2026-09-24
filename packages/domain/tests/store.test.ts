@@ -14,6 +14,7 @@ import {
   parseBackup,
   serializeBackup,
   serviceEventsToCsv,
+  type KeyValueStorage,
   type UserData,
 } from "../src";
 import {
@@ -24,7 +25,9 @@ import {
   userDataWithProfile,
 } from "./helpers";
 
-function repository(storage = createMemoryStorage()) {
+function repository<T extends KeyValueStorage>(
+  storage: T = createMemoryStorage() as unknown as T,
+) {
   return {
     storage,
     repo: createUserDataRepository(storage, {
@@ -172,7 +175,7 @@ describe("versioned local repository", () => {
   });
 
   it("recovers the previous generation and quarantines a corrupt document", async () => {
-    const { repo, storage } = repository();
+    const { repo, storage } = repository(createMemoryStorage());
     const first = withEvent(userDataWithProfile());
     await repo.save(first);
     await repo.save({ ...first, documentRevision: 1 });
@@ -260,6 +263,55 @@ describe("versioned local repository", () => {
     expect(
       reloaded.kind === "LOADED" && reloaded.data.events.filter(isLive),
     ).toHaveLength(2);
+  });
+});
+
+describe("destructive and failure paths", () => {
+  it("wipes every local copy, including recovery and legacy keys", async () => {
+    const storage = createMemoryStorage({
+      [LEGACY_KEYS.profile]: JSON.stringify(legacyProfile),
+      [`${LEGACY_KEYS.recordsPrefix}legacy-profile`]: "{}",
+      [`${STORAGE_KEYS.quarantinePrefix}2026`]: "broken",
+      "unrelated-site-key": "keep",
+    });
+    const store = createUserDataStore({
+      repository: repository(storage).repo,
+      createId: sequentialIds(),
+    });
+    await store.load();
+    await store.run((data, ctx) =>
+      createServiceEvent(data, allDay("ANNUAL_LEAVE", "2026-09-10"), ctx),
+    );
+    expect(storage.dump()[STORAGE_KEYS.previous]).toBeDefined();
+
+    const result = await store.wipeAll();
+    expect(result.ok).toBe(true);
+    const keys = Object.keys(storage.dump()).sort();
+    expect(keys).toEqual([STORAGE_KEYS.current, "unrelated-site-key"]);
+    const current = JSON.parse(storage.dump()[STORAGE_KEYS.current]!);
+    expect(current.profile).toBeNull();
+    expect(current.events).toEqual([]);
+  });
+
+  it("does not hang when storage itself is unavailable", async () => {
+    const failing = {
+      getItem: async () => {
+        throw new Error("SecurityError");
+      },
+      setItem: async () => undefined,
+      removeItem: async () => undefined,
+    };
+    const store = createUserDataStore({
+      repository: repository(failing).repo,
+      createId: sequentialIds(),
+    });
+    await store.load();
+    const snapshot = store.getSnapshot();
+    expect(snapshot.phase).toBe("READY");
+    expect(snapshot.phase === "READY" && snapshot.readOnly).toBe(true);
+    expect(snapshot.phase === "READY" && snapshot.lastError).toContain(
+      "SecurityError",
+    );
   });
 });
 

@@ -15,7 +15,12 @@ export interface KeyValueStorage {
   getItem(key: string): Promise<string | null>;
   setItem(key: string, value: string): Promise<void>;
   removeItem(key: string): Promise<void>;
+  /** Optional key listing, used to purge every local copy on request. */
+  keys?(): Promise<string[]>;
 }
+
+/** Every key this app writes starts with this prefix (legacy ones included). */
+export const APP_KEY_PREFIX = "super-gongik";
 
 export const STORAGE_KEYS = {
   current: "super-gongik:data:v2",
@@ -52,6 +57,11 @@ export type UserDataRepository = {
   /** Keep a copy of the current document before a destructive restore. */
   preserveBeforeRestore(): Promise<boolean>;
   readRaw(key: string): Promise<string | null>;
+  /**
+   * Remove every auxiliary copy (previous generation, pre-restore copy,
+   * quarantined documents, legacy keys) except the current document.
+   */
+  purgeAuxiliaryCopies(): Promise<void>;
 };
 
 export function createUserDataRepository(
@@ -185,6 +195,24 @@ export function createUserDataRepository(
     readRaw(key) {
       return storage.getItem(key);
     },
+
+    async purgeAuxiliaryCopies() {
+      const known = [
+        STORAGE_KEYS.previous,
+        STORAGE_KEYS.preRestore,
+        LEGACY_KEYS.profile,
+        LEGACY_KEYS.deviceId,
+      ];
+      const listed = storage.keys ? await storage.keys() : [];
+      const targets = new Set([
+        ...known,
+        ...listed.filter(
+          (key) =>
+            key.startsWith(APP_KEY_PREFIX) && key !== STORAGE_KEYS.current,
+        ),
+      ]);
+      for (const key of targets) await storage.removeItem(key);
+    },
   };
 }
 
@@ -202,6 +230,9 @@ export function createMemoryStorage(
     },
     async removeItem(key) {
       values.delete(key);
+    },
+    async keys() {
+      return [...values.keys()];
     },
     dump() {
       return Object.fromEntries(values);
