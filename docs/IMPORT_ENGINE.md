@@ -16,8 +16,8 @@ file -> parse -> map columns -> normalize -> classify -> validate
 1. Local-first parsing where browser capabilities allow it.
 2. Deterministic parsing before AI.
 3. AI, if added later, is a fallback classifier only for unresolved labels or structures.
-4. No guessed policy values. In particular, a half-day label is not automatically treated as 240 minutes unless the source contains an explicit duration or applicable work-time context is known.
-5. Imported events use the existing canonical `service_event` model.
+4. No guessed policy values. A `반가` label (or `0.5일` of annual leave) becomes the rule-backed HALF_DAY unit — two halves equal one day — and is never converted to 240 minutes. Bare numbers such as `4` are only read when the header states the unit (`(분)`, `(시간)`, `일수`). Mixed rows such as `1일 4시간` are refused and must be split.
+5. Imported events use the canonical `ServiceEvent` model. `candidateToImportDraft` produces the draft; the domain command `commitImport` writes it, using the same `planImportRows` decision (new / duplicate import / duplicate content / conflict) that the preview shows.
 6. Every imported event carries batch and source metadata for audit and rollback.
 7. Duplicate imports are detected with deterministic event fingerprints and, when available, the source file SHA-256.
 8. Aggregate leave balances without dated event history are stored as snapshots/reconciliation evidence, never expanded into fake events.
@@ -144,13 +144,14 @@ Source files can contain institution names, attendance data, names, medical refe
 - OCR/server-assisted analysis requires a clear disclosure before transmission.
 - Do not collect resident-registration numbers or detailed diagnoses.
 
-## Next implementation slices
+## Status
 
-1. Add browser file-picker + CSV preview UI.
-2. Connect confirmed rows to the local `service_event` repository from Issue #4.
-3. Add import history and one-tap batch rollback.
-4. Add an XLSX browser adapter without weakening local-first behavior.
-5. Add text-PDF adapter.
-6. Add scanned-PDF OCR only behind explicit privacy consent.
-7. Add leave snapshot persistence and event-vs-institution reconciliation UI.
-8. Add optional fallback AI classification for unresolved rows only.
+Implemented: file picker and preview, column-mapping override, per-row type/date/minute corrections, CSV/TSV/XLSX/HWP/HWPX/text-PDF adapters, opt-in in-browser OCR, fingerprint and content duplicate protection (including against manual records), same-file warning, batch rollback, snapshot persistence and reconciliation.
+
+A row that states only a start date and `N일` keeps `dayCount = N`; its end date is derived by skipping weekends and the preview says so.
+
+Remaining:
+
+1. Collect anonymized real institution exports as adapter fixtures.
+2. Multi-sheet selection UI for workbooks with several candidate tables.
+3. Optional fallback AI classification for unresolved rows only.
