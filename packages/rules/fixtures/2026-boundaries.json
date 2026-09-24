@@ -1,6 +1,6 @@
 {
   "schemaVersion": "0.1.0",
-  "verifiedAt": "2026-08-30",
+  "verifiedAt": "2026-09-24",
   "purpose": "Source-derived expected outcomes for future rules-engine tests. These are fixture specifications, not executable tests.",
   "cases": [
     {
@@ -84,137 +84,161 @@
       }
     },
     {
-      "id": "compensation.base-pay-month-2",
+      "id": "compensation.base-pay-month-1-call-up-month",
       "domain": "COMPENSATION",
       "input": {
         "calendarYear": 2026,
-        "serviceMonthIndex": 2
+        "serviceMonthOrdinal": 1
       },
       "expected": {
         "monthlyBasePay": 750000,
         "status": "SUPPORTED"
       },
-      "ruleVersion": "2026"
+      "ruleVersion": "2026",
+      "source": "병역법 시행령 제62조① (소집월 = 1개월 차), 공무원보수규정 별표 13 비고 6"
+    },
+    {
+      "id": "compensation.base-pay-month-2",
+      "domain": "COMPENSATION",
+      "input": {
+        "calendarYear": 2026,
+        "serviceMonthOrdinal": 2
+      },
+      "expected": {
+        "monthlyBasePay": 750000,
+        "status": "SUPPORTED"
+      },
+      "ruleVersion": "2026",
+      "source": "병역법 시행령 제62조① (소집월 = 1개월 차), 공무원보수규정 별표 13 비고 6"
     },
     {
       "id": "compensation.base-pay-month-3-boundary",
       "domain": "COMPENSATION",
       "input": {
         "calendarYear": 2026,
-        "serviceMonthIndex": 3
+        "serviceMonthOrdinal": 3
       },
       "expected": {
         "monthlyBasePay": 900000,
         "status": "SUPPORTED"
       },
-      "ruleVersion": "2026"
+      "ruleVersion": "2026",
+      "source": "병역법 시행령 제62조① (소집월 = 1개월 차), 공무원보수규정 별표 13 비고 6"
     },
     {
       "id": "compensation.base-pay-month-8",
       "domain": "COMPENSATION",
       "input": {
         "calendarYear": 2026,
-        "serviceMonthIndex": 8
+        "serviceMonthOrdinal": 8
       },
       "expected": {
         "monthlyBasePay": 900000,
         "status": "SUPPORTED"
       },
-      "ruleVersion": "2026"
+      "ruleVersion": "2026",
+      "source": "병역법 시행령 제62조① (소집월 = 1개월 차), 공무원보수규정 별표 13 비고 6"
     },
     {
       "id": "compensation.base-pay-month-9-boundary",
       "domain": "COMPENSATION",
       "input": {
         "calendarYear": 2026,
-        "serviceMonthIndex": 9
+        "serviceMonthOrdinal": 9
       },
       "expected": {
         "monthlyBasePay": 1200000,
         "status": "SUPPORTED"
       },
-      "ruleVersion": "2026"
+      "ruleVersion": "2026",
+      "source": "병역법 시행령 제62조① (소집월 = 1개월 차), 공무원보수규정 별표 13 비고 6"
     },
     {
       "id": "compensation.base-pay-month-14",
       "domain": "COMPENSATION",
       "input": {
         "calendarYear": 2026,
-        "serviceMonthIndex": 14
+        "serviceMonthOrdinal": 14
       },
       "expected": {
         "monthlyBasePay": 1200000,
         "status": "SUPPORTED"
       },
-      "ruleVersion": "2026"
+      "ruleVersion": "2026",
+      "source": "병역법 시행령 제62조① (소집월 = 1개월 차), 공무원보수규정 별표 13 비고 6"
     },
     {
       "id": "compensation.base-pay-month-15-boundary",
       "domain": "COMPENSATION",
       "input": {
         "calendarYear": 2026,
-        "serviceMonthIndex": 15
+        "serviceMonthOrdinal": 15
       },
       "expected": {
         "monthlyBasePay": 1500000,
         "status": "SUPPORTED"
       },
-      "ruleVersion": "2026"
+      "ruleVersion": "2026",
+      "source": "병역법 시행령 제62조① (소집월 = 1개월 차), 공무원보수규정 별표 13 비고 6"
     },
     {
-      "id": "compensation.meal-suggested-rate-unconfirmed",
+      "id": "compensation.meal-rate-missing-needs-input",
       "domain": "COMPENSATION",
       "input": {
         "calendarYear": 2026,
-        "mealRateConfirmedByProfile": false
+        "institutionDailyMealRate": null,
+        "mealEligibleDays": 20
       },
       "expected": {
-        "suggestedDailyMealRate": 9000,
-        "status": "REQUIRES_PROFILE_CONFIRMATION",
-        "mustExposeAssumption": true
+        "status": "NEEDS_INPUT",
+        "missingFields": ["institutionDailyMealRate"],
+        "unverifiedReferenceDailyAmount": 9000,
+        "mustNotUseReference": true
       },
-      "ruleVersion": "2026"
+      "ruleVersion": "2026",
+      "source": "사회복무요원 복무관리 규정 제41조④ (실비); 9,000원은 1차 출처 미확보 참고값"
     },
     {
-      "id": "compensation.transport-missing-context",
+      "id": "compensation.transport-missing-fare",
       "domain": "COMPENSATION",
       "input": {
         "calendarYear": 2026,
-        "commuteFareOrInstitutionApprovedTransportRate": null,
-        "eligibleServiceDays": 20
+        "dailyPublicTransitFare": null,
+        "transportEligibleDays": 20
       },
       "expected": {
-        "status": "UNSUPPORTED_MISSING_CONTEXT",
-        "missingFields": ["commuteFareOrInstitutionApprovedTransportRate"]
+        "status": "NEEDS_INPUT",
+        "missingFields": ["dailyPublicTransitFare"]
       },
-      "ruleVersion": "2026"
+      "ruleVersion": "2026",
+      "source": "사회복무요원 복무관리 규정 제41조④"
     },
     {
-      "id": "compensation.partial-first-month-gated",
+      "id": "compensation.partial-month-gated-ambiguous-rounding",
       "domain": "COMPENSATION",
       "input": {
         "calendarYear": 2026,
-        "partialMonth": true,
-        "periodType": "CALL_UP_MONTH"
+        "partialMonth": true
       },
       "expected": {
-        "status": "UNSUPPORTED_PENDING_EXACT_PRORATION_ARITHMETIC",
-        "mustNotGuessDivisor": true
+        "status": "GATED_AMBIGUOUS_PRORATION",
+        "mustNotGuessRounding": true
       },
-      "ruleVersion": "2026"
+      "ruleVersion": "2026",
+      "source": "사회복무요원 복무관리 규정 제41조⑤, 공무원보수규정 제4조제6호; 끝수 처리 미확정"
     },
     {
-      "id": "compensation.prior-service-credit-gated",
+      "id": "compensation.non-payable-days-gated",
       "domain": "COMPENSATION",
       "input": {
         "calendarYear": 2026,
-        "hasPriorServiceCreditCase": true
+        "possibleNonPayableDays": true
       },
       "expected": {
-        "status": "UNSUPPORTED_PENDING_PRIOR_SERVICE_PROFILE_MODEL",
-        "mustNotInferCredit": true
+        "status": "GATED_NON_PAYABLE_DAYS"
       },
-      "ruleVersion": "2026"
+      "ruleVersion": "2026",
+      "source": "사회복무요원 복무관리 규정 제41조⑥"
     }
   ]
 }

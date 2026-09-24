@@ -1,29 +1,66 @@
 {
-  "schemaVersion": "0.2.0",
+  "schemaVersion": "0.3.0",
   "ruleId": "kr.mma.social-service.compensation",
   "version": "2026",
   "effectiveFrom": "2026-01-01",
   "effectiveUntil": "2026-12-31",
-  "verifiedAt": "2026-08-30",
+  "verifiedAt": "2026-09-24",
   "status": "VERIFIED_CONTEXTUAL",
   "jurisdiction": "KR",
   "currency": "KRW",
   "sources": [
     {
-      "title": "병역법 시행령 제62조",
-      "authority": "대한민국",
+      "title": "병역법 시행령 제62조(사회복무요원의 보수 등)",
+      "authority": "대한민국 (대통령령)",
       "sourceType": "PRESIDENTIAL_DECREE",
+      "identifier": "법령ID 003626, MST 288957",
+      "publishedDate": "2026-08-25",
       "effectiveDate": "2026-08-28",
-      "identifier": "대통령령 제36600호",
-      "url": "https://www.law.go.kr"
+      "url": "https://www.law.go.kr/법령/병역법시행령/제62조",
+      "retrievedAt": "2026-09-24",
+      "retrievalPath": "법제처 국가법령정보 공동활용 API (korean-law MCP get_law_text)",
+      "excerptFile": "docs/sources/2026/byeongyeokbeop-siheangryeong-62.txt",
+      "excerptSha256": "a19526da003adcc323883cce607e069f6e6bb56df0552ae7824dedb1a530d39d"
     },
     {
-      "title": "2026년 군인의 봉급표 [별표 13]",
-      "authority": "인사혁신처",
-      "sourceType": "OFFICIAL_COMPENSATION_TABLE",
-      "effectiveDate": "2026-01-01",
-      "identifier": "공무원보수규정 별표 13",
-      "url": "https://www.mpm.go.kr/mpm/info/resultPay/bizSalary/2026/"
+      "title": "공무원보수규정 제4조제6호·제22조 및 별표 13 군인의 봉급표",
+      "authority": "대한민국 (대통령령)",
+      "sourceType": "PRESIDENTIAL_DECREE",
+      "identifier": "법령ID 002298, MST 288433 (별표 13 개정 2026.1.2. 제36013호, 부칙 제2조: 2026.1.1. 이후 지급 보수부터 적용)",
+      "publishedDate": "2026-07-30",
+      "effectiveDate": "2026-08-01",
+      "url": "https://www.law.go.kr/법령/공무원보수규정",
+      "retrievedAt": "2026-09-24",
+      "retrievalPath": "법제처 국가법령정보 공동활용 API (korean-law MCP get_law_text / get_article_detail / get_annexes / applicable_law)",
+      "excerptFile": "docs/sources/2026/gongmuwon-bosu-gyujeong.txt",
+      "excerptSha256": "0db174584b43a3123fff619fbb93cfcb992f7d8cc35e1e99920baa2196f6802c"
+    },
+    {
+      "title": "사회복무요원 복무관리 규정 제18조·제41조",
+      "authority": "병무청",
+      "sourceType": "ADMINISTRATIVE_RULE",
+      "identifier": "병무청훈령 제2206호, 행정규칙일련번호 2100000284594",
+      "publishedDate": "2026-04-23",
+      "effectiveDate": "2026-04-23",
+      "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000284594",
+      "retrievedAt": "2026-09-24",
+      "retrievalPath": "법제처 국가법령정보 공동활용 API (korean-law MCP get_admin_rule)",
+      "excerptFile": "docs/sources/2026/bokmugwalli-gyujeong-41.txt",
+      "excerptSha256": "1081cae347c4f805a5b652949a02c6d30eeed254248a42133df8d43b11ca7be2"
+    },
+    {
+      "title": "국고금 관리법 제47조(국고금의 끝수 계산)",
+      "authority": "대한민국 (법률)",
+      "sourceType": "STATUTE",
+      "identifier": "MST 276079",
+      "publishedDate": "2025-10-01",
+      "effectiveDate": "2026-01-02",
+      "url": "https://www.law.go.kr/법령/국고금관리법/제47조",
+      "retrievedAt": "2026-09-24",
+      "retrievalPath": "법제처 국가법령정보 공동활용 API (korean-law MCP get_law_text)",
+      "excerptFile": "docs/sources/2026/gukgogeum-gwallibeop-47.txt",
+      "excerptSha256": "f337545db7c74f1243afce6f599b718c06900588432747c0a9e6e7deb92c3115",
+      "usage": "Rounding evidence only; shows no single mandatory rounding rule for institution payroll (제47조③ '준용할 수 있다')."
     },
     {
       "title": "2026년도 사회복무요원 보수 등 지급 기준",
@@ -33,100 +70,83 @@
       "updatedDate": "2026-03-24",
       "identifier": null,
       "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
-      "attachmentExtractionStatus": "PENDING_DIRECT_HWPX_EXTRACTION"
-    },
-    {
-      "title": "사회복무요원 복무관리 규정",
-      "authority": "병무청",
-      "sourceType": "ADMINISTRATIVE_RULE",
-      "effectiveDate": "2026-04-23",
-      "identifier": "병무청훈령 제2206호",
-      "url": "https://law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000278174&chrClsCd=010201"
-    },
-    {
-      "title": "2026년도 예산안 사회복무요원 중식비 산출자료",
-      "authority": "서울특별시 마포구의회",
-      "sourceType": "OFFICIAL_2026_BUDGET_DOCUMENT",
-      "effectiveDate": "2026-01-01",
-      "identifier": null,
-      "url": "https://council.mapo.seoul.kr/attach/record/MAPO/appendix/a09/A0011050.pdf"
-    },
-    {
-      "title": "2026학년도 학교회계 예산편성 기본지침",
-      "authority": "경기도교육청",
-      "sourceType": "OFFICIAL_2026_ACCOUNTING_GUIDANCE",
-      "effectiveDate": "2026-01-01",
-      "identifier": null,
-      "url": "https://www.goe.go.kr/resource/goe/na/bbs_2675/2026/01/963f27ea-ce76-43e1-a1fc-046fa78c3a1d.pdf"
+      "attachmentExtractionStatus": "NOT_RETRIEVED_EGRESS_BLOCKED",
+      "usage": "Not used for any executable value. The HWPX attachment could not be downloaded (host blocked from the build environment) so no checksum exists."
     }
   ],
   "basePay": {
-    "status": "VERIFIED",
+    "status": "VERIFIED_AND_EXECUTABLE",
+    "monthCounting": "CALL_UP_MONTH_IS_ORDINAL_1",
+    "monthCountingBasis": "병역법 시행령 제62조① '소집월부터 2개월까지 … 3개월에서 8개월까지': the calendar month containing the call-up date is service month 1.",
     "serviceMonthBands": [
       {
-        "fromServiceMonth": 0,
-        "toServiceMonth": 2,
+        "fromServiceMonthOrdinal": 1,
+        "toServiceMonthOrdinal": 2,
         "equivalentRank": "PRIVATE_SECOND_CLASS",
         "monthlyAmount": 750000
       },
       {
-        "fromServiceMonth": 3,
-        "toServiceMonth": 8,
+        "fromServiceMonthOrdinal": 3,
+        "toServiceMonthOrdinal": 8,
         "equivalentRank": "PRIVATE_FIRST_CLASS",
         "monthlyAmount": 900000
       },
       {
-        "fromServiceMonth": 9,
-        "toServiceMonth": 14,
+        "fromServiceMonthOrdinal": 9,
+        "toServiceMonthOrdinal": 14,
         "equivalentRank": "CORPORAL",
         "monthlyAmount": 1200000
       },
       {
-        "fromServiceMonth": 15,
-        "toServiceMonth": null,
+        "fromServiceMonthOrdinal": 15,
+        "toServiceMonthOrdinal": null,
         "equivalentRank": "SERGEANT",
         "monthlyAmount": 1500000
       }
     ],
+    "amountSource": "공무원보수규정 별표 13 비고 6 (개정 2026.1.2.)",
     "priorServiceCredit": {
-      "status": "VERIFIED_CONTEXTUAL",
+      "status": "VERIFIED_NEEDS_USER_INPUT",
       "supportedAutomatically": false,
-      "reason": "Article 62(2) contains prior-service-credit cases that require explicit service-history inputs and dedicated fixtures."
+      "supportedInput": "WHOLE_MONTHS_CONFIRMED_BY_INSTITUTION",
+      "reason": "병역법 시행령 제62조② adds a period computed under a different provision for each of 제1호~제7호. The app takes the confirmed period in whole months and adds it to the month count; it never derives the period and never converts a non-whole-month period."
     }
   },
   "meal": {
-    "legalBasisStatus": "VERIFIED_CONTEXTUAL",
+    "legalBasisStatus": "VERIFIED",
+    "legalBasis": "사회복무요원 복무관리 규정 제41조④ 중식비 실비 지급; 병역법 시행령 제62조③",
     "paymentMode": "ACTUAL_EXPENSE",
-    "suggestedDailyAmount": 9000,
-    "suggestedAmountStatus": "VERIFIED_CONTEXTUAL",
-    "sourceConfidence": "CORROBORATED_BY_MULTIPLE_OFFICIAL_2026_PUBLIC_BUDGET_OR_ACCOUNTING_DOCUMENTS",
-    "directMmaAttachmentExtractionPending": true,
-    "profileConfirmationRequiredBeforeDefinitiveEstimate": true,
-    "autoCalculateAfterProfileConfirmation": true,
-    "warning": "Treat KRW 9,000 as a strongly corroborated 2026 suggested rate until the MMA HWPX attachment is directly extracted and checksummed."
+    "rateStatus": "VERIFIED_NEEDS_USER_INPUT",
+    "rateInput": "INSTITUTION_CONFIRMED_DAILY_MEAL_RATE",
+    "unverifiedReferenceDailyAmount": 9000,
+    "unverifiedReferenceStatus": "SECONDARY_CORROBORATION_ONLY",
+    "warning": "KRW 9,000 appears in 2026 local budget/accounting documents but the MMA payment-standard attachment could not be retrieved. It is never used in a calculation; the user must enter the institution-confirmed daily rate."
   },
   "transport": {
-    "legalBasisStatus": "VERIFIED_CONTEXTUAL",
+    "legalBasisStatus": "VERIFIED",
+    "legalBasis": "사회복무요원 복무관리 규정 제41조④ 교통비 실비 지급, 도보 등 출퇴근도 대중교통 이용요금 기준",
     "paymentMode": "ACTUAL_EXPENSE",
     "walkingStillUsesPublicTransitFareBasis": true,
     "universalDefaultDailyAmount": null,
-    "requiredInputs": [
-      "commuteFareOrInstitutionApprovedTransportRate",
-      "eligibleServiceDays"
-    ],
+    "requiredInputs": ["dailyPublicTransitFare", "transportEligibleDays"],
     "autoCalculateWithoutCommuteInput": false,
-    "warning": "Do not reuse a single institution's budget fare as a national transport default."
+    "warning": "No national default fare exists; the daily public-transit fare must come from the user or institution."
   },
   "proration": {
     "firstAndLastMonth": {
-      "status": "VERIFIED_RULE_STRUCTURE_EXACT_ARITHMETIC_PENDING",
-      "prorationRequired": true,
-      "includeCallUpAndDischargeServiceDays": true,
+      "status": "AMBIGUOUS",
+      "verifiedStructure": "제41조⑤: 그 달의 월 보수를 일할계산한 보수일액 × 근무(소집일·소집해제일 포함)일수",
+      "verifiedDivisorCandidate": "공무원보수규정 제4조제6호: 보수의 일할계산 = 그 달의 보수 ÷ 그 달의 일수",
+      "unresolved": [
+        "ROUNDING_OF_DAILY_AMOUNT_OR_PRODUCT",
+        "MEANING_OF_근무일수_CALENDAR_OR_WORKING_DAYS",
+        "EXPLICIT_LINK_BETWEEN_제41조⑤_AND_공무원보수규정_제4조제6호"
+      ],
       "autoCalculate": false,
-      "reason": "Current rule structure confirms daily proration for partial first/last months, but the exact production arithmetic/divisor should remain disabled until directly pinned to the current text and fixture-tested."
+      "reason": "The divisor is defined for 공무원보수규정 but no retrieved primary text fixes rounding or whether 근무일수 counts calendar days; results would differ by up to tens of won, so the month stays gated."
     },
     "nonPayableDays": {
-      "status": "VERIFIED_RULE_STRUCTURE_EXACT_ARITHMETIC_PENDING",
+      "status": "VERIFIED_BUT_NOT_IMPLEMENTED",
       "knownCategories": [
         "SERVICE_INTERRUPTION_OR_SPLIT_SERVICE_NON_SERVICE_PERIOD",
         "UNAUTHORIZED_ABSENCE",
@@ -134,8 +154,9 @@
         "NON_DUTY_SICK_LEAVE_EXCEEDING_CUMULATIVE_30_DAYS"
       ],
       "dutyRelatedSickLeaveTreatment": "PAYABLE",
+      "sickLeaveCumulativeLimitDays": 30,
       "autoCalculate": false,
-      "reason": "Eligibility structure is stable in official management rules; exact date accounting remains disabled until current-text fixtures are added."
+      "reason": "Deducting a day needs the same unresolved daily-amount arithmetic; months that may contain a non-payable day are gated."
     }
   },
   "calculationResultRequirements": {
@@ -151,7 +172,17 @@
     "doNotGuessCommuteFare": true,
     "doNotSilentlyUsePriorYearValues": true,
     "unsupportedCasesReturnWarning": true,
-    "doNotTreatSuggestedMealRateAsInstitutionConfirmed": true,
-    "doNotEnablePartialMonthPayrollUntilFixtureVerified": true
+    "doNotEnablePartialMonthPayrollUntilFixtureVerified": true,
+    "doNotUseUnverifiedMealReference": true
+  },
+  "eligibleDays": {
+    "status": "VERIFIED_NEEDS_USER_INPUT",
+    "supportedWorkPattern": "WEEKDAY_DAYTIME",
+    "unsupportedWorkPatterns": ["NIGHT_SHIFT_ROTATION", "RESIDENTIAL", "OTHER"],
+    "unsupportedReason": "제41조④ 단서 counts a night-rotation day as two days and 제18조①6호 residential service provides board in kind; neither is modelled.",
+    "fullDayLeaveTreatment": "NOT_ELIGIBLE",
+    "fullDayLeaveBasis": "중식비·교통비 are 실비 for commuting attendance (제41조④); a full day of leave has no attendance.",
+    "partialDayTreatment": "REQUIRES_USER_DECISION",
+    "holidayTreatment": "USER_CONFIRMED_PER_MONTH"
   }
 }

@@ -36,17 +36,30 @@ export function requireCompensationRule(
   return selection.rule;
 }
 
+/**
+ * Full-month base pay for a service-month *ordinal*: the calendar month that
+ * contains the call-up date is month 1 (병역법 시행령 제62조① "소집월부터
+ * 2개월까지"), plus any institution-confirmed 제62조② credit in whole months.
+ */
 export function calculateMonthlyBasePay(input: {
   calculationDate: DateOnly;
   bundles?: readonly CompensationRuleBundle[];
-  serviceMonthIndex: number;
+  serviceMonthOrdinal: number;
 }) {
+  if (
+    !Number.isInteger(input.serviceMonthOrdinal) ||
+    input.serviceMonthOrdinal < 1
+  ) {
+    throw new RangeError(
+      "Service month ordinals start at 1 (the call-up month).",
+    );
+  }
   const bundle = requireCompensationRule(input);
   const band = bundle.basePay.serviceMonthBands.find(
     (candidate) =>
-      input.serviceMonthIndex >= candidate.fromServiceMonth &&
-      (candidate.toServiceMonth === null ||
-        input.serviceMonthIndex <= candidate.toServiceMonth),
+      input.serviceMonthOrdinal >= candidate.fromServiceMonthOrdinal &&
+      (candidate.toServiceMonthOrdinal === null ||
+        input.serviceMonthOrdinal <= candidate.toServiceMonthOrdinal),
   );
 
   if (!band) {
@@ -61,47 +74,38 @@ export function calculateMonthlyBasePay(input: {
     inputs: publicInputs(input),
     breakdown: {
       equivalentRank: band.equivalentRank,
-      fromServiceMonth: band.fromServiceMonth,
-      toServiceMonth: band.toServiceMonth,
+      fromServiceMonthOrdinal: band.fromServiceMonthOrdinal,
+      toServiceMonthOrdinal: band.toServiceMonthOrdinal,
+      amountSource: bundle.basePay.amountSource,
     },
-    assumptions: ["prior-service credit이 없는 일반 복무월 구간입니다."],
   });
 }
 
-export function evaluateMealAllowance(input: {
+/**
+ * 중식비: legal basis verified (실비), rate supplied by the institution. The
+ * unverified reference amount is exposed for display only and never used.
+ */
+export function calculateMealAllowance(input: {
   calculationDate: DateOnly;
   bundles?: readonly CompensationRuleBundle[];
-  mealRateConfirmedByProfile: boolean;
-  eligibleServiceDays?: number;
+  institutionDailyMealRate: number | null;
+  mealEligibleDays: number;
 }) {
   const bundle = requireCompensationRule(input);
-  const suggestedRate = bundle.meal.suggestedDailyAmount;
-
-  if (!input.mealRateConfirmedByProfile) {
+  if (input.institutionDailyMealRate === null) {
     return createCalculationResult({
       domain: "COMPENSATION",
-      status: "REQUIRES_PROFILE_CONFIRMATION" as const,
+      status: "NEEDS_INPUT" as const,
       value: null,
       bundle,
       inputs: publicInputs(input),
       breakdown: {
-        suggestedDailyMealRate: suggestedRate,
-        mustExposeAssumption: true,
+        missingFields: ["institutionDailyMealRate"],
+        unverifiedReferenceDailyAmount:
+          bundle.meal.unverifiedReferenceDailyAmount,
+        mustNotUseReference: true,
       },
-      assumptions: ["KRW 9,000은 2026년 제안값이며 기관 확인 전입니다."],
       warnings: [bundle.meal.warning],
-    });
-  }
-
-  if (input.eligibleServiceDays === undefined) {
-    return createCalculationResult({
-      domain: "COMPENSATION",
-      status: "UNSUPPORTED_MISSING_CONTEXT" as const,
-      value: null,
-      bundle,
-      inputs: publicInputs(input),
-      breakdown: { missingFields: ["eligibleServiceDays"] },
-      warnings: ["중식비 계산에는 대상 복무일 수가 필요합니다."],
     });
   }
 
@@ -109,33 +113,35 @@ export function evaluateMealAllowance(input: {
     domain: "COMPENSATION",
     status: "SUPPORTED" as const,
     value: {
-      dailyMealRate: suggestedRate,
-      mealAllowance: suggestedRate * input.eligibleServiceDays,
+      dailyMealRate: input.institutionDailyMealRate,
+      mealAllowance: input.institutionDailyMealRate * input.mealEligibleDays,
     },
     bundle,
     inputs: publicInputs(input),
-    breakdown: { eligibleServiceDays: input.eligibleServiceDays },
-    assumptions: ["프로필에서 2026년 제안 중식비를 확인했습니다."],
+    breakdown: {
+      mealEligibleDays: input.mealEligibleDays,
+      legalBasis: bundle.meal.legalBasis,
+    },
+    assumptions: ["1일 중식비는 사용자가 입력한 기관 확인 금액이에요."],
   });
 }
 
+/** 교통비: 실비 on a public-transit-fare basis; no national default exists. */
 export function calculateTransportAllowance(input: {
   calculationDate: DateOnly;
   bundles?: readonly CompensationRuleBundle[];
-  commuteFareOrInstitutionApprovedTransportRate: number | null;
-  eligibleServiceDays: number;
+  dailyPublicTransitFare: number | null;
+  transportEligibleDays: number;
 }) {
   const bundle = requireCompensationRule(input);
-  if (input.commuteFareOrInstitutionApprovedTransportRate === null) {
+  if (input.dailyPublicTransitFare === null) {
     return createCalculationResult({
       domain: "COMPENSATION",
-      status: "UNSUPPORTED_MISSING_CONTEXT" as const,
+      status: "NEEDS_INPUT" as const,
       value: null,
       bundle,
       inputs: publicInputs(input),
-      breakdown: {
-        missingFields: ["commuteFareOrInstitutionApprovedTransportRate"],
-      },
+      breakdown: { missingFields: ["dailyPublicTransitFare"] },
       warnings: [bundle.transport.warning],
     });
   }
@@ -144,46 +150,62 @@ export function calculateTransportAllowance(input: {
     domain: "COMPENSATION",
     status: "SUPPORTED" as const,
     value: {
+      dailyTransportFare: input.dailyPublicTransitFare,
       transportAllowance:
-        input.commuteFareOrInstitutionApprovedTransportRate *
-        input.eligibleServiceDays,
+        input.dailyPublicTransitFare * input.transportEligibleDays,
     },
     bundle,
     inputs: publicInputs(input),
-    breakdown: { eligibleServiceDays: input.eligibleServiceDays },
+    breakdown: {
+      transportEligibleDays: input.transportEligibleDays,
+      legalBasis: bundle.transport.legalBasis,
+    },
+    assumptions: ["1일 교통비는 사용자가 입력한 대중교통 왕복 요금이에요."],
   });
 }
 
+/**
+ * Base-pay situations the verified rule structure covers but whose exact
+ * arithmetic is not established: call-up/discharge months (제41조⑤) and
+ * months that may contain non-payable days (제41조⑥).
+ */
 export function evaluateCompensationSafetyGate(input: {
   calculationDate: DateOnly;
   bundles?: readonly CompensationRuleBundle[];
   partialMonth?: boolean;
-  periodType?: string;
-  hasPriorServiceCreditCase?: boolean;
+  possibleNonPayableDays?: boolean;
 }) {
   const bundle = requireCompensationRule(input);
-
-  if (input.hasPriorServiceCreditCase) {
-    return createCalculationResult({
-      domain: "COMPENSATION",
-      status: "UNSUPPORTED_PENDING_PRIOR_SERVICE_PROFILE_MODEL" as const,
-      value: null,
-      bundle,
-      inputs: publicInputs(input),
-      breakdown: { mustNotInferCredit: true },
-      warnings: [bundle.basePay.priorServiceCredit.reason],
-    });
-  }
 
   if (input.partialMonth) {
     return createCalculationResult({
       domain: "COMPENSATION",
-      status: "UNSUPPORTED_PENDING_EXACT_PRORATION_ARITHMETIC" as const,
+      status: "GATED_AMBIGUOUS_PRORATION" as const,
       value: null,
       bundle,
       inputs: publicInputs(input),
-      breakdown: { mustNotGuessDivisor: true },
+      breakdown: {
+        verifiedStructure: bundle.proration.firstAndLastMonth.verifiedStructure,
+        verifiedDivisorCandidate:
+          bundle.proration.firstAndLastMonth.verifiedDivisorCandidate,
+        unresolved: bundle.proration.firstAndLastMonth.unresolved,
+        mustNotGuessRounding: true,
+      },
       warnings: [bundle.proration.firstAndLastMonth.reason],
+    });
+  }
+
+  if (input.possibleNonPayableDays) {
+    return createCalculationResult({
+      domain: "COMPENSATION",
+      status: "GATED_NON_PAYABLE_DAYS" as const,
+      value: null,
+      bundle,
+      inputs: publicInputs(input),
+      breakdown: {
+        knownCategories: bundle.proration.nonPayableDays.knownCategories,
+      },
+      warnings: [bundle.proration.nonPayableDays.reason],
     });
   }
 

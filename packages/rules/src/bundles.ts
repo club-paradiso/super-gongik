@@ -49,30 +49,44 @@ export type CompensationRuleBundle = RuleBundle & {
   currency: "KRW";
   basePay: {
     serviceMonthBands: Array<{
-      fromServiceMonth: number;
-      toServiceMonth: number | null;
+      fromServiceMonthOrdinal: number;
+      toServiceMonthOrdinal: number | null;
       equivalentRank: string;
       monthlyAmount: number;
     }>;
+    amountSource: string;
     priorServiceCredit: {
-      supportedAutomatically: boolean;
+      status: string;
+      supportedInput: string;
       reason: string;
     };
   };
   meal: {
-    suggestedDailyAmount: number;
-    profileConfirmationRequiredBeforeDefinitiveEstimate: boolean;
-    autoCalculateAfterProfileConfirmation: boolean;
+    legalBasis: string;
+    unverifiedReferenceDailyAmount: number;
     warning: string;
   };
   transport: {
+    legalBasis: string;
     requiredInputs: string[];
-    autoCalculateWithoutCommuteInput: boolean;
     warning: string;
+  };
+  eligibleDays: {
+    supportedWorkPattern: string;
+    unsupportedReason: string;
+    fullDayLeaveBasis: string;
   };
   proration: {
     firstAndLastMonth: {
       autoCalculate: boolean;
+      verifiedStructure: string;
+      verifiedDivisorCandidate: string;
+      unresolved: string[];
+      reason: string;
+    };
+    nonPayableDays: {
+      knownCategories: string[];
+      sickLeaveCumulativeLimitDays: number;
       reason: string;
     };
   };
