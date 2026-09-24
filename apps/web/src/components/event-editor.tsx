@@ -14,6 +14,7 @@ import {
   SERVICE_EVENT_TYPE_LABELS,
   clockToMinutes,
   countWeekdays,
+  inclusiveDaySpan,
   isDateOnly,
   isCompensationNonPayableEventType,
   isLeaveEventType,
@@ -202,7 +203,9 @@ export function EventEditor({
         next.startDate <= next.endDate
       ) {
         next.dayCount = String(
-          Math.max(1, countWeekdays(next.startDate, next.endDate)),
+          isCompensationNonPayableEventType(next.eventType)
+            ? inclusiveDaySpan(next.startDate, next.endDate)
+            : Math.max(1, countWeekdays(next.startDate, next.endDate)),
         );
       }
       if (
@@ -402,7 +405,9 @@ export function EventEditor({
                 }
               />
               <small>
-                주말은 빼고 자동으로 셌어요. 공휴일은 직접 확인해 주세요.
+                {isCompensationNonPayableEventType(form.eventType)
+                  ? "선택한 날짜 범위를 그대로 셌어요. 일부 날짜만 해당하면 기록을 나눠 주세요."
+                  : "주말은 빼고 자동으로 셌어요. 공휴일은 직접 확인해 주세요."}
               </small>
             </label>
           </div>
