@@ -13,6 +13,7 @@ import type {
 
 import { Button } from "@/components/ui/button";
 import { useCloud } from "@/hooks/use-cloud";
+import { CloudAccountChangedError } from "@/lib/sync/cloud-controller";
 import {
   COLLECTION_LABELS,
   CONFLICT_TYPE_COPY,
@@ -103,7 +104,14 @@ export function CloudSyncPanel({
         {label.text}
       </p>
       {state.phase === "SIGNED_IN" ? (
-        <SignedIn onRestoreBackup={onboarding ? undefined : onRestoreBackup} />
+        // Keyed by account: switching accounts (e.g. in another tab) drops
+        // every open confirmation, preview and pending choice made for the
+        // previous one.
+        <SignedIn
+          key={state.userId}
+          onRestoreBackup={onboarding ? undefined : onRestoreBackup}
+          userId={state.userId!}
+        />
       ) : (
         <SignIn />
       )}
@@ -200,10 +208,20 @@ function SignIn() {
   );
 }
 
+const ACCOUNT_CHANGED_MESSAGE =
+  "로그인한 계정이 바뀌어 아무것도 하지 않았어요. 현재 계정 기준으로 다시 확인해 주세요.";
+
+function accountChanged(error: unknown) {
+  return error instanceof CloudAccountChangedError;
+}
+
 function SignedIn({
   onRestoreBackup,
+  userId,
 }: {
   onRestoreBackup?: (text: string, label: string) => void;
+  /** The account every choice made in this subtree is for. */
+  userId: string;
 }) {
   const { state, cloud } = useCloud();
   const sync = state.sync;
@@ -223,13 +241,22 @@ function SignedIn({
     setBusy(true);
     setMessage("");
     try {
-      const result = await cloud.deleteCloudData();
+      const result = await cloud.deleteCloudData(userId);
       setMessage(
         result.ok
           ? "클라우드의 동기화 기록과 백업을 지웠어요. 이 기기와 다른 기기의 기록은 그대로예요. 이 기기의 동기화는 꺼졌고, 다른 기기는 다시 동기화하기 전에 확인을 받아요."
-          : "다른 기기에서 먼저 클라우드 데이터를 지웠어요. 아무것도 바꾸지 않았어요. 다시 확인해 주세요.",
+          : result.reason === "ACCOUNT_MISMATCH"
+            ? ACCOUNT_CHANGED_MESSAGE
+            : "다른 기기에서 먼저 클라우드 데이터를 지웠어요. 아무것도 바꾸지 않았어요. 다시 확인해 주세요.",
       );
-    } catch {
+    } catch (error) {
+      if (accountChanged(error)) {
+        setMessage(ACCOUNT_CHANGED_MESSAGE);
+        setConfirmDelete(false);
+        setDeleteChecked(false);
+        setBusy(false);
+        return;
+      }
       setMessage(
         "클라우드에 연결하지 못해 지우지 않았어요. 연결을 확인해 주세요.",
       );
@@ -248,7 +275,7 @@ function SignedIn({
       </p>
 
       {!enabled ? (
-        <EnableFlow />
+        <EnableFlow userId={userId} />
       ) : (
         <>
           <dl className="backup-summary">
@@ -257,9 +284,11 @@ function SignedIn({
               <dd>{formatTime(sync.lastSyncedAt)}</dd>
             </div>
           </dl>
-          {sync.block ? <BlockNotice block={sync.block} /> : null}
+          {sync.block ? (
+            <BlockNotice block={sync.block} userId={userId} />
+          ) : null}
           {sync.conflicts.length ? (
-            <ConflictList conflicts={sync.conflicts} />
+            <ConflictList conflicts={sync.conflicts} userId={userId} />
           ) : null}
           {sync.held.length ? (
             <div
@@ -305,7 +334,9 @@ function SignedIn({
         </>
       )}
 
-      {onRestoreBackup ? <CloudBackups onRestore={onRestoreBackup} /> : null}
+      {onRestoreBackup ? (
+        <CloudBackups onRestore={onRestoreBackup} userId={userId} />
+      ) : null}
 
       {message ? (
         <p className="save-message" role="status">
@@ -399,8 +430,15 @@ function SignedIn({
 }
 
 /** Preview what turning sync on does, then ask. Never uploads by itself. */
-function EnableFlow({ restart = false }: { restart?: boolean }) {
+function EnableFlow({
+  restart = false,
+  userId,
+}: {
+  restart?: boolean;
+  userId: string;
+}) {
   const { cloud } = useCloud();
+  const [notice, setNotice] = useState("");
   const [preview, setPreview] = useState<EnablePreview | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -420,8 +458,36 @@ function EnableFlow({ restart = false }: { restart?: boolean }) {
 
   async function confirm() {
     if (!preview || preview.kind !== "READY") return;
+    if (preview.evidence.userId !== userId) {
+      setNotice(ACCOUNT_CHANGED_MESSAGE);
+      setPreview(null);
+      return;
+    }
     setBusy(true);
-    await cloud.enable(preview);
+    setNotice("");
+    let result;
+    try {
+      result = await cloud.enable(preview);
+    } catch {
+      setError(
+        "클라우드에 연결하지 못했어요. 연결을 확인하고 다시 시도해 주세요.",
+      );
+      setBusy(false);
+      return;
+    }
+    if (result.kind === "STALE_PREVIEW") {
+      // Never run a different plan under this confirmation: show a new
+      // preview and ask again.
+      setNotice(
+        result.reason === "ACCOUNT"
+          ? ACCOUNT_CHANGED_MESSAGE
+          : "미리보기 이후 이 기기나 클라우드의 기록이 바뀌었어요. 아무것도 올리거나 받지 않았어요. 새 미리보기를 확인해 주세요.",
+      );
+      setPreview(null);
+      setBusy(false);
+      if (result.reason !== "ACCOUNT") await load();
+      return;
+    }
     setBusy(false);
     setPreview(null);
   }
@@ -433,6 +499,11 @@ function EnableFlow({ restart = false }: { restart?: boolean }) {
           <p className="field-hint">
             이 기기에서는 동기화가 꺼져 있어요. 켜기 전에 무엇이 오가는지 먼저
             보여드려요.
+          </p>
+        ) : null}
+        {notice ? (
+          <p className="field-hint" role="status">
+            {notice}
           </p>
         ) : null}
         {error ? (
@@ -487,6 +558,11 @@ function EnableFlow({ restart = false }: { restart?: boolean }) {
       role="group"
       aria-label="동기화 켜기 미리보기"
     >
+      {notice ? (
+        <p className="field-hint" role="status">
+          {notice}
+        </p>
+      ) : null}
       <p>{describePreview(preview)}</p>
       <dl className="backup-summary">
         <div>
@@ -522,8 +598,9 @@ function EnableFlow({ restart = false }: { restart?: boolean }) {
   );
 }
 
-function BlockNotice({ block }: { block: SyncBlock }) {
+function BlockNotice({ block, userId }: { block: SyncBlock; userId: string }) {
   const { cloud } = useCloud();
+  const disable = () => void cloud.disableSync(userId).catch(() => undefined);
   switch (block.reason) {
     case "GENERATION_MISMATCH":
       return (
@@ -535,12 +612,8 @@ function BlockNotice({ block }: { block: SyncBlock }) {
             이 계정의 클라우드 데이터가 삭제됐어요. 이 기기의 기록은 그대로
             있고, 자동으로 다시 올리지 않았어요.
           </p>
-          <EnableFlow restart />
-          <Button
-            onClick={() => void cloud.disableSync()}
-            type="button"
-            variant="ghost"
-          >
+          <EnableFlow restart userId={userId} />
+          <Button onClick={disable} type="button" variant="ghost">
             이 기기에서 동기화 끄기
           </Button>
         </div>
@@ -552,11 +625,7 @@ function BlockNotice({ block }: { block: SyncBlock }) {
             클라우드에 다른 복무 프로필의 기록이 있어 동기화를 멈췄어요. 이
             기기의 기록은 바뀌지 않았어요.
           </p>
-          <Button
-            onClick={() => void cloud.disableSync()}
-            type="button"
-            variant="ghost"
-          >
+          <Button onClick={disable} type="button" variant="ghost">
             이 기기에서 동기화 끄기
           </Button>
         </div>
@@ -605,8 +674,15 @@ function BlockNotice({ block }: { block: SyncBlock }) {
   }
 }
 
-function ConflictList({ conflicts }: { conflicts: SyncConflict[] }) {
+function ConflictList({
+  conflicts,
+  userId,
+}: {
+  conflicts: SyncConflict[];
+  userId: string;
+}) {
   const { cloud } = useCloud();
+  const [error, setError] = useState("");
   const [choices, setChoices] = useState<Record<string, ConflictResolution>>(
     {},
   );
@@ -615,11 +691,21 @@ function ConflictList({ conflicts }: { conflicts: SyncConflict[] }) {
 
   async function apply() {
     setBusy(true);
-    await cloud.resolveConflicts(
-      Object.fromEntries(
-        chosen.map((conflict) => [conflict.key, choices[conflict.key]!]),
-      ),
-    );
+    setError("");
+    try {
+      await cloud.resolveConflicts(
+        userId,
+        Object.fromEntries(
+          chosen.map((conflict) => [conflict.key, choices[conflict.key]!]),
+        ),
+      );
+    } catch (failure) {
+      setError(
+        accountChanged(failure)
+          ? ACCOUNT_CHANGED_MESSAGE
+          : "적용하지 못했어요. 잠시 후 다시 시도해 주세요.",
+      );
+    }
     setChoices({});
     setBusy(false);
   }
@@ -705,6 +791,11 @@ function ConflictList({ conflicts }: { conflicts: SyncConflict[] }) {
           );
         })}
       </ul>
+      {error ? (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      ) : null}
       <Button
         disabled={busy || chosen.length === 0}
         onClick={() => void apply()}
@@ -718,8 +809,10 @@ function ConflictList({ conflicts }: { conflicts: SyncConflict[] }) {
 
 function CloudBackups({
   onRestore,
+  userId,
 }: {
   onRestore: (text: string, label: string) => void;
+  userId: string;
 }) {
   const { cloud } = useCloud();
   const [backups, setBackups] = useState<CloudBackupInfo[] | null>(null);
@@ -732,9 +825,11 @@ function CloudBackups({
     setMessage("");
     try {
       await run();
-    } catch {
+    } catch (error) {
       setMessage(
-        "클라우드에 연결하지 못했어요. 연결을 확인하고 다시 시도해 주세요.",
+        accountChanged(error)
+          ? ACCOUNT_CHANGED_MESSAGE
+          : "클라우드에 연결하지 못했어요. 연결을 확인하고 다시 시도해 주세요.",
       );
     }
     setBusy(false);
@@ -757,7 +852,7 @@ function CloudBackups({
           disabled={busy}
           onClick={() =>
             void task(async () => {
-              const result = await cloud.uploadBackup();
+              const result = await cloud.uploadBackup(userId);
               if (result.kind === "OK") {
                 setMessage("클라우드에 백업을 올렸어요.");
                 setBackups(await cloud.listBackups());
@@ -821,7 +916,7 @@ function CloudBackups({
                       disabled={busy}
                       onClick={() =>
                         void task(async () => {
-                          await cloud.deleteBackup(backup.id);
+                          await cloud.deleteBackup(userId, backup.id);
                           setPendingDelete(null);
                           setBackups(await cloud.listBackups());
                         })

@@ -99,6 +99,25 @@ ownership and invariants) before it can reach the merge engine (§6).
 The user confirms, the checkpoint is created for the account's current
 generation, and the first sync runs.
 
+**The confirmation is bound to the preview.** A READY preview carries
+`evidence`: the account it was made for, this device's local
+`documentRevision` at preview time (local bookkeeping only), and the
+account's `generation`, `lastSeq` and bound profile. `enable()` re-reads all
+of them immediately before acting and returns `STALE_PREVIEW` (`ACCOUNT`,
+`LOCAL` or `REMOTE`) without changing anything if any differ; the UI then
+shows a fresh preview and asks again. A different plan never runs under an
+old confirmation.
+
+**Decisions never cross accounts.** The sign-in session is shared by the
+tabs of one browser, so another tab can switch accounts. The sync panel's
+account subtree is keyed by the user id (every open confirmation, preview
+and pending choice is dropped on a switch), and every account-scoped action
+— delete cloud data, resolve conflicts, upload/delete a backup, turn sync
+off — names the account it was decided for; the controller and engine
+refuse it for any other account. Conflict resolutions are honored only for
+conflicts the merge actually has open in that run, so a stale choice can
+never force-push a record.
+
 ## 5. Sync lifecycle
 
 One run (`engine.sync`), under a cross-tab Web Lock `super-gongik:sync`

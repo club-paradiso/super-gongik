@@ -4,6 +4,7 @@ import {
   createSyncStateStore,
   type ConflictResolution,
   type EnablePreview,
+  type EnableResult,
   type KeyValueStorage,
   type SyncDiagnostic,
   type SyncEngine,
@@ -31,6 +32,14 @@ export type CloudSession = { userId: string; email: string | null };
 
 export type AuthErrorKind =
   "INVALID_EMAIL" | "INVALID_CODE" | "RATE_LIMITED" | "NETWORK" | "UNKNOWN";
+
+/** The signed-in account changed after the user made a choice. */
+export class CloudAccountChangedError extends Error {
+  constructor() {
+    super("ACCOUNT_CHANGED");
+    this.name = "CloudAccountChangedError";
+  }
+}
 
 export class CloudAuthError extends Error {
   constructor(readonly kind: AuthErrorKind) {
@@ -216,6 +225,15 @@ export function createCloudController(options: CloudControllerOptions) {
     return engine;
   }
 
+  /** The engine, only if it still belongs to the expected account. */
+  function forAccount(expectedUserId: string): SyncEngine {
+    const current = requireEngine();
+    if (current.userId !== expectedUserId || state.userId !== expectedUserId) {
+      throw new CloudAccountChangedError();
+    }
+    return current;
+  }
+
   return {
     getState: () => state,
     subscribe(listener: () => void) {
@@ -281,27 +299,40 @@ export function createCloudController(options: CloudControllerOptions) {
     previewEnable: (): Promise<EnablePreview> =>
       requireEngine().previewEnable(),
 
-    async enable(preview: EnablePreview) {
-      const result = await requireEngine().enable(preview);
-      return result;
-    },
+    /**
+     * Enable with the preview the user approved. The engine re-checks the
+     * preview's account, local revision and remote version and refuses a
+     * stale one (`STALE_PREVIEW`); the UI then shows a fresh preview.
+     */
+    enable: (preview: EnablePreview): Promise<EnableResult> =>
+      requireEngine().enable(preview),
 
     syncNow: () => {
       lastAttempt = Date.now();
       return requireEngine().sync("manual");
     },
 
-    resolveConflicts: (resolutions: Record<string, ConflictResolution>) =>
-      requireEngine().resolveConflicts(resolutions),
+    // Account-scoped actions name the account the user was looking at when
+    // they decided. If the session changed since (e.g. in another tab),
+    // nothing happens: a choice made for one account never acts on another.
 
-    disableSync: () => requireEngine().disable(),
+    resolveConflicts: async (
+      expectedUserId: string,
+      resolutions: Record<string, ConflictResolution>,
+    ) => forAccount(expectedUserId).resolveConflicts(resolutions),
 
-    deleteCloudData: () => requireEngine().deleteCloudData(),
+    disableSync: async (expectedUserId: string) =>
+      forAccount(expectedUserId).disable(),
+
+    deleteCloudData: async (expectedUserId: string) =>
+      forAccount(expectedUserId).deleteCloudData({ userId: expectedUserId }),
 
     listBackups: () => requireEngine().listBackups(),
-    uploadBackup: () => requireEngine().uploadBackup(),
+    uploadBackup: async (expectedUserId: string) =>
+      forAccount(expectedUserId).uploadBackup(),
     downloadBackup: (id: string) => requireEngine().downloadBackup(id),
-    deleteBackup: (id: string) => requireEngine().deleteBackup(id),
+    deleteBackup: async (expectedUserId: string, id: string) =>
+      forAccount(expectedUserId).deleteBackup(id),
 
     /** Connectivity regained (a hint; the next request decides). */
     notifyOnline() {

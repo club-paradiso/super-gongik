@@ -16,6 +16,7 @@ import {
 
 import { validateEnvironment } from "../src/env";
 import {
+  CloudAccountChangedError,
   CloudAuthError,
   createCloudController,
   type CloudAuth,
@@ -85,7 +86,12 @@ function fakeAuth(server: MemorySyncServer, users: Record<string, string>) {
     },
     transport: () => server.transport(session?.userId ?? null),
   };
-  return { auth, calls };
+  /** Another tab changed the shared session (Supabase broadcasts it). */
+  const switchTo = (email: string) => {
+    session = { userId: users[email]!, email };
+    for (const listener of listeners) listener(session);
+  };
+  return { auth, calls, switchTo };
 }
 
 function setup(
@@ -111,7 +117,7 @@ function setup(
     }),
     createId,
   });
-  const { auth, calls } = fakeAuth(server, {
+  const { auth, calls, switchTo } = fakeAuth(server, {
     "a@example.test": "user-a",
     "b@example.test": "user-b",
   });
@@ -137,6 +143,7 @@ function setup(
     calls,
     timers,
     loads: () => loads,
+    switchTo,
   };
 }
 
@@ -250,6 +257,77 @@ describe("cloud controller", () => {
     expect(
       server.rows("user-a").filter((row) => row.collection === "events"),
     ).toHaveLength(1);
+  });
+});
+
+describe("account switches never carry a decision over", () => {
+  const tick = () => new Promise((resolve) => setTimeout(resolve, 10));
+
+  async function twoAccounts() {
+    const server = createMemorySyncServer();
+    // Account B already holds its own synced data.
+    const other = setup({ server, seedData: seed("profile-1") });
+    await other.store.load();
+    await other.controller.sendCode("b@example.test");
+    await other.controller.verifyCode("123456");
+    const previewB = await other.controller.previewEnable();
+    expect((await other.controller.enable(previewB)).kind).toBe("ENABLED");
+
+    const env = setup({ server, seedData: seed("profile-1") });
+    await env.store.load();
+    await env.controller.sendCode("a@example.test");
+    await env.controller.verifyCode("123456");
+    return { server, env };
+  }
+
+  it("a delete confirmation given for A cannot reset B after the session switches", async () => {
+    const { server, env } = await twoAccounts();
+    await env.controller.enable(await env.controller.previewEnable());
+    const confirmedFor = env.controller.getState().userId!;
+    expect(confirmedFor).toBe("user-a");
+    env.switchTo("b@example.test");
+    await tick();
+    expect(env.controller.getState().userId).toBe("user-b");
+    await expect(env.controller.deleteCloudData(confirmedFor)).rejects.toThrow(
+      CloudAccountChangedError,
+    );
+    expect(server.account("user-b")?.generation).toBe(1);
+    expect(server.rows("user-b").length).toBeGreaterThan(0);
+    expect(server.account("user-a")?.generation).toBe(1);
+    // B needs its own, fresh confirmation.
+    expect(await env.controller.deleteCloudData("user-b")).toMatchObject({
+      ok: true,
+    });
+    expect(server.rows("user-b")).toEqual([]);
+  });
+
+  it("a preview approved for A cannot enable B", async () => {
+    const { server, env } = await twoAccounts();
+    const previewA = await env.controller.previewEnable();
+    const rowsB = server.rows("user-b").length;
+    env.switchTo("b@example.test");
+    await tick();
+    expect(await env.controller.enable(previewA)).toEqual({
+      kind: "STALE_PREVIEW",
+      reason: "ACCOUNT",
+    });
+    expect(server.rows("user-b")).toHaveLength(rowsB);
+    expect(env.controller.getState().sync?.phase).toBe("DISABLED");
+  });
+
+  it("conflict choices and backup deletes made for A are refused under B", async () => {
+    const { env } = await twoAccounts();
+    env.switchTo("b@example.test");
+    await tick();
+    await expect(
+      env.controller.resolveConflicts("user-a", { "events:x": "LOCAL" }),
+    ).rejects.toThrow(CloudAccountChangedError);
+    await expect(env.controller.deleteBackup("user-a", "any")).rejects.toThrow(
+      CloudAccountChangedError,
+    );
+    await expect(env.controller.uploadBackup("user-a")).rejects.toThrow(
+      CloudAccountChangedError,
+    );
   });
 });
 

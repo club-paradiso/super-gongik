@@ -132,7 +132,11 @@ export function installation(
       if (preview.kind !== "READY") {
         throw new Error(`preview not ready: ${preview.kind}`);
       }
-      return { preview, status: await sync.enable(preview) };
+      const result = await sync.enable(preview);
+      if (result.kind !== "ENABLED") {
+        throw new Error(`enable refused: ${JSON.stringify(result)}`);
+      }
+      return { preview, status: result.status };
     },
   };
   return self;

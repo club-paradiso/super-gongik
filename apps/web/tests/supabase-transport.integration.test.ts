@@ -137,7 +137,9 @@ function device(
       await engine.init();
       const preview = await engine.previewEnable();
       if (preview.kind !== "READY") throw new Error(preview.kind);
-      return { preview, status: await engine.enable(preview) };
+      const result = await engine.enable(preview);
+      if (result.kind !== "ENABLED") throw new Error(result.kind);
+      return { preview, status: result.status };
     },
   };
 }
@@ -343,7 +345,7 @@ describe.skipIf(!enabled)("Supabase transport against PostgREST + RLS", () => {
     const parsed = parseBackup(await b.engine.downloadBackup(info!.id));
     expect(parsed.ok && parsed.info.integrity).toBe("VERIFIED");
 
-    expect(await a.engine.deleteCloudData()).toMatchObject({
+    expect(await a.engine.deleteCloudData({ userId: userD })).toMatchObject({
       ok: true,
       account: { generation: 2 },
     });

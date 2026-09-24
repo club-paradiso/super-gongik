@@ -141,9 +141,34 @@ export type SyncDiagnostic = {
   block: SyncBlock["reason"] | null;
 };
 
+/**
+ * What a preview was computed against. Enabling re-checks every field
+ * immediately before it acts: a preview approved for one account, one local
+ * document and one remote state never authorizes a different plan.
+ * Version counters only — no record content.
+ */
+export type PreviewEvidence = {
+  userId: string;
+  /** Local write counter at preview time (same-device bookkeeping only). */
+  localRevision: number;
+  generation: number;
+  lastSeq: number;
+  profileId: string | null;
+};
+
+export type EnableResult =
+  | { kind: "ENABLED"; status: SyncStatus }
+  /** The preview no longer describes what enabling would do. Nothing changed. */
+  | { kind: "STALE_PREVIEW"; reason: "ACCOUNT" | "LOCAL" | "REMOTE" }
+  | { kind: "NOT_READY" };
+
+/** Returned when a destructive request was confirmed for another account. */
+export type AccountMismatch = { ok: false; reason: "ACCOUNT_MISMATCH" };
+
 export type EnablePreview =
   | {
       kind: "READY";
+      evidence: PreviewEvidence;
       account: RemoteAccount;
       /** What enabling will do. */
       case: "NOTHING" | "UPLOAD" | "DOWNLOAD" | "MERGE";
@@ -179,6 +204,8 @@ type MergeValue =
       conflicts: MergeConflict[];
       /** Cloud records not applied because of a local invariant. */
       rejected: RecordChange[];
+      /** Keys of conflicts settled by an explicit resolution in this merge. */
+      resolved: string[];
       counts: MergeAnalysis["counts"] | null;
     }
   | { kind: "PROFILE_MISMATCH" }
@@ -222,6 +249,7 @@ function mergeCommand(
         kind: "MERGED",
         conflicts: [],
         rejected: [],
+        resolved: [],
         counts: null,
       });
     }
@@ -243,6 +271,13 @@ function mergeCommand(
           change.outcome === "REJECTED" &&
           change.collection !== "leaveSnapshots",
       ),
+      resolved: analysis.changes
+        .filter(
+          (change) =>
+            change.outcome === "RESOLVED_LOCAL" ||
+            change.outcome === "RESOLVED_INCOMING",
+        )
+        .map((change) => syncRecordKey(change.collection, change.recordId)),
       counts: analysis.counts,
     };
     return sameRecords(base, analysis.data)
@@ -312,11 +347,6 @@ export function createSyncEngine(options: SyncEngineOptions) {
     } catch {
       // Diagnostics must never break sync.
     }
-  }
-
-  function currentData(): UserData | null {
-    const snapshot = options.store.getSnapshot();
-    return snapshot.phase === "READY" ? snapshot.data : null;
   }
 
   /** The newest stored document, read inside the store's write lock. */
@@ -406,8 +436,22 @@ export function createSyncEngine(options: SyncEngineOptions) {
     let held: SyncHeld[];
     let localRevision: number | null;
     try {
-      let forced = new Set(Object.keys(resolutions ?? {}));
-      let pendingResolutions = resolutions;
+      // A resolution only counts for a conflict this account actually has
+      // open (its cloud version is stashed). Anything else — a stale choice
+      // made while another account was signed in — is ignored, never
+      // force-pushed.
+      const openKeys = new Set(Object.keys(state.stash));
+      let pendingResolutions = resolutions
+        ? Object.fromEntries(
+            Object.entries(resolutions).filter(([key]) => openKeys.has(key)),
+          )
+        : undefined;
+      if (pendingResolutions && Object.keys(pendingResolutions).length === 0) {
+        pendingResolutions = undefined;
+      }
+      // Filled from the merge: only conflicts it actually settled with a
+      // resolution may overwrite the cloud copy they were compared with.
+      let forced = new Set<string>();
       for (;;) {
         rounds += 1;
         // ── Pull ──────────────────────────────────────────────────────
@@ -460,6 +504,7 @@ export function createSyncEngine(options: SyncEngineOptions) {
           data = result.data;
           mergeConflicts = value.conflicts;
           rejected = value.rejected;
+          if (pendingResolutions) forced = new Set(value.resolved);
           if (value.counts) counts = value.counts;
         } else {
           data = await latestData();
@@ -692,8 +737,9 @@ export function createSyncEngine(options: SyncEngineOptions) {
         newerSchema: validation.newerSchema,
       };
     }
-    const local = currentData();
-    if (!local) throw new SyncTransportErrorLike("LOCAL_WRITE");
+    // The newest stored document (another tab may have written), read
+    // without writing; its revision goes into the preview's evidence.
+    const local = await latestData();
     const remoteRecords = validation.rows.length;
     const localCount = localRecords(local).length;
     const remoteProfile = validation.rows.find(
@@ -785,6 +831,13 @@ export function createSyncEngine(options: SyncEngineOptions) {
     });
     return {
       kind: "READY",
+      evidence: {
+        userId: options.userId,
+        localRevision: local.documentRevision,
+        generation: pulled.account.generation,
+        lastSeq: pulled.account.lastSeq,
+        profileId: pulled.account.profileId,
+      },
       account: pulled.account,
       case:
         localHas && remoteHas
@@ -843,23 +896,46 @@ export function createSyncEngine(options: SyncEngineOptions) {
      * the causal rules (conflicts are surfaced, never auto-picked) and
      * uploads what the cloud lacks.
      */
-    async enable(preview: EnablePreview): Promise<SyncStatus> {
-      if (preview.kind !== "READY") return status;
-      await exclusive(async () => {
+    enable(preview: EnablePreview): Promise<EnableResult> {
+      return exclusive(async (): Promise<EnableResult> => {
+        if (preview.kind !== "READY") return { kind: "NOT_READY" };
+        const evidence = preview.evidence;
+        // Re-check, immediately before acting, everything the user saw.
+        if (evidence.userId !== options.userId) {
+          return { kind: "STALE_PREVIEW", reason: "ACCOUNT" };
+        }
+        const local = await latestData();
+        if (local.documentRevision !== evidence.localRevision) {
+          return { kind: "STALE_PREVIEW", reason: "LOCAL" };
+        }
+        const account = await options.transport.ensureAccount();
+        if (
+          account.generation !== evidence.generation ||
+          account.lastSeq !== evidence.lastSeq ||
+          account.profileId !== evidence.profileId
+        ) {
+          return { kind: "STALE_PREVIEW", reason: "REMOTE" };
+        }
         await options.state.save(
           newSyncState({
             userId: options.userId,
-            generation: preview.account.generation,
+            generation: evidence.generation,
             now: now().toISOString(),
           }),
         );
+        return { kind: "ENABLED", status: await runSync("enable") };
       });
-      return exclusive(() => runSync("enable"));
     },
+
+    /** The account this engine acts for. */
+    userId: options.userId,
 
     sync: (reason = "manual") => exclusive(() => runSync(reason)),
 
-    /** Apply explicit choices for open conflicts, then sync. */
+    /**
+     * Apply explicit choices for open conflicts, then sync. Only keys that
+     * are open conflicts of this account are honored.
+     */
     resolveConflicts(
       resolutions: Readonly<Record<string, ConflictResolution>>,
     ): Promise<SyncStatus> {
@@ -900,12 +976,18 @@ export function createSyncEngine(options: SyncEngineOptions) {
      * cannot push until their user decides. Local data is not touched; this
      * device's sync is turned off.
      */
-    deleteCloudData: () =>
+    deleteCloudData: (expected: { userId: string }) =>
       exclusive(
         async (): Promise<
           | { ok: true; account: RemoteAccount }
-          | { ok: false; account: RemoteAccount }
+          | { ok: false; reason: "GENERATION_MISMATCH"; account: RemoteAccount }
+          | AccountMismatch
         > => {
+          // The confirmation was given for one account; never apply it to
+          // another (e.g. after a sign-in switch in another tab).
+          if (expected.userId !== options.userId) {
+            return { ok: false, reason: "ACCOUNT_MISMATCH" };
+          }
           const started = Date.now();
           const state = await options.state.load();
           const expectedGeneration =
@@ -915,7 +997,11 @@ export function createSyncEngine(options: SyncEngineOptions) {
             expectedGeneration,
           });
           if (response.kind === "GENERATION_MISMATCH") {
-            return { ok: false, account: response.account };
+            return {
+              ok: false,
+              reason: "GENERATION_MISMATCH",
+              account: response.account,
+            };
           }
           await options.state.clear();
           setStatus({
@@ -923,6 +1009,7 @@ export function createSyncEngine(options: SyncEngineOptions) {
             block: null,
             error: null,
             conflicts: [],
+            held: [],
             generation: null,
             lastSyncedAt: null,
           });

@@ -102,7 +102,12 @@ export interface SyncTransport {
   /** Create the account's sync row if missing; return it. */
   ensureAccount(): Promise<RemoteAccount>;
   pull(request: PullRequest): Promise<PullResponse>;
-  /** Conditional, idempotent batch write; all items or none are applied. */
+  /**
+   * Conditional, idempotent batch write. The request is refused as a whole
+   * (nothing written) on a generation or profile mismatch; otherwise each
+   * item is independently APPLIED, UNCHANGED or STALE, so a batch can
+   * partly apply. The engine re-pulls for STALE items.
+   */
   push(request: PushRequest): Promise<PushResponse>;
   /** Delete every synced record and backup, then increment the generation. */
   resetCloud(request: { expectedGeneration: number }): Promise<ResetResponse>;

@@ -115,7 +115,9 @@ describe("guest mode and enabling", () => {
     expect(await a.storage.getItem(syncStateKey(USER))).toBeNull();
 
     const before = a.data().documentRevision;
-    const status = await engine.enable(preview);
+    const enabled = await engine.enable(preview);
+    if (enabled.kind !== "ENABLED") throw new Error(enabled.kind);
+    const status = enabled.status;
     expect(status.phase).toBe("IDLE");
     expect(server.rows(USER)).toHaveLength(recordCount(a.data()));
     expect(server.account(USER)?.profileId).toBe(a.data().profile!.id);
@@ -697,7 +699,8 @@ describe("profiles and accounts", () => {
     const engine = stranger.signIn(USER);
     const preview = await engine.previewEnable();
     expect(preview).toMatchObject({ kind: "PROFILE_MISMATCH" });
-    expect(await engine.enable(preview)).toMatchObject({ phase: "DISABLED" });
+    expect(await engine.enable(preview)).toEqual({ kind: "NOT_READY" });
+    expect(engine.getStatus().phase).toBe("DISABLED");
     expect(server.rows(USER)).toHaveLength(recordCount(a.data()));
 
     // Even a forged checkpoint cannot push the other profile.
@@ -761,7 +764,7 @@ describe("profiles and accounts", () => {
 describe("cloud reset and stale devices", () => {
   it("deleting cloud data blocks a stale device from pushing until its user decides", async () => {
     const { server, a, b } = await twoDevices();
-    const reset = await a.engine.deleteCloudData();
+    const reset = await a.engine.deleteCloudData({ userId: USER });
     expect(reset).toMatchObject({ ok: true, account: { generation: 2 } });
     expect(server.rows(USER)).toEqual([]);
     expect(a.engine.getStatus().phase).toBe("DISABLED");
@@ -800,7 +803,7 @@ describe("cloud reset and stale devices", () => {
   it("a stale direct push or backup upload with the old generation is refused by the server", async () => {
     const { server, a } = await twoDevices();
     const transport = server.transport(USER);
-    await a.engine.deleteCloudData();
+    await a.engine.deleteCloudData({ userId: USER });
     const push = await transport.push({
       generation: 1,
       deviceId: "phone-a",
@@ -1163,5 +1166,126 @@ describe("push rule (never overwrite a newer or concurrent cloud version)", () =
     expect(status.lastSummary?.pushed).toBe(0);
     const row = server.rows(USER).find((item) => item.recordId === id)!;
     expect((row.payload as ServiceEvent).note).toBe("newer");
+  });
+});
+
+describe("consent is bound to what the user approved", () => {
+  async function localDevice() {
+    const server = createMemorySyncServer();
+    const a = await installation(server, "phone-a", {
+      seed: userDataWithProfile(),
+    }).load();
+    await a.act(addLeave("2026-09-01"));
+    return { server, a };
+  }
+
+  it("an unchanged preview enables", async () => {
+    const { server, a } = await localDevice();
+    const engine = a.signIn(USER);
+    const preview = await engine.previewEnable();
+    expect(preview).toMatchObject({
+      kind: "READY",
+      evidence: { userId: USER, generation: 1, lastSeq: 0, profileId: null },
+    });
+    const result = await engine.enable(preview);
+    expect(result.kind).toBe("ENABLED");
+    expect(server.rows(USER)).toHaveLength(2);
+  });
+
+  it("a preview made for account A cannot enable account B", async () => {
+    const { server, a } = await localDevice();
+    const preview = await a.signIn(USER).previewEnable();
+    // Another tab switched the session to B; the old preview is replayed.
+    const engineB = a.signIn(OTHER_USER);
+    expect(await engineB.enable(preview)).toEqual({
+      kind: "STALE_PREVIEW",
+      reason: "ACCOUNT",
+    });
+    expect(server.rows(OTHER_USER)).toEqual([]);
+    expect(await a.storage.getItem(syncStateKey(OTHER_USER))).toBeNull();
+  });
+
+  it("a local write after the preview makes it stale", async () => {
+    const { server, a } = await localDevice();
+    const engine = a.signIn(USER);
+    const preview = await engine.previewEnable();
+    await a.act(addLeave("2026-09-02"));
+    expect(await engine.enable(preview)).toEqual({
+      kind: "STALE_PREVIEW",
+      reason: "LOCAL",
+    });
+    expect(server.rows(USER)).toEqual([]);
+    expect(await a.storage.getItem(syncStateKey(USER))).toBeNull();
+    // A fresh preview shows the new plan and can be approved.
+    const fresh = await engine.previewEnable();
+    expect(fresh).toMatchObject({ kind: "READY", uploads: 3 });
+    expect((await engine.enable(fresh)).kind).toBe("ENABLED");
+  });
+
+  it("a remote write in the same generation after the preview makes it stale", async () => {
+    const { server, a } = await localDevice();
+    const other = await installation(server, "laptop-b", {
+      seed: userDataWithProfile(),
+    }).load();
+    const engine = a.signIn(USER);
+    const preview = await engine.previewEnable();
+    expect(preview).toMatchObject({ case: "UPLOAD" });
+    await other.enable(USER); // writes the profile into the cloud
+    expect(await engine.enable(preview)).toEqual({
+      kind: "STALE_PREVIEW",
+      reason: "REMOTE",
+    });
+    expect(await a.storage.getItem(syncStateKey(USER))).toBeNull();
+    expect(server.rows(USER)).toHaveLength(1); // only the other device's profile
+  });
+
+  it("a cloud reset between preview and confirmation stays fail-closed", async () => {
+    const { server, a } = await localDevice();
+    const other = await installation(server, "laptop-b", {
+      seed: userDataWithProfile(),
+    }).load();
+    await other.enable(USER);
+    const engine = a.signIn(USER);
+    const preview = await engine.previewEnable();
+    await other.engine.deleteCloudData({ userId: USER });
+    expect(await engine.enable(preview)).toEqual({
+      kind: "STALE_PREVIEW",
+      reason: "REMOTE",
+    });
+    expect(server.rows(USER)).toEqual([]);
+  });
+
+  it("deleting cloud data requires the account the confirmation was given for", async () => {
+    const { server, a, b } = await twoDevices();
+    expect(await a.engine.deleteCloudData({ userId: OTHER_USER })).toEqual({
+      ok: false,
+      reason: "ACCOUNT_MISMATCH",
+    });
+    expect(server.account(USER)?.generation).toBe(1);
+    expect(server.rows(USER).length).toBeGreaterThan(0);
+    void b;
+  });
+
+  it("a resolution for a record that is not an open conflict is never force-pushed", async () => {
+    const { server, a, b, id } = await twoDevices();
+    // B has another leave on 09-11; A moves the shared leave onto 09-11.
+    await b.act(addLeave("2026-09-11"));
+    await a.act((data, ctx) =>
+      updateServiceEvent(data, id, allDay("ANNUAL_LEAVE", "2026-09-11"), ctx),
+    );
+    await a.engine.sync();
+    const held = await b.engine.sync();
+    expect(held.held).toMatchObject([{ key: `events:${id}` }]);
+    // A stale "keep this device's value" for that key (e.g. chosen while
+    // another account was signed in) must not overwrite the newer cloud copy.
+    const before = server.account(USER)!.lastSeq;
+    await b.engine.resolveConflicts({ [`events:${id}`]: "LOCAL" });
+    const row = server.rows(USER).find((item) => item.recordId === id)!;
+    expect((row.payload as ServiceEvent).startDate).toBe("2026-09-11");
+    expect(
+      server
+        .rows(USER)
+        .filter((item) => item.seq > before && item.recordId === id),
+    ).toEqual([]);
   });
 });
