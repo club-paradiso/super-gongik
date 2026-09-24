@@ -1,8 +1,7 @@
 name: Prettier probe
 on:
-  push:
-    branches:
-      - feat/final-rule-gap-closure
+  pull_request:
+    types: [opened, synchronize, reopened]
 jobs:
   format-diff:
     runs-on: ubuntu-latest
