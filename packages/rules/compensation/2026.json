@@ -68,10 +68,17 @@
       "sourceType": "OFFICIAL_PAYMENT_GUIDANCE",
       "publishedDate": "2026-01-05",
       "updatedDate": "2026-03-24",
-      "identifier": null,
+      "identifier": "원본 파일명: 2026년도 사회복무요원 보수 등 지급 기준(누리집 게시).hwpx",
       "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
-      "attachmentExtractionStatus": "NOT_RETRIEVED_EGRESS_BLOCKED",
-      "usage": "Not used for any executable value. The HWPX attachment could not be downloaded (host blocked from the build environment) so no checksum exists."
+      "attachmentUrl": "https://open.mma.go.kr/caisGGGS/board/boardFileDown.do?gesipan_id=16&gsgeul_no=1517395&ilryeon_no=1",
+      "retrievedAt": "2026-09-24",
+      "retrievalPath": "USER_SUPPLIED_UPLOAD (direct request from the build environment blocked: CONNECT 403 / EGRESS_BLOCKED)",
+      "attachmentExtractionStatus": "EXTRACTED_FROM_USER_SUPPLIED_COPY",
+      "artifactFile": "docs/sources/2026/mma-2026-bosu-jigeup-gijun.hwpx",
+      "artifactSha256": "f4bff691605807f8b20ac2c7034b0dbb052f899a2417236424cdf0faf1bfb158",
+      "excerptFile": "docs/sources/2026/mma-2026-bosu-jigeup-gijun.extracted.txt",
+      "excerptSha256": "36b2e8c4065da309701f55553847066a0f38e8b32c829554f04ce18628b8d7f8",
+      "usage": "Confirms the base-pay table, the 2026 daily meal minimum (9,000 KRW) and the transport fare basis. Silent on proration, rounding, 근무일수, non-payable days and night duty."
     }
   ],
   "basePay": {
@@ -104,7 +111,7 @@
         "monthlyAmount": 1500000
       }
     ],
-    "amountSource": "공무원보수규정 별표 13 비고 6 (개정 2026.1.2.)",
+    "amountSource": "공무원보수규정 별표 13 비고 6 (개정 2026.1.2.); 병무청 2026년도 사회복무요원 보수 등 지급 기준 (동일 금액·구간)",
     "priorServiceCredit": {
       "status": "VERIFIED_NEEDS_USER_INPUT",
       "supportedAutomatically": false,
@@ -114,23 +121,25 @@
   },
   "meal": {
     "legalBasisStatus": "VERIFIED",
-    "legalBasis": "사회복무요원 복무관리 규정 제41조④ 중식비 실비 지급; 병역법 시행령 제62조③",
+    "legalBasis": "사회복무요원 복무관리 규정 제41조④ 중식비 실비 지급; 병무청 2026년도 보수 등 지급 기준 '1일 중식비 9,000원(최소기준)'",
     "paymentMode": "ACTUAL_EXPENSE",
-    "rateStatus": "VERIFIED_NEEDS_USER_INPUT",
-    "rateInput": "INSTITUTION_CONFIRMED_DAILY_MEAL_RATE",
-    "unverifiedReferenceDailyAmount": 9000,
-    "unverifiedReferenceStatus": "SECONDARY_CORROBORATION_ONLY",
-    "warning": "KRW 9,000 appears in 2026 local budget/accounting documents but the MMA payment-standard attachment could not be retrieved. It is never used in a calculation; the user must enter the institution-confirmed daily rate."
+    "rateStatus": "VERIFIED_AND_EXECUTABLE",
+    "minimumDailyAmount": 9000,
+    "minimumSource": "병무청 2026년도 사회복무요원 보수 등 지급 기준: 1일 중식비 9,000원(최소기준), 복무기관별 예산범위 내에서 추가 지급 가능",
+    "institutionMayPayMore": true,
+    "institutionRateBelowMinimum": "REJECT_AS_CONFLICTING_INPUT",
+    "warning": "9,000 KRW is the 2026 minimum. An institution may pay more within its budget; enter the institution amount only when it is higher."
   },
   "transport": {
     "legalBasisStatus": "VERIFIED",
-    "legalBasis": "사회복무요원 복무관리 규정 제41조④ 교통비 실비 지급, 도보 등 출퇴근도 대중교통 이용요금 기준",
+    "legalBasis": "사회복무요원 복무관리 규정 제41조④ 교통비 실비 지급, 도보 등 출퇴근도 대중교통 이용요금 기준; 병무청 2026년도 보수 등 지급 기준 '1일 교통비: 대중교통(시내버스) 왕복이용요금(현금기준), 환승·지하철 장거리 등 추가비용 시 교통카드 금액 기준 실비'",
     "paymentMode": "ACTUAL_EXPENSE",
     "walkingStillUsesPublicTransitFareBasis": true,
     "universalDefaultDailyAmount": null,
-    "requiredInputs": ["dailyPublicTransitFare", "transportEligibleDays"],
+    "requiredInputs": ["dailyRoundTripFare", "transportEligibleDays"],
     "autoCalculateWithoutCommuteInput": false,
-    "warning": "No national default fare exists; the daily public-transit fare must come from the user or institution."
+    "warning": "The fare depends on the user's route and region; the MMA standard defines the basis, not an amount.",
+    "fareBasis": "CITY_BUS_ROUND_TRIP_CASH_FARE_OR_TRANSIT_CARD_ACTUAL_WHEN_EXTRA_COST"
   },
   "proration": {
     "firstAndLastMonth": {
@@ -143,7 +152,8 @@
         "EXPLICIT_LINK_BETWEEN_제41조⑤_AND_공무원보수규정_제4조제6호"
       ],
       "autoCalculate": false,
-      "reason": "The divisor is defined for 공무원보수규정 but no retrieved primary text fixes rounding or whether 근무일수 counts calendar days; results would differ by up to tens of won, so the month stays gated."
+      "reason": "The divisor is defined for 공무원보수규정 but no retrieved primary text fixes rounding or whether 근무일수 counts calendar days; results would differ by up to tens of won, so the month stays gated.",
+      "mmaAttachmentFinding": "NOT_FOUND: the 2026 MMA payment standard does not address proration, 근무일수, holidays in the prorated interval or rounding."
     },
     "nonPayableDays": {
       "status": "VERIFIED_BUT_NOT_IMPLEMENTED",
@@ -156,7 +166,8 @@
       "dutyRelatedSickLeaveTreatment": "PAYABLE",
       "sickLeaveCumulativeLimitDays": 30,
       "autoCalculate": false,
-      "reason": "Deducting a day needs the same unresolved daily-amount arithmetic; months that may contain a non-payable day are gated."
+      "reason": "Deducting a day needs the same unresolved daily-amount arithmetic; months that may contain a non-payable day are gated.",
+      "mmaAttachmentFinding": "NOT_FOUND: the 2026 MMA payment standard does not address non-payable days."
     }
   },
   "calculationResultRequirements": {
@@ -173,7 +184,7 @@
     "doNotSilentlyUsePriorYearValues": true,
     "unsupportedCasesReturnWarning": true,
     "doNotEnablePartialMonthPayrollUntilFixtureVerified": true,
-    "doNotUseUnverifiedMealReference": true
+    "doNotAcceptInstitutionMealRateBelowMinimum": true
   },
   "eligibleDays": {
     "status": "VERIFIED_NEEDS_USER_INPUT",
@@ -183,6 +194,7 @@
     "fullDayLeaveTreatment": "NOT_ELIGIBLE",
     "fullDayLeaveBasis": "중식비·교통비 are 실비 for commuting attendance (제41조④); a full day of leave has no attendance.",
     "partialDayTreatment": "REQUIRES_USER_DECISION",
-    "holidayTreatment": "USER_CONFIRMED_PER_MONTH"
+    "holidayTreatment": "USER_CONFIRMED_PER_MONTH",
+    "mmaAttachmentFinding": "NOT_FOUND: the 2026 MMA payment standard states per-day amounts but not which days qualify."
   }
 }

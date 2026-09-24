@@ -420,25 +420,25 @@ function ProfileForm({
       ) : null}
 
       <label className="form-field">
-        <span>1일 중식비 (기관 확인 금액)</span>
+        <span>1일 중식비 (기관이 더 줄 때만)</span>
         <input
           inputMode="numeric"
           min="0"
-          placeholder="복무기관에 확인한 금액"
+          placeholder="비워 두면 9,000원(2026 최소기준)"
           type="number"
           value={mealRate}
           onChange={(event) => setMealRate(event.target.value)}
         />
         <small>
-          병무청 지급기준 원문을 확인하지 못해 9,000원 같은 참고값은 계산에 쓰지
-          않아요.
+          병무청 2026년 지급 기준은 1일 9,000원이 최소이고, 기관이 예산 범위에서
+          더 줄 수 있어요. 더 받는 경우에만 그 금액을 넣으세요.
         </small>
       </label>
 
       <label className="form-field">
         <span>
           <MapPin aria-hidden="true" size={17} />
-          1일 왕복 대중교통 요금
+          1일 교통비 (시내버스 왕복 현금요금)
         </span>
         <input
           inputMode="numeric"
@@ -449,8 +449,8 @@ function ProfileForm({
           onChange={(event) => setCommuteCost(event.target.value)}
         />
         <small>
-          걸어서 다녀도 대중교통 요금 기준으로 지급돼요(복무관리 규정 제41조④).
-          전국 공통 금액은 없어요.
+          병무청 기준: 시내버스 왕복 현금요금. 환승·지하철 장거리 등 추가비용이
+          있으면 교통카드 금액 기준 실비예요. 걸어서 다녀도 같은 기준이에요.
         </small>
       </label>
 

@@ -26,7 +26,8 @@ UserData {
   leaveSnapshots: LeaveSnapshot[]     // institution balance evidence
   imports: ImportRecord[]             // batches, ACTIVE | ROLLED_BACK
   attendanceMonths: AttendanceMonth[] // one live per month: holidays, per-day
-                                      //   meal/transport decisions, non-payable flag
+                                      //   meal/transport decisions, non-payable flag,
+                                      //   basisFingerprint (schedule + month records)
   compensationSnapshots: CompensationSnapshot[] // immutable evaluation JSON +
                                       //   ruleId/ruleVersion/total
 }

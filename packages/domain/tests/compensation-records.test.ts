@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  attendanceBasisFingerprint,
   createBackup,
   decodeUserData,
   deleteCompensationSnapshot,
@@ -66,6 +67,22 @@ describe("attendance month confirmation", () => {
       revision: 2,
       hadNonPayableAbsence: true,
     });
+  });
+
+  it("fingerprints the stored schedule and month records, not caller input", () => {
+    const data = userDataWithProfile({
+      workPattern: "WEEKDAY_DAYTIME",
+      workWeekdays: [1, 2, 3, 4, 5],
+    });
+    const saved = saveMonth(data, "2026-10");
+    expect(saved.value.basisFingerprint).toBe(
+      attendanceBasisFingerprint(
+        data.profile!,
+        data.events,
+        "2026-10" as YearMonth,
+      ),
+    );
+    expect(saved.value.basisFingerprint).toContain("[1,2,3,4,5]");
   });
 
   it("rejects dates outside the confirmed month", () => {

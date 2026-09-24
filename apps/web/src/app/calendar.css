@@ -1177,7 +1177,8 @@ button.summary-card {
 }
 
 .money-reference {
-  color: var(--warning-fg);
+  color: var(--navy-muted);
+  font-size: 13px;
 }
 
 .money-basis {

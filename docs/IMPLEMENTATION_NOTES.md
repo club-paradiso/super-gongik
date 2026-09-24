@@ -9,8 +9,8 @@
 
 ## Safety gates retained by design
 
-- KRW 9,000 is shown only as an unverified meal reference and is never used; the meal rate is the user-entered institution amount (see `docs/COMPENSATION_POLICY_2026.md`).
-- Transport requires a user-entered daily public-transit fare.
+- Meal uses the MMA 2026 minimum of KRW 9,000/day unless the user enters a higher institution amount; a lower amount is refused (see `docs/COMPENSATION_POLICY_2026.md`).
+- Transport requires a user-entered daily fare (MMA basis: city-bus round-trip cash fare, transit-card 실비 for extra cost).
 - Call-up/discharge months, months with possible non-payable days, and non-whole-month prior-service credit return a gated result rather than a guessed amount.
 - Meal/transport day counts require a confirmed work schedule and a per-month holiday confirmation; the monthly total exists only when every component is calculated.
 - Missing, ambiguous, or out-of-range effective-date rules return an explicit unsupported result; selection never falls back to a newer or older bundle.

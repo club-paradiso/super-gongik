@@ -63,7 +63,9 @@ export type CompensationRuleBundle = RuleBundle & {
   };
   meal: {
     legalBasis: string;
-    unverifiedReferenceDailyAmount: number;
+    minimumDailyAmount: number;
+    minimumSource: string;
+    institutionMayPayMore: boolean;
     warning: string;
   };
   transport: {

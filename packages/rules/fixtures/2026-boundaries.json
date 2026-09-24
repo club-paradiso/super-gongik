@@ -182,7 +182,7 @@
       "source": "병역법 시행령 제62조① (소집월 = 1개월 차), 공무원보수규정 별표 13 비고 6"
     },
     {
-      "id": "compensation.meal-rate-missing-needs-input",
+      "id": "compensation.meal-default-mma-minimum",
       "domain": "COMPENSATION",
       "input": {
         "calendarYear": 2026,
@@ -190,13 +190,29 @@
         "mealEligibleDays": 20
       },
       "expected": {
-        "status": "NEEDS_INPUT",
-        "missingFields": ["institutionDailyMealRate"],
-        "unverifiedReferenceDailyAmount": 9000,
-        "mustNotUseReference": true
+        "status": "SUPPORTED",
+        "dailyMealRate": 9000,
+        "mealAllowance": 180000,
+        "rateSource": "MMA_2026_MINIMUM"
       },
       "ruleVersion": "2026",
-      "source": "사회복무요원 복무관리 규정 제41조④ (실비); 9,000원은 1차 출처 미확보 참고값"
+      "source": "병무청 2026년도 사회복무요원 보수 등 지급 기준: 1일 중식비 9,000원(최소기준), 복무기관별 예산범위 내 추가 지급 가능"
+    },
+    {
+      "id": "compensation.meal-institution-rate-below-minimum",
+      "domain": "COMPENSATION",
+      "input": {
+        "calendarYear": 2026,
+        "institutionDailyMealRate": 8000,
+        "mealEligibleDays": 20
+      },
+      "expected": {
+        "status": "NEEDS_INPUT",
+        "conflict": "INSTITUTION_RATE_BELOW_MINIMUM",
+        "minimumDailyAmount": 9000
+      },
+      "ruleVersion": "2026",
+      "source": "병무청 2026년도 사회복무요원 보수 등 지급 기준: 1일 중식비 9,000원(최소기준), 복무기관별 예산범위 내 추가 지급 가능"
     },
     {
       "id": "compensation.transport-missing-fare",

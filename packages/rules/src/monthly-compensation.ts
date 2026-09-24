@@ -43,8 +43,12 @@ export type CompensationComponent = {
   dailyRate: number | null;
   /** Days multiplied by `dailyRate`; null until the day count is settled. */
   eligibleDays: number | null;
-  /** Reference value that is shown but never used (unverified meal rate). */
-  unverifiedReference: number | null;
+  /**
+   * Where `dailyRate` came from, so a user-entered amount can never be read
+   * as an official one: OFFICIAL_MINIMUM (the MMA 2026 standard) or
+   * USER_INPUT (institution amount / personal fare). null when no rate.
+   */
+  rateSource: "OFFICIAL_MINIMUM" | "USER_INPUT" | null;
   /** Primary-source basis of the rule applied. */
   basis: string;
   explanation: string;
@@ -72,7 +76,8 @@ export type MonthlyCompensationEvaluation = {
     effectiveFrom: string;
     effectiveUntil: string | null;
     verifiedAt: string;
-    sources: RuleSourceReference[];
+    /** Each source with the SHA-256 of the stored file it was read from. */
+    sources: Array<RuleSourceReference & { sha256: string | null }>;
   } | null;
   headline: string;
   /** Plain statements of what cannot be calculated yet and why. */
@@ -178,6 +183,12 @@ export function evaluateMonthlyCompensation(
       title: source.title,
       authority: source.authority,
       url: source.url,
+      sha256:
+        typeof source.artifactSha256 === "string"
+          ? source.artifactSha256
+          : typeof source.excerptSha256 === "string"
+            ? source.excerptSha256
+            : null,
     })),
   };
 
@@ -210,7 +221,7 @@ export function evaluateMonthlyCompensation(
 
   // ── Base pay ─────────────────────────────────────────────────────────────
   const baseBasis =
-    "병역법 시행령 제62조①·②, 공무원보수규정 별표 13, 사회복무요원 복무관리 규정 제41조①·⑤·⑥";
+    "병역법 시행령 제62조①·②, 공무원보수규정 별표 13, 사회복무요원 복무관리 규정 제41조①·⑤·⑥, 병무청 2026년도 사회복무요원 보수 등 지급 기준";
   let base: CompensationComponent;
   let serviceMonthOrdinal: number | null = null;
   let equivalentRank: string | null = null;
@@ -225,7 +236,7 @@ export function evaluateMonthlyCompensation(
     monthlyAmount,
     dailyRate: null,
     eligibleDays: null,
-    unverifiedReference: null,
+    rateSource: null,
     basis: baseBasis,
     explanation,
   });
@@ -329,63 +340,71 @@ export function evaluateMonthlyCompensation(
   if (dayProblem) unresolved.push(`중식비·교통비: ${dayProblem}`);
 
   // ── Meal ─────────────────────────────────────────────────────────────────
-  const mealRate = profile.defaultMealAllowanceOverride;
+  const institutionMealRate = profile.defaultMealAllowanceOverride;
   const meal = calculateMealAllowance({
     ...ruleInput,
-    institutionDailyMealRate: mealRate,
+    institutionDailyMealRate: institutionMealRate,
     mealEligibleDays: serviceDays.mealEligibleDays ?? 0,
   });
-  const mealReference = bundle.meal.unverifiedReferenceDailyAmount;
+  const mealMinimum = bundle.meal.minimumDailyAmount;
+  const mealRate = meal.value?.dailyMealRate ?? null;
+  const mealRateSource =
+    meal.status !== "SUPPORTED"
+      ? null
+      : institutionMealRate === null
+        ? ("OFFICIAL_MINIMUM" as const)
+        : ("USER_INPUT" as const);
+  const mealBase = {
+    key: "MEAL" as const,
+    label: "중식비",
+    basis: bundle.meal.legalBasis,
+  };
   let mealComponent: CompensationComponent;
   if (serviceDays.status === "UNSUPPORTED") {
     mealComponent = {
-      key: "MEAL",
-      label: "중식비",
+      ...mealBase,
       status: "UNSUPPORTED",
       monthlyAmount: null,
       dailyRate: mealRate,
+      rateSource: mealRateSource,
       eligibleDays: null,
-      unverifiedReference: null,
-      basis: bundle.meal.legalBasis,
       explanation: serviceDays.explanation,
     };
   } else if (meal.status !== "SUPPORTED") {
-    const text = `기관이 정한 1일 중식비를 입력해야 해요. ${mealReference.toLocaleString("ko-KR")}원은 병무청 지급기준 원문을 확인하지 못한 참고값이라 계산에 쓰지 않아요.`;
+    const text = `입력한 기관 중식비가 병무청 ${bundle.version}년 최소기준 ${mealMinimum.toLocaleString("ko-KR")}원보다 낮아요. 기관 금액을 다시 확인하거나 비워 두세요.`;
     mealComponent = {
-      key: "MEAL",
-      label: "중식비",
+      ...mealBase,
       status: "NEEDS_INPUT",
       monthlyAmount: null,
       dailyRate: null,
+      rateSource: null,
       eligibleDays: serviceDays.mealEligibleDays,
-      unverifiedReference: mealReference,
-      basis: bundle.meal.legalBasis,
       explanation: text,
     };
     unresolved.push(`중식비: ${text}`);
   } else if (serviceDays.status !== "READY") {
     mealComponent = {
-      key: "MEAL",
-      label: "중식비",
+      ...mealBase,
       status: "NEEDS_INPUT",
       monthlyAmount: null,
       dailyRate: mealRate,
+      rateSource: mealRateSource,
       eligibleDays: null,
-      unverifiedReference: null,
-      basis: bundle.meal.legalBasis,
       explanation: serviceDays.explanation,
     };
   } else {
+    const rateText =
+      mealRateSource === "OFFICIAL_MINIMUM"
+        ? `병무청 ${bundle.version}년 최소기준 1일 ${mealMinimum.toLocaleString("ko-KR")}원`
+        : `기관 입력 1일 ${mealRate?.toLocaleString("ko-KR")}원`;
     mealComponent = {
-      key: "MEAL",
-      label: "중식비",
+      ...mealBase,
       status: "CALCULATED",
       monthlyAmount: meal.value?.mealAllowance ?? null,
       dailyRate: mealRate,
+      rateSource: mealRateSource,
       eligibleDays: serviceDays.mealEligibleDays,
-      unverifiedReference: null,
-      basis: bundle.meal.legalBasis,
-      explanation: `기관 확인 1일 ${mealRate?.toLocaleString("ko-KR")}원 × 중식비 대상 ${serviceDays.mealEligibleDays}일이에요.`,
+      explanation: `${rateText} × 중식비 대상 ${serviceDays.mealEligibleDays}일이에요.`,
     };
     assumptions.push(...meal.assumptions);
   }
@@ -406,13 +425,13 @@ export function evaluateMonthlyCompensation(
       monthlyAmount: null,
       dailyRate: fare,
       eligibleDays: null,
-      unverifiedReference: null,
+      rateSource: fare === null ? null : ("USER_INPUT" as const),
       basis: bundle.transport.legalBasis,
       explanation: serviceDays.explanation,
     };
   } else if (transport.status !== "SUPPORTED") {
     const text =
-      "1일 왕복 대중교통 요금을 입력해야 해요. 전국 공통 금액은 없어요(도보 출퇴근도 대중교통 요금 기준).";
+      "1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요.";
     transportComponent = {
       key: "TRANSPORT",
       label: "교통비",
@@ -420,7 +439,7 @@ export function evaluateMonthlyCompensation(
       monthlyAmount: null,
       dailyRate: null,
       eligibleDays: serviceDays.transportEligibleDays,
-      unverifiedReference: null,
+      rateSource: null,
       basis: bundle.transport.legalBasis,
       explanation: text,
     };
@@ -433,7 +452,7 @@ export function evaluateMonthlyCompensation(
       monthlyAmount: null,
       dailyRate: fare,
       eligibleDays: null,
-      unverifiedReference: null,
+      rateSource: fare === null ? null : ("USER_INPUT" as const),
       basis: bundle.transport.legalBasis,
       explanation: serviceDays.explanation,
     };
@@ -445,9 +464,9 @@ export function evaluateMonthlyCompensation(
       monthlyAmount: transport.value?.transportAllowance ?? null,
       dailyRate: fare,
       eligibleDays: serviceDays.transportEligibleDays,
-      unverifiedReference: null,
+      rateSource: fare === null ? null : ("USER_INPUT" as const),
       basis: bundle.transport.legalBasis,
-      explanation: `1일 ${fare?.toLocaleString("ko-KR")}원 × 교통비 대상 ${serviceDays.transportEligibleDays}일이에요.`,
+      explanation: `사용자 입력 1일 ${fare?.toLocaleString("ko-KR")}원 × 교통비 대상 ${serviceDays.transportEligibleDays}일이에요.`,
     };
     assumptions.push(...transport.assumptions);
   }

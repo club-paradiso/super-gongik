@@ -82,8 +82,10 @@ export function calculateMonthlyBasePay(input: {
 }
 
 /**
- * 중식비: legal basis verified (실비), rate supplied by the institution. The
- * unverified reference amount is exposed for display only and never used.
+ * 중식비 (제41조④ 실비). The 2026 MMA payment standard fixes a daily
+ * minimum and lets institutions pay more within budget, so an institution
+ * amount is used only when it is at least the minimum; a lower entry
+ * contradicts the source and is refused rather than silently corrected.
  */
 export function calculateMealAllowance(input: {
   calculationDate: DateOnly;
@@ -92,7 +94,11 @@ export function calculateMealAllowance(input: {
   mealEligibleDays: number;
 }) {
   const bundle = requireCompensationRule(input);
-  if (input.institutionDailyMealRate === null) {
+  const minimum = bundle.meal.minimumDailyAmount;
+  if (
+    input.institutionDailyMealRate !== null &&
+    input.institutionDailyMealRate < minimum
+  ) {
     return createCalculationResult({
       domain: "COMPENSATION",
       status: "NEEDS_INPUT" as const,
@@ -100,29 +106,37 @@ export function calculateMealAllowance(input: {
       bundle,
       inputs: publicInputs(input),
       breakdown: {
-        missingFields: ["institutionDailyMealRate"],
-        unverifiedReferenceDailyAmount:
-          bundle.meal.unverifiedReferenceDailyAmount,
-        mustNotUseReference: true,
+        conflict: "INSTITUTION_RATE_BELOW_MINIMUM",
+        minimumDailyAmount: minimum,
       },
       warnings: [bundle.meal.warning],
     });
   }
 
+  const usesInstitutionRate = input.institutionDailyMealRate !== null;
+  const dailyMealRate = input.institutionDailyMealRate ?? minimum;
   return createCalculationResult({
     domain: "COMPENSATION",
     status: "SUPPORTED" as const,
     value: {
-      dailyMealRate: input.institutionDailyMealRate,
-      mealAllowance: input.institutionDailyMealRate * input.mealEligibleDays,
+      dailyMealRate,
+      mealAllowance: dailyMealRate * input.mealEligibleDays,
     },
     bundle,
     inputs: publicInputs(input),
     breakdown: {
       mealEligibleDays: input.mealEligibleDays,
+      rateSource: usesInstitutionRate
+        ? ("USER_INSTITUTION_RATE" as const)
+        : ("MMA_2026_MINIMUM" as const),
+      minimumDailyAmount: minimum,
       legalBasis: bundle.meal.legalBasis,
     },
-    assumptions: ["1일 중식비는 사용자가 입력한 기관 확인 금액이에요."],
+    assumptions: [
+      usesInstitutionRate
+        ? "1일 중식비는 사용자가 입력한 기관 금액이에요(최소기준 이상)."
+        : `1일 중식비는 병무청 ${bundle.version}년 최소기준 ${minimum.toLocaleString("ko-KR")}원이에요. 기관이 더 주면 내 정보에 입력하세요.`,
+    ],
   });
 }
 
@@ -160,7 +174,9 @@ export function calculateTransportAllowance(input: {
       transportEligibleDays: input.transportEligibleDays,
       legalBasis: bundle.transport.legalBasis,
     },
-    assumptions: ["1일 교통비는 사용자가 입력한 대중교통 왕복 요금이에요."],
+    assumptions: [
+      "1일 교통비는 사용자가 입력한 금액이에요(병무청 기준: 시내버스 왕복 현금요금, 추가비용 시 교통카드 실비).",
+    ],
   });
 }
 

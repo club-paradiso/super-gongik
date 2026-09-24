@@ -101,13 +101,15 @@ function evaluateFixture(testCase: FixtureCase): Record<string, unknown> {
       });
       return { status: result.status, ...result.value };
     }
-    case "compensation.meal-rate-missing-needs-input": {
+    case "compensation.meal-default-mma-minimum":
+    case "compensation.meal-institution-rate-below-minimum": {
+      const rate = input.institutionDailyMealRate;
       const result = calculateMealAllowance({
         calculationDate: yearStart(numberInput(input, "calendarYear")),
-        institutionDailyMealRate: null,
+        institutionDailyMealRate: typeof rate === "number" ? rate : null,
         mealEligibleDays: numberInput(input, "mealEligibleDays"),
       });
-      return { status: result.status, ...result.breakdown };
+      return { status: result.status, ...result.value, ...result.breakdown };
     }
     case "compensation.transport-missing-fare": {
       const result = calculateTransportAllowance({
@@ -142,7 +144,7 @@ describe("source-derived 2026 boundary fixtures", () => {
   });
 
   it("keeps every fixture case connected to executable code", () => {
-    expect(cases).toHaveLength(17);
+    expect(cases).toHaveLength(18);
     expect(cases.map((testCase) => testCase.id)).toHaveLength(
       new Set(cases.map((testCase) => testCase.id)).size,
     );

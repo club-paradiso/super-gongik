@@ -1,3 +1,4 @@
+import { attendanceBasisFingerprint } from "../compensation/fingerprint";
 import {
   attendanceMonthSchema,
   compensationSnapshotSchema,
@@ -657,6 +658,12 @@ export function saveAttendanceMonth(
       a.date.localeCompare(b.date),
     ),
     hadNonPayableAbsence: input.hadNonPayableAbsence,
+    // Computed from the stored data, not supplied by the caller.
+    basisFingerprint: attendanceBasisFingerprint(
+      profile,
+      data.events,
+      input.month,
+    ),
     id: existing?.id ?? context.createId(),
     serviceProfileId: profile.id,
     createdAt: existing?.createdAt ?? context.now,

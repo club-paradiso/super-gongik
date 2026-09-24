@@ -189,10 +189,11 @@ export function MoneyTab({
                 </p>
               ) : null}
               <p>{component.explanation}</p>
-              {component.unverifiedReference !== null ? (
+              {component.rateSource ? (
                 <p className="money-reference">
-                  참고값 {currency.format(component.unverifiedReference)}/일
-                  (1차 출처 미확인, 계산에 쓰지 않음)
+                  {component.rateSource === "OFFICIAL_MINIMUM"
+                    ? "1일 금액 출처: 병무청 2026년 지급 기준(최소기준)"
+                    : "1일 금액 출처: 내가 입력한 값 (공식 금액 아님)"}
                 </p>
               ) : null}
               <small className="money-basis">근거: {component.basis}</small>

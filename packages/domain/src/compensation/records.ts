@@ -47,6 +47,8 @@ export const attendanceMonthSchema = syncFieldsSchema
      * these events, so the user states whether any occurred.
      */
     hadNonPayableAbsence: z.boolean(),
+    /** `attendanceBasisFingerprint` of the data the user confirmed against. */
+    basisFingerprint: z.string(),
   })
   .superRefine((record, context) => {
     const inMonth = (date: string) => date.startsWith(`${record.month}-`);

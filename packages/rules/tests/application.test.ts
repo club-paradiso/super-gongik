@@ -106,11 +106,12 @@ describe("monthly compensation gating", () => {
       status: "CALCULATED",
       monthlyAmount: 1_200_000,
     });
+    // The MMA 2026 minimum is known, but the month's days are not confirmed.
     expect(result.components[1]).toMatchObject({
       status: "NEEDS_INPUT",
       monthlyAmount: null,
-      dailyRate: null,
-      unverifiedReference: 9000,
+      dailyRate: 9000,
+      rateSource: "OFFICIAL_MINIMUM",
     });
     expect(result.components[2]).toMatchObject({
       status: "NEEDS_INPUT",

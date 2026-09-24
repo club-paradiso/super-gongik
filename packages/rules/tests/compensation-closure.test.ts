@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import {
+  attendanceBasisFingerprint,
   buildServiceProfile,
   type AttendanceMonth,
   type DateOnly,
@@ -16,8 +17,8 @@ import { describe, expect, it } from "vitest";
 import {
   COMPENSATION_RULE_BUNDLES,
   type CompensationRuleBundle,
-  deriveMonthServiceDays,
-  evaluateMonthlyCompensation,
+  deriveMonthServiceDays as deriveRaw,
+  evaluateMonthlyCompensation as evaluateRaw,
 } from "../src";
 
 const T0 = "2026-01-01T00:00:00.000Z";
@@ -58,8 +59,46 @@ function attendance(
     nonWorkingDates: [],
     dayOverrides: [],
     hadNonPayableAbsence: false,
+    // Filled in by the wrappers below with the fingerprint of the data under
+    // test, i.e. "the user confirmed exactly this data".
+    basisFingerprint: CONFIRMED_AGAINST_INPUT,
     ...extra,
   };
+}
+
+const CONFIRMED_AGAINST_INPUT = "__confirmed-against-input__";
+
+function confirmed(
+  record: AttendanceMonth | null | undefined,
+  profile: Parameters<typeof attendanceBasisFingerprint>[0],
+  events: readonly ServiceEvent[],
+) {
+  if (!record || record.basisFingerprint !== CONFIRMED_AGAINST_INPUT) {
+    return record ?? null;
+  }
+  return {
+    ...record,
+    basisFingerprint: attendanceBasisFingerprint(profile, events, record.month),
+  };
+}
+
+function deriveMonthServiceDays(input: Parameters<typeof deriveRaw>[0]) {
+  return deriveRaw({
+    ...input,
+    attendance: confirmed(input.attendance, input.profile, input.events),
+  });
+}
+
+function evaluateMonthlyCompensation(
+  subject: ServiceProfile,
+  asOfDate: DateOnly,
+  options: Parameters<typeof evaluateRaw>[2] = {},
+) {
+  const events = options.events ?? [];
+  return evaluateRaw(subject, asOfDate, {
+    ...options,
+    attendance: confirmed(options.attendance, subject, events),
+  });
 }
 
 let eventSeq = 0;
@@ -383,17 +422,57 @@ describe("eligible service days", () => {
     expect(decided.transportEligibleDays).toBe(22);
   });
 
-  it("requires reconfirmation after the month's records change", () => {
-    const days = deriveMonthServiceDays({
+  it("requires reconfirmation after the month's records or schedule change", () => {
+    // Confirmed while the month had no records and a Mon–Fri schedule.
+    const confirmedEarlier = attendance("2026-10", {
+      basisFingerprint: attendanceBasisFingerprint(
+        serving,
+        [],
+        "2026-10" as YearMonth,
+      ),
+    });
+    const withLeave = deriveMonthServiceDays({
       profile: serving,
       month: "2026-10" as YearMonth,
       events: [
         event("ANNUAL_LEAVE", "2026-10-13", "2026-10-13", allDay(1), T2),
       ],
-      attendance: attendance("2026-10"),
+      attendance: confirmedEarlier,
     });
-    expect(days.status).toBe("NEEDS_INPUT");
-    expect(days.missing).toContain("MONTH_RECONFIRMATION");
+    expect(withLeave.missing).toContain("MONTH_RECONFIRMATION");
+    const newSchedule = deriveMonthServiceDays({
+      profile: { ...serving, workWeekdays: [1, 2, 3, 4] },
+      month: "2026-10" as YearMonth,
+      events: [],
+      attendance: confirmedEarlier,
+    });
+    expect(newSchedule.missing).toContain("MONTH_RECONFIRMATION");
+  });
+
+  it("does not invalidate a confirmation when only rates or unrelated months change", () => {
+    const confirmedEarlier = attendance("2026-10", {
+      basisFingerprint: attendanceBasisFingerprint(
+        serving,
+        [],
+        "2026-10" as YearMonth,
+      ),
+    });
+    const result = evaluateRaw(
+      {
+        ...serving,
+        defaultMealAllowanceOverride: 12_000,
+        defaultCommuteCost: 3000,
+      },
+      "2026-10-15",
+      {
+        events: [
+          event("ANNUAL_LEAVE", "2026-11-03", "2026-11-03", allDay(1), T2),
+        ],
+        attendance: confirmedEarlier,
+      },
+    );
+    expect(result.serviceDays?.status).toBe("READY");
+    expect(result.status).toBe("COMPLETE");
   });
 
   it("counts only in-service days in the call-up month", () => {
@@ -425,7 +504,8 @@ describe("eligible service days", () => {
 
 describe("monthly total", () => {
   const complete = profile("2026-01-05", "2027-10-04", {
-    defaultMealAllowanceOverride: 8000,
+    // Institution pays above the 9,000 KRW minimum (allowed by the MMA standard).
+    defaultMealAllowanceOverride: 10_000,
     defaultCommuteCost: 2800,
   });
 
@@ -438,27 +518,50 @@ describe("monthly total", () => {
     expect(result.status).toBe("COMPLETE");
     expect(result.components.map((c) => c.monthlyAmount)).toEqual([
       1_200_000,
-      8000 * 20,
+      10_000 * 20,
       2800 * 20,
     ]);
-    expect(result.total).toBe(1_200_000 + 160_000 + 56_000);
+    expect(result.components[1]?.rateSource).toBe("USER_INPUT");
+    expect(result.total).toBe(1_200_000 + 200_000 + 56_000);
     expect(result.unresolved).toEqual([]);
   });
 
-  it("never uses the unverified 9,000 KRW reference to reach a total", () => {
+  it("uses the MMA 2026 minimum of 9,000 KRW when no institution rate is entered", () => {
     const result = evaluateMonthlyCompensation(
       { ...complete, defaultMealAllowanceOverride: null },
       "2026-10-15",
       { attendance: attendance("2026-10") },
     );
     expect(result.components[1]).toMatchObject({
+      status: "CALCULATED",
+      dailyRate: 9000,
+      rateSource: "OFFICIAL_MINIMUM",
+      eligibleDays: 22,
+      monthlyAmount: 9000 * 22,
+    });
+    expect(result.total).toBe(1_200_000 + 9000 * 22 + 2800 * 22);
+  });
+
+  it("refuses an institution meal rate below the official minimum and shows no total", () => {
+    const result = evaluateMonthlyCompensation(
+      { ...complete, defaultMealAllowanceOverride: 8000 },
+      "2026-10-15",
+      { attendance: attendance("2026-10") },
+    );
+    expect(result.components[1]).toMatchObject({
       status: "NEEDS_INPUT",
       monthlyAmount: null,
-      unverifiedReference: 9000,
+      rateSource: null,
     });
-    expect(result.components[2]?.status).toBe("CALCULATED");
     expect(result.total).toBeNull();
     expect(result.status).toBe("PARTIAL");
+  });
+
+  it("labels a user-entered transport fare as user input, never official", () => {
+    const result = evaluateMonthlyCompensation(complete, "2026-10-15", {
+      attendance: attendance("2026-10"),
+    });
+    expect(result.components[2]?.rateSource).toBe("USER_INPUT");
   });
 
   it("gates base pay when sick leave may exceed the cumulative 30 days", () => {
@@ -500,17 +603,41 @@ describe("compensation rule provenance", () => {
     }
   });
 
-  it("marks the unretrieved MMA attachment as unused", () => {
+  it("pins the MMA 2026 payment standard's original HWPX bytes", () => {
     const mma = bundle!.sources.find((source) =>
       source.title.includes("보수 등 지급 기준"),
     );
-    expect(mma?.attachmentExtractionStatus).toBe(
-      "NOT_RETRIEVED_EGRESS_BLOCKED",
+    expect(mma?.attachmentUrl).toBe(
+      "https://open.mma.go.kr/caisGGGS/board/boardFileDown.do?gesipan_id=16&gsgeul_no=1517395&ilryeon_no=1",
     );
-    expect(bundle!.meal).toMatchObject({
-      rateStatus: "VERIFIED_NEEDS_USER_INPUT",
-      unverifiedReferenceStatus: "SECONDARY_CORROBORATION_ONLY",
-    });
+    const bytes = readFileSync(resolve(repoRoot, String(mma?.artifactFile)));
+    expect(bytes.subarray(0, 2).toString()).toBe("PK");
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+      mma?.artifactSha256,
+    );
+    // The executable meal minimum must match the extracted text verbatim.
+    const text = readFileSync(
+      resolve(repoRoot, String(mma?.excerptFile)),
+      "utf8",
+    );
+    expect(text).toContain("1일 중식비 : 9,000원(최소기준)");
+    expect(bundle!.meal.minimumDailyAmount).toBe(9000);
+    for (const amount of ["750,000", "900,000", "1,200,000", "1,500,000"]) {
+      expect(text).toContain(amount);
+    }
+  });
+
+  it("matches SHA256SUMS for every stored source file", () => {
+    const dir = resolve(repoRoot, "docs/sources/2026");
+    const sums = readFileSync(resolve(dir, "SHA256SUMS"), "utf8")
+      .trim()
+      .split("\n")
+      .map((line) => line.split(/\s+/));
+    expect(sums.length).toBe(6);
+    for (const [hash, file] of sums) {
+      const bytes = readFileSync(resolve(dir, String(file)));
+      expect(createHash("sha256").update(bytes).digest("hex")).toBe(hash);
+    }
   });
 
   it("exposes rule id, version, effective window and sources on every result", () => {
@@ -525,5 +652,11 @@ describe("compensation rule provenance", () => {
       effectiveUntil: "2026-12-31",
     });
     expect(result.components.every((c) => c.basis.length > 0)).toBe(true);
+    // Snapshots store this object, so each source must carry its file hash.
+    expect(
+      result.rule?.sources.every((source) =>
+        /^[0-9a-f]{64}$/.test(source.sha256 ?? ""),
+      ),
+    ).toBe(true);
   });
 });

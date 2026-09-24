@@ -291,7 +291,8 @@ describe("end-to-end local workflow", () => {
           callUpDate: "2026-01-05",
           expectedDischargeDate: "2027-10-04",
           defaultCommuteCost: 2800,
-          defaultMealAllowanceOverride: 8000,
+          // No institution meal rate: the MMA 2026 minimum (9,000) applies.
+          defaultMealAllowanceOverride: null,
           priorServiceCredit: "NONE",
           workPattern: "WEEKDAY_DAYTIME",
           workWeekdays: [1, 2, 3, 4, 5],
@@ -334,7 +335,7 @@ describe("end-to-end local workflow", () => {
     const after = buildAppProjection(ready(store), profile, "2026-09-24");
     expect(after.compensation.status).toBe("COMPLETE");
     // Month 9 → 상등병 1,200,000; 22 − 2 holidays − 1 leave = 19 days.
-    expect(after.compensation.total).toBe(1_200_000 + 8000 * 19 + 2800 * 19);
+    expect(after.compensation.total).toBe(1_200_000 + 9000 * 19 + 2800 * 19);
 
     const saved = await store.run((data, context) =>
       saveCompensationSnapshot(

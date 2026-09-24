@@ -1,5 +1,6 @@
 import {
   addDays,
+  attendanceBasisFingerprint,
   compareDateOnly,
   daysInMonth,
   dayOfWeek,
@@ -116,11 +117,7 @@ function chargedDates(
 export function deriveMonthServiceDays(input: {
   profile: Pick<
     ServiceProfile,
-    | "callUpDate"
-    | "expectedDischargeDate"
-    | "workPattern"
-    | "workWeekdays"
-    | "updatedAt"
+    "callUpDate" | "expectedDischargeDate" | "workPattern" | "workWeekdays"
   >;
   month: YearMonth;
   events: readonly ServiceEvent[];
@@ -249,12 +246,12 @@ export function deriveMonthServiceDays(input: {
 
   if (!attendance) missing.push("MONTH_CONFIRMATION");
   else {
-    // A confirmation answers the records as they were; any later change to
-    // this month's events or to the schedule needs a fresh confirmation.
-    const changedAfter =
-      profile.updatedAt > attendance.updatedAt ||
-      monthEvents.some((event) => event.updatedAt > attendance.updatedAt);
-    if (changedAfter) missing.push("MONTH_RECONFIRMATION");
+    // A confirmation answers the schedule and records as they were; any
+    // later change to either needs a fresh confirmation.
+    const current = attendanceBasisFingerprint(profile, input.events, month);
+    if (current !== attendance.basisFingerprint) {
+      missing.push("MONTH_RECONFIRMATION");
+    }
   }
   if (undecidedDates.length > 0) missing.push("DAY_DECISIONS");
 
