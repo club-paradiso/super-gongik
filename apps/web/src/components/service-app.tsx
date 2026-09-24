@@ -189,8 +189,11 @@ function Dashboard({
           ) : null}
           {activeTab === "money" ? (
             <MoneyTab
-              compensation={projection.compensation}
+              data={data}
               onOpenProfile={() => setActiveTab("profile")}
+              profile={profile}
+              store={store}
+              today={today}
             />
           ) : null}
           {activeTab === "profile" ? (

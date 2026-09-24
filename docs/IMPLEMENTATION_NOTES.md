@@ -9,9 +9,10 @@
 
 ## Safety gates retained by design
 
-- The 2026 meal rate of KRW 9,000 is surfaced only as a suggested value until the profile has confirmation context.
-- Transport requires a user-entered fare or institution-approved transport rate.
-- Partial service months and prior-service credit return a gated result rather than a guessed amount.
+- KRW 9,000 is shown only as an unverified meal reference and is never used; the meal rate is the user-entered institution amount (see `docs/COMPENSATION_POLICY_2026.md`).
+- Transport requires a user-entered daily public-transit fare.
+- Call-up/discharge months, months with possible non-payable days, and non-whole-month prior-service credit return a gated result rather than a guessed amount.
+- Meal/transport day counts require a confirmed work schedule and a per-month holiday confirmation; the monthly total exists only when every component is calculated.
 - Missing, ambiguous, or out-of-range effective-date rules return an explicit unsupported result; selection never falls back to a newer or older bundle.
 
 ## Verification

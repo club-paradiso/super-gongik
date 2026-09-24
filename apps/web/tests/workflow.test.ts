@@ -15,6 +15,8 @@ import {
   parseBackup,
   replaceUserData,
   rollbackImport,
+  saveAttendanceMonth,
+  saveCompensationSnapshot,
   serializeBackup,
   type UserData,
 } from "@super-gongik/domain";
@@ -197,7 +199,9 @@ describe("end-to-end local workflow", () => {
     const profile = ready(store).profile!;
     const before = buildAppProjection(ready(store), profile, "2026-09-24");
     expect(before.ledger.balance.status).toBe("NEEDS_CREDIT_CONFIRMATION");
-    expect(before.compensation.status).toBe("NEEDS_PROFILE");
+    // Prior service unanswered: base pay needs input and no total exists.
+    expect(before.compensation.components[0]?.status).toBe("NEEDS_INPUT");
+    expect(before.compensation.total).toBeNull();
 
     await store.run((data, context) =>
       confirmLeaveCredit(
@@ -275,5 +279,82 @@ describe("end-to-end local workflow", () => {
         480,
       ),
     ).toBe("14일 6시간");
+  });
+
+  it("reaches a traceable monthly total only after every input is confirmed", async () => {
+    const { store } = newStore();
+    await store.load();
+    await store.run((data, context) =>
+      createProfile(
+        data,
+        {
+          callUpDate: "2026-01-05",
+          expectedDischargeDate: "2027-10-04",
+          defaultCommuteCost: 2800,
+          defaultMealAllowanceOverride: 8000,
+          priorServiceCredit: "NONE",
+          workPattern: "WEEKDAY_DAYTIME",
+          workWeekdays: [1, 2, 3, 4, 5],
+        },
+        context,
+      ),
+    );
+    await store.run((data, context) =>
+      createServiceEvent(
+        data,
+        {
+          eventType: "ANNUAL_LEAVE",
+          startDate: "2026-09-10",
+          endDate: "2026-09-10",
+          timing: { kind: "ALL_DAY", dayCount: 1 },
+          title: null,
+          note: null,
+        },
+        context,
+      ),
+    );
+    const profile = ready(store).profile!;
+    const before = buildAppProjection(ready(store), profile, "2026-09-24");
+    expect(before.compensation.total).toBeNull();
+    expect(before.compensation.unresolved.join(" ")).toContain("공휴일");
+
+    // 2026-09 has 22 weekdays; the user marks 9/24–9/25 as holidays.
+    await store.run((data, context) =>
+      saveAttendanceMonth(
+        data,
+        {
+          month: "2026-09",
+          nonWorkingDates: ["2026-09-24", "2026-09-25"],
+          dayOverrides: [],
+          hadNonPayableAbsence: false,
+        },
+        context,
+      ),
+    );
+    const after = buildAppProjection(ready(store), profile, "2026-09-24");
+    expect(after.compensation.status).toBe("COMPLETE");
+    // Month 9 → 상등병 1,200,000; 22 − 2 holidays − 1 leave = 19 days.
+    expect(after.compensation.total).toBe(1_200_000 + 8000 * 19 + 2800 * 19);
+
+    const saved = await store.run((data, context) =>
+      saveCompensationSnapshot(
+        data,
+        {
+          month: "2026-09",
+          ruleId: after.compensation.rule!.id,
+          ruleVersion: after.compensation.rule!.version,
+          total: after.compensation.total,
+          evaluation: JSON.parse(JSON.stringify(after.compensation)),
+        },
+        context,
+      ),
+    );
+    expect(saved.ok).toBe(true);
+    const restored = parseBackup(
+      serializeBackup(createBackup(ready(store), "2026-09-24T00:00:00.000Z")),
+    );
+    expect(restored.ok && restored.data.compensationSnapshots[0]).toMatchObject(
+      { ruleVersion: "2026", total: after.compensation.total },
+    );
   });
 });
