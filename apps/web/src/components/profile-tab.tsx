@@ -18,8 +18,10 @@ import {
 } from "@super-gongik/domain";
 
 import { BackupPanel, downloadFullBackup } from "@/components/backup-panel";
+import { CloudSyncPanel } from "@/components/cloud-sync-panel";
 import { RecordImportPanel } from "@/components/record-import-panel";
 import { Button } from "@/components/ui/button";
+import { useCloud } from "@/hooks/use-cloud";
 
 type PriorAnswer = "" | "NONE" | "HAS_PRIOR_SERVICE";
 type WorkPatternAnswer = "" | NonNullable<ServiceProfile["workPattern"]>;
@@ -41,6 +43,15 @@ export function ProfileTab({
 }) {
   const [confirmWipe, setConfirmWipe] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [cloudBackup, setCloudBackup] = useState<{
+    text: string;
+    label: string;
+    nonce: number;
+  } | null>(null);
+  const { state: cloud, cloud: cloudController } = useCloud();
+  const signedIn = cloud.phase === "SIGNED_IN";
+  const syncing =
+    signedIn && cloud.sync !== null && cloud.sync.phase !== "DISABLED";
 
   return (
     <section className="profile-page" aria-label="내 복무 정보">
@@ -55,16 +66,45 @@ export function ProfileTab({
 
       <RecordImportPanel data={data} store={store} />
 
-      <BackupPanel data={data} ledger={ledger} store={store} />
+      <CloudSyncPanel
+        onRestoreBackup={(text, label) => {
+          setCloudBackup({ text, label, nonce: Date.now() });
+          document
+            .getElementById("backup-title")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }}
+      />
+
+      <BackupPanel
+        data={data}
+        incoming={cloudBackup}
+        ledger={ledger}
+        onRestored={(mode) => void cloudController.afterRestore(mode)}
+        store={store}
+        syncEnabled={syncing}
+      />
 
       <section className="profile-security">
         <LockKeyhole aria-hidden="true" size={24} />
         <div>
-          <h2>이 기기에만 저장돼요</h2>
-          <p>
-            서버로 보내지 않아요. 클라우드 백업은 아직 없으니 백업 파일을 직접
-            보관해 주세요.
-          </p>
+          {syncing ? (
+            <>
+              <h2>이 기기에 먼저 저장하고 동기화해요</h2>
+              <p>
+                기록은 이 기기에 바로 저장되고, 로그인한 계정의 클라우드와
+                동기화돼요. 클라우드 데이터는 본인 계정만 읽고 쓸 수 있어요.
+                종단간 암호화는 아니에요.
+              </p>
+            </>
+          ) : (
+            <>
+              <h2>이 기기에만 저장돼요</h2>
+              <p>
+                동기화를 켜지 않으면 서버로 보내지 않아요. 백업 파일을 직접
+                보관해 주세요.
+              </p>
+            </>
+          )}
         </div>
       </section>
 
@@ -73,6 +113,9 @@ export function ProfileTab({
           <p>
             이 기기의 복무 프로필과 모든 기록({data.events.length}건)을 지워요.
             되돌릴 수 없어요.
+            {signedIn
+              ? " 클라우드의 데이터는 지우지 않고, 로그인도 유지돼요. 이 기기의 동기화는 꺼져요."
+              : ""}
           </p>
           <div className="backup-actions">
             <Button
@@ -83,7 +126,11 @@ export function ProfileTab({
               먼저 백업 내려받기
             </Button>
             <Button
-              onClick={() => void store.wipeAll()}
+              onClick={() =>
+                void store
+                  .wipeAll()
+                  .then(() => cloudController.afterLocalWipe())
+              }
               type="button"
               variant="danger"
             >

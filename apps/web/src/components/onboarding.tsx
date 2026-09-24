@@ -14,6 +14,7 @@ import {
 } from "@super-gongik/domain";
 
 import { BackupPanel } from "@/components/backup-panel";
+import { CloudSyncPanel } from "@/components/cloud-sync-panel";
 import { Button } from "@/components/ui/button";
 
 export function Onboarding({
@@ -136,6 +137,8 @@ export function Onboarding({
         {showRestore ? (
           <BackupPanel compact data={data} ledger={null} store={store} />
         ) : null}
+
+        <CloudSyncPanel onboarding />
 
         <p className="privacy-note">
           <LockKeyhole aria-hidden="true" size={20} />

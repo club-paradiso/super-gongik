@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@ssabrojs/hwpxjs": "0.4.0",
+    "@supabase/supabase-js": "^2.117.1",
     "@super-gongik/domain": "workspace:*",
     "@super-gongik/importer": "workspace:*",
     "@super-gongik/rules": "workspace:*",

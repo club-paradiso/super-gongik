@@ -283,6 +283,14 @@ export function createUserDataStore(options: {
           createId: options.createId,
         });
         if (!result.ok) return result;
+        // A command that returns its base unchanged wrote nothing: no save,
+        // no documentRevision bump (sync uses this for no-op merges).
+        if (result.data === base) {
+          if (base !== (snapshot as ReadySnapshot).data) {
+            publish({ ...(snapshot as ReadySnapshot), data: base });
+          }
+          return { ok: true, value: result.value, data: base };
+        }
 
         try {
           const saved = await persist(result.data);

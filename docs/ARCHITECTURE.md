@@ -23,8 +23,11 @@ super-gongik/
     leave/                  adjustments, snapshots, event-derived ledger
     store/                  UserData schema, legacy migration, repository,
                             commands, store controller, backup/merge, CSV
+    sync/                   backend-independent sync engine, transport port,
+                            remote validation, scheduler, reference server
   packages/rules/           effective-dated bundles, leave credits, compensation
   packages/importer/        CSV/TSV parsing, mapping, normalization → drafts
+  supabase/                 migrations (tables, RLS, RPCs) and SQL tests
   docs/                     product, architecture, rule audits, ADRs
 ```
 
@@ -34,7 +37,10 @@ super-gongik/
 - zod for every persisted shape
 - PWA service worker for the offline shell
 - Vercel deployment
-- No backend yet (see ADR 0001 for why Supabase was not started)
+- Optional Supabase backend (Auth, PostgreSQL, RLS) for cloud sync and
+  cloud backup — off unless configured and signed in
+  ([ADR 0002](./adr/0002-optional-cloud-sync-supabase.md),
+  [CLOUD_SYNC.md](./CLOUD_SYNC.md))
 
 The stack is replaceable. The domain package is not.
 
@@ -96,16 +102,15 @@ UI calls store.run(command)
   -> store publishes the new snapshot; projections recompute
 ```
 
-Target once sync exists:
+With cloud sync on (see [CLOUD_SYNC.md](./CLOUD_SYNC.md)):
 
 ```text
 User action
   -> validate
-  -> write local record
+  -> write local record (unchanged path above)
   -> update local projections
   -> render success
-  -> enqueue sync
-  -> sync to cloud when available
+  -> debounced sync: pull -> validate -> merge (one store command) -> push
 ```
 
 The UI must not wait for network success to confirm ordinary local actions.
@@ -127,8 +132,8 @@ Every mutable user record should include:
 Conflict policy should be explicit per record type. The implemented,
 backend-agnostic record contract (revisions, tombstones, structured
 conflicts, what `documentRevision` does and does not mean) is specified in
-[BACKUP_AND_SYNC.md](./BACKUP_AND_SYNC.md). Remote sync itself is not
-implemented.
+[BACKUP_AND_SYNC.md](./BACKUP_AND_SYNC.md). Remote sync on top of it is
+specified in [CLOUD_SYNC.md](./CLOUD_SYNC.md).
 
 Recommended initial conflict handling:
 
@@ -150,7 +155,8 @@ Authentication exists to enable:
 - cross-device restore
 - optional sync
 
-Preferred providers later:
+Implemented: Supabase Auth with an email one-time code (optional; see
+[CLOUD_SYNC.md](./CLOUD_SYNC.md) §2). Possible later providers:
 
 - Sign in with Apple
 - Google

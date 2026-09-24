@@ -133,11 +133,22 @@ export function BackupPanel({
   ledger,
   store,
   compact = false,
+  incoming = null,
+  syncEnabled = false,
+  onRestored,
 }: {
   data: UserData;
   ledger: LeaveLedger | null;
   store: UserDataStore;
   compact?: boolean;
+  /**
+   * Backup text from elsewhere (a cloud backup). It goes through exactly the
+   * same parse → preview → confirm path as a file.
+   */
+  incoming?: { text: string; label: string; nonce: number } | null;
+  /** Cloud sync is on for this device (changes REPLACE's explanation). */
+  syncEnabled?: boolean;
+  onRestored?: (mode: RestoreMode) => void;
 }) {
   const [pending, setPending] = useState<Pending | null>(null);
   const [error, setError] = useState<{ title: string; body: string } | null>(
@@ -225,6 +236,10 @@ export function BackupPanel({
       });
       return;
     }
+    openText(text, file.name);
+  }
+
+  function openText(text: string, fileName: string) {
     const parsed = parseBackup(text);
     if (!parsed.ok) {
       setError({
@@ -234,7 +249,7 @@ export function BackupPanel({
       return;
     }
     setPending({
-      fileName: file.name,
+      fileName,
       data: parsed.data,
       summary: parsed.summary,
       info: parsed.info,
@@ -244,6 +259,18 @@ export function BackupPanel({
       !data.profile ||
       parsed.data.profile.id === data.profile.id;
     setMode(sameProfile ? "MERGE" : "REPLACE");
+  }
+
+  // A cloud backup handed over by the sync panel goes through the same
+  // validation, preview and confirmation as a file. Each hand-over (nonce)
+  // opens the preview once; adjusting state during render avoids an effect.
+  const [seenNonce, setSeenNonce] = useState<number | null>(null);
+  if (incoming && incoming.nonce !== seenNonce) {
+    setSeenNonce(incoming.nonce);
+    setError(null);
+    setMessage("");
+    reset();
+    openText(incoming.text, incoming.label);
   }
 
   async function apply() {
@@ -268,6 +295,7 @@ export function BackupPanel({
       if (result.code === "STALE_PREVIEW") void store.refresh();
       return;
     }
+    onRestored?.(effectiveMode);
     const applied = result.plan;
     const changed = totalOf(applied, [
       "ADDED",
@@ -306,8 +334,9 @@ export function BackupPanel({
         <div>
           <h2 id="backup-title">백업과 복원</h2>
           <p>
-            기록은 이 기기에만 있어요. 기기를 바꾸거나 브라우저 데이터를 지우기
-            전에 백업 파일을 내려받아 두세요.
+            {syncEnabled
+              ? "동기화와 별개로, 백업 파일을 내려받아 두면 원하는 시점으로 되돌릴 수 있어요."
+              : "기록은 이 기기에만 있어요. 기기를 바꾸거나 브라우저 데이터를 지우기 전에 백업 파일을 내려받아 두세요."}
           </p>
         </div>
         <DatabaseBackup aria-hidden="true" size={24} />
@@ -463,6 +492,9 @@ export function BackupPanel({
                 {hasCurrentData
                   ? ` 이 기기 기록 중 ${replaceLosses}건이 사라지거나 바뀌어요. 복원 직전 데이터는 이 기기에 한 벌 보관해요.`
                   : " 이 기기에는 아직 기록이 없어요."}
+                {syncEnabled
+                  ? " 동기화가 켜져 있어서, 클라우드에 이 백업보다 나중에 고친 기록이 있으면 다음 동기화 때 그 기록이 다시 합쳐져요."
+                  : ""}
               </p>
             </div>
           )}
