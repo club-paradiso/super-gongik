@@ -761,6 +761,114 @@ describe("monthly total", () => {
     expect(result.total).toBeNull();
   });
 
+  it("uses a record-derived 31st ordinary sick-leave day without manual date entry", () => {
+    const subject = complete;
+    const events = [
+      {
+        ...event("SICK_LEAVE", "2026-09-01", "2026-09-30", allDay(30)),
+        sickLeaveCategory: "ORDINARY" as const,
+      },
+      {
+        ...event("SICK_LEAVE", "2026-10-20", "2026-10-20", allDay(1)),
+        sickLeaveCategory: "ORDINARY" as const,
+      },
+    ];
+    const current = confirmed(
+      attendance("2026-10", {
+        roundingPolicy: "NATIONAL_TREASURY_ARTICLE_47",
+      }),
+      subject,
+      events,
+    )!;
+
+    const result = evaluateRaw(subject, "2026-10-15", {
+      events,
+      attendance: current,
+      attendanceMonths: [current],
+    });
+
+    expect(result.basePayAdjustment).toMatchObject({
+      derivedNonPayableDates: ["2026-10-20"],
+      nonPayableDates: ["2026-10-20"],
+      nonPayableDatesConfirmed: false,
+      payableCalendarDays: 30,
+    });
+    expect(result.components[0]).toMatchObject({
+      status: "CALCULATED",
+      monthlyAmount: 1_161_290,
+    });
+  });
+
+  it("does not deduct public-duty sick leave after 30 ordinary sick-leave days", () => {
+    const subject = complete;
+    const events = [
+      {
+        ...event("SICK_LEAVE", "2026-09-01", "2026-09-30", allDay(30)),
+        sickLeaveCategory: "ORDINARY" as const,
+      },
+      {
+        ...event("SICK_LEAVE", "2026-10-20", "2026-10-20", allDay(1)),
+        sickLeaveCategory: "PUBLIC_DUTY" as const,
+      },
+    ];
+    const current = confirmed(
+      attendance("2026-10", {
+        roundingPolicy: "NATIONAL_TREASURY_ARTICLE_47",
+      }),
+      subject,
+      events,
+    )!;
+
+    const result = evaluateRaw(subject, "2026-10-15", {
+      events,
+      attendance: current,
+      attendanceMonths: [current],
+    });
+
+    expect(result.basePayAdjustment?.derivedNonPayableDates).toEqual([]);
+    expect(result.components[0]).toMatchObject({
+      status: "CALCULATED",
+      monthlyAmount: 1_200_000,
+    });
+  });
+
+  it("lets an explicit complete institution list override unresolved derivation", () => {
+    const subject = complete;
+    const events = [
+      {
+        ...event("SICK_LEAVE", "2026-09-01", "2026-09-30", allDay(30)),
+        sickLeaveCategory: "UNKNOWN" as const,
+      },
+      {
+        ...event("SICK_LEAVE", "2026-10-20", "2026-10-20", allDay(1)),
+        sickLeaveCategory: "ORDINARY" as const,
+      },
+    ];
+    const current = confirmed(
+      attendance("2026-10", {
+        nonPayableDates: [] as DateOnly[],
+        nonPayableDatesConfirmed: true,
+        roundingPolicy: "NATIONAL_TREASURY_ARTICLE_47",
+      }),
+      subject,
+      events,
+    )!;
+
+    const result = evaluateRaw(subject, "2026-10-15", {
+      events,
+      attendance: current,
+      attendanceMonths: [current],
+    });
+
+    expect(
+      result.basePayAdjustment?.derivationUnresolved.length,
+    ).toBeGreaterThan(0);
+    expect(result.components[0]).toMatchObject({
+      status: "CALCULATED",
+      monthlyAmount: 1_200_000,
+    });
+  });
+
   it("keeps a legacy coarse non-payable flag gated until exact dates are confirmed", () => {
     const result = evaluateMonthlyCompensation(complete, "2026-10-15", {
       attendance: attendance("2026-10", { hadNonPayableAbsence: true }),

@@ -4,6 +4,7 @@ export * from "./compensation";
 export * from "./leave";
 export * from "./leave-credits";
 export * from "./monthly-compensation";
+export * from "./non-payable-days";
 export * from "./schema";
 export * from "./selector";
 export * from "./service-days";

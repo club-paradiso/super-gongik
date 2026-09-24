@@ -89,8 +89,9 @@ export function MoneyTab({
       evaluateMonthlyCompensation(profile, asOfDate, {
         events: data.events,
         attendance,
+        attendanceMonths: data.attendanceMonths,
       }),
-    [profile, asOfDate, data.events, attendance],
+    [profile, asOfDate, data.events, data.attendanceMonths, attendance],
   );
   const snapshots = data.compensationSnapshots
     .filter((item) => isLive(item) && item.month === month)
@@ -376,6 +377,9 @@ function AttendanceEditor({
     useState<CompensationRoundingPolicy | null>(
       existing?.roundingPolicy ?? null,
     );
+  const derivedNonPayableDates =
+    evaluation.basePayAdjustment?.derivedNonPayableDates ?? [];
+  const derivedNonPayableSet = new Set(derivedNonPayableDates);
 
   // Scheduled in-service weekdays can be marked as holidays; days the records
   // leave open need an explicit meal/transport decision.
@@ -446,7 +450,9 @@ function AttendanceEditor({
               : [],
           ),
           hadNonPayableAbsence: hadAbsence,
-          nonPayableDates: [...nonPayableDates],
+          nonPayableDates: [
+            ...new Set([...nonPayableDates, ...derivedNonPayableDates]),
+          ],
           nonPayableDatesConfirmed,
           roundingPolicy,
         },
@@ -553,19 +559,33 @@ function AttendanceEditor({
           복무중단·복무이탈·연가 초과 결근·보수 미지급 병가처럼 기본 보수를 받지
           않는 날짜만 표시하세요. 중식비·교통비 판단과는 별개예요.
         </p>
+        {derivedNonPayableDates.length ? (
+          <p className="field-hint">
+            복무 기록에서 {derivedNonPayableDates.length}일을 자동 도출했어요.
+            자동 도출 날짜는 원본 복무 기록을 수정해야 바뀌어요.
+          </p>
+        ) : null}
         <div className="day-grid">
           {days
             .filter((day) => day.kind !== "OUTSIDE_SERVICE")
             .map((day) => (
               <label className="day-toggle" key={`nonpay-${day.date}`}>
                 <input
-                  checked={nonPayableDates.has(day.date)}
+                  checked={
+                    nonPayableDates.has(day.date) ||
+                    derivedNonPayableSet.has(day.date)
+                  }
+                  disabled={derivedNonPayableSet.has(day.date)}
                   onChange={() => toggleNonPayable(day.date)}
                   type="checkbox"
                 />
                 <span>{dayLabel(day.date)}</span>
                 <small>
-                  {nonPayableDates.has(day.date) ? "미지급" : "지급"}
+                  {derivedNonPayableSet.has(day.date)
+                    ? "기록에서 자동 도출"
+                    : nonPayableDates.has(day.date)
+                      ? "미지급"
+                      : "지급"}
                 </small>
               </label>
             ))}

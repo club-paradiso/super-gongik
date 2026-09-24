@@ -30,7 +30,9 @@ export type EventIssueCode =
   | "DURATION_DIFFERS_FROM_TIMES"
   | "OUTSIDE_SERVICE_PERIOD"
   | "POSSIBLE_DUPLICATE"
-  | "DAY_COUNT_DIFFERS_FROM_WEEKDAYS";
+  | "DAY_COUNT_DIFFERS_FROM_WEEKDAYS"
+  | "COMPENSATION_ABSENCE_MUST_BE_ALL_DAY"
+  | "SICK_CATEGORY_NOT_SICK_LEAVE";
 
 export type EventIssue = {
   code: EventIssueCode;
@@ -80,6 +82,15 @@ const STRUCTURAL_MESSAGES: Record<string, { message: string; field: string }> =
     END_TIME_NOT_AFTER_START: {
       message: "종료 시각이 시작 시각보다 늦어야 해요.",
       field: "endTime",
+    },
+    COMPENSATION_ABSENCE_MUST_BE_ALL_DAY: {
+      message:
+        "복무중단·복무이탈·연가초과 결근은 기본 보수 미지급일을 확정할 수 있도록 하루 단위로 기록해 주세요.",
+      field: "timing",
+    },
+    SICK_CATEGORY_NOT_SICK_LEAVE: {
+      message: "병가 구분은 병가 기록에만 넣을 수 있어요.",
+      field: "sickLeaveCategory",
     },
   };
 

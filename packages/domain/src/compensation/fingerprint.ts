@@ -32,8 +32,13 @@ export function attendanceBasisFingerprint(
         event.startDate <= last &&
         event.endDate >= first,
     )
-    .map(serviceEventContentKey)
-    .sort();
+    .map((event) => [
+      serviceEventContentKey(event),
+      event.eventType === "SICK_LEAVE"
+        ? (event.sickLeaveCategory ?? "UNKNOWN")
+        : null,
+    ])
+    .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
   return JSON.stringify([
     profile.callUpDate,
     profile.expectedDischargeDate,

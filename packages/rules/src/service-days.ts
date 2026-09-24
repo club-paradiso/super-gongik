@@ -83,6 +83,9 @@ const DECISION_EVENT_TYPES = new Set([
   "EARLY_LEAVE",
   "EDUCATION",
   "TRAINING",
+  "SERVICE_SUSPENSION",
+  "SERVICE_ABSENCE",
+  "EXCESS_ANNUAL_ABSENCE",
 ]);
 
 function covers(event: ServiceEvent, date: DateOnly) {

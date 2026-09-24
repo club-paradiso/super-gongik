@@ -22,6 +22,9 @@ export const SERVICE_EVENT_TYPES = [
   "EARLY_LEAVE",
   "EDUCATION",
   "TRAINING",
+  "SERVICE_SUSPENSION",
+  "SERVICE_ABSENCE",
+  "EXCESS_ANNUAL_ABSENCE",
   "USER_NOTE",
 ] as const;
 
@@ -41,6 +44,23 @@ export const ATTENDANCE_EVENT_TYPES: readonly ServiceEventType[] = [
   "EARLY_LEAVE",
 ];
 
+export const COMPENSATION_NONPAYABLE_EVENT_TYPES: readonly ServiceEventType[] =
+  ["SERVICE_SUSPENSION", "SERVICE_ABSENCE", "EXCESS_ANNUAL_ABSENCE"];
+
+export function isCompensationNonPayableEventType(
+  type: ServiceEventType,
+): boolean {
+  return COMPENSATION_NONPAYABLE_EVENT_TYPES.includes(type);
+}
+
+export const SICK_LEAVE_CATEGORIES = [
+  "ORDINARY",
+  "PUBLIC_DUTY",
+  "UNKNOWN",
+] as const;
+export type SickLeaveCategory = (typeof SICK_LEAVE_CATEGORIES)[number];
+export const sickLeaveCategorySchema = z.enum(SICK_LEAVE_CATEGORIES);
+
 export const SERVICE_EVENT_TYPE_LABELS: Record<ServiceEventType, string> = {
   ANNUAL_LEAVE: "연가",
   SICK_LEAVE: "병가",
@@ -52,6 +72,9 @@ export const SERVICE_EVENT_TYPE_LABELS: Record<ServiceEventType, string> = {
   EARLY_LEAVE: "조퇴",
   EDUCATION: "교육",
   TRAINING: "훈련",
+  SERVICE_SUSPENSION: "복무중단",
+  SERVICE_ABSENCE: "복무이탈",
+  EXCESS_ANNUAL_ABSENCE: "연가초과 결근",
   USER_NOTE: "메모",
 };
 
@@ -163,6 +186,12 @@ export const serviceEventDraftShape = z.object({
   timing: eventTimingSchema,
   title: z.string().trim().max(80).nullable(),
   note: z.string().trim().max(500).nullable(),
+  /**
+   * Compensation-relevant sick-leave classification. Missing/UNKNOWN means
+   * the app must not decide whether the leave counts toward the ordinary
+   * 30-day threshold.
+   */
+  sickLeaveCategory: sickLeaveCategorySchema.nullable().optional(),
 });
 
 export type ServiceEventDraft = z.infer<typeof serviceEventDraftShape>;
@@ -187,6 +216,19 @@ export function structuralEventIssues(draft: ServiceEventDraft): string[] {
   }
   if (draft.timing.kind === "HALF_DAY" && draft.eventType !== "ANNUAL_LEAVE") {
     issues.push("HALF_DAY_NOT_ANNUAL_LEAVE");
+  }
+  if (
+    isCompensationNonPayableEventType(draft.eventType) &&
+    draft.timing.kind !== "ALL_DAY"
+  ) {
+    issues.push("COMPENSATION_ABSENCE_MUST_BE_ALL_DAY");
+  }
+  if (
+    draft.eventType !== "SICK_LEAVE" &&
+    draft.sickLeaveCategory !== undefined &&
+    draft.sickLeaveCategory !== null
+  ) {
+    issues.push("SICK_CATEGORY_NOT_SICK_LEAVE");
   }
   if (
     draft.timing.kind === "PARTIAL" &&
