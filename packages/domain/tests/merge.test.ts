@@ -11,6 +11,7 @@ import {
   isLive,
   mergeUserData,
   replaceUserData,
+  type MergeOptions,
   rollbackImport,
   userDataSchema,
   type ImportDraft,
@@ -31,8 +32,12 @@ function ok<T>(result: { ok: true; data: UserData; value: T } | { ok: false }) {
   return result;
 }
 
-function merge(current: UserData, incoming: UserData) {
-  const result = mergeUserData(current, incoming, CTX);
+function merge(
+  current: UserData,
+  incoming: UserData,
+  options: MergeOptions = {},
+) {
+  const result = mergeUserData(current, incoming, CTX, options);
   if (!result.ok) throw new Error(result.error);
   // Every merge result must be a valid, internally consistent document.
   expect(userDataSchema.safeParse(result.data).success).toBe(true);
@@ -106,6 +111,9 @@ describe("merge is non-destructive recovery", () => {
     expect(result.stats.keptLiveOverBackupDeletion).toBe(1);
   });
 
+  // Since #25 a stale live copy never resurrects a newer local deletion by
+  // default; bringing deleted records back is an explicit user choice
+  // (`restoreLocallyDeleted`). Tests 2, 2b, 4 and 5 exercise that choice.
   it("2. restores a locally deleted event that is live in the backup", () => {
     const backup = ok(
       createServiceEvent(
@@ -118,7 +126,11 @@ describe("merge is non-destructive recovery", () => {
       deleteServiceEvent(backup.data, backup.value.id, shared),
     ).data;
 
-    const result = merge(current, backup.data);
+    const byDefault = merge(current, backup.data);
+    expect(byDefault.data.events.filter(isLive)).toHaveLength(0);
+    expect(byDefault.stats.keptLocalDeletions).toBe(1);
+
+    const result = merge(current, backup.data, { restoreLocallyDeleted: true });
     const restored = result.data.events.find(
       (event) => event.id === backup.value.id,
     )!;
@@ -146,7 +158,7 @@ describe("merge is non-destructive recovery", () => {
       ),
     ).data;
 
-    const result = merge(current, backup.data);
+    const result = merge(current, backup.data, { restoreLocallyDeleted: true });
     expect(
       result.data.events.filter(isLive).map((event) => event.eventType),
     ).toEqual(["SICK_LEAVE"]);
@@ -169,7 +181,13 @@ describe("merge is non-destructive recovery", () => {
     const backup = withImport(userDataWithProfile());
     const current = ok(rollbackImport(backup, "batch-1", shared)).data;
 
-    const result = merge(current, backup);
+    const byDefault = merge(current, backup);
+    expect(
+      byDefault.data.imports.find((item) => item.id === "batch-1")!.status,
+    ).toBe("ROLLED_BACK");
+    expect(byDefault.data.events.filter(isLive)).toHaveLength(0);
+
+    const result = merge(current, backup, { restoreLocallyDeleted: true });
     const record = result.data.imports.find((item) => item.id === "batch-1")!;
     expect(record).toMatchObject({ status: "ACTIVE", rolledBackAt: null });
     expect(result.data.events.filter(isLive)).toHaveLength(1);
@@ -193,7 +211,7 @@ describe("merge is non-destructive recovery", () => {
       ),
     ).data;
 
-    const result = merge(current, backup);
+    const result = merge(current, backup, { restoreLocallyDeleted: true });
     const record = result.data.imports.find((item) => item.id === "batch-1")!;
     expect(record.status).toBe("ROLLED_BACK");
     expect(result.data.leaveSnapshots.filter(isLive)).toHaveLength(0);

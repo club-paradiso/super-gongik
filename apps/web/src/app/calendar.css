@@ -1327,3 +1327,108 @@ button.summary-card {
 }
 
 /* Vercel preview retrigger: no visual effect. */
+
+/* Restore preview --------------------------------------------------------- */
+
+.backup-preview__file,
+.backup-summary dd,
+.restore-plan dd,
+.form-error,
+.save-message {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.restore-plan {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  border-top: 1px solid var(--line-strong);
+  padding-top: 10px;
+}
+
+.restore-plan div {
+  display: grid;
+  grid-template-columns: minmax(96px, auto) 1fr;
+  gap: 8px;
+}
+
+.restore-plan dt {
+  color: var(--navy-muted);
+}
+
+.restore-plan dd {
+  margin: 0;
+  font-weight: 650;
+  text-align: right;
+}
+
+.restore-mode-note {
+  display: grid;
+  gap: 6px;
+  border-left: 3px solid var(--teal);
+  padding: 2px 0 2px 10px;
+}
+
+.restore-mode-note p {
+  margin: 0;
+}
+
+.restore-mode-note--danger {
+  border-color: var(--danger);
+}
+
+.restore-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.restore-check input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  accent-color: var(--teal);
+}
+
+.restore-conflicts {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #f1d28a;
+  border-radius: var(--radius-control);
+  background: var(--warning-bg);
+  padding: 12px;
+  color: var(--warning-fg);
+}
+
+.restore-conflicts p,
+.restore-conflicts ul {
+  margin: 0;
+  padding: 0;
+}
+
+.restore-conflicts ul {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+}
+
+.restore-conflicts li {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.restore-conflicts__id {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.restore-conflicts .segmented__item {
+  white-space: normal;
+  text-align: center;
+}
