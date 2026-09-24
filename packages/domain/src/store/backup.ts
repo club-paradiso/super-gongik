@@ -48,6 +48,8 @@ export type BackupSummary = {
   adjustments: number;
   snapshots: number;
   imports: number;
+  attendanceMonths: number;
+  compensationSnapshots: number;
 };
 
 export type ParsedBackup =
@@ -67,6 +69,8 @@ export function summarizeUserData(
     adjustments: data.leaveAdjustments.filter(isLive).length,
     snapshots: data.leaveSnapshots.filter(isLive).length,
     imports: data.imports.length,
+    attendanceMonths: data.attendanceMonths.filter(isLive).length,
+    compensationSnapshots: data.compensationSnapshots.filter(isLive).length,
   };
 }
 
@@ -138,6 +142,9 @@ export type MergeStats = {
   restoredSnapshots: number;
   addedImports: number;
   reactivatedImports: number;
+  addedAttendanceMonths: number;
+  updatedAttendanceMonths: number;
+  addedCompensationSnapshots: number;
   profileUpdated: boolean;
   /** Human-readable reasons for everything that was kept as-is. */
   conflicts: string[];
@@ -174,7 +181,8 @@ function correctionKey(item: LeaveAdjustment) {
 /**
  * Merge — non-destructive recovery.
  *
- * Contract (applies to events, adjustments, snapshots and imports alike):
+ * Contract (applies to events, adjustments, snapshots, imports, attendance
+ * months and compensation snapshots alike):
  * 1. Nothing live in the current document is ever deleted. Tombstones in the
  *    backup never remove a current live record.
  * 2. Records missing locally are added; records deleted locally but live in
@@ -221,6 +229,9 @@ export function mergeUserData(
     restoredSnapshots: 0,
     addedImports: 0,
     reactivatedImports: 0,
+    addedAttendanceMonths: 0,
+    updatedAttendanceMonths: 0,
+    addedCompensationSnapshots: 0,
     profileUpdated: false,
     conflicts: [],
   };
@@ -432,6 +443,55 @@ export function mergeUserData(
     }
   }
 
+  // ── Month attendance confirmations ──────────────────────────────────────
+  // One live confirmation per month. A backup's version replaces the current
+  // one only when it is a newer revision of the same record; a different
+  // record for an already-confirmed month keeps the current answer.
+  const attendance = new Map(
+    current.attendanceMonths.map((item) => [item.id, item]),
+  );
+  const liveMonthOwner = (month: string, excludeId: string) =>
+    [...attendance.values()].find(
+      (item) => isLive(item) && item.month === month && item.id !== excludeId,
+    );
+  for (const item of incoming.attendanceMonths) {
+    const existing = attendance.get(item.id);
+    if (!isLive(item)) {
+      if (!existing) attendance.set(item.id, item);
+      else if (!isLive(existing) && isNewer(item, existing))
+        attendance.set(item.id, item);
+      continue;
+    }
+    const candidate =
+      existing && !isLive(existing) ? touch(item, existing) : item;
+    if (existing && isLive(existing) && !isNewer(item, existing)) continue;
+    if (liveMonthOwner(item.month, item.id)) {
+      stats.conflicts.push(
+        `${item.month} 근무일 확인: 이미 확인한 값이 있어 현재 값을 유지했어요.`,
+      );
+      continue;
+    }
+    attendance.set(item.id, candidate);
+    if (existing) stats.updatedAttendanceMonths += 1;
+    else stats.addedAttendanceMonths += 1;
+  }
+
+  // ── Compensation snapshots (immutable history) ──────────────────────────
+  const compensationSnapshots = new Map(
+    current.compensationSnapshots.map((item) => [item.id, item]),
+  );
+  for (const item of incoming.compensationSnapshots) {
+    const existing = compensationSnapshots.get(item.id);
+    if (!existing) {
+      compensationSnapshots.set(item.id, item);
+      if (isLive(item)) stats.addedCompensationSnapshots += 1;
+      continue;
+    }
+    if (isLive(item) && !isLive(existing)) {
+      compensationSnapshots.set(item.id, touch(existing, existing));
+    }
+  }
+
   let profile = current.profile ?? incoming.profile;
   if (
     current.profile &&
@@ -452,6 +512,8 @@ export function mergeUserData(
       imports: [...imports.values()].sort((a, b) =>
         b.createdAt.localeCompare(a.createdAt),
       ),
+      attendanceMonths: [...attendance.values()],
+      compensationSnapshots: [...compensationSnapshots.values()],
     },
     stats,
   };

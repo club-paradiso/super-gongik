@@ -1,3 +1,12 @@
+import { attendanceBasisFingerprint } from "../compensation/fingerprint";
+import {
+  attendanceMonthSchema,
+  compensationSnapshotSchema,
+  type AttendanceMonth,
+  type AttendanceMonthInput,
+  type CompensationSnapshot,
+  type CompensationSnapshotInput,
+} from "../compensation/records";
 import {
   isLive,
   serviceEventContentKey,
@@ -611,6 +620,121 @@ export function deleteLeaveAdjustment(
     data: {
       ...data,
       leaveAdjustments: data.leaveAdjustments.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              deletedAt: context.now,
+              updatedAt: context.now,
+              revision: item.revision + 1,
+              deviceId: context.deviceId,
+            }
+          : item,
+      ),
+    },
+    value: undefined,
+  };
+}
+
+// ── Compensation inputs and history ────────────────────────────────────────
+
+/**
+ * Create or replace the single live attendance confirmation for a month.
+ * Replacing bumps the revision of the same record so merges stay ordered.
+ */
+export function saveAttendanceMonth(
+  data: UserData,
+  input: AttendanceMonthInput,
+  context: CommandContext,
+): CommandResult<AttendanceMonth> {
+  const profile = requireProfile(data);
+  if (!profile) return fail("복무 프로필을 먼저 만들어 주세요.");
+  const existing = data.attendanceMonths.find(
+    (item) => isLive(item) && item.month === input.month,
+  );
+  const parsed = attendanceMonthSchema.safeParse({
+    month: input.month,
+    nonWorkingDates: [...new Set(input.nonWorkingDates)].sort(),
+    dayOverrides: [...input.dayOverrides].sort((a, b) =>
+      a.date.localeCompare(b.date),
+    ),
+    hadNonPayableAbsence: input.hadNonPayableAbsence,
+    // Computed from the stored data, not supplied by the caller.
+    basisFingerprint: attendanceBasisFingerprint(
+      profile,
+      data.events,
+      input.month,
+    ),
+    id: existing?.id ?? context.createId(),
+    serviceProfileId: profile.id,
+    createdAt: existing?.createdAt ?? context.now,
+    updatedAt: context.now,
+    deletedAt: null,
+    revision: existing ? existing.revision + 1 : 1,
+    deviceId: context.deviceId,
+  });
+  if (!parsed.success) {
+    return fail(
+      parsed.error.issues[0]?.message ?? "확인 내용을 다시 봐 주세요.",
+    );
+  }
+  const record = parsed.data;
+  return {
+    ok: true,
+    data: {
+      ...data,
+      attendanceMonths: existing
+        ? data.attendanceMonths.map((item) =>
+            item.id === existing.id ? record : item,
+          )
+        : [...data.attendanceMonths, record],
+    },
+    value: record,
+  };
+}
+
+/** Append an immutable compensation snapshot. */
+export function saveCompensationSnapshot(
+  data: UserData,
+  input: CompensationSnapshotInput,
+  context: CommandContext,
+): CommandResult<CompensationSnapshot> {
+  const profile = requireProfile(data);
+  if (!profile) return fail("복무 프로필을 먼저 만들어 주세요.");
+  const parsed = compensationSnapshotSchema.safeParse({
+    ...input,
+    generatedAt: context.now,
+    id: context.createId(),
+    serviceProfileId: profile.id,
+    createdAt: context.now,
+    updatedAt: context.now,
+    deletedAt: null,
+    revision: 1,
+    deviceId: context.deviceId,
+  });
+  if (!parsed.success) return fail("저장할 계산 결과가 올바르지 않아요.");
+  return {
+    ok: true,
+    data: {
+      ...data,
+      compensationSnapshots: [...data.compensationSnapshots, parsed.data],
+    },
+    value: parsed.data,
+  };
+}
+
+export function deleteCompensationSnapshot(
+  data: UserData,
+  id: string,
+  context: CommandContext,
+): CommandResult {
+  const existing = data.compensationSnapshots.find((item) => item.id === id);
+  if (!existing || !isLive(existing))
+    return fail("저장된 계산을 찾지 못했어요.");
+  return {
+    ok: true,
+    data: {
+      ...data,
+      compensationSnapshots: data.compensationSnapshots.map((item) =>
         item.id === id
           ? {
               ...item,

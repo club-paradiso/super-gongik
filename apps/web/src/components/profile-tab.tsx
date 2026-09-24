@@ -4,9 +4,12 @@ import { LockKeyhole, MapPin } from "lucide-react";
 import { type FormEvent, useState } from "react";
 
 import {
+  PRIOR_SERVICE_BASES,
+  PRIOR_SERVICE_BASIS_LABELS,
   calculateExpectedDischargeDate,
   editProfile,
   isDateOnly,
+  type PriorServiceBasis,
   type DateOnly,
   type LeaveLedger,
   type ServiceProfile,
@@ -19,6 +22,11 @@ import { RecordImportPanel } from "@/components/record-import-panel";
 import { Button } from "@/components/ui/button";
 
 type PriorAnswer = "" | "NONE" | "HAS_PRIOR_SERVICE";
+type WorkPatternAnswer = "" | NonNullable<ServiceProfile["workPattern"]>;
+
+const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
+/** Proposed only after the user picks daytime commuting (국가공무원 복무규정 제9조①). */
+const PROPOSED_WEEKDAYS = [1, 2, 3, 4, 5];
 
 export function ProfileTab({
   data,
@@ -136,7 +144,33 @@ function ProfileForm({
   const [prior, setPrior] = useState<PriorAnswer>(
     profile.priorServiceCredit ?? "",
   );
+  const [priorBasis, setPriorBasis] = useState<PriorServiceBasis | "">(
+    profile.priorServiceBasis ?? "",
+  );
+  const [creditedMonths, setCreditedMonths] = useState(
+    profile.priorServiceCreditedMonths?.toString() ?? "",
+  );
+  const [creditPartialMonth, setCreditPartialMonth] = useState(
+    profile.priorServiceCreditHasPartialMonth,
+  );
+  const [workPattern, setWorkPattern] = useState<WorkPatternAnswer>(
+    profile.workPattern ?? "",
+  );
+  const [weekdays, setWeekdays] = useState<number[]>(
+    profile.workWeekdays ?? PROPOSED_WEEKDAYS,
+  );
+  const [mealRate, setMealRate] = useState(
+    profile.defaultMealAllowanceOverride?.toString() ?? "",
+  );
   const [error, setError] = useState("");
+
+  function toggleWeekday(day: number) {
+    setWeekdays((current) =>
+      current.includes(day)
+        ? current.filter((item) => item !== day)
+        : [...current, day].sort(),
+    );
+  }
 
   function handleCallUpDate(value: string) {
     setCallUpDate(value);
@@ -164,8 +198,27 @@ function ProfileForm({
           expectedDischargeDate,
           serviceCategory: serviceCategory.trim() || null,
           defaultCommuteCost: commuteCost === "" ? null : Number(commuteCost),
+          defaultMealAllowanceOverride:
+            mealRate === "" ? null : Number(mealRate),
           workdayMinutes,
           priorServiceCredit: prior || null,
+          priorServiceBasis:
+            prior === "HAS_PRIOR_SERVICE" && priorBasis ? priorBasis : null,
+          priorServiceCreditedMonths:
+            prior === "HAS_PRIOR_SERVICE" &&
+            !creditPartialMonth &&
+            creditedMonths !== ""
+              ? Number(creditedMonths)
+              : null,
+          priorServiceCreditHasPartialMonth:
+            prior === "HAS_PRIOR_SERVICE" && creditPartialMonth,
+          workPattern: workPattern || null,
+          // Weekdays are stored only for daytime commuting, which the user
+          // selected explicitly; otherwise nothing is assumed.
+          workWeekdays:
+            workPattern === "WEEKDAY_DAYTIME" && weekdays.length
+              ? weekdays
+              : null,
         },
         context,
       ),
@@ -266,15 +319,126 @@ function ProfileForm({
           </label>
         ))}
         <small>
-          &lsquo;없어요&rsquo;일 때만 기본 보수를 계산해요. 경력 인정 계산은
-          아직 검증 중이에요.
+          병역법 시행령 제62조제2항의 7가지 경우에만 기간이 합산돼요. &lsquo;잘
+          모르겠어요&rsquo;면 기본 보수를 계산하지 않아요.
         </small>
       </fieldset>
+
+      {prior === "HAS_PRIOR_SERVICE" ? (
+        <div className="prior-detail">
+          <label className="form-field">
+            <span>해당하는 경우 (제62조제2항)</span>
+            <select
+              value={priorBasis}
+              onChange={(event) =>
+                setPriorBasis(event.target.value as PriorServiceBasis | "")
+              }
+            >
+              <option value="">선택해 주세요</option>
+              {PRIOR_SERVICE_BASES.map((basis) => (
+                <option key={basis} value={basis}>
+                  {PRIOR_SERVICE_BASIS_LABELS[basis]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="form-field">
+            <span>복무기관이 확인한 인정 기간 (개월)</span>
+            <input
+              disabled={creditPartialMonth}
+              inputMode="numeric"
+              max="36"
+              min="1"
+              type="number"
+              value={creditedMonths}
+              onChange={(event) => setCreditedMonths(event.target.value)}
+            />
+            <small>
+              기간은 호마다 계산법이 달라 앱이 추정하지 않아요. 기관에 확인한
+              값을 넣어 주세요.
+            </small>
+          </label>
+          <label className="check-row">
+            <input
+              checked={creditPartialMonth}
+              onChange={(event) => setCreditPartialMonth(event.target.checked)}
+              type="checkbox"
+            />
+            인정 기간이 개월 단위로 딱 떨어지지 않아요
+          </label>
+        </div>
+      ) : null}
+
+      <fieldset className="form-field choice-field">
+        <legend>복무형태</legend>
+        {(
+          [
+            ["WEEKDAY_DAYTIME", "주간 출퇴근"],
+            ["NIGHT_SHIFT_ROTATION", "주·야간 교대(24시간 근무지)"],
+            ["RESIDENTIAL", "합숙 근무"],
+            ["OTHER", "그 밖의 형태"],
+            ["", "아직 모르겠어요"],
+          ] as const
+        ).map(([value, label]) => (
+          <label key={value || "unknown"}>
+            <input
+              checked={workPattern === value}
+              name="work-pattern"
+              onChange={() => setWorkPattern(value)}
+              type="radio"
+            />
+            {label}
+          </label>
+        ))}
+        <small>
+          중식비·교통비 근무일 계산은 주간 출퇴근만 지원해요. 야간 교대는
+          근무일수를 2일로 보는 별도 규정이 있어 계산하지 않아요.
+        </small>
+      </fieldset>
+
+      {workPattern === "WEEKDAY_DAYTIME" ? (
+        <fieldset className="form-field choice-field">
+          <legend>정해진 근무 요일</legend>
+          <div className="weekday-row">
+            {WEEKDAY_LABELS.map((label, day) => (
+              <label className="weekday-chip" key={label}>
+                <input
+                  checked={weekdays.includes(day)}
+                  onChange={() => toggleWeekday(day)}
+                  type="checkbox"
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+          <small>
+            {profile.workWeekdays
+              ? "저장한 근무 요일이에요."
+              : "토요일 휴무 원칙(국가공무원 복무규정 제9조)에 따라 월~금으로 채워 두었어요. 맞으면 저장해 주세요."}
+          </small>
+        </fieldset>
+      ) : null}
+
+      <label className="form-field">
+        <span>1일 중식비 (기관이 더 줄 때만)</span>
+        <input
+          inputMode="numeric"
+          min="0"
+          placeholder="비워 두면 9,000원(2026 최소기준)"
+          type="number"
+          value={mealRate}
+          onChange={(event) => setMealRate(event.target.value)}
+        />
+        <small>
+          병무청 2026년 지급 기준은 1일 9,000원이 최소이고, 기관이 예산 범위에서
+          더 줄 수 있어요. 더 받는 경우에만 그 금액을 넣으세요.
+        </small>
+      </label>
 
       <label className="form-field">
         <span>
           <MapPin aria-hidden="true" size={17} />
-          1일 통근비 (선택)
+          1일 교통비 (시내버스 왕복 현금요금)
         </span>
         <input
           inputMode="numeric"
@@ -284,6 +448,10 @@ function ProfileForm({
           value={commuteCost}
           onChange={(event) => setCommuteCost(event.target.value)}
         />
+        <small>
+          병무청 기준: 시내버스 왕복 현금요금. 환승·지하철 장거리 등 추가비용이
+          있으면 교통카드 금액 기준 실비예요. 걸어서 다녀도 같은 기준이에요.
+        </small>
       </label>
 
       {saved ? (

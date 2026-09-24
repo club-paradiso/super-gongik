@@ -3,6 +3,7 @@ import {
   calculateServiceProgress,
   compareDateOnly,
   isLive,
+  yearMonthOf,
   type DateOnly,
   type LeaveLedger,
   type ServiceEvent,
@@ -12,6 +13,7 @@ import {
 import {
   deriveAnnualLeaveCredits,
   evaluateMonthlyCompensation,
+  findAttendanceMonth,
   type MonthlyCompensationEvaluation,
 } from "@super-gongik/rules";
 
@@ -63,7 +65,13 @@ export function buildAppProjection(
   return {
     progress: calculateServiceProgress(profile, today),
     ledger: buildLedgerForProfile(data, profile, today),
-    compensation: evaluateMonthlyCompensation(profile, today),
+    compensation: evaluateMonthlyCompensation(profile, today, {
+      events: data.events,
+      attendance: findAttendanceMonth(
+        data.attendanceMonths,
+        yearMonthOf(today),
+      ),
+    }),
     liveEvents,
     nextEvent:
       liveEvents.find((event) => compareDateOnly(event.startDate, today) > 0) ??

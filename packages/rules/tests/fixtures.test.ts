@@ -5,11 +5,11 @@ import boundaryFixturesJson from "../fixtures/2026-boundaries.json";
 import {
   calculateAnnualLeaveAllocation,
   calculateHalfDayAnnualLeaveCharge,
+  calculateMealAllowance,
   calculateMonthlyBasePay,
   calculateTransportAllowance,
   evaluateCompassionateLeaveRequest,
   evaluateCompensationSafetyGate,
-  evaluateMealAllowance,
   validateOrdinaryAnnualLeaveBalance,
 } from "../src";
 
@@ -88,6 +88,7 @@ function evaluateFixture(testCase: FixtureCase): Record<string, unknown> {
         ...result.value,
       };
     }
+    case "compensation.base-pay-month-1-call-up-month":
     case "compensation.base-pay-month-2":
     case "compensation.base-pay-month-3-boundary":
     case "compensation.base-pay-month-8":
@@ -96,37 +97,39 @@ function evaluateFixture(testCase: FixtureCase): Record<string, unknown> {
     case "compensation.base-pay-month-15-boundary": {
       const result = calculateMonthlyBasePay({
         calculationDate: yearStart(numberInput(input, "calendarYear")),
-        serviceMonthIndex: numberInput(input, "serviceMonthIndex"),
+        serviceMonthOrdinal: numberInput(input, "serviceMonthOrdinal"),
       });
       return { status: result.status, ...result.value };
     }
-    case "compensation.meal-suggested-rate-unconfirmed": {
-      const result = evaluateMealAllowance({
+    case "compensation.meal-default-mma-minimum":
+    case "compensation.meal-institution-rate-below-minimum": {
+      const rate = input.institutionDailyMealRate;
+      const result = calculateMealAllowance({
         calculationDate: yearStart(numberInput(input, "calendarYear")),
-        mealRateConfirmedByProfile: false,
+        institutionDailyMealRate: typeof rate === "number" ? rate : null,
+        mealEligibleDays: numberInput(input, "mealEligibleDays"),
       });
-      return { status: result.status, ...result.breakdown };
+      return { status: result.status, ...result.value, ...result.breakdown };
     }
-    case "compensation.transport-missing-context": {
+    case "compensation.transport-missing-fare": {
       const result = calculateTransportAllowance({
         calculationDate: yearStart(numberInput(input, "calendarYear")),
-        commuteFareOrInstitutionApprovedTransportRate: null,
-        eligibleServiceDays: numberInput(input, "eligibleServiceDays"),
+        dailyPublicTransitFare: null,
+        transportEligibleDays: numberInput(input, "transportEligibleDays"),
       });
       return { status: result.status, ...result.breakdown };
     }
-    case "compensation.partial-first-month-gated": {
+    case "compensation.partial-month-gated-ambiguous-rounding": {
       const result = evaluateCompensationSafetyGate({
         calculationDate: yearStart(numberInput(input, "calendarYear")),
         partialMonth: true,
-        periodType: stringInput(input, "periodType"),
       });
       return { status: result.status, ...result.breakdown };
     }
-    case "compensation.prior-service-credit-gated": {
+    case "compensation.non-payable-days-gated": {
       const result = evaluateCompensationSafetyGate({
         calculationDate: yearStart(numberInput(input, "calendarYear")),
-        hasPriorServiceCreditCase: true,
+        possibleNonPayableDays: true,
       });
       return { status: result.status, ...result.breakdown };
     }
@@ -141,7 +144,7 @@ describe("source-derived 2026 boundary fixtures", () => {
   });
 
   it("keeps every fixture case connected to executable code", () => {
-    expect(cases).toHaveLength(16);
+    expect(cases).toHaveLength(18);
     expect(cases.map((testCase) => testCase.id)).toHaveLength(
       new Set(cases.map((testCase) => testCase.id)).size,
     );

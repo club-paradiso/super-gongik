@@ -325,7 +325,7 @@ describe("backup, restore and export", () => {
     );
     expect(JSON.parse(text)).toMatchObject({
       format: "super-gongik.backup",
-      schemaVersion: 2,
+      schemaVersion: 3,
     });
     const parsed = parseBackup(text);
     expect(parsed.ok).toBe(true);
@@ -348,7 +348,7 @@ describe("backup, restore and export", () => {
     expect(result.ok).toBe(false);
     const newer = {
       ...createBackup(data, ""),
-      data: { ...data, schemaVersion: 3 },
+      data: { ...data, schemaVersion: 4 },
     };
     expect(parseBackup(JSON.stringify(newer))).toMatchObject({ ok: false });
   });

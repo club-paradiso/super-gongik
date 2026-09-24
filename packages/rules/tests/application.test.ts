@@ -94,21 +94,24 @@ describe("annual-leave credits by grant date", () => {
 });
 
 describe("monthly compensation gating", () => {
-  it("calculates only verified base pay and never a total", () => {
+  it("calculates verified base pay but no total while inputs are missing", () => {
     const result = evaluateMonthlyCompensation(
       profile("2026-01-05", "2027-10-04"),
       "2026-10-15",
     );
-    expect(result.status).toBe("PARTIAL_ESTIMATE");
-    expect(result.serviceMonthIndex).toBe(9);
+    expect(result.status).toBe("PARTIAL");
+    // January is month 1, so October is month 10 → 상등병 band (9–14).
+    expect(result.serviceMonthOrdinal).toBe(10);
     expect(result.components[0]).toMatchObject({
       status: "CALCULATED",
       monthlyAmount: 1_200_000,
     });
+    // The MMA 2026 minimum is known, but the month's days are not confirmed.
     expect(result.components[1]).toMatchObject({
-      status: "SUGGESTED_ONLY",
+      status: "NEEDS_INPUT",
       monthlyAmount: null,
       dailyRate: 9000,
+      rateSource: "OFFICIAL_MINIMUM",
     });
     expect(result.components[2]).toMatchObject({
       status: "NEEDS_INPUT",
@@ -118,29 +121,29 @@ describe("monthly compensation gating", () => {
     expect(result.rule?.version).toBe("2026");
   });
 
-  it("returns no number for the partial call-up month", () => {
+  it("returns no base-pay number for the partial call-up month", () => {
     const result = evaluateMonthlyCompensation(
       profile("2026-09-14", "2028-06-13"),
       "2026-09-24",
     );
-    expect(result.status).toBe("GATED");
-    expect(
-      result.components.every((component) => component.monthlyAmount === null),
-    ).toBe(true);
+    expect(result.components[0]).toMatchObject({
+      status: "GATED",
+      monthlyAmount: null,
+    });
+    expect(result.total).toBeNull();
   });
 
-  it("returns no number while prior service is unanswered or present", () => {
+  it("returns no base-pay number while prior service is unanswered or unconfirmed", () => {
     for (const answer of [null, "HAS_PRIOR_SERVICE"] as const) {
       const result = evaluateMonthlyCompensation(
         profile("2026-01-05", "2027-10-04", answer),
         "2026-10-15",
       );
-      expect(result.status).not.toBe("PARTIAL_ESTIMATE");
-      expect(
-        result.components.every(
-          (component) => component.monthlyAmount === null,
-        ),
-      ).toBe(true);
+      expect(result.components[0]).toMatchObject({
+        status: "NEEDS_INPUT",
+        monthlyAmount: null,
+      });
+      expect(result.total).toBeNull();
     }
   });
 
@@ -153,7 +156,7 @@ describe("monthly compensation gating", () => {
     expect(result.components).toEqual([]);
   });
 
-  it("keeps transport contextual even when a commute fare is entered", () => {
+  it("keeps transport uncalculated until the month's days are settled", () => {
     const withFare = {
       ...profile("2026-01-05", "2027-10-04"),
       defaultCommuteCost: 3000,
@@ -201,6 +204,7 @@ describe("compensation rule selection by the evaluated date", () => {
       bundles,
     });
     expect(result.rule?.version).toBe("2026-H1");
+    // Call-up 2026-01 → June is month 6 → 일등병 band (3–8).
     expect(result.components[0]?.monthlyAmount).toBe(900_000);
   });
 
@@ -227,7 +231,7 @@ describe("compensation rule selection by the evaluated date", () => {
       "2026-07-20",
       { bundles },
     );
-    expect(partialMonth.status).toBe("GATED");
+    expect(partialMonth.components[0]?.status).toBe("GATED");
     expect(
       partialMonth.components.every((item) => item.monthlyAmount === null),
     ).toBe(true);

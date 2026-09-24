@@ -1,3 +1,4 @@
+export * from "./compensation/index";
 export * from "./calendar/index";
 export * from "./events/index";
 export * from "./leave/index";

@@ -8,7 +8,7 @@
 - Keep policy versions separate from user records.
 - Preserve enough metadata to explain historical calculations.
 
-## 1a. Implemented document (schema version 2)
+## 1a. Implemented document (schema version 3)
 
 The source of truth is the zod schema in `packages/domain/src/store/schema.ts`.
 The sections below describe the long-term relational target; this is what is
@@ -16,12 +16,20 @@ stored today:
 
 ```text
 UserData {
-  schemaVersion: 2, documentRevision, savedAt, deviceId,
-  profile: ServiceProfile | null      // + workdayMinutes, priorServiceCredit
+  schemaVersion: 3, documentRevision, savedAt, deviceId,
+  profile: ServiceProfile | null      // + workdayMinutes, priorServiceCredit,
+                                      //   priorServiceBasis, priorServiceCreditedMonths,
+                                      //   priorServiceCreditHasPartialMonth,
+                                      //   workPattern, workWeekdays
   events: ServiceEvent[]              // manual and imported, one shape
   leaveAdjustments: LeaveAdjustment[] // GRANT_CONFIRMATION | CORRECTION
   leaveSnapshots: LeaveSnapshot[]     // institution balance evidence
   imports: ImportRecord[]             // batches, ACTIVE | ROLLED_BACK
+  attendanceMonths: AttendanceMonth[] // one live per month: holidays, per-day
+                                      //   meal/transport decisions, non-payable flag,
+                                      //   basisFingerprint (schedule + month records)
+  compensationSnapshots: CompensationSnapshot[] // immutable evaluation JSON +
+                                      //   ruleId/ruleVersion/total
 }
 
 ServiceEvent {
@@ -33,6 +41,8 @@ ServiceEvent {
 }
 ```
 
+- v2 → v3 migration adds empty `attendanceMonths` and `compensationSnapshots`;
+  new profile fields default to null/false (unanswered).
 - Partial usage is integer minutes; the half-day annual-leave unit is an
   integer count of halves. No floating-point day value is stored.
 - `PARTIAL.durationMinutes = null` exists only for imported rows whose
