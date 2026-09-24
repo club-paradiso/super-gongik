@@ -24,10 +24,10 @@ import {
   calculateMonthlyBasePay,
   calculateTransportAllowance,
 } from "./compensation";
+import { deriveMonthNonPayableDates } from "./non-payable-days";
 import { selectRuleByDate } from "./selector";
 import {
   deriveMonthServiceDays,
-  sickLeaveDaysUpperBound,
   type MonthServiceDays,
 } from "./service-days";
 
@@ -58,6 +58,9 @@ export type CompensationComponent = {
 export type BasePayAdjustment = {
   roundingPolicy: CompensationRoundingPolicy | null;
   nonPayableDates: DateOnly[];
+  manualNonPayableDates: DateOnly[];
+  derivedNonPayableDates: DateOnly[];
+  derivationUnresolved: string[];
   nonPayableDatesConfirmed: boolean;
   calendarDaysInMonth: number;
   serviceCalendarDays: number | null;
@@ -171,6 +174,7 @@ export function evaluateMonthlyCompensation(
     bundles?: readonly CompensationRuleBundle[];
     events?: readonly ServiceEvent[];
     attendance?: AttendanceMonth | null;
+    attendanceMonths?: readonly AttendanceMonth[];
   } = {},
 ): MonthlyCompensationEvaluation {
   const month = yearMonthOf(asOfDate);
@@ -300,19 +304,32 @@ export function evaluateMonthlyCompensation(
     }
   }
 
-  const sickUpperBound = sickLeaveDaysUpperBound(events, last);
-  const sickLimit =
-    bundle.proration.nonPayableDays.sickLeaveCumulativeLimitDays;
   const partialMonth = isPartialServiceMonth(profile, asOfDate);
   const attendance = options.attendance ?? null;
   const exactDatesConfirmed = attendance?.nonPayableDatesConfirmed === true;
+  const manualNonPayableDates = attendance?.nonPayableDates ?? [];
+  const attendanceMonths =
+    options.attendanceMonths ??
+    (attendance ? [attendance] : ([] as readonly AttendanceMonth[]));
+  const derivedNonPayable = deriveMonthNonPayableDates({
+    profile,
+    events,
+    attendanceMonths,
+    month,
+  });
+  const derivedConflict =
+    exactDatesConfirmed &&
+    derivedNonPayable.dates.some(
+      (date) => !manualNonPayableDates.includes(date),
+    );
   const exactNonPayableDates = exactDatesConfirmed
-    ? attendance.nonPayableDates
-    : [];
+    ? manualNonPayableDates
+    : derivedNonPayable.dates;
   const hasUnresolvedNonPayableSignal =
-    attendance?.hadNonPayableAbsence === true && !exactDatesConfirmed;
-  const sickLeaveNeedsExactDates =
-    sickUpperBound > sickLimit && !exactDatesConfirmed;
+    (!exactDatesConfirmed &&
+      (attendance?.hadNonPayableAbsence === true ||
+        derivedNonPayable.unresolved.length > 0)) ||
+    derivedConflict;
   const roundingPolicy = attendance?.roundingPolicy ?? null;
   const needsAdjustedBasePay = partialMonth || exactNonPayableDates.length > 0;
   let basePayAdjustment: BasePayAdjustment | null = null;
@@ -346,6 +363,9 @@ export function evaluateMonthlyCompensation(
     basePayAdjustment = {
       roundingPolicy,
       nonPayableDates: relevantNonPayableDates,
+      manualNonPayableDates,
+      derivedNonPayableDates: derivedNonPayable.dates,
+      derivationUnresolved: derivedNonPayable.unresolved,
       nonPayableDatesConfirmed: exactDatesConfirmed,
       calendarDaysInMonth: daysInMonth(month),
       serviceCalendarDays,
@@ -354,10 +374,12 @@ export function evaluateMonthlyCompensation(
       roundedAmount: null,
     };
 
-    if (hasUnresolvedNonPayableSignal || sickLeaveNeedsExactDates) {
-      const text = sickLeaveNeedsExactDates
-        ? `병가 기록이 통산 ${sickLimit}일을 넘을 수 있어요(최대 ${sickUpperBound}일). 공무상 여부와 실제 미지급 날짜를 전부 확인해야 기본 보수를 계산할 수 있어요.`
-        : "이 달에 미지급 사유가 있었다는 기존 기록은 있지만 정확한 날짜가 없어요. 기본 보수 미지급 날짜를 모두 확인해야 계산할 수 있어요.";
+    if (hasUnresolvedNonPayableSignal) {
+      const text = derivedConflict
+        ? "기록에서 자동 도출한 미지급 날짜가 기관 확인 목록에 빠져 있어요. 기록과 기관 기준을 다시 확인해야 기본 보수를 계산할 수 있어요."
+        : derivedNonPayable.unresolved.length > 0 && !exactDatesConfirmed
+          ? `기록만으로 기본 보수 미지급 날짜를 전부 확정할 수 없어요. ${derivedNonPayable.unresolved[0]}`
+          : "이 달에 미지급 사유가 있었다는 기존 기록은 있지만 정확한 날짜가 없어요. 기본 보수 미지급 날짜를 모두 확인해야 계산할 수 있어요.";
       base = baseComponent("GATED", text);
       unresolved.push(text);
     } else if (
@@ -397,6 +419,11 @@ export function evaluateMonthlyCompensation(
       if (relevantNonPayableDates.length) {
         assumptions.push(
           `기본 보수 미지급 날짜: ${relevantNonPayableDates.join(", ")}.`,
+        );
+      }
+      if (!exactDatesConfirmed && derivedNonPayable.dates.length) {
+        assumptions.push(
+          `미지급 날짜 ${derivedNonPayable.dates.length}일은 복무 기록에서 자동 도출했어요.`,
         );
       }
     } else {
