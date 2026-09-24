@@ -86,6 +86,43 @@ describe("tabular import", () => {
     );
   });
 
+  it("finds a CSV header after administrative preamble rows and preserves source rows", async () => {
+    const parsed = parseDelimitedText(
+      "사회복무요원 복무상황부\n출력일,2026-09-25\n\n사용일자,복무상황,사용시간,비고\n2026-09-01,연가,4시간,병원\n\n2026-09-03,병가,8시간,진료",
+    );
+    expect(parsed.headers).toEqual([
+      "사용일자",
+      "복무상황",
+      "사용시간",
+      "비고",
+    ]);
+    expect(parsed.rowSourceIndexes).toEqual([5, 7]);
+
+    const preview = await buildImportPreview(parsed, batchFor("preamble"));
+    expect(preview.events.map((event) => event.sourceRowIndex)).toEqual([5, 7]);
+    const { drafts } = buildImportDrafts(preview, new Set([5]));
+    expect(drafts[0]?.source.sourceRowIndex).toBe(5);
+  });
+
+  it("keeps duplicate CSV headers distinct instead of overwriting a column", () => {
+    const parsed = parseDelimitedText(
+      "날짜,구분,비고,비고\n2026-09-01,연가,1차결재,2차결재",
+    );
+    expect(parsed.headers).toEqual(["날짜", "구분", "비고", "비고 (2)"]);
+    expect(parsed.rows[0]).toMatchObject({
+      비고: "1차결재",
+      "비고 (2)": "2차결재",
+    });
+  });
+
+  it("rejects delimited files without a recognizable personal record table", () => {
+    expect(() =>
+      parseDelimitedText(
+        "문서명,사회복무요원 안내\n시행일,2026-01-01\n내용,연가 사용 안내",
+      ),
+    ).toThrow(/개인 복무기록|휴가 잔액/);
+  });
+
   it("normalizes common civil date formats", () => {
     expect(parseDateCell("2026.09.01")).toBe("2026-09-01");
     expect(parseDateCell("2026년 9월 1일")).toBe("2026-09-01");
@@ -107,6 +144,11 @@ describe("tabular import", () => {
     expect(classifyEventType("연가").eventType).toBe("ANNUAL_LEAVE");
     expect(classifyEventType("특휴").eventType).toBe("SPECIAL_LEAVE");
     expect(classifyEventType("복무기본교육").eventType).toBe("EDUCATION");
+    expect(classifyEventType("복무이탈").eventType).toBe("SERVICE_ABSENCE");
+    expect(classifyEventType("분할복무").eventType).toBe("SERVICE_SUSPENSION");
+    expect(classifyEventType("연가초과 결근").eventType).toBe(
+      "EXCESS_ANNUAL_ABSENCE",
+    );
     expect(classifyEventType("정체불명휴가").eventType).toBeNull();
   });
 
@@ -191,6 +233,33 @@ describe("tabular import", () => {
 
   it("reads spreadsheet date cells as civil dates in any time zone", () => {
     expect(parseDateCell(new Date(Date.UTC(2026, 8, 1)))).toBe("2026-09-01");
+  });
+
+  it("treats a dated aggregate balance as a snapshot, not a fake event", async () => {
+    const parsed = parseDelimitedText(
+      "날짜,휴가종류,총부여일수,사용일수,잔여일수\n2026-09-01,연가,15,3.5,11.5",
+    );
+    const preview = await buildImportPreview(parsed, batchFor("dated-snapshot"));
+    expect(preview.events).toEqual([]);
+    expect(preview.snapshots).toHaveLength(1);
+    expect(preview.snapshots[0]).toMatchObject({
+      asOfDate: "2026-09-01",
+      grantedDays: 15,
+      usedDays: 3.5,
+      remainingDays: 11.5,
+    });
+  });
+
+  it("blocks aggregate balances whose bare values have no unit-bearing headers", async () => {
+    const parsed = parseDelimitedText(
+      "휴가종류,총부여,누적사용,잔여\n연가,15,3,12",
+    );
+    const preview = await buildImportPreview(parsed, batchFor("ambiguous-snapshot"));
+    expect(preview.snapshots).toHaveLength(1);
+    expect(preview.unresolvedRowIndexes).toEqual([2]);
+    expect(
+      preview.snapshots[0]?.warnings.map((warning) => warning.code),
+    ).toContain("AMBIGUOUS_SNAPSHOT_QUANTITY");
   });
 
   it("preserves aggregate institution leave balances as snapshots", async () => {
