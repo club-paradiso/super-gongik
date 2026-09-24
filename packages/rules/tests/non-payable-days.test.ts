@@ -129,10 +129,28 @@ describe("deriveMonthNonPayableDates", () => {
     expect(result.unresolved).toEqual([]);
   });
 
+  it("does not gate sick-leave ambiguity when the 30-day threshold cannot be crossed", () => {
+    const subject = profile();
+    const events = [
+      event("SICK_LEAVE", "2026-07-10", "2026-07-10", 1, {
+        sickLeaveCategory: "UNKNOWN",
+      }),
+    ];
+
+    const result = deriveMonthNonPayableDates({
+      profile: subject,
+      events,
+      month: "2026-07",
+    });
+
+    expect(result.dates).toEqual([]);
+    expect(result.unresolved).toEqual([]);
+  });
+
   it("fails closed when an earlier sick leave has unknown compensation classification", () => {
     const subject = profile();
     const events = [
-      event("SICK_LEAVE", "2026-06-01", "2026-06-10", 10, {
+      event("SICK_LEAVE", "2026-06-01", "2026-06-30", 30, {
         sickLeaveCategory: "UNKNOWN",
       }),
       event("SICK_LEAVE", "2026-07-10", "2026-07-10", 1, {
@@ -153,6 +171,13 @@ describe("deriveMonthNonPayableDates", () => {
 
   it("fails closed when ordinary sick leave has no provable charged dates", () => {
     const subject = profile();
+    const prior = event(
+      "SICK_LEAVE",
+      "2026-06-01",
+      "2026-06-30",
+      30,
+      { sickLeaveCategory: "ORDINARY" },
+    );
     const partial: ServiceEvent = {
       ...event("SICK_LEAVE", "2026-07-10", "2026-07-10", 1, {
         sickLeaveCategory: "ORDINARY",
@@ -167,7 +192,7 @@ describe("deriveMonthNonPayableDates", () => {
 
     const result = deriveMonthNonPayableDates({
       profile: subject,
-      events: [partial],
+      events: [prior, partial],
       month: "2026-07",
     });
 
