@@ -658,6 +658,9 @@ export function saveAttendanceMonth(
       a.date.localeCompare(b.date),
     ),
     hadNonPayableAbsence: input.hadNonPayableAbsence,
+    nonPayableDates: [...new Set(input.nonPayableDates)].sort(),
+    nonPayableDatesConfirmed: input.nonPayableDatesConfirmed,
+    roundingPolicy: input.roundingPolicy,
     // Computed from the stored data, not supplied by the caller.
     basisFingerprint: attendanceBasisFingerprint(
       profile,
