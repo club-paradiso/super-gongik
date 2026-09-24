@@ -248,7 +248,7 @@ export function evaluateMonthlyCompensation(
 
   // ── Base pay ─────────────────────────────────────────────────────────────
   const baseBasis =
-    "병역법 시행령 제62조①·②, 공무원보수규정 별표 13, 사회복무요원 복무관리 규정 제41조①·⑤·⑥, 병무청 2026년도 사회복무요원 보수 등 지급 기준";
+    "병역법 시행령 제62조①·②, 공무원보수규정 별표 13, 사회복무요원 복무관리 규정 제41조①·⑤·⑥, 국고금 관리법 제47조(해당 지급기관에 적용되는 경우), 병무청 2026년도 사회복무요원 보수 등 지급 기준";
   let base: CompensationComponent;
   let serviceMonthOrdinal: number | null = null;
   let equivalentRank: string | null = null;
