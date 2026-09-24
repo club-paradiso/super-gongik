@@ -1,5 +1,6 @@
 import {
   SERVICE_EVENT_TYPE_LABELS,
+  type RejectReason,
   type EnablePreview,
   type SyncCollection,
   type SyncConflict,
@@ -41,6 +42,9 @@ export function syncLabel(state: CloudState): { text: string; tone: SyncTone } {
     default:
       if (sync.conflicts.length > 0) {
         return { text: "충돌 확인 필요", tone: "attention" };
+      }
+      if (sync.held.length > 0) {
+        return { text: "동기화 확인 필요", tone: "attention" };
       }
       if (sync.dirty) return { text: "동기화 대기", tone: "neutral" };
       return { text: "동기화됨", tone: "ok" };
@@ -144,6 +148,13 @@ export function conflictSides(conflict: SyncConflict) {
     cloud: describeRecord(conflict.collection, conflict.cloudRecord),
   };
 }
+
+export const HELD_REASON_COPY: Record<RejectReason, string> = {
+  LEAVE_OVERLAP: "이 기기의 다른 휴가와 날짜·시간이 겹쳐요.",
+  CREDIT_ALREADY_CONFIRMED: "이 기기에 같은 연가 부여 확인값이 이미 있어요.",
+  MONTH_ALREADY_CONFIRMED: "이 기기에 같은 달 근무일 확인이 이미 있어요.",
+  BATCH_RECORDS_UNAVAILABLE: "함께 가져온 기록이 이 기기에 없어요.",
+};
 
 export function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;

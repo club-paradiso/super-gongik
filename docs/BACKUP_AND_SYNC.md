@@ -1,7 +1,8 @@
 # Backup, restore, recovery and the sync-ready merge contract
 
-Status: implemented for local backup/restore (Issue #25). **Remote sync is
-not implemented** — see [Not implemented yet](#not-implemented-yet).
+Status: implemented for local backup/restore (Issue #25). Optional remote
+sync and cloud backup are built on this contract (Issue #27): see
+[CLOUD_SYNC.md](./CLOUD_SYNC.md).
 
 Code: `packages/domain/src/store/` — `backup.ts` (file format), `integrity.ts`
 (checksum), `sync-contract.ts` (record rules, conflict types), `merge.ts`
@@ -242,9 +243,9 @@ MERGE today). Keep four layers apart:
    base produce concurrent versions. Revision size says nothing about which
    saw which; only recorded ancestry does. Without it, the result is a
    structured conflict.
-4. **Future remote sync** (not implemented): would reuse these rules but
-   also needs an outbox, tombstone retention/garbage collection, and
-   ancestry kept by every client (section 9).
+4. **Remote sync** (Issue #27, [CLOUD_SYNC.md](./CLOUD_SYNC.md)): reuses
+   these rules with `incomingDeletions: "APPLY_NEWER"`; transport ordering
+   (`seq`) and the account `generation` are separate metadata.
 
 ### Versions and ancestry
 
@@ -457,14 +458,12 @@ data. Going online triggers no data code path.
 
 ## Not implemented yet
 
-- remote/cloud synchronization (no server, no sync adapter, no queue)
-- the rest of a remote sync protocol: an outbox of local changes, a server
-  or peer transport, tombstone retention and garbage collection, and a
-  guarantee that every client keeps `supersedes` (older app versions drop
-  it)
-- account/login/authentication
-- server-side backup
+Remote sync, account sign-in and server-side backup now exist
+([CLOUD_SYNC.md](./CLOUD_SYNC.md)). Still missing:
+
+- tombstone garbage collection (tombstones are kept until cloud data is
+  deleted)
 - multi-user sharing
-- end-to-end encryption (backups are plain JSON; the checksum is not
-  encryption or a signature)
+- end-to-end encryption (backups and synced records are plain JSON; the
+  checksum is not encryption or a signature)
 - Capacitor/iOS native wrapper

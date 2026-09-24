@@ -51,12 +51,21 @@ export type MergeOptions = {
   restoreLocallyDeleted?: boolean;
   /**
    * What to do with an incoming tombstone that is newer than a live local
-   * record. Backup recovery keeps the local record (`KEEP_LOCAL_LIVE`); a
-   * future sync adapter propagates deletions (`APPLY_NEWER`).
+   * record. Backup recovery keeps the local record (`KEEP_LOCAL_LIVE`); the
+   * sync engine propagates deletions (`APPLY_NEWER`).
    */
   incomingDeletions?: "KEEP_LOCAL_LIVE" | "APPLY_NEWER";
   /** Human answers for conflicts, keyed by `MergeConflict.key`. */
   resolutions?: Readonly<Record<string, ConflictResolution>>;
+  /**
+   * A record whose content matches a live local record under another id.
+   * Backup recovery skips it (`SKIP`, default): the same fact probably came
+   * in twice. Sync keeps it (`KEEP_BOTH`): every device must hold the same
+   * set of ids to converge, and the user deletes a real duplicate once for
+   * all devices. Invariants (overlapping leave, a second credit
+   * confirmation, a second answer for a month) are enforced either way.
+   */
+  duplicateContent?: "SKIP" | "KEEP_BOTH";
 };
 
 export type MergeContext = { now: string; deviceId: string };
@@ -446,7 +455,10 @@ export function analyzeMerge(
     block(candidate, phase) {
       const others = index.neighbours(candidate);
       const key = serviceEventContentKey(candidate);
-      if (others.some((other) => serviceEventContentKey(other) === key)) {
+      if (
+        options.duplicateContent !== "KEEP_BOTH" &&
+        others.some((other) => serviceEventContentKey(other) === key)
+      ) {
         return { outcome: "DUPLICATE" };
       }
       if (
@@ -495,6 +507,7 @@ export function analyzeMerge(
         );
         return { outcome: "REJECTED", reason: "CREDIT_ALREADY_CONFIRMED" };
       }
+      if (options.duplicateContent === "KEEP_BOTH") return null;
       const key = correctionKey(candidate);
       return others.some((item) => correctionKey(item) === key)
         ? { outcome: "DUPLICATE" }

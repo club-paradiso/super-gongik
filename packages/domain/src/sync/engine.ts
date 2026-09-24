@@ -6,6 +6,8 @@ import type {
   ConflictResolution,
   MergeConflict,
   OutcomeCounts,
+  RecordChange,
+  RejectReason,
   SyncCollection,
 } from "../store/sync-contract";
 import { planPush } from "./push-plan";
@@ -63,6 +65,20 @@ export type SyncConflict = MergeConflict & {
   cloudRecord: SyncRecord | null;
 };
 
+/**
+ * A cloud record this device could not apply because it would break a
+ * domain invariant here (overlapping leave, a second confirmation of one
+ * credit, a second answer for one month). Kept and retried every run, so it
+ * applies as soon as the user fixes the local record it collides with.
+ */
+export type SyncHeld = {
+  key: string;
+  collection: SyncCollection;
+  recordId: string;
+  reason: RejectReason | null;
+  cloudRecord: SyncRecord | null;
+};
+
 export type SyncBlock =
   /** Cloud data was deleted (generation moved on). Needs a user decision. */
   | { reason: "GENERATION_MISMATCH"; account: RemoteAccount }
@@ -96,6 +112,8 @@ export type SyncStatus = {
   block: SyncBlock | null;
   error: SyncErrorCategory | null;
   conflicts: SyncConflict[];
+  /** Cloud records held back by a local invariant (see `SyncHeld`). */
+  held: SyncHeld[];
   lastSyncedAt: string | null;
   /** A local change happened after the last completed sync. */
   dirty: boolean;
@@ -159,6 +177,8 @@ type MergeValue =
   | {
       kind: "MERGED";
       conflicts: MergeConflict[];
+      /** Cloud records not applied because of a local invariant. */
+      rejected: RecordChange[];
       counts: MergeAnalysis["counts"] | null;
     }
   | { kind: "PROFILE_MISMATCH" }
@@ -198,19 +218,31 @@ function mergeCommand(
     if (!incoming.ok)
       return unchanged({ kind: "INVALID", issues: incoming.issues });
     if (!incoming.data) {
-      return unchanged({ kind: "MERGED", conflicts: [], counts: null });
+      return unchanged({
+        kind: "MERGED",
+        conflicts: [],
+        rejected: [],
+        counts: null,
+      });
     }
     const result = analyzeMerge(
       base,
       incoming.data,
       { now: context.now, deviceId: base.deviceId },
-      { incomingDeletions: "APPLY_NEWER", resolutions },
+      SYNC_MERGE_OPTIONS(resolutions),
     );
     if (!result.ok) return unchanged({ kind: "PROFILE_MISMATCH" });
     const { analysis } = result;
     const value: MergeValue = {
       kind: "MERGED",
       conflicts: analysis.conflicts,
+      // A rejected snapshot is still stored (as history); only records that
+      // were not stored at all are held for a retry.
+      rejected: analysis.changes.filter(
+        (change) =>
+          change.outcome === "REJECTED" &&
+          change.collection !== "leaveSnapshots",
+      ),
       counts: analysis.counts,
     };
     return sameRecords(base, analysis.data)
@@ -218,6 +250,15 @@ function mergeCommand(
       : { ok: true as const, data: analysis.data, value };
   };
 }
+
+/** Merge policy for sync: deletions travel, ids are never collapsed. */
+const SYNC_MERGE_OPTIONS = (
+  resolutions?: Readonly<Record<string, ConflictResolution>>,
+) => ({
+  incomingDeletions: "APPLY_NEWER" as const,
+  duplicateContent: "KEEP_BOTH" as const,
+  resolutions,
+});
 
 function hasUserData(data: UserData) {
   return data.profile !== null;
@@ -240,6 +281,7 @@ export function createSyncEngine(options: SyncEngineOptions) {
     block: null,
     error: null,
     conflicts: [],
+    held: [],
     lastSyncedAt: null,
     dirty: false,
     generation: null,
@@ -345,7 +387,13 @@ export function createSyncEngine(options: SyncEngineOptions) {
     const started = Date.now();
     const state = await options.state.load();
     if (!state) {
-      setStatus({ phase: "DISABLED", block: null, error: null, conflicts: [] });
+      setStatus({
+        phase: "DISABLED",
+        block: null,
+        error: null,
+        conflicts: [],
+        held: [],
+      });
       return status;
     }
     const changesAtStart = changeCounter;
@@ -355,6 +403,7 @@ export function createSyncEngine(options: SyncEngineOptions) {
     let rounds = 0;
     let counts: SyncSummary["counts"] = {};
     let conflicts: SyncConflict[];
+    let held: SyncHeld[];
     let localRevision: number | null;
     try {
       let forced = new Set(Object.keys(resolutions ?? {}));
@@ -392,6 +441,7 @@ export function createSyncEngine(options: SyncEngineOptions) {
         // ── Merge and commit locally ──────────────────────────────────
         let data: UserData;
         let mergeConflicts: MergeConflict[] = [];
+        let rejected: RecordChange[] = [];
         if (validation.rows.length > 0 || pendingResolutions) {
           const result = await options.store.run(
             mergeCommand(validation.rows, pendingResolutions),
@@ -409,6 +459,7 @@ export function createSyncEngine(options: SyncEngineOptions) {
           }
           data = result.data;
           mergeConflicts = value.conflicts;
+          rejected = value.rejected;
           if (value.counts) counts = value.counts;
         } else {
           data = await latestData();
@@ -428,6 +479,11 @@ export function createSyncEngine(options: SyncEngineOptions) {
         }
         state.cursor = Math.max(state.cursor, pulled.cursor);
         const conflictKeys = new Set(mergeConflicts.map((item) => item.key));
+        const heldKeys = new Set(
+          rejected.map((change) =>
+            syncRecordKey(change.collection, change.recordId),
+          ),
+        );
         const rawByKey = new Map<string, RemoteRow>();
         for (const row of [...stashed, ...fresh]) {
           rawByKey.set(
@@ -436,7 +492,7 @@ export function createSyncEngine(options: SyncEngineOptions) {
           );
         }
         state.stash = Object.fromEntries(
-          [...conflictKeys]
+          [...conflictKeys, ...heldKeys]
             .filter((key) => rawByKey.has(key))
             .map((key) => {
               const row = rawByKey.get(key)!;
@@ -454,6 +510,16 @@ export function createSyncEngine(options: SyncEngineOptions) {
         );
         await options.state.save(state);
         conflicts = conflictViews(mergeConflicts, data, remoteByKey);
+        held = rejected.map((change) => {
+          const key = syncRecordKey(change.collection, change.recordId);
+          return {
+            key,
+            collection: change.collection,
+            recordId: change.recordId,
+            reason: change.reason ?? null,
+            cloudRecord: remoteByKey.get(key)?.record ?? null,
+          };
+        });
 
         // ── Push ─────────────────────────────────────────────────────
         const items = planPush({
@@ -516,6 +582,7 @@ export function createSyncEngine(options: SyncEngineOptions) {
         block: null,
         error: null,
         conflicts,
+        held,
         lastSyncedAt: state.lastSyncedAt,
         dirty: changeCounter !== changesAtStart,
         lastSummary: {
@@ -529,7 +596,7 @@ export function createSyncEngine(options: SyncEngineOptions) {
       emit({
         kind: "sync",
         reason,
-        outcome: conflicts.length ? "CONFLICT" : "OK",
+        outcome: conflicts.length || held.length ? "CONFLICT" : "OK",
         pulled: pulledTotal,
         pushed: pushedTotal,
         conflicts: conflicts.length,
@@ -663,7 +730,7 @@ export function createSyncEngine(options: SyncEngineOptions) {
         local,
         incoming.data,
         { now: now().toISOString(), deviceId: local.deviceId },
-        { incomingDeletions: "APPLY_NEWER" },
+        SYNC_MERGE_OPTIONS(),
       );
       if (!result.ok) {
         return {
@@ -799,6 +866,20 @@ export function createSyncEngine(options: SyncEngineOptions) {
       return exclusive(() => runSync("resolve", resolutions));
     },
 
+    /**
+     * Forget what this device knows about remote rows so the next run pulls
+     * and merges everything again. Needed after a REPLACE restore: it can
+     * put versions on this device that are older than rows the cursor has
+     * already passed, and only a full merge brings the newer ones back
+     * (or surfaces them as conflicts). Open conflicts are kept.
+     */
+    requestFullResync: () =>
+      exclusive(async () => {
+        const state = await options.state.load();
+        if (!state) return;
+        await options.state.save({ ...state, cursor: 0, shadow: {} });
+      }),
+
     /** Stop syncing on this device. Keeps local data; forgets the checkpoint. */
     disable: () =>
       exclusive(async () => {
@@ -808,6 +889,7 @@ export function createSyncEngine(options: SyncEngineOptions) {
           block: null,
           error: null,
           conflicts: [],
+          held: [],
           generation: null,
         });
       }),

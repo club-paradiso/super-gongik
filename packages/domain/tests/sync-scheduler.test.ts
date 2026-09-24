@@ -51,6 +51,7 @@ function status(patch: Partial<SyncStatus>): SyncStatus {
     block: null,
     error: null,
     conflicts: [],
+    held: [],
     lastSyncedAt: null,
     dirty: false,
     generation: 1,

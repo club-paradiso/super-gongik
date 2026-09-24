@@ -36,3 +36,45 @@ jobs:
         run: pnpm test
       - name: Build web app
         run: pnpm build
+
+  database:
+    name: Database policies and Supabase transport
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+      POSTGREST_VERSION: v12.2.3
+      POSTGREST_SHA256: 9f71269e61ac3a940281e93ff415760f5957e430e475ba4c3889f3ede7d5527c
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.22.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Migrations and RLS policy tests
+        run: supabase/tests/run-db-tests.sh
+      - name: Install PostgREST
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/postgrest.tar.xz" \
+            "https://github.com/PostgREST/postgrest/releases/download/${POSTGREST_VERSION}/postgrest-${POSTGREST_VERSION}-linux-static-x64.tar.xz"
+          echo "${POSTGREST_SHA256}  $RUNNER_TEMP/postgrest.tar.xz" | sha256sum -c -
+          tar -xJf "$RUNNER_TEMP/postgrest.tar.xz" -C "$RUNNER_TEMP"
+      - name: Supabase transport against PostgREST + RLS
+        run: POSTGREST_BIN="$RUNNER_TEMP/postgrest" supabase/tests/run-integration.sh

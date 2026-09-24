@@ -20,7 +20,9 @@ import {
 } from "@/lib/restore-copy";
 import {
   AUTH_ERROR_COPY,
+  HELD_REASON_COPY,
   conflictSides,
+  describeRecord,
   describePreview,
   formatBytes,
   formatTime,
@@ -258,6 +260,36 @@ function SignedIn({
           {sync.block ? <BlockNotice block={sync.block} /> : null}
           {sync.conflicts.length ? (
             <ConflictList conflicts={sync.conflicts} />
+          ) : null}
+          {sync.held.length ? (
+            <div
+              className="restore-conflicts"
+              role="group"
+              aria-label="적용하지 못한 클라우드 기록"
+            >
+              <p>
+                <strong>
+                  적용하지 못한 클라우드 기록 {sync.held.length}건
+                </strong>
+                <br />이 기기의 기록과 함께 둘 수 없어 적용하지 않았어요.
+                아무것도 지우지 않았어요. 겹치는 기록을 이 기기에서 고치거나
+                지우면 다음 동기화 때 적용돼요.
+              </p>
+              <ul>
+                {sync.held.map((item) => (
+                  <li key={item.key}>
+                    <strong>{COLLECTION_LABELS[item.collection]}</strong>
+                    <span>
+                      클라우드:{" "}
+                      {describeRecord(item.collection, item.cloudRecord)}
+                    </span>
+                    {item.reason ? (
+                      <span>{HELD_REASON_COPY[item.reason]}</span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
           ) : null}
           <div className="backup-actions">
             <Button

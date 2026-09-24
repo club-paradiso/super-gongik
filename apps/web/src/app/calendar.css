@@ -1573,3 +1573,8 @@ button.summary-card {
     display: none;
   }
 }
+
+/* The fixed offline banner must not cover the header's sync status. */
+body:has(.offline-banner) .app-header {
+  padding-top: calc(max(22px, env(safe-area-inset-top)) + 40px);
+}

@@ -79,7 +79,9 @@ export function ProfileTab({
         data={data}
         incoming={cloudBackup}
         ledger={ledger}
+        onRestored={(mode) => void cloudController.afterRestore(mode)}
         store={store}
+        syncEnabled={syncing}
       />
 
       <section className="profile-security">

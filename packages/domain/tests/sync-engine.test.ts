@@ -984,3 +984,184 @@ describe("scale (indicative timings, not an SLA)", () => {
     );
   });
 });
+
+describe("restores while sync is on", () => {
+  it("a REPLACE with an old backup does not push old versions over newer cloud ones", async () => {
+    const { server, a, b, id } = await twoDevices();
+    const oldBackup = a.data();
+    await a.act(editNote(id, "2026-09-10", "newer"));
+    await a.engine.sync();
+    await b.engine.sync();
+    // B restores the old copy with REPLACE (explicit and destructive).
+    const restored = await b.store.restore(oldBackup, {
+      mode: "REPLACE",
+      expectedDocumentRevision: b.data().documentRevision,
+      confirmDestructive: true,
+    });
+    expect(restored.ok).toBe(true);
+    expect(eventOf(b.data(), id)?.note).toBe("처음");
+    await b.engine.requestFullResync();
+    const status = await b.engine.sync();
+    expect(status.conflicts).toEqual([]);
+    // The newer cloud version descends from the restored one: it comes back.
+    expect(eventOf(b.data(), id)?.note).toBe("newer");
+    const row = server.rows(USER).find((item) => item.recordId === id)!;
+    expect((row.payload as ServiceEvent).note).toBe("newer");
+  });
+});
+
+describe("records with the same content under different ids", () => {
+  const note =
+    (text: string) =>
+    (data: UserData, ctx: Parameters<typeof createServiceEvent>[2]) =>
+      createServiceEvent(
+        data,
+        { ...allDay("USER_NOTE", "2026-09-30"), note: text },
+        ctx,
+      );
+
+  it("two distinct same-day notes both reach every device (ids are never collapsed)", async () => {
+    const { a, b } = await twoDevices();
+    const first = await a.act(note("첫 메모"));
+    const second = await a.act(note("둘째 메모"));
+    await a.engine.sync();
+    const status = await b.engine.sync();
+    expect(status.held).toEqual([]);
+    expect(eventOf(b.data(), first.id)?.note).toBe("첫 메모");
+    expect(eventOf(b.data(), second.id)?.note).toBe("둘째 메모");
+    expect(records(b.data())).toEqual(records(a.data()));
+  });
+
+  it("the same leave entered on two devices is held on both, then applies once one copy is deleted", async () => {
+    const { a, b } = await twoDevices();
+    const onA = await a.act(addLeave("2026-10-01"));
+    const onB = await b.act(addLeave("2026-10-01"));
+    await a.engine.sync();
+    const bStatus = await b.engine.sync();
+    expect(bStatus.held).toMatchObject([
+      { key: `events:${onA.id}`, reason: "LEAVE_OVERLAP" },
+    ]);
+    expect((bStatus.held[0]!.cloudRecord as ServiceEvent).startDate).toBe(
+      "2026-10-01",
+    );
+    const aStatus = await a.engine.sync();
+    expect(aStatus.held).toMatchObject([{ key: `events:${onB.id}` }]);
+    // Neither device double-charges the leave.
+    for (const device of [a, b]) {
+      expect(
+        device
+          .data()
+          .events.filter(
+            (event) =>
+              event.startDate === "2026-10-01" && event.deletedAt === null,
+          ),
+      ).toHaveLength(1);
+    }
+    // Still held on the next run (retried, not forgotten).
+    expect((await b.engine.sync()).held).toHaveLength(1);
+
+    // The user removes B's copy: everything converges on A's record.
+    await b.act(remove(onB.id));
+    expect((await b.engine.sync()).held).toEqual([]);
+    expect((await a.engine.sync()).held).toEqual([]);
+    expect(records(a.data())).toEqual(records(b.data()));
+    expect(eventOf(b.data(), onA.id)?.deletedAt).toBeNull();
+    expect(eventOf(a.data(), onB.id)?.deletedAt).not.toBeNull();
+  });
+});
+
+describe("push rule (never overwrite a newer or concurrent cloud version)", () => {
+  it("sends only records the cloud lacks or that descend from the cloud copy", async () => {
+    const { planPush, shadowEntryFor } = await import("../src");
+    const { base, id } = await (async () => {
+      const created = userDataWithProfile();
+      const result = createServiceEvent(
+        created,
+        allDay("ANNUAL_LEAVE", "2026-09-10"),
+        {
+          now: "2026-09-01T00:00:00.000Z",
+          deviceId: "phone-a",
+          createId: () => "event-1",
+        },
+      );
+      if (!result.ok) throw new Error();
+      return { base: result.data, id: result.value.id };
+    })();
+    const ctx = (deviceId: string) => ({
+      now: "2026-09-02T00:00:00.000Z",
+      deviceId,
+      createId: () => "unused",
+    });
+    const edited = (data: UserData, deviceId: string, note: string) => {
+      const result = updateServiceEvent(
+        data,
+        id,
+        { ...allDay("ANNUAL_LEAVE", "2026-09-10"), note },
+        ctx(deviceId),
+      );
+      if (!result.ok) throw new Error();
+      return result.data;
+    };
+    const shadowOf = (data: UserData) => ({
+      [`events:${id}`]: shadowEntryFor("events", eventOf(data, id)!, 7),
+      [`profile:${data.profile!.id}`]: shadowEntryFor(
+        "profile",
+        data.profile!,
+        1,
+      ),
+    });
+    const keys = (data: UserData, shadow: ReturnType<typeof shadowOf>) =>
+      planPush({ data, shadow, conflicted: new Set() }).map(
+        (item) => `${item.collection}:${item.recordId}@${item.baseSeq}`,
+      );
+
+    const newer = edited(base, "phone-a", "newer");
+    // Local descends from the cloud copy: pushed, conditioned on seq 7.
+    expect(keys(newer, shadowOf(base))).toEqual([`events:${id}@7`]);
+    // Cloud is newer than local (e.g. after a REPLACE): nothing is pushed.
+    expect(keys(base, shadowOf(newer))).toEqual([]);
+    // Concurrent versions: nothing is pushed.
+    expect(keys(edited(base, "laptop-b", "B"), shadowOf(newer))).toEqual([]);
+    // Same content: nothing to push.
+    expect(keys(base, shadowOf(base))).toEqual([]);
+    // Unknown to the cloud: pushed with no base.
+    expect(keys(base, {})).toEqual([
+      `profile:${base.profile!.id}@null`,
+      `events:${id}@null`,
+    ]);
+    // Open conflicts are never pushed; explicit resolutions are.
+    expect(
+      planPush({
+        data: newer,
+        shadow: shadowOf(base),
+        conflicted: new Set([`events:${id}`]),
+      }),
+    ).toEqual([]);
+    expect(
+      planPush({
+        data: edited(base, "laptop-b", "B"),
+        shadow: shadowOf(newer),
+        conflicted: new Set(),
+        forced: new Set([`events:${id}`]),
+      }).map((item) => item.recordId),
+    ).toEqual([id]);
+  });
+
+  it("a REPLACE restore without a full re-sync still never pushes the older versions", async () => {
+    const { server, a, b, id } = await twoDevices();
+    const oldBackup = a.data();
+    await a.act(editNote(id, "2026-09-10", "newer"));
+    await a.engine.sync();
+    await b.engine.sync();
+    const restored = await b.store.restore(oldBackup, {
+      mode: "REPLACE",
+      expectedDocumentRevision: b.data().documentRevision,
+      confirmDestructive: true,
+    });
+    expect(restored.ok).toBe(true);
+    const status = await b.engine.sync();
+    expect(status.lastSummary?.pushed).toBe(0);
+    const row = server.rows(USER).find((item) => item.recordId === id)!;
+    expect((row.payload as ServiceEvent).note).toBe("newer");
+  });
+});

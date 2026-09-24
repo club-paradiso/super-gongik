@@ -316,6 +316,16 @@ export function createCloudController(options: CloudControllerOptions) {
     },
 
     /**
+     * A backup was restored locally. After a REPLACE the next sync pulls
+     * and merges everything again, so newer cloud versions are not skipped.
+     */
+    async afterRestore(mode: "MERGE" | "REPLACE") {
+      if (!engine || !scheduler) return;
+      if (mode === "REPLACE") await engine.requestFullResync();
+      scheduler.soon("restore");
+    },
+
+    /**
      * Local data was deleted on this device. The checkpoint went with it,
      * so sync is off here until the user turns it on again.
      */
