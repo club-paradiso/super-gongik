@@ -6,12 +6,7 @@ import {
 } from "@super-gongik/domain";
 
 export type EventCategory =
-  | "leave"
-  | "sick"
-  | "attendance"
-  | "duty"
-  | "nonpayable"
-  | "note";
+  "leave" | "sick" | "attendance" | "duty" | "nonpayable" | "note";
 
 export const EVENT_CATEGORY: Record<ServiceEventType, EventCategory> = {
   ANNUAL_LEAVE: "leave",
@@ -57,11 +52,7 @@ export const EVENT_TYPE_GROUPS: Array<{
   { label: "교육·훈련", types: ["EDUCATION", "TRAINING"] },
   {
     label: "보수 미지급 사유",
-    types: [
-      "SERVICE_SUSPENSION",
-      "SERVICE_ABSENCE",
-      "EXCESS_ANNUAL_ABSENCE",
-    ],
+    types: ["SERVICE_SUSPENSION", "SERVICE_ABSENCE", "EXCESS_ANNUAL_ABSENCE"],
   },
   { label: "기타", types: ["USER_NOTE"] },
 ];

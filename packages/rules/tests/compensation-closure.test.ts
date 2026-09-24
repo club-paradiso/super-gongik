@@ -860,9 +860,9 @@ describe("monthly total", () => {
       attendanceMonths: [current],
     });
 
-    expect(result.basePayAdjustment?.derivationUnresolved.length).toBeGreaterThan(
-      0,
-    );
+    expect(
+      result.basePayAdjustment?.derivationUnresolved.length,
+    ).toBeGreaterThan(0);
     expect(result.components[0]).toMatchObject({
       status: "CALCULATED",
       monthlyAmount: 1_200_000,

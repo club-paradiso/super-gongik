@@ -44,11 +44,8 @@ export const ATTENDANCE_EVENT_TYPES: readonly ServiceEventType[] = [
   "EARLY_LEAVE",
 ];
 
-export const COMPENSATION_NONPAYABLE_EVENT_TYPES: readonly ServiceEventType[] = [
-  "SERVICE_SUSPENSION",
-  "SERVICE_ABSENCE",
-  "EXCESS_ANNUAL_ABSENCE",
-];
+export const COMPENSATION_NONPAYABLE_EVENT_TYPES: readonly ServiceEventType[] =
+  ["SERVICE_SUSPENSION", "SERVICE_ABSENCE", "EXCESS_ANNUAL_ABSENCE"];
 
 export function isCompensationNonPayableEventType(
   type: ServiceEventType,

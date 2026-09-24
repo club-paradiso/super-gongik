@@ -303,8 +303,7 @@ export function EventEditor({
               value={form.sickLeaveCategory}
               onChange={(change) =>
                 update({
-                  sickLeaveCategory: change.target
-                    .value as SickLeaveCategory,
+                  sickLeaveCategory: change.target.value as SickLeaveCategory,
                 })
               }
             >
@@ -353,8 +352,7 @@ export function EventEditor({
         </fieldset>
         {isCompensationNonPayableEventType(form.eventType) ? (
           <p className="field-hint">
-            이 기록은 기본 보수 미지급일 근거로 쓰이므로 하루 단위로만
-            저장해요.
+            이 기록은 기본 보수 미지급일 근거로 쓰이므로 하루 단위로만 저장해요.
           </p>
         ) : form.eventType !== "ANNUAL_LEAVE" ? (
           <p className="field-hint">반일은 연가(반가)에만 쓸 수 있어요.</p>

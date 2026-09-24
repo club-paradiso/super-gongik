@@ -26,10 +26,7 @@ import {
 } from "./compensation";
 import { deriveMonthNonPayableDates } from "./non-payable-days";
 import { selectRuleByDate } from "./selector";
-import {
-  deriveMonthServiceDays,
-  type MonthServiceDays,
-} from "./service-days";
+import { deriveMonthServiceDays, type MonthServiceDays } from "./service-days";
 
 export type CompensationComponentStatus =
   "CALCULATED" | "NEEDS_INPUT" | "GATED" | "UNSUPPORTED";

@@ -178,12 +178,7 @@ describe("deriveMonthNonPayableDates", () => {
 
   it("derives explicit Article 41(6) absence dates", () => {
     const subject = profile();
-    const absence = event(
-      "SERVICE_ABSENCE",
-      "2026-07-14",
-      "2026-07-14",
-      1,
-    );
+    const absence = event("SERVICE_ABSENCE", "2026-07-14", "2026-07-14", 1);
 
     const result = deriveMonthNonPayableDates({
       profile: subject,
