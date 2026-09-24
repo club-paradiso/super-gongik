@@ -2,11 +2,12 @@ import { createId } from "@super-gongik/domain";
 
 import { classifyEventType } from "./classify";
 import { fingerprintEventCandidate } from "./fingerprint";
-import { findMappedHeader, mapColumns } from "./mapping";
+import { assessColumnMappings, findMappedHeader, mapColumns } from "./mapping";
 import { normalizeEventRow, parseDateCell, parseQuantity } from "./normalize";
 import type {
   ColumnMapping,
   ImportBatchDescriptor,
+  ImportWarning,
   ImportWarningCode,
   ImportPreview,
   ImportSourceFormat,
@@ -21,6 +22,8 @@ export const BLOCKING_WARNING_CODES: readonly ImportWarningCode[] = [
   "AMBIGUOUS_HALF_DAY",
   "AMBIGUOUS_DAY_FRACTION",
   "AMBIGUOUS_NUMERIC_DURATION",
+  "AMBIGUOUS_SNAPSHOT_QUANTITY",
+  "EMPTY_SNAPSHOT",
   "MIXED_DAY_AND_TIME",
 ];
 
@@ -49,12 +52,6 @@ function getValue(
   return header ? row[header] : null;
 }
 
-function isSnapshotShape(mappings: ReturnType<typeof mapColumns>) {
-  return mappings.some((mapping) =>
-    ["granted", "used", "remaining"].includes(mapping.target),
-  );
-}
-
 function normalizeSnapshotRow(
   row: TabularRow,
   sourceRowIndex: number,
@@ -71,6 +68,36 @@ function normalizeSnapshotRow(
   const granted = quantity("granted");
   const used = quantity("used");
   const remaining = quantity("remaining");
+  const warnings: ImportWarning[] = [...classification.warnings];
+
+  if (
+    granted.ambiguousNumber ||
+    used.ambiguousNumber ||
+    remaining.ambiguousNumber
+  ) {
+    warnings.push({
+      code: "AMBIGUOUS_SNAPSHOT_QUANTITY",
+      message:
+        "기관 잔액 값에 일·시간·분 단위가 없어 자동 저장하지 않습니다. 원문 단위를 확인해 주세요.",
+    });
+  }
+
+  const hasAnyQuantity = [
+    granted.days,
+    granted.minutes,
+    used.days,
+    used.minutes,
+    remaining.days,
+    remaining.minutes,
+  ].some((value) => value !== null);
+
+  if (!hasAnyQuantity) {
+    warnings.push({
+      code: "EMPTY_SNAPSHOT",
+      message:
+        "부여·사용·잔여 중 해석 가능한 값이 없어 기관 잔액으로 저장하지 않습니다.",
+    });
+  }
 
   return {
     sourceRowIndex,
@@ -85,7 +112,7 @@ function normalizeSnapshotRow(
     remainingDays: remaining.days,
     remainingMinutes: remaining.minutes,
     confidence: classification.confidence,
-    warnings: classification.warnings,
+    warnings,
     raw: row,
   };
 }
@@ -96,20 +123,25 @@ export async function buildImportPreview(
   mappingOverride?: ColumnMapping[],
 ): Promise<ImportPreview> {
   const mappings = mappingOverride ?? mapColumns(tabular.headers);
-  const hasDateColumn = mappings.some((mapping) => mapping.target === "date");
-  const snapshotShape = isSnapshotShape(mappings);
+  const shape = assessColumnMappings(mappings);
   const events: ServiceEventCandidate[] = [];
   const snapshots: LeaveSnapshotCandidate[] = [];
   const unresolvedRowIndexes: number[] = [];
 
   for (let index = 0; index < tabular.rows.length; index += 1) {
     const row = tabular.rows[index];
-    const sourceRowIndex = index + 2;
+    const sourceRowIndex = tabular.rowSourceIndexes?.[index] ?? index + 2;
 
-    if (snapshotShape && !hasDateColumn) {
+    if (shape.kind === "SNAPSHOT") {
       const snapshot = normalizeSnapshotRow(row, sourceRowIndex, mappings);
       snapshots.push(snapshot);
-      if (!snapshot.leaveType || snapshot.confidence < 0.7) {
+      if (
+        !snapshot.leaveType ||
+        snapshot.confidence < 0.7 ||
+        snapshot.warnings.some((warning) =>
+          BLOCKING_WARNING_CODES.includes(warning.code),
+        )
+      ) {
         unresolvedRowIndexes.push(sourceRowIndex);
       }
       continue;

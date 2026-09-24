@@ -20,7 +20,9 @@ file -> parse -> map columns -> normalize -> classify -> validate
 5. Imported events use the canonical `ServiceEvent` model. `candidateToImportDraft` produces the draft; the domain command `commitImport` writes it, using the same `planImportRows` decision (new / duplicate import / duplicate content / conflict) that the preview shows.
 6. Every imported event carries batch and source metadata for audit and rollback.
 7. Duplicate imports are detected with deterministic event fingerprints and, when available, the source file SHA-256.
-8. Aggregate leave balances without dated event history are stored as snapshots/reconciliation evidence, never expanded into fake events.
+8. Aggregate leave balances are stored as snapshots/reconciliation evidence, never expanded into fake events merely because a balance table also contains a date column.
+9. Source-native row numbers are preserved whenever the file format exposes them. Title rows, blank spacer rows, and headers below row 1 must not shift audit metadata.
+10. Multiple plausible XLSX worksheets are never auto-selected. Hidden helper sheets are ignored and visible candidates require an explicit user choice.
 
 ## Package
 
@@ -30,7 +32,9 @@ The package is intentionally dependency-light and independent of React/UI code.
 
 ### Current core
 
-- delimited-text/CSV parser
+- delimited-text/CSV parser with preamble header discovery and duplicate-header preservation
+- structural table-shape recognition for personal event tables versus aggregate balance snapshots
+- source-row provenance when adapters expose native row numbers
 - Korean/English header synonym mapping
 - date parsing
 - explicit hour/minute parsing
@@ -57,8 +61,9 @@ interface TabularAdapterResult {
 Planned adapters:
 
 - CSV / TSV: local browser parse
-- XLSX / XLS: workbook parser in the browser when feasible
-- text PDF: local text/table extraction when feasible
+- XLSX: local workbook parser, hidden-sheet exclusion, explicit multi-sheet selection, native row provenance
+- HWP/HWPX: local table extraction with the same personal-table shape gate
+- text PDF: local positioned-text table extraction with the same shape gate
 - scanned PDF: explicit OCR path, with a privacy notice before any server-assisted processing
 
 ## Column mapping
@@ -148,10 +153,14 @@ Source files can contain institution names, attendance data, names, medical refe
 
 Implemented: file picker and preview, column-mapping override, per-row type/date/minute corrections, CSV/TSV/XLSX/HWP/HWPX/text-PDF adapters, opt-in in-browser OCR, fingerprint and content duplicate protection (including against manual records), same-file warning, batch rollback, snapshot persistence and reconciliation.
 
+Hardening now also covers title/preamble rows, duplicate headers, native XLSX/CSV row provenance, hidden workbook sheets, explicit selection when multiple visible worksheets look importable, dated balance tables, ambiguous snapshot quantities, and compensation-affecting attendance labels such as 복무중단·복무이탈·연가초과 결근.
+
+The repository's adversarial fixtures are synthetic/anonymized layouts modeled after administrative exports. They are not claimed to be real institution-origin files without provenance.
+
 A row that states only a start date and `N일` keeps `dayCount = N`; its end date is derived by skipping weekends and the preview says so.
 
 Remaining:
 
-1. Collect anonymized real institution exports as adapter fixtures.
-2. Multi-sheet selection UI for workbooks with several candidate tables.
+1. Collect provenance-backed anonymized real institution exports as adapter fixtures.
+2. Add same-sheet multi-table selection if real exports demonstrate that pattern.
 3. Optional fallback AI classification for unresolved rows only.

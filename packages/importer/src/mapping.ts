@@ -1,4 +1,8 @@
-import type { CanonicalColumn, ColumnMapping } from "./types";
+import type {
+  CanonicalColumn,
+  ColumnMapping,
+  TableShapeAssessment,
+} from "./types";
 
 const HEADER_SYNONYMS: Record<CanonicalColumn, string[]> = {
   date: [
@@ -75,22 +79,26 @@ function scoreHeader(header: string, synonym: string) {
   const normalizedHeader = normalizeHeader(header);
   const normalizedSynonym = normalizeHeader(synonym);
 
-  if (!normalizedHeader || !normalizedSynonym) {
-    return 0;
-  }
-
-  if (normalizedHeader === normalizedSynonym) {
-    return 1;
-  }
-
+  if (!normalizedHeader || !normalizedSynonym) return 0;
+  if (normalizedHeader === normalizedSynonym) return 1;
   if (
     normalizedHeader.includes(normalizedSynonym) ||
     normalizedSynonym.includes(normalizedHeader)
   ) {
     return 0.86;
   }
-
   return 0;
+}
+
+/** Preserve duplicate columns instead of letting object assignment overwrite them. */
+export function makeUniqueHeaders(values: readonly string[]): string[] {
+  const seen = new Map<string, number>();
+  return values.map((value, index) => {
+    const base = value.normalize("NFKC").trim() || `열 ${index + 1}`;
+    const count = seen.get(base) ?? 0;
+    seen.set(base, count + 1);
+    return count === 0 ? base : `${base} (${count + 1})`;
+  });
 }
 
 export function mapColumns(headers: string[]): ColumnMapping[] {
@@ -134,7 +142,7 @@ export function mapColumns(headers: string[]): ColumnMapping[] {
 }
 
 /**
- * In a dated per-event table, a lone `사용일수`/`used` column is the amount
+ * In a dated per-event table, a lone `사용일수`/used column is the amount
  * used on that row, not a cumulative balance. Only reinterpret it when the
  * table has a date, no explicit duration and no other balance columns.
  */
@@ -154,6 +162,58 @@ function reinterpretUsageColumnInEventTables(
   return mappings.map((mapping) =>
     mapping.target === "used" ? { ...mapping, target: "duration" } : mapping,
   );
+}
+
+/**
+ * Recognize only structures that can safely become personal records.
+ *
+ * Snapshot columns win over event interpretation when there is aggregate
+ * balance evidence and no per-event time columns. This prevents a dated
+ * balance table from being expanded into fake dated leave events.
+ */
+export function assessColumnMappings(
+  mappings: ColumnMapping[],
+): Omit<TableShapeAssessment, "mappings"> {
+  const targets = new Set(mappings.map((mapping) => mapping.target));
+  const balanceCount = ["granted", "used", "remaining"].filter((target) =>
+    targets.has(target as CanonicalColumn),
+  ).length;
+  const eventTimeCount = ["duration", "startTime", "endTime"].filter((target) =>
+    targets.has(target as CanonicalColumn),
+  ).length;
+  const hasEventType = targets.has("eventType");
+  const hasDate = targets.has("date");
+  const hasAsOfDate = targets.has("asOfDate");
+
+  if (hasEventType && balanceCount > 0 && eventTimeCount === 0) {
+    return {
+      kind: "SNAPSHOT",
+      score:
+        6 +
+        balanceCount * 2 +
+        (hasAsOfDate ? 2 : 0) +
+        (hasDate ? 1 : 0) +
+        (targets.has("note") ? 1 : 0),
+    };
+  }
+
+  if (hasEventType && hasDate) {
+    return {
+      kind: "EVENTS",
+      score:
+        8 +
+        eventTimeCount * 2 +
+        (targets.has("note") ? 1 : 0) +
+        mappings.length * 0.1,
+    };
+  }
+
+  return { kind: "UNRECOGNIZED", score: 0 };
+}
+
+export function assessTableHeaders(headers: string[]): TableShapeAssessment {
+  const mappings = mapColumns(headers);
+  return { ...assessColumnMappings(mappings), mappings };
 }
 
 export function findMappedHeader(
