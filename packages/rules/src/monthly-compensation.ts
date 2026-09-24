@@ -288,15 +288,15 @@ export function evaluateMonthlyCompensation(
     base = baseComponent(creditIssue.status, creditIssue.text);
     unresolved.push(creditIssue.text);
   } else if (gate.status === "GATED_AMBIGUOUS_PRORATION") {
-    const text = `소집·소집해제 달은 '월 보수 ÷ 그 달 일수(${daysInMonth(month)}일) × 근무일수'로 일할 계산해요. 원 단위 끝수 처리와 근무일수의 뜻이 원문에 정해져 있지 않아 금액을 내지 않아요.`;
+    const text = `소집·소집해제 달은 '월 보수 ÷ 그 달 일수(${daysInMonth(month)}일) × 해당 기간의 달력일수' 구조로 계산하고 휴일도 포함해요. 다만 최종 끝수 처리는 지급기관의 회계 규칙에 따라 달라질 수 있어, 기관 기준이 확인되기 전에는 최종 금액을 내지 않아요.`;
     base = baseComponent("GATED", text);
     unresolved.push(text);
     warnings.push(...gate.warnings);
   } else if (gate.status === "GATED_NON_PAYABLE_DAYS") {
     const text =
       sickUpperBound > sickLimit
-        ? `병가 기록이 통산 ${sickLimit}일을 넘을 수 있어요(최대 ${sickUpperBound}일). 초과 병가일 보수는 지급하지 않는데(공무상 병가 제외) 하루치 계산 방법이 확정되지 않아 계산하지 않아요.`
-        : "복무중단·복무이탈·연가 초과 결근이 있었다고 확인한 달이라 하루치 공제 계산 방법이 확정될 때까지 계산하지 않아요.";
+        ? `병가 기록이 통산 ${sickLimit}일을 넘을 수 있어요(최대 ${sickUpperBound}일). 초과 병가일은 보수 미지급 대상이고(공무상 병가 제외), 달력일 기준 하루치 구조는 확인됐지만 최종 끝수 처리와 정확한 미지급 날짜를 확인해야 계산할 수 있어요.`
+        : "복무중단·복무이탈·연가 초과 결근이 있었다고 확인한 달이에요. 달력일 기준 하루치 구조는 확인됐지만 최종 끝수 처리와 정확한 미지급 날짜가 필요해 금액은 아직 계산하지 않아요.";
     base = baseComponent("GATED", text);
     unresolved.push(text);
     warnings.push(...gate.warnings);

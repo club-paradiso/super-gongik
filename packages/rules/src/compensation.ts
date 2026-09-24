@@ -204,6 +204,10 @@ export function evaluateCompensationSafetyGate(input: {
         verifiedStructure: bundle.proration.firstAndLastMonth.verifiedStructure,
         verifiedDivisorCandidate:
           bundle.proration.firstAndLastMonth.verifiedDivisorCandidate,
+        verifiedCalendarDaySemantics:
+          bundle.proration.firstAndLastMonth.verifiedCalendarDaySemantics,
+        roundingPolicyStatus:
+          bundle.proration.firstAndLastMonth.roundingPolicyStatus,
         unresolved: bundle.proration.firstAndLastMonth.unresolved,
         mustNotGuessRounding: true,
       },
@@ -220,6 +224,8 @@ export function evaluateCompensationSafetyGate(input: {
       inputs: publicInputs(input),
       breakdown: {
         knownCategories: bundle.proration.nonPayableDays.knownCategories,
+        deductionArithmeticStatus:
+          bundle.proration.nonPayableDays.deductionArithmeticStatus,
       },
       warnings: [bundle.proration.nonPayableDays.reason],
     });

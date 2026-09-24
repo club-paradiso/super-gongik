@@ -48,8 +48,10 @@ file. `packages/rules/compensation/2026.json` pins the hashes, and
 3. **Meal:** "1일 중식비: 9,000원(최소기준)". Each institution may pay more
    within its budget.
 
-The standard does **not** address proration, 근무일수, holidays, rounding,
-non-payable days, which days qualify for per-day allowances, or night duty.
+The standard does **not** address proration, rounding, non-payable-day arithmetic,
+which days qualify for per-day allowances, or night duty. Calendar-day proration
+semantics are instead supported by the governing pay definition plus official
+implementation guidance; see `docs/PRORATION_EVIDENCE_2026.md`.
 
 ## Classification
 
@@ -57,8 +59,8 @@ non-payable days, which days qualify for per-day allowances, or night duty.
 | ----------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Base pay, full month    | CONFIRMED_BY_MULTIPLE_PRIMARY_SOURCES   | 시행령 제62조①, 규정 제41조①, 별표 13 비고 6 and the MMA table agree. The call-up month counts as month 1.                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | Prior-service credit    | CONFIRMED_BY_STATUTE_OR_REGULATION_ONLY | 제62조② lists 7 cases. The user states which 호 applies and enters the credited whole months confirmed by the institution. Unknown → NEEDS_INPUT. A period that is not whole months → GATED. The app never derives the period itself.                                                                                                                                                                                                                                                                                               |
-| First / discharge month | AMBIGUOUS                               | The structure (제41조⑤) and the divisor (공무원보수규정 제4조제6호: 그 달의 일수) are known. Rounding, the meaning of 근무일수 and holiday treatment are NOT_FOUND in every source, including the MMA standard. **Stays gated.**                                                                                                                                                                                                                                                                                                    |
-| Non-payable days        | CONFIRMED_BY_STATUTE_OR_REGULATION_ONLY | 제41조⑥ lists the categories. There is no deduction arithmetic in any source, so the rule is not implemented and **GATED_NON_PAYABLE_DAYS stays**.                                                                                                                                                                                                                                                                                                                                                                                  |
+| First / discharge month | VERIFIED_STRUCTURE_ROUNDING_GATED       | 제41조⑤ supplies the structure; 공무원보수규정 제4조제6호 fixes the denominator as the calendar days in the month; official MMA/2026 implementation guidance says the calculation includes holidays. **Final KRW stays gated only because one nationwide rounding policy cannot be applied to every paying institution.**                                                                                                                                                                                                           |
+| Non-payable days        | VERIFIED_STRUCTURE_ROUNDING_GATED       | 제41조⑥ lists the categories, and official MMA guidance pairs non-payable days with the same calendar-day daily-pay concept. The exact non-payable dates and payer/institution rounding policy are still required, so **GATED_NON_PAYABLE_DAYS stays**.                                                                                                                                                                                                                                                                             |
 | Meal allowance          | CONFIRMED_BY_MMA_ATTACHMENT             | 9,000 KRW/day is the 2026 **minimum** and is applied automatically. An institution amount the user enters is used only if it is ≥ 9,000; a lower amount is refused as conflicting with the source. `rateSource` distinguishes OFFICIAL_MINIMUM from USER_INPUT.                                                                                                                                                                                                                                                                     |
 | Transport               | CONFIRMED_BY_MULTIPLE_PRIMARY_SOURCES   | 제41조④ and the MMA standard define the basis: 시내버스 왕복 현금요금, or the transit-card 실비 when there is extra cost. The amount depends on the route, so the user enters it and it is labelled USER_INPUT.                                                                                                                                                                                                                                                                                                                     |
 | Eligible days           | AMBIGUOUS per leave type                | Working days are counted from the service period, the confirmed weekdays and the holidays confirmed by the user each month. **Every full day of leave (연가·병가·공가·특별휴가·청원휴가) is classified FULL_DAY_LEAVE, but its meal and transport eligibility stays undecided until the user chooses.** Half-day and minute leave, outing, late arrival, early leave, education and training need the same decision. Any undecided day blocks the day counts and the total. Night rotation and residential service are UNSUPPORTED. |
@@ -98,11 +100,21 @@ retrieved in this environment, and it is not treated as a nationwide rule.
   with its file SHA-256 and the `rateSource` of each amount. Deleting one
   leaves a tombstone, and merges never delete a live snapshot.
 
-## Still open (Issue #6)
+## Final rule-gap disposition
 
-- Call-up and discharge month proration, and non-payable-day deductions:
-  unlocking them needs a primary text that fixes rounding and the meaning of
-  근무일수.
-- Confirming, from an environment that can reach `open.mma.go.kr`, that the
-  stored HWPX bytes match the server copy.
-- 2027 and later years: there is no bundle, so these years are UNSUPPORTED.
+- **Resolved:** the divisor is the number of calendar days in the month; the
+  call-up/discharge dates are included; official implementation guidance
+  explicitly says holidays are included. The product no longer describes
+  `근무일수` semantics as unknown.
+- **Not a single nationwide rule:** final rounding/end-digit treatment depends
+  on the paying body's accounting regime. For National Treasury expenditure,
+  국고금 관리법 제47조 discards amounts below KRW 10. For local governments and
+  certain public bodies the statute says the rule _may_ be applied, so SUPER
+  GONGIK must not impose that treatment universally.
+- **Therefore:** partial-month and non-payable-day _final amounts_ remain gated
+  until payer/institution rounding policy and exact non-payable dates are known.
+  This is tracked separately from the 2026 source-table closure.
+- **Provenance follow-up:** the stored MMA HWPX remains user-supplied with a
+  recorded SHA-256; its title/date/filename/size match the official page, but
+  direct server-byte comparison remains a provenance hardening task.
+- 2027 and later years remain UNSUPPORTED until their own verified bundles exist.

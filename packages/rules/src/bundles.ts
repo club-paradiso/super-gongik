@@ -83,12 +83,15 @@ export type CompensationRuleBundle = RuleBundle & {
       autoCalculate: boolean;
       verifiedStructure: string;
       verifiedDivisorCandidate: string;
+      verifiedCalendarDaySemantics: string;
+      roundingPolicyStatus: string;
       unresolved: string[];
       reason: string;
     };
     nonPayableDays: {
       knownCategories: string[];
       sickLeaveCumulativeLimitDays: number;
+      deductionArithmeticStatus: string;
       reason: string;
     };
   };
