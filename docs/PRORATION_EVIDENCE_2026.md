@@ -75,3 +75,29 @@ rounding policy (plus the exact non-payable dates when deductions are involved).
 Until that context is captured explicitly, the app keeps final partial-month
 and non-payable-day amounts gated instead of inventing a nationwide rounding
 rule.
+
+## Executable payer-policy model
+
+SUPER GONGIK does not infer a rounding rule from an institution name or from
+free-text workplace metadata.
+
+The 2026 engine recognizes these explicit states:
+
+- `NATIONAL_TREASURY_ARTICLE_47`: the payer confirms that the payment is a
+  National Treasury receipt/payment governed by 국고금 관리법 제47조. The final
+  adjusted base-pay amount drops any amount below KRW 10.
+- `INSTITUTION_CONFIRMED_TRUNCATE_SUB_10`: the institution has directly
+  confirmed the same sub-KRW-10 truncation treatment. This is treated as
+  institution input, not as a nationwide legal inference.
+- `INSTITUTION_OTHER_OR_UNKNOWN` or no policy: the final adjusted amount stays
+  gated.
+
+Exact non-payable dates are stored separately from the legacy
+`hadNonPayableAbsence` boolean. The legacy flag can warn that a month contains
+an unresolved deduction, but it can never generate a deduction amount by
+itself. A dated list is used only after the user confirms that the list is
+complete for that month.
+
+Compensation snapshots persist the applied policy, exact non-payable dates,
+calendar-day denominator, payable-day count, raw prorated amount and final
+rounded amount.

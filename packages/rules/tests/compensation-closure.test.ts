@@ -59,6 +59,9 @@ function attendance(
     nonWorkingDates: [],
     dayOverrides: [],
     hadNonPayableAbsence: false,
+    nonPayableDates: [],
+    nonPayableDatesConfirmed: false,
+    roundingPolicy: null,
     // Filled in by the wrappers below with the fingerprint of the data under
     // test, i.e. "the user confirmed exactly this data".
     basisFingerprint: CONFIRMED_AGAINST_INPUT,
@@ -262,6 +265,49 @@ describe("call-up and discharge months stay gated (제41조⑤, rounding unresol
     );
     expect(result.components[0]?.status).toBe("GATED");
     expect(result.components[0]?.explanation).toContain("29일");
+  });
+
+  it("calculates a call-up month only when Treasury rounding is explicitly confirmed", () => {
+    const result = evaluateMonthlyCompensation(
+      profile("2026-03-16", "2027-12-15"),
+      "2026-03-20",
+      {
+        attendance: attendance("2026-03", {
+          nonPayableDatesConfirmed: true,
+          roundingPolicy: "NATIONAL_TREASURY_ARTICLE_47",
+        }),
+      },
+    );
+    // 750,000 / 31 × 16 calendar days = 387,096.77... → drop sub-10 KRW.
+    expect(result.components[0]).toMatchObject({
+      status: "CALCULATED",
+      monthlyAmount: 387_090,
+    });
+    expect(result.basePayAdjustment).toMatchObject({
+      roundingPolicy: "NATIONAL_TREASURY_ARTICLE_47",
+      calendarDaysInMonth: 31,
+      serviceCalendarDays: 16,
+      payableCalendarDays: 16,
+      roundedAmount: 387_090,
+    });
+  });
+
+  it("never applies Treasury truncation to a non-Treasury/unknown institution", () => {
+    const result = evaluateMonthlyCompensation(
+      profile("2026-03-16", "2027-12-15"),
+      "2026-03-20",
+      {
+        attendance: attendance("2026-03", {
+          nonPayableDatesConfirmed: true,
+          roundingPolicy: "INSTITUTION_OTHER_OR_UNKNOWN",
+        }),
+      },
+    );
+    expect(result.components[0]).toMatchObject({
+      status: "GATED",
+      monthlyAmount: null,
+    });
+    expect(result.components[0]?.explanation).toContain("다른 회계 기준");
   });
 
   it("calculates the first full month after a mid-month call-up", () => {
@@ -715,15 +761,34 @@ describe("monthly total", () => {
     expect(result.total).toBeNull();
   });
 
-  it("gates base pay for a month confirmed to contain a non-payable absence", () => {
+  it("keeps a legacy coarse non-payable flag gated until exact dates are confirmed", () => {
     const result = evaluateMonthlyCompensation(complete, "2026-10-15", {
       attendance: attendance("2026-10", { hadNonPayableAbsence: true }),
     });
     expect(result.components[0]?.status).toBe("GATED");
-    expect(result.components[0]?.explanation).toContain(
-      "달력일 기준 하루치 구조",
-    );
+    expect(result.components[0]?.explanation).toContain("정확한 날짜");
     expect(result.total).toBeNull();
+  });
+
+  it("deducts exact confirmed non-payable dates under explicit Treasury rounding", () => {
+    const result = evaluateMonthlyCompensation(complete, "2026-10-15", {
+      attendance: attendance("2026-10", {
+        nonPayableDates: ["2026-10-20"] as DateOnly[],
+        nonPayableDatesConfirmed: true,
+        roundingPolicy: "NATIONAL_TREASURY_ARTICLE_47",
+      }),
+    });
+    // 1,200,000 / 31 × 30 = 1,161,290.32... → 1,161,290.
+    expect(result.components[0]).toMatchObject({
+      status: "CALCULATED",
+      monthlyAmount: 1_161_290,
+    });
+    expect(result.basePayAdjustment).toMatchObject({
+      nonPayableDates: ["2026-10-20"],
+      payableCalendarDays: 30,
+      roundedAmount: 1_161_290,
+    });
+    expect(result.assumptions.join(" ")).toContain("2026-10-20");
   });
 });
 
