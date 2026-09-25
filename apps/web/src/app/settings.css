@@ -1089,6 +1089,11 @@ ul.snapshot-list li div {
   margin: 0;
 }
 
+.rule-note dt {
+  flex: none;
+  white-space: nowrap;
+}
+
 .rule-note dd {
   min-width: 0;
   color: var(--text);
