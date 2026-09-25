@@ -12,10 +12,12 @@ import {
 
 import {
   SERVICE_EVENT_TYPE_LABELS,
+  classifyAnnualLeaveUsage,
   clockToMinutes,
   countWeekdays,
   inclusiveDaySpan,
   isDateOnly,
+  isAnnualLeaveAttendanceType,
   isCompensationNonPayableEventType,
   isLeaveEventType,
   validateServiceEventDraft,
@@ -105,33 +107,55 @@ function toNumber(value: string): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function buildDraft(form: FormState) {
-  const endDate = form.mode === "ALL_DAY" ? form.endDate : form.startDate;
-  let timing: unknown;
+function timingFromForm(form: FormState) {
   if (form.mode === "ALL_DAY") {
-    timing = { kind: "ALL_DAY", dayCount: toNumber(form.dayCount) };
-  } else if (form.mode === "HALF_DAY") {
-    timing = { kind: "HALF_DAY", half: form.half || null };
-  } else {
-    const hours = toNumber(form.hours) ?? 0;
-    const minutes = toNumber(form.minutes) ?? 0;
-    const total = hours * 60 + minutes;
-    timing = {
-      kind: "PARTIAL",
-      durationMinutes: form.hours === "" && form.minutes === "" ? null : total,
-      startTime: form.startTime || null,
-      endTime: form.endTime || null,
-    };
+    return { kind: "ALL_DAY", dayCount: toNumber(form.dayCount) } as const;
   }
+  if (form.mode === "HALF_DAY") {
+    return { kind: "HALF_DAY", half: form.half || null } as const;
+  }
+  const hours = toNumber(form.hours) ?? 0;
+  const minutes = toNumber(form.minutes) ?? 0;
+  const total = hours * 60 + minutes;
   return {
+    kind: "PARTIAL",
+    durationMinutes: form.hours === "" && form.minutes === "" ? null : total,
+    startTime: form.startTime || null,
+    endTime: form.endTime || null,
+  } as const;
+}
+
+function buildDraft(form: FormState, profile: ServiceProfile) {
+  let timing: unknown = timingFromForm(form);
+  let eventType = form.eventType;
+  const classification = classifyAnnualLeaveUsage({
     eventType: form.eventType,
+    timing: timing as ServiceEvent["timing"],
+    workdayStartTime: profile.workdayStartTime,
+    workdayEndTime: profile.workdayEndTime,
+  });
+
+  if (form.mode === "PARTIAL" && classification?.automatic) {
+    eventType = classification.eventType;
+    if (classification.kind === "FULL_DAY") {
+      timing = { kind: "ALL_DAY", dayCount: 1 };
+    }
+  }
+
+  const endDate =
+    (timing as { kind?: string }).kind === "ALL_DAY"
+      ? form.endDate
+      : form.startDate;
+
+  return {
+    eventType,
     startDate: form.startDate,
     endDate,
     timing,
     title: form.title.trim() || null,
     note: form.note.trim() || null,
     sickLeaveCategory:
-      form.eventType === "SICK_LEAVE"
+      eventType === "SICK_LEAVE"
         ? form.sickLeaveCategory || "UNKNOWN"
         : null,
   };
@@ -166,7 +190,18 @@ export function EventEditor({
     if (dialog && !dialog.open) dialog.showModal();
   }, []);
 
-  const draft = useMemo(() => buildDraft(form), [form]);
+  const rawTiming = useMemo(() => timingFromForm(form), [form]);
+  const usageClassification = useMemo(
+    () =>
+      classifyAnnualLeaveUsage({
+        eventType: form.eventType,
+        timing: rawTiming as ServiceEvent["timing"],
+        workdayStartTime: profile.workdayStartTime,
+        workdayEndTime: profile.workdayEndTime,
+      }),
+    [form.eventType, profile.workdayEndTime, profile.workdayStartTime, rawTiming],
+  );
+  const draft = useMemo(() => buildDraft(form, profile), [form, profile]);
   const validation = useMemo(
     () =>
       validateServiceEventDraft(draft, {
@@ -183,6 +218,9 @@ export function EventEditor({
     .map((issue) => issue.message)
     .join("|");
   const isLeave = isLeaveEventType(form.eventType);
+  const isAnnualCharge =
+    form.eventType === "ANNUAL_LEAVE" ||
+    isAnnualLeaveAttendanceType(form.eventType);
 
   function update(patch: Partial<FormState>) {
     setForm((current) => {
@@ -325,9 +363,9 @@ export function EventEditor({
           <fieldset className="segmented" aria-label="기록 단위">
             {(
               [
-                ["ALL_DAY", "하루 단위"],
-                ["HALF_DAY", "반일"],
-                ["PARTIAL", "시간 단위"],
+                ["ALL_DAY", isAnnualCharge ? "종일 연가" : "하루 단위"],
+                ["HALF_DAY", isAnnualCharge ? "반가" : "반일"],
+                ["PARTIAL", isAnnualCharge ? "시간 사용" : "시간 단위"],
               ] as const
             ).map(([mode, label]) => (
               <label
@@ -359,8 +397,13 @@ export function EventEditor({
               이 기록은 기본 보수 미지급일 근거로 쓰이므로 하루 단위로만
               저장해요.
             </p>
-          ) : form.eventType !== "ANNUAL_LEAVE" ? (
+          ) : form.eventType !== "ANNUAL_LEAVE" && !isAnnualCharge ? (
             <p className="field-hint">반일은 연가(반가)에만 쓸 수 있어요.</p>
+          ) : form.mode === "HALF_DAY" ? (
+            <p className="field-hint">
+              반가는 단순한 4시간 사용이 아니에요. 오전·오후 반일 승인
+              단위이며 14:00를 기준으로 구분해요.
+            </p>
           ) : null}
 
           {form.mode === "ALL_DAY" ? (
@@ -515,6 +558,21 @@ export function EventEditor({
                   <span>분</span>
                 </div>
               </label>
+            </div>
+          ) : null}
+
+          {usageClassification ? (
+            <div className="sheet__source" role="status">
+              <strong>자동 구분: {usageClassification.label}</strong>
+              <br />
+              {usageClassification.reason}
+              {usageClassification.kind === "LATE_ARRIVAL" ? (
+                <>
+                  <br />
+                  입력 시간이 4시간이어도 반가로 바꾸지 않고 허가지각으로
+                  저장하며, 누계 8시간을 연가 1일로 공제해요.
+                </>
+              ) : null}
             </div>
           ) : null}
 
