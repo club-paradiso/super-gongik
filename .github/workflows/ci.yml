@@ -29,14 +29,7 @@ jobs:
       - name: Lint
         run: pnpm lint
       - name: Check formatting
-        run: |
-          pnpm exec prettier --write apps/web/tests/supabase-transport.integration.test.ts scripts/release-gate-webkit.cjs
-          echo "===FORMATTED_TS==="
-          cat apps/web/tests/supabase-transport.integration.test.ts
-          echo "===FORMATTED_CJS==="
-          cat scripts/release-gate-webkit.cjs
-          echo "===END_FORMAT_DUMP==="
-          exit 1
+        run: pnpm format:check
       - name: Typecheck
         run: pnpm typecheck
       - name: Test
