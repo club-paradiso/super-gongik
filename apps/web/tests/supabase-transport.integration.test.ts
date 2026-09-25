@@ -42,7 +42,7 @@ import {
 const REST_URL = process.env.SUPER_GONGIK_IT_REST_URL;
 const SECRET = process.env.SUPER_GONGIK_IT_JWT_SECRET;
 const USERS = (process.env.SUPER_GONGIK_IT_USERS ?? "").split(",");
-const enabled = Boolean(REST_URL && SECRET && USERS.length >= 4);
+const enabled = Boolean(REST_URL && SECRET && USERS.length >= 5);
 
 function sign(claims: Record<string, unknown>) {
   const encode = (value: unknown) =>
@@ -209,7 +209,8 @@ const records = (data: UserData) =>
   });
 
 describe.skipIf(!enabled)("Supabase transport against PostgREST + RLS", () => {
-  const [userA, userB, userC, userD] = USERS as [
+  const [userA, userB, userC, userD, userE] = USERS as [
+    string,
     string,
     string,
     string,
@@ -264,6 +265,50 @@ describe.skipIf(!enabled)("Supabase transport against PostgREST + RLS", () => {
     expect((await b.engine.sync()).lastSummary).toMatchObject({
       pulled: 0,
       pushed: 0,
+    });
+  });
+
+  it("converges independent offline edits and refuses a stale enable preview after a remote write", async () => {
+    const a = device("release-phone-a", userE, undefined, seedDocument("profile-e"));
+    await a.store.load();
+    await a.enable();
+
+    const b = device("release-tablet-b", userE);
+    await b.enable();
+
+    await a.act((data, ctx) =>
+      createServiceEvent(data, leave("2026-11-03", "A only"), ctx),
+    );
+    await b.act((data, ctx) =>
+      createServiceEvent(data, leave("2026-11-04", "B only"), ctx),
+    );
+
+    expect((await a.engine.sync()).conflicts).toEqual([]);
+    expect((await b.engine.sync()).conflicts).toEqual([]);
+    expect((await a.engine.sync()).conflicts).toEqual([]);
+    expect(records(a.data())).toBe(records(b.data()));
+    expect(a.data().events).toHaveLength(2);
+
+    const fresh = device(
+      "release-fresh-c",
+      userE,
+      undefined,
+      seedDocument("profile-e"),
+    );
+    await fresh.store.load();
+    await fresh.engine.init();
+    const preview = await fresh.engine.previewEnable();
+    expect(preview.kind).toBe("READY");
+
+    await a.act((data, ctx) =>
+      createServiceEvent(data, leave("2026-11-05", "after preview"), ctx),
+    );
+    expect((await a.engine.sync()).phase).toBe("IDLE");
+
+    if (preview.kind !== "READY") throw new Error(preview.kind);
+    expect(await fresh.engine.enable(preview)).toEqual({
+      kind: "STALE_PREVIEW",
+      reason: "REMOTE",
     });
   });
 
