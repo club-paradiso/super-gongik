@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import {
+  ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY,
   formatKoreanDate,
   formatLeaveQuantity,
   type ServiceProfile,
@@ -27,15 +28,12 @@ export function serviceStateLabel(
   return "복무 중";
 }
 
-export function remainingLeaveLabel(
-  projection: AppProjection,
-  profile: ServiceProfile,
-) {
+export function remainingLeaveLabel(projection: AppProjection) {
   const balance = projection.ledger.balance;
   if (balance.status === "NEEDS_CREDIT_CONFIRMATION") return "확인 필요";
   return formatLeaveQuantity(
     balance.remainingAfterScheduled,
-    profile.workdayMinutes,
+    ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY,
   );
 }
 
@@ -124,14 +122,15 @@ export function HomeTab({
                 : "stat-tile__value"
             }
           >
-            {remainingLeaveLabel(projection, profile)}
+            {remainingLeaveLabel(projection)}
           </strong>
           <span className="stat-tile__caption">
             {balance.status === "NEEDS_CREDIT_CONFIRMATION"
               ? "부여 일수를 확인해 주세요"
-              : balance.status === "NEEDS_WORKDAY_MINUTES"
-                ? "1일 근무시간을 설정하면 합쳐 보여요"
-                : `사용 ${formatLeaveQuantity(balance.used, profile.workdayMinutes)}`}
+              : `사용 ${formatLeaveQuantity(
+                  balance.used,
+                  ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY,
+                )} · 누계 8시간 = 1일`}
           </span>
         </button>
       </section>

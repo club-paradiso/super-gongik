@@ -205,11 +205,16 @@ describe("service event validation", () => {
     ).toContain("SICK_CATEGORY_NOT_SICK_LEAVE");
   });
 
-  it("does not treat attendance records as leave double-charges", () => {
+  it("blocks attendance that would double-charge annual leave", () => {
     const events = existing(allDay("ANNUAL_LEAVE", "2026-09-10"));
-    expect(codes(events, partial("OUTING", "2026-09-10", 60)).errors).toEqual(
-      [],
+    expect(codes(events, partial("OUTING", "2026-09-10", 60)).errors).toContain(
+      "LEAVE_OVERLAP",
     );
+
+    const timedAttendance = existing(timed("LATE_ARRIVAL", "09:00", "13:00"));
+    expect(
+      codes(timedAttendance, timed("ANNUAL_LEAVE", "12:00", "14:00")).errors,
+    ).toContain("LEAVE_OVERLAP");
   });
 
   it("does not conflict with itself while editing", () => {
@@ -230,11 +235,11 @@ describe("service event validation", () => {
     );
   });
 
-  it("warns about duplicated attendance entries and weekend day counts", () => {
+  it("blocks duplicated attendance charges and warns about weekend day counts", () => {
     const events = existing(partial("OUTING", "2026-09-10", 60));
-    expect(
-      codes(events, partial("OUTING", "2026-09-10", 60)).warnings,
-    ).toContain("POSSIBLE_DUPLICATE");
+    expect(codes(events, partial("OUTING", "2026-09-10", 60)).errors).toContain(
+      "LEAVE_OVERLAP",
+    );
     // Fri–Mon contains two weekdays; charging four needs confirmation.
     expect(
       codes([], allDay("ANNUAL_LEAVE", "2026-09-25", "2026-09-28", 4)).warnings,

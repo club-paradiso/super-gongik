@@ -189,6 +189,12 @@ function ProfileForm({
   const [workMinutes, setWorkMinutes] = useState(
     profile.workdayMinutes === null ? "" : String(profile.workdayMinutes % 60),
   );
+  const [workdayStartTime, setWorkdayStartTime] = useState(
+    profile.workdayStartTime ?? "",
+  );
+  const [workdayEndTime, setWorkdayEndTime] = useState(
+    profile.workdayEndTime ?? "",
+  );
   const [prior, setPrior] = useState<PriorAnswer>(
     profile.priorServiceCredit ?? "",
   );
@@ -249,6 +255,8 @@ function ProfileForm({
           defaultMealAllowanceOverride:
             mealRate === "" ? null : Number(mealRate),
           workdayMinutes,
+          workdayStartTime: workdayStartTime || null,
+          workdayEndTime: workdayEndTime || null,
           priorServiceCredit: prior || null,
           priorServiceBasis:
             prior === "HAS_PRIOR_SERVICE" && priorBasis ? priorBasis : null,
@@ -346,6 +354,30 @@ function ProfileForm({
             시간 단위 휴가를 일수와 합칠 때만 써요. 기관마다 달라서 비워 두면
             가정하지 않아요.
           </small>
+        </div>
+
+        <div className="field-row">
+          <label className="form-field">
+            <span>평소 근무 시작</span>
+            <input
+              type="time"
+              value={workdayStartTime}
+              onChange={(event) => setWorkdayStartTime(event.target.value)}
+            />
+          </label>
+          <label className="form-field">
+            <span>평소 근무 종료</span>
+            <input
+              type="time"
+              value={workdayEndTime}
+              onChange={(event) => setWorkdayEndTime(event.target.value)}
+            />
+          </label>
+          <p className="field-hint field-row__full">
+            시간 연가를 허가지각·허가조퇴·허가외출로 자동 구분할 때 쓰는
+            기준이에요. 기관별 유연근무가 있을 수 있어 직접 확인한 시각만
+            저장해요.
+          </p>
         </div>
 
         <fieldset className="form-field choice-field">

@@ -4,6 +4,7 @@ import {
   inclusiveDaySpan,
 } from "../calendar/month";
 import { compareDateOnly, type DateOnly } from "../service/date-only";
+import { isAnnualLeaveAttendanceType } from "./annual-leave-classification";
 import {
   SERVICE_EVENT_TYPE_LABELS,
   clockToMinutes,
@@ -132,11 +133,15 @@ export type LeaveOverlapVerdict = "CONFLICT" | "UNRESOLVED" | "NONE";
  *   callers surface it as a warning that must be acknowledged.
  * - NONE: provably disjoint (AM vs PM, non-intersecting times).
  */
+function chargesLeaveTime(eventType: ServiceEventDraft["eventType"]) {
+  return isLeaveEventType(eventType) || isAnnualLeaveAttendanceType(eventType);
+}
+
 export function compareLeaveRecords(
   a: ServiceEventDraft,
   b: ServiceEventDraft,
 ): LeaveOverlapVerdict {
-  if (!isLeaveEventType(a.eventType) || !isLeaveEventType(b.eventType)) {
+  if (!chargesLeaveTime(a.eventType) || !chargesLeaveTime(b.eventType)) {
     return "NONE";
   }
   if (!dateRangesOverlap(a, b)) return "NONE";
@@ -162,7 +167,7 @@ export function findLeaveOverlaps(events: readonly ServiceEvent[]): {
   unresolved: Array<[string, string]>;
 } {
   const live = events.filter(
-    (event) => isLive(event) && isLeaveEventType(event.eventType),
+    (event) => isLive(event) && chargesLeaveTime(event.eventType),
   );
   const conflicts: Array<[string, string]> = [];
   const unresolved: Array<[string, string]> = [];
@@ -272,16 +277,16 @@ export function validateServiceEventDraft(
   const duplicate = others.find(
     (event) => serviceEventContentKey(event) === contentKey,
   );
-  if (duplicate && !isLeaveEventType(draft.eventType)) {
-    // Leave duplicates are blocked below as LEAVE_OVERLAP; attendance and
-    // notes do not charge leave, so a duplicate only needs confirmation.
+  if (duplicate && !chargesLeaveTime(draft.eventType)) {
+    // Leave-charging duplicates are blocked below as LEAVE_OVERLAP. Other
+    // records only need a duplicate warning.
     warnings.push({
       code: "POSSIBLE_DUPLICATE",
       message: `같은 날짜·종류·시간의 기록이 이미 있어요 (${duplicate.source.kind === "IMPORT" ? "파일에서 가져옴" : "직접 입력"}). 두 번 차감되지 않도록 확인해 주세요.`,
     });
   }
 
-  if (isLeaveEventType(draft.eventType)) {
+  if (chargesLeaveTime(draft.eventType)) {
     for (const other of others) {
       const verdict = compareLeaveRecords(draft, other);
       if (verdict === "NONE") continue;

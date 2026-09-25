@@ -4,10 +4,10 @@ import { AlertTriangle, CheckCircle2, Download, Scale } from "lucide-react";
 import { type FormEvent, useState } from "react";
 
 import {
+  ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY,
   addLeaveCorrection,
   confirmLeaveCredit,
   deleteLeaveAdjustment,
-  editProfile,
   formatDurationMinutes,
   formatLeaveQuantity,
   formatKoreanDate,
@@ -49,7 +49,7 @@ export function LeaveLedgerPanel({
   const workday = profile.workdayMinutes;
   const balance = ledger.balance;
   const format = (value: { halfDays: number; minutes: number }) =>
-    formatLeaveQuantity(value, workday);
+    formatLeaveQuantity(value, ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY);
 
   async function run(
     action: Parameters<UserDataStore["run"]>[0],
@@ -134,22 +134,6 @@ export function LeaveLedgerPanel({
             <li key={warning}>{warning}</li>
           ))}
         </ul>
-      ) : null}
-
-      {balance.status === "NEEDS_WORKDAY_MINUTES" ? (
-        <WorkdayForm
-          onSubmit={(minutes) =>
-            run(
-              (current, context) =>
-                editProfile(
-                  current,
-                  { ...profile, workdayMinutes: minutes },
-                  context,
-                ),
-              "1일 근무시간을 저장했어요.",
-            )
-          }
-        />
       ) : null}
 
       <section className="ledger-card" aria-labelledby="credits-title">
@@ -334,9 +318,9 @@ export function LeaveLedgerPanel({
             ))}
             {(
               [
-                ["OUTING", "외출"],
-                ["LATE_ARRIVAL", "지각"],
-                ["EARLY_LEAVE", "조퇴"],
+                ["OUTING", "허가외출"],
+                ["LATE_ARRIVAL", "허가지각"],
+                ["EARLY_LEAVE", "허가조퇴"],
               ] as const
             )
               .filter(([key]) => attendance[key] > 0)
@@ -348,8 +332,10 @@ export function LeaveLedgerPanel({
               ))}
           </dl>
           <p className="field-hint">
-            공가·특별휴가·청원휴가는 사유별로 기관이 승인하는 휴가라 잔여량을
-            계산하지 않아요.
+            허가지각·허가조퇴·허가외출은 질병·부상 사유가 아닌 경우 누계 8시간을
+            연가 1일로 공제해 위 연가 잔여에도 반영해요.
+            공가·특별휴가·청원휴가는 사유별로 기관이 승인하는 휴가라 별도
+            잔여량을 계산하지 않아요.
           </p>
         </section>
       ) : null}
@@ -418,65 +404,6 @@ export function LeaveLedgerPanel({
         </ul>
       </details>
     </div>
-  );
-}
-
-function WorkdayForm({
-  onSubmit,
-}: {
-  onSubmit: (minutes: number) => Promise<boolean>;
-}) {
-  const [hours, setHours] = useState("");
-  const [minutes, setMinutes] = useState("0");
-  const total = Number(hours || 0) * 60 + Number(minutes || 0);
-  return (
-    <form
-      className="ledger-card inline-form"
-      onSubmit={(event) => {
-        event.preventDefault();
-        if (total >= 60 && total <= 1440) void onSubmit(total);
-      }}
-    >
-      <h3>1일 근무시간을 알려 주세요</h3>
-      <p className="field-hint">
-        시간 단위 연가를 일수와 합치려면 기관의 1일 근무시간이 필요해요. 임의로
-        8시간을 가정하지 않아요.
-      </p>
-      <div className="unit-row">
-        <div className="unit-input">
-          <input
-            aria-label="근무 시간"
-            inputMode="numeric"
-            min="1"
-            max="24"
-            required
-            type="number"
-            value={hours}
-            onChange={(event) => setHours(event.target.value)}
-          />
-          <span>시간</span>
-        </div>
-        <div className="unit-input">
-          <input
-            aria-label="근무 분"
-            inputMode="numeric"
-            min="0"
-            max="59"
-            type="number"
-            value={minutes}
-            onChange={(event) => setMinutes(event.target.value)}
-          />
-          <span>분</span>
-        </div>
-        <Button
-          disabled={total < 60 || total > 1440}
-          size="compact"
-          type="submit"
-        >
-          저장
-        </Button>
-      </div>
-    </form>
   );
 }
 

@@ -136,11 +136,17 @@ describe("end-to-end local workflow", () => {
     const profile = ready(store).profile!;
     let projection = buildAppProjection(ready(store), profile, "2026-09-24");
     expect(projection.liveEvents).toHaveLength(4);
-    // 15 days − (1 manual day + 1 imported day + one half day) = 12.5 days.
+    // 15 days − (1 manual day + 1 imported day + one half day) − 90 minutes outing.
     expect(projection.ledger.balance.remainingAfterScheduled).toEqual({
       halfDays: 25,
-      minutes: 0,
+      minutes: -90,
     });
+    expect(
+      formatLeaveQuantity(
+        projection.ledger.balance.remainingAfterScheduled,
+        480,
+      ),
+    ).toBe("12일 2시간 30분");
     expect(projection.ledger.attendanceMinutes.OUTING).toBe(90);
     expect(projection.compensation.components[0]?.monthlyAmount).toBe(900_000);
 
@@ -222,7 +228,7 @@ describe("end-to-end local workflow", () => {
     ).toBe("15일");
   });
 
-  it("combines partial minutes only after the workday length is set", async () => {
+  it("uses the fixed eight-hour annual rule independently of profile workday length", async () => {
     const { store } = newStore();
     await store.load();
     await store.run((data, context) =>
@@ -261,7 +267,7 @@ describe("end-to-end local workflow", () => {
     );
     let data = ready(store);
     let projection = buildAppProjection(data, data.profile!, "2026-09-24");
-    expect(projection.ledger.balance.status).toBe("NEEDS_WORKDAY_MINUTES");
+    expect(projection.ledger.balance.status).toBe("RESOLVED");
 
     await store.run((current, context) =>
       editProfile(
