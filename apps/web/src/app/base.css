@@ -416,14 +416,20 @@ a {
   text-align: left;
 }
 
-/* Clicking anywhere on the field opens the picker in Chromium. */
+/* Keep the native picker affordance scoped to its own hit area.
+   Stretching this pseudo-element across the whole field is brittle on iOS Safari. */
 .date-input input[type="date"]::-webkit-calendar-picker-indicator {
-  position: absolute;
-  inset: 0;
-  width: auto;
-  height: auto;
   opacity: 0;
   cursor: pointer;
+}
+
+.date-input:has(input:focus-visible) {
+  border-radius: var(--radius-control);
+  box-shadow: var(--focus-ring);
+}
+
+.date-input input[type="date"]:focus-visible {
+  box-shadow: none;
 }
 
 .date-input:focus-within input[type="date"] {
