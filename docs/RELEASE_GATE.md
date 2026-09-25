@@ -1,10 +1,12 @@
 # SUPER GONGIK automated release gate
 
-This repository treats repetitive browser and synchronization verification as CI work, not as a manual release checklist.
+This repository treats repetitive browser and synchronization verification as
+CI work, not as a manual release checklist.
 
 ## What every pull request must pass
 
 ### Workspace verification
+
 The existing CI verifies:
 
 - lint
@@ -14,7 +16,9 @@ The existing CI verifies:
 - production Next.js build
 
 ### PostgreSQL / PostgREST / RLS synchronization gate
-The database job applies the real migrations to PostgreSQL and runs the web Supabase transport against PostgREST with locally signed test JWTs.
+
+The database job applies the real migrations to PostgreSQL and runs the web
+Supabase transport against PostgREST with locally signed test JWTs.
 
 It covers:
 
@@ -30,10 +34,13 @@ It covers:
 - cloud backup upload/list/download integrity
 - network/error categorization
 
-Supabase Auth email delivery itself is intentionally not simulated by this stack.
+Supabase Auth email delivery itself is intentionally not simulated by this
+stack.
 
 ### WebKit mobile browser gate
-CI installs an isolated Playwright WebKit runtime and runs the production build at:
+
+CI installs an isolated Playwright WebKit runtime and runs the production build
+at:
 
 - 375 × 812
 - 390 × 844
@@ -64,13 +71,15 @@ Viewport screenshots are uploaded as a GitHub Actions artifact for 14 days.
 
 ## What this replaces
 
-A person does **not** need to manually repeat the complete onboarding → home → calendar → editor → money → profile regression on every release.
+A person does **not** need to manually repeat the complete onboarding → home →
+calendar → editor → money → profile regression on every release.
 
 The automated gate is the default regression evidence.
 
 ## What remains external / physical-device only
 
-Automation cannot truthfully certify these without the external system or physical device:
+Automation cannot truthfully certify these without the external system or
+physical device:
 
 - actual Supabase transactional-email delivery and numeric OTP contents
 - provider-specific SMTP behavior
@@ -82,6 +91,8 @@ These are narrow operational smoke checks, not full regression passes.
 
 ## Issue #29
 
-Issue #29 remains the production cloud-sync activation gate until real Supabase Auth email delivery is working and the remaining external checks are resolved.
+Issue #29 remains the production cloud-sync activation gate until real Supabase
+Auth email delivery is working and the remaining external checks are resolved.
 
-The automated gate should be used to eliminate repeated manual functional testing while that external dependency is being resolved.
+The automated gate should be used to eliminate repeated manual functional
+testing while that external dependency is being resolved.
