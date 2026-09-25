@@ -210,12 +210,7 @@ describe("PDF table reconstruction", () => {
       { page: 2, x: 466, y: 680, text: "용무" },
     ]);
 
-    expect(tabular.headers).toEqual([
-      "날짜",
-      "복무상황",
-      "사용시간",
-      "비고",
-    ]);
+    expect(tabular.headers).toEqual(["날짜", "복무상황", "사용시간", "비고"]);
     expect(tabular.rows).toEqual([
       {
         날짜: "2026-04-27",
