@@ -8,10 +8,12 @@
 
 \set user_a '''00000000-0000-4000-8000-00000000000a'''
 \set user_b '''00000000-0000-4000-8000-00000000000b'''
+\set user_c '''00000000-0000-4000-8000-00000000000c'''
 
 insert into auth.users (id, email) values
   (:user_a, 'a@example.test'),
-  (:user_b, 'b@example.test');
+  (:user_b, 'b@example.test'),
+  (:user_c, 'c@example.test');
 
 -- Run `statement`; require it to fail with `state` (SQLSTATE).
 create function pg_temp.expect_error(statement text, state text, label text)
@@ -180,6 +182,9 @@ select pg_temp.expect_error(
 select pg_temp.expect_error(
   $sql$ update public.sync_accounts set generation = 1 $sql$,
   '42501', 'owner cannot rewrite the generation');
+select pg_temp.expect_error(
+  $sql$ delete from public.sync_accounts $sql$,
+  '42501', 'owner cannot directly delete the sync account');
 
 -- Backups: create, retention, immutability.
 do $$
@@ -412,5 +417,63 @@ begin
   ), 'anon cannot execute any sync function';
 end;
 $$;
+
+
+-- ── 9. Auth user deletion cascades through all sync data ──────────────────
+select pg_temp.act_as(:user_c);
+set role authenticated;
+do $
+declare
+  res jsonb;
+begin
+  perform public.sync_ensure_account();
+  res := public.sync_push(1, 'phone-c', jsonb_build_array(
+    jsonb_build_object(
+      'collection', 'profile', 'record_id', 'profile-c', 'base_seq', null,
+      'schema_version', 3,
+      'payload', jsonb_build_object('id', 'profile-c')
+    ),
+    jsonb_build_object(
+      'collection', 'events', 'record_id', 'event-c', 'base_seq', null,
+      'schema_version', 3,
+      'payload', jsonb_build_object(
+        'id', 'event-c', 'serviceProfileId', 'profile-c', 'note', 'cascade-test'
+      )
+    )
+  ));
+  assert res ->> 'kind' = 'OK', 'C sync data created';
+  res := public.backup_create(1, '{"backup":"cascade-test"}', now(), 3, 2, null);
+  assert res ->> 'kind' = 'OK', 'C backup created';
+  assert (select count(*) from public.sync_records) = 2, 'C sees its two sync rows';
+  assert (select count(*) from public.cloud_backups) = 1, 'C sees its backup';
+end;
+$;
+reset role;
+
+-- This is the real Supabase account-deletion path: the FK on sync_accounts
+-- cascades from auth.users, and then the sync account cascades to records and
+-- backups. It must not require the app's RPC guard flag.
+delete from auth.users where id = :user_c;
+
+do $
+begin
+  assert not exists (
+    select from auth.users
+    where id = '00000000-0000-4000-8000-00000000000c'
+  ), 'Auth user C deleted';
+  assert not exists (
+    select from public.sync_accounts
+    where user_id = '00000000-0000-4000-8000-00000000000c'
+  ), 'C sync account cascaded';
+  assert not exists (
+    select from public.sync_records
+    where user_id = '00000000-0000-4000-8000-00000000000c'
+  ), 'C sync records cascaded';
+  assert not exists (
+    select from public.cloud_backups
+    where user_id = '00000000-0000-4000-8000-00000000000c'
+  ), 'C cloud backups cascaded';
+end;
+$;
 
 \echo 'cloud_sync.test.sql: all assertions passed'
