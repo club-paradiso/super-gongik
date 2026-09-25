@@ -45,6 +45,8 @@ function profileData(): UserData {
       defaultMealAllowanceOverride: null,
       timezone: "Asia/Seoul",
       workdayMinutes: null,
+      workdayStartTime: null,
+      workdayEndTime: null,
       priorServiceCredit: null,
       priorServiceBasis: null,
       priorServiceCreditedMonths: null,
