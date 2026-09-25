@@ -110,51 +110,55 @@ export function Onboarding({
 
         <form className="onboarding__form" onSubmit={handleSubmit}>
           <fieldset className="setup-card">
-            <legend className="setup-card__title">복무 기간</legend>
-            <label className="setup-row">
-              <span className="setup-row__label">소집일</span>
-              <DateInput
-                onValueChange={updateCallUpDate}
-                placeholder="날짜를 선택하세요"
-                required
-                value={callUpDate}
-              />
-            </label>
-            <label className="setup-row">
-              <span className="setup-row__label">소집해제 예정일</span>
-              <DateInput
-                onValueChange={setExpectedDischargeDate}
-                placeholder="소집일을 먼저 선택하세요"
-                required
-                value={expectedDischargeDate}
-              />
-              <small className="setup-row__hint">
-                {STANDARD_SERVICE_MONTHS}개월 기준으로 자동 계산해요. 연장된
-                경우 직접 고칠 수 있어요.
-              </small>
-            </label>
-          </fieldset>
+            <legend className="setup-card__title">복무 정보</legend>
 
-          <fieldset className="setup-card">
-            <legend className="setup-card__title">
-              복무 분야 <span className="optional">선택</span>
-            </legend>
-            <label className="setup-row">
-              <span className="visually-hidden">복무 분야</span>
-              <span className="select">
-                <select
-                  value={serviceCategory}
-                  onChange={(event) => setServiceCategory(event.target.value)}
-                >
-                  <option value="">나중에 정할게요</option>
-                  <option value="사회복지">사회복지</option>
-                  <option value="보건의료">보건의료</option>
-                  <option value="교육">교육</option>
-                  <option value="행정">행정</option>
-                  <option value="기타">기타</option>
-                </select>
-              </span>
-            </label>
+            <div className="setup-section">
+              <p className="setup-section__title">복무 기간</p>
+              <label className="setup-row">
+                <span className="setup-row__label">소집일</span>
+                <DateInput
+                  onValueChange={updateCallUpDate}
+                  placeholder="날짜를 선택하세요"
+                  required
+                  value={callUpDate}
+                />
+              </label>
+              <label className="setup-row">
+                <span className="setup-row__label">소집해제 예정일</span>
+                <DateInput
+                  onValueChange={setExpectedDischargeDate}
+                  placeholder="소집일을 먼저 선택하세요"
+                  required
+                  value={expectedDischargeDate}
+                />
+                <small className="setup-row__hint">
+                  {STANDARD_SERVICE_MONTHS}개월 기준으로 자동 계산해요. 연장된
+                  경우 직접 고칠 수 있어요.
+                </small>
+              </label>
+            </div>
+
+            <div className="setup-section setup-section--secondary">
+              <p className="setup-section__title">
+                복무 분야 <span className="optional">선택</span>
+              </p>
+              <label className="setup-row">
+                <span className="visually-hidden">복무 분야</span>
+                <span className="select">
+                  <select
+                    value={serviceCategory}
+                    onChange={(event) => setServiceCategory(event.target.value)}
+                  >
+                    <option value="">나중에 정할게요</option>
+                    <option value="사회복지">사회복지</option>
+                    <option value="보건의료">보건의료</option>
+                    <option value="교육">교육</option>
+                    <option value="행정">행정</option>
+                    <option value="기타">기타</option>
+                  </select>
+                </span>
+              </label>
+            </div>
           </fieldset>
 
           {error ? (
