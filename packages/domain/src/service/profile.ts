@@ -197,7 +197,16 @@ export type ValidServiceProfileInput = z.output<
   typeof serviceProfileInputSchema
 >;
 
-export type ServiceProfile = ValidServiceProfileInput & {
+export type ServiceProfile = Omit<
+  ValidServiceProfileInput,
+  "workdayStartTime" | "workdayEndTime"
+> & {
+  /**
+   * Optional at the TypeScript boundary for legacy in-memory fixtures and
+   * pre-feature documents. Parsing/building normalizes missing values to null.
+   */
+  workdayStartTime?: string | null;
+  workdayEndTime?: string | null;
   id: string;
   ownerId: null;
   localProfileId: string;
