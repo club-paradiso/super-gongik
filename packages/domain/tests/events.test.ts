@@ -207,18 +207,13 @@ describe("service event validation", () => {
 
   it("blocks attendance that would double-charge annual leave", () => {
     const events = existing(allDay("ANNUAL_LEAVE", "2026-09-10"));
-    expect(
-      codes(events, partial("OUTING", "2026-09-10", 60)).errors,
-    ).toContain("LEAVE_OVERLAP");
-
-    const timedAttendance = existing(
-      timed("LATE_ARRIVAL", "09:00", "13:00"),
+    expect(codes(events, partial("OUTING", "2026-09-10", 60)).errors).toContain(
+      "LEAVE_OVERLAP",
     );
+
+    const timedAttendance = existing(timed("LATE_ARRIVAL", "09:00", "13:00"));
     expect(
-      codes(
-        timedAttendance,
-        timed("ANNUAL_LEAVE", "12:00", "14:00"),
-      ).errors,
+      codes(timedAttendance, timed("ANNUAL_LEAVE", "12:00", "14:00")).errors,
     ).toContain("LEAVE_OVERLAP");
   });
 
