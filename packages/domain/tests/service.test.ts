@@ -49,6 +49,41 @@ describe("service profile", () => {
     );
   });
 
+  it("stores workday clock anchors only as a complete ordered pair", () => {
+    const current = profile("2026-01-05", "2027-10-04");
+    expect(() =>
+      updateServiceProfile(
+        current,
+        { ...current, workdayStartTime: "09:00", workdayEndTime: null },
+        "2026-08-31T12:00:00.000Z",
+      ),
+    ).toThrow("근무 시작 시각과 종료 시각을 함께 입력해 주세요.");
+
+    expect(() =>
+      updateServiceProfile(
+        current,
+        {
+          ...current,
+          workdayStartTime: "18:00",
+          workdayEndTime: "09:00",
+        },
+        "2026-08-31T12:00:00.000Z",
+      ),
+    ).toThrow("근무 종료 시각은 시작 시각보다 늦어야 해요.");
+
+    const updated = updateServiceProfile(
+      current,
+      {
+        ...current,
+        workdayStartTime: "09:00",
+        workdayEndTime: "18:00",
+      },
+      "2026-08-31T12:00:00.000Z",
+    );
+    expect(updated.workdayStartTime).toBe("09:00");
+    expect(updated.workdayEndTime).toBe("18:00");
+  });
+
   it("keeps local identity and creation time when the guest profile is updated", () => {
     const current = profile("2026-01-05", "2027-10-04");
     const updated = updateServiceProfile(
