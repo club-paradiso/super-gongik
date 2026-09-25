@@ -139,6 +139,11 @@ function buildDraft(form: FormState, profile: ServiceProfile) {
     eventType = classification.eventType;
     if (classification.kind === "FULL_DAY") {
       timing = { kind: "ALL_DAY", dayCount: 1 };
+    } else if (
+      classification.kind === "HALF_DAY" &&
+      classification.halfDayPart
+    ) {
+      timing = { kind: "HALF_DAY", half: classification.halfDayPart };
     }
   }
 
@@ -569,8 +574,16 @@ export function EventEditor({
               {usageClassification.kind === "LATE_ARRIVAL" ? (
                 <>
                   <br />
-                  입력 시간이 4시간이어도 반가로 바꾸지 않고 허가지각으로
-                  저장하며, 누계 8시간을 연가 1일로 공제해요.
+                  입력 시간이 4시간이어도 14:00 반일 경계와 맞지 않으면
+                  반가로 바꾸지 않고 허가지각으로 저장해요. 누계 8시간은 연가
+                  1일로 공제해요.
+                </>
+              ) : usageClassification.kind === "HALF_DAY" &&
+                form.mode === "PARTIAL" ? (
+                <>
+                  <br />
+                  입력 구간이 14:00 반일 경계와 정확히 맞아 반가로
+                  저장해요.
                 </>
               ) : null}
             </div>
