@@ -330,7 +330,7 @@ export function BackupPanel({
 
   return (
     <section className="backup-panel" aria-labelledby="backup-title">
-      <div className="record-import__heading">
+      <div className="panel-head">
         <div>
           <h2 id="backup-title">백업과 복원</h2>
           <p>

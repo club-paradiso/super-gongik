@@ -168,7 +168,7 @@ export function CalendarTab({
           size="compact"
           type="button"
         >
-          <Plus aria-hidden="true" size={18} />
+          <Plus aria-hidden="true" size={18} strokeWidth={2.4} />
           기록 추가
         </Button>
       </div>
@@ -271,106 +271,110 @@ function MonthView({
 
   return (
     <>
-      <div className="month-header">
-        <button
-          aria-label="이전 달"
-          className="icon-button"
-          onClick={() => onMonthChange(addMonthsToYearMonth(month, -1))}
-          type="button"
-        >
-          <ChevronLeft aria-hidden="true" size={22} />
-        </button>
-        <h2 aria-live="polite">{formatKoreanMonth(month)}</h2>
-        <button
-          aria-label="다음 달"
-          className="icon-button"
-          onClick={() => onMonthChange(addMonthsToYearMonth(month, 1))}
-          type="button"
-        >
-          <ChevronRight aria-hidden="true" size={22} />
-        </button>
-        <button
-          className="text-button"
-          onClick={() => {
-            onMonthChange(yearMonthOf(today));
-            onSelectDate(today);
-          }}
-          type="button"
-        >
-          오늘
-        </button>
-      </div>
-
-      <div className="month-grid">
-        <div className="month-grid__weekdays" aria-hidden="true">
-          {WEEKDAYS.map((weekday, index) => (
-            <span
-              className={
-                index === 0
-                  ? "is-sunday"
-                  : index === 6
-                    ? "is-saturday"
-                    : undefined
-              }
-              key={weekday}
+      <div className="month-card">
+        <div className="month-header">
+          <h2 aria-live="polite">{formatKoreanMonth(month)}</h2>
+          <div className="month-header__controls">
+            <button
+              className="chip-button"
+              onClick={() => {
+                onMonthChange(yearMonthOf(today));
+                onSelectDate(today);
+              }}
+              type="button"
             >
-              {weekday}
-            </span>
+              오늘
+            </button>
+            <button
+              aria-label="이전 달"
+              className="icon-button"
+              onClick={() => onMonthChange(addMonthsToYearMonth(month, -1))}
+              type="button"
+            >
+              <ChevronLeft aria-hidden="true" size={20} />
+            </button>
+            <button
+              aria-label="다음 달"
+              className="icon-button"
+              onClick={() => onMonthChange(addMonthsToYearMonth(month, 1))}
+              type="button"
+            >
+              <ChevronRight aria-hidden="true" size={20} />
+            </button>
+          </div>
+        </div>
+
+        <div className="month-grid">
+          <div className="month-grid__weekdays" aria-hidden="true">
+            {WEEKDAYS.map((weekday, index) => (
+              <span
+                className={
+                  index === 0
+                    ? "is-sunday"
+                    : index === 6
+                      ? "is-saturday"
+                      : undefined
+                }
+                key={weekday}
+              >
+                {weekday}
+              </span>
+            ))}
+          </div>
+          {grid.map((week) => (
+            <div className="month-grid__week" key={week[0]?.date}>
+              {week.map((cell) => {
+                const dayEvents = eventsOn(events, cell.date);
+                const categories = [
+                  ...new Set(
+                    dayEvents.map((event) => EVENT_CATEGORY[event.eventType]),
+                  ),
+                ] as EventCategory[];
+                const classes = ["month-cell"];
+                if (!cell.inMonth) classes.push("is-outside");
+                if (cell.date === today) classes.push("is-today");
+                if (cell.date === selectedDate) classes.push("is-selected");
+                const weekday = dayOfWeek(cell.date);
+                if (weekday === 0) classes.push("is-sunday");
+                if (weekday === 6) classes.push("is-saturday");
+                return (
+                  <button
+                    aria-label={`${formatDayHeading(cell.date, weekday)}${
+                      dayEvents.length ? `, 기록 ${dayEvents.length}건` : ""
+                    }`}
+                    aria-pressed={cell.date === selectedDate}
+                    className={classes.join(" ")}
+                    key={cell.date}
+                    onClick={() => {
+                      onSelectDate(cell.date);
+                      if (!cell.inMonth) onMonthChange(yearMonthOf(cell.date));
+                    }}
+                    type="button"
+                  >
+                    <span className="month-cell__day">
+                      {Number(cell.date.slice(8))}
+                    </span>
+                    <span className="month-cell__dots" aria-hidden="true">
+                      {categories.slice(0, 3).map((category) => (
+                        <i className={`dot dot--${category}`} key={category} />
+                      ))}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           ))}
         </div>
-        {grid.map((week) => (
-          <div className="month-grid__week" key={week[0]?.date}>
-            {week.map((cell) => {
-              const dayEvents = eventsOn(events, cell.date);
-              const categories = [
-                ...new Set(
-                  dayEvents.map((event) => EVENT_CATEGORY[event.eventType]),
-                ),
-              ] as EventCategory[];
-              const classes = ["month-cell"];
-              if (!cell.inMonth) classes.push("is-outside");
-              if (cell.date === today) classes.push("is-today");
-              if (cell.date === selectedDate) classes.push("is-selected");
-              const weekday = dayOfWeek(cell.date);
-              if (weekday === 0) classes.push("is-sunday");
-              if (weekday === 6) classes.push("is-saturday");
-              return (
-                <button
-                  aria-label={`${formatDayHeading(cell.date, weekday)}${
-                    dayEvents.length ? `, 기록 ${dayEvents.length}건` : ""
-                  }`}
-                  aria-pressed={cell.date === selectedDate}
-                  className={classes.join(" ")}
-                  key={cell.date}
-                  onClick={() => {
-                    onSelectDate(cell.date);
-                    if (!cell.inMonth) onMonthChange(yearMonthOf(cell.date));
-                  }}
-                  type="button"
-                >
-                  <span className="month-cell__day">
-                    {Number(cell.date.slice(8))}
-                  </span>
-                  <span className="month-cell__dots" aria-hidden="true">
-                    {categories.slice(0, 3).map((category) => (
-                      <i className={`dot dot--${category}`} key={category} />
-                    ))}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        ))}
-      </div>
 
-      <ul className="legend" aria-label="색상 안내">
-        {(Object.keys(CATEGORY_LABELS) as EventCategory[]).map((category) => (
-          <li key={category}>
-            <i className={`dot dot--${category}`} aria-hidden="true" />
-            {CATEGORY_LABELS[category]}
-          </li>
-        ))}
-      </ul>
+        <ul className="legend" aria-label="색상 안내">
+          {(Object.keys(CATEGORY_LABELS) as EventCategory[]).map((category) => (
+            <li key={category}>
+              <i className={`dot dot--${category}`} aria-hidden="true" />
+              {CATEGORY_LABELS[category]}
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <section className="day-panel" aria-label={`${selectedDate} 기록`}>
         <header>

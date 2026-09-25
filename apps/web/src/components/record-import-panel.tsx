@@ -486,7 +486,7 @@ export function RecordImportPanel({
 
   return (
     <section className="record-import" aria-labelledby="record-import-title">
-      <div className="record-import__heading">
+      <div className="panel-head">
         <div>
           <h2 id="record-import-title">복무기록 가져오기</h2>
           <p>

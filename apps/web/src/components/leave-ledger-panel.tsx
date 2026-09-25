@@ -21,6 +21,7 @@ import {
 } from "@super-gongik/domain";
 
 import { Button } from "@/components/ui/button";
+import { DateInput } from "@/components/ui/date-input";
 import { downloadTextFile } from "@/lib/download";
 
 const CREDIT_STATE_LABELS = {
@@ -581,11 +582,7 @@ function CorrectionForm({
         </p>
         <label className="form-field">
           <span>기준일</span>
-          <input
-            type="date"
-            value={date}
-            onChange={(event) => setDate(event.target.value)}
-          />
+          <DateInput value={date} onValueChange={setDate} />
         </label>
         <fieldset className="segmented" aria-label="보정 방향">
           {(
