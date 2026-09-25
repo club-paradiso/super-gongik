@@ -422,7 +422,7 @@ $$;
 -- ── 9. Auth user deletion cascades through all sync data ──────────────────
 select pg_temp.act_as(:user_c);
 set role authenticated;
-do $
+do $cascade$
 declare
   res jsonb;
 begin
@@ -447,7 +447,7 @@ begin
   assert (select count(*) from public.sync_records) = 2, 'C sees its two sync rows';
   assert (select count(*) from public.cloud_backups) = 1, 'C sees its backup';
 end;
-$;
+$cascade$;
 reset role;
 
 -- This is the real Supabase account-deletion path: the FK on sync_accounts
@@ -455,7 +455,7 @@ reset role;
 -- backups. It must not require the app's RPC guard flag.
 delete from auth.users where id = :user_c;
 
-do $
+do $cascade_check$
 begin
   assert not exists (
     select from auth.users
@@ -474,6 +474,6 @@ begin
     where user_id = '00000000-0000-4000-8000-00000000000c'
   ), 'C cloud backups cascaded';
 end;
-$;
+$cascade_check$;
 
 \echo 'cloud_sync.test.sql: all assertions passed'
