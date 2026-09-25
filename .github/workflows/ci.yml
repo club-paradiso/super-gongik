@@ -123,4 +123,3 @@ jobs:
       - name: Show server log on failure
         if: failure()
         run: cat "$RUNNER_TEMP/super-gongik-web.log" || true
-
