@@ -78,3 +78,48 @@ jobs:
           tar -xJf "$RUNNER_TEMP/postgrest.tar.xz" -C "$RUNNER_TEMP"
       - name: Supabase transport against PostgREST + RLS
         run: POSTGREST_BIN="$RUNNER_TEMP/postgrest" supabase/tests/run-integration.sh
+
+  webkit:
+    name: Release gate · WebKit mobile
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.22.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install isolated Playwright WebKit
+        run: |
+          npm install --prefix .ci-playwright --no-save playwright@1.55.0
+          .ci-playwright/node_modules/.bin/playwright install --with-deps webkit
+      - name: Build production web app
+        run: pnpm build
+      - name: Start production web app
+        run: |
+          pnpm --filter @super-gongik/web start > "$RUNNER_TEMP/super-gongik-web.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/super-gongik-web.pid"
+          timeout 60 bash -c 'until curl -fsS http://127.0.0.1:3000/ >/dev/null; do sleep 1; done'
+      - name: Run mobile WebKit release gate
+        env:
+          NODE_PATH: ${{ github.workspace }}/.ci-playwright/node_modules
+          RELEASE_GATE_BASE_URL: http://127.0.0.1:3000
+          RELEASE_GATE_ARTIFACT_DIR: ${{ github.workspace }}/artifacts/webkit-mobile
+        run: node scripts/release-gate-webkit.cjs
+      - name: Upload WebKit screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: webkit-mobile-${{ github.sha }}
+          path: artifacts/webkit-mobile
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Show server log on failure
+        if: failure()
+        run: cat "$RUNNER_TEMP/super-gongik-web.log" || true
