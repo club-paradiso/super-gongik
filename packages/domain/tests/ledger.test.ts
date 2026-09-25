@@ -294,19 +294,29 @@ describe("event-derived annual leave ledger", () => {
     );
   });
 
-  it("does not deduct attendance minutes from annual leave", () => {
-    const result = ledger(
+  it("deducts authorized attendance from annual leave at eight hours per day", () => {
+    const partialResult = ledger(
       withEvents(
-        partial("LATE_ARRIVAL", "2026-06-01", 30),
-        partial("OUTING", "2026-06-02", 60),
+        partial("LATE_ARRIVAL", "2026-06-01", 240),
+        partial("OUTING", "2026-06-02", 240),
       ),
     );
-    expect(result.balance.used).toEqual({ halfDays: 0, minutes: 0 });
-    expect(result.attendanceMinutes).toEqual({
-      OUTING: 60,
-      LATE_ARRIVAL: 30,
+    expect(partialResult.balance.used).toEqual({ halfDays: 2, minutes: 0 });
+    expect(partialResult.attendanceMinutes).toEqual({
+      OUTING: 240,
+      LATE_ARRIVAL: 240,
       EARLY_LEAVE: 0,
     });
-    expect(result.warnings.join(" ")).toContain("자동 차감하지 않았어요");
+    expect(
+      formatLeaveQuantity(partialResult.balance.remainingAfterScheduled, 480),
+    ).toBe("14일");
+
+    const remainder = ledger(
+      withEvents(partial("EARLY_LEAVE", "2026-06-03", 240)),
+    );
+    expect(remainder.balance.used).toEqual({ halfDays: 0, minutes: 240 });
+    expect(
+      formatLeaveQuantity(remainder.balance.remainingAfterScheduled, 480),
+    ).toBe("14일 4시간");
   });
 });
