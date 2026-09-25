@@ -110,22 +110,19 @@ describe("event-derived annual leave ledger", () => {
     ).toBe("14일");
   });
 
-  it("keeps multiple partial-minute usages separate until the workday is known", () => {
+  it("keeps sub-eight-hour annual usage as minutes and resolves it on the fixed eight-hour basis", () => {
     const data = withEvents(
       partial("ANNUAL_LEAVE", "2026-06-01", 90),
       partial("ANNUAL_LEAVE", "2026-06-03", 120),
     );
-    const unknown = ledger(data);
-    expect(unknown.balance.used).toEqual({ halfDays: 0, minutes: 210 });
-    expect(unknown.balance.status).toBe("NEEDS_WORKDAY_MINUTES");
+    const result = ledger(data);
+    expect(result.balance.used).toEqual({ halfDays: 0, minutes: 210 });
+    expect(result.balance.status).toBe("RESOLVED");
     expect(
-      formatLeaveQuantity(unknown.balance.remainingAfterScheduled, null),
+      formatLeaveQuantity(result.balance.remainingAfterScheduled, null),
     ).toBe("15일 − 3시간 30분");
-
-    const known = ledger(data, { workdayMinutes: 480 });
-    expect(known.balance.status).toBe("RESOLVED");
     expect(
-      formatLeaveQuantity(known.balance.remainingAfterScheduled, 480),
+      formatLeaveQuantity(result.balance.remainingAfterScheduled, 480),
     ).toBe("14일 4시간 30분");
   });
 
