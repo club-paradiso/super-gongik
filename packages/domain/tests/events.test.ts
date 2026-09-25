@@ -235,11 +235,11 @@ describe("service event validation", () => {
     );
   });
 
-  it("warns about duplicated attendance entries and weekend day counts", () => {
+  it("blocks duplicated attendance charges and warns about weekend day counts", () => {
     const events = existing(partial("OUTING", "2026-09-10", 60));
-    expect(
-      codes(events, partial("OUTING", "2026-09-10", 60)).warnings,
-    ).toContain("POSSIBLE_DUPLICATE");
+    expect(codes(events, partial("OUTING", "2026-09-10", 60)).errors).toContain(
+      "LEAVE_OVERLAP",
+    );
     // Fri–Mon contains two weekdays; charging four needs confirmation.
     expect(
       codes([], allDay("ANNUAL_LEAVE", "2026-09-25", "2026-09-28", 4)).warnings,
