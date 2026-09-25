@@ -131,8 +131,8 @@ function buildDraft(form: FormState, profile: ServiceProfile) {
   const classification = classifyAnnualLeaveUsage({
     eventType: form.eventType,
     timing: timing as ServiceEvent["timing"],
-    workdayStartTime: profile.workdayStartTime,
-    workdayEndTime: profile.workdayEndTime,
+    workdayStartTime: profile.workdayStartTime ?? null,
+    workdayEndTime: profile.workdayEndTime ?? null,
   });
 
   if (form.mode === "PARTIAL" && classification?.automatic) {
@@ -199,8 +199,8 @@ export function EventEditor({
       classifyAnnualLeaveUsage({
         eventType: form.eventType,
         timing: rawTiming as ServiceEvent["timing"],
-        workdayStartTime: profile.workdayStartTime,
-        workdayEndTime: profile.workdayEndTime,
+        workdayStartTime: profile.workdayStartTime ?? null,
+        workdayEndTime: profile.workdayEndTime ?? null,
       }),
     [
       form.eventType,
