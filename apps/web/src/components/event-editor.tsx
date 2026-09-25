@@ -160,9 +160,7 @@ function buildDraft(form: FormState, profile: ServiceProfile) {
     title: form.title.trim() || null,
     note: form.note.trim() || null,
     sickLeaveCategory:
-      eventType === "SICK_LEAVE"
-        ? form.sickLeaveCategory || "UNKNOWN"
-        : null,
+      eventType === "SICK_LEAVE" ? form.sickLeaveCategory || "UNKNOWN" : null,
   };
 }
 
@@ -204,7 +202,12 @@ export function EventEditor({
         workdayStartTime: profile.workdayStartTime,
         workdayEndTime: profile.workdayEndTime,
       }),
-    [form.eventType, profile.workdayEndTime, profile.workdayStartTime, rawTiming],
+    [
+      form.eventType,
+      profile.workdayEndTime,
+      profile.workdayStartTime,
+      rawTiming,
+    ],
   );
   const draft = useMemo(() => buildDraft(form, profile), [form, profile]);
   const validation = useMemo(
@@ -406,8 +409,8 @@ export function EventEditor({
             <p className="field-hint">반일은 연가(반가)에만 쓸 수 있어요.</p>
           ) : form.mode === "HALF_DAY" ? (
             <p className="field-hint">
-              반가는 단순한 4시간 사용이 아니에요. 오전·오후 반일 승인
-              단위이며 14:00를 기준으로 구분해요.
+              반가는 단순한 4시간 사용이 아니에요. 오전·오후 반일 승인 단위이며
+              14:00를 기준으로 구분해요.
             </p>
           ) : null}
 
@@ -574,16 +577,15 @@ export function EventEditor({
               {usageClassification.kind === "LATE_ARRIVAL" ? (
                 <>
                   <br />
-                  입력 시간이 4시간이어도 14:00 반일 경계와 맞지 않으면
-                  반가로 바꾸지 않고 허가지각으로 저장해요. 누계 8시간은 연가
-                  1일로 공제해요.
+                  입력 시간이 4시간이어도 14:00 반일 경계와 맞지 않으면 반가로
+                  바꾸지 않고 허가지각으로 저장해요. 누계 8시간은 연가 1일로
+                  공제해요.
                 </>
               ) : usageClassification.kind === "HALF_DAY" &&
                 form.mode === "PARTIAL" ? (
                 <>
                   <br />
-                  입력 구간이 14:00 반일 경계와 정확히 맞아 반가로
-                  저장해요.
+                  입력 구간이 14:00 반일 경계와 정확히 맞아 반가로 저장해요.
                 </>
               ) : null}
             </div>
