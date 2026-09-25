@@ -1,3 +1,7 @@
+import {
+  ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY,
+  isAnnualLeaveAttendanceType,
+} from "../events/annual-leave-classification";
 import { findLeaveOverlaps } from "../events/validation";
 import {
   ATTENDANCE_EVENT_TYPES,
@@ -201,10 +205,29 @@ function resolveCredits(
   });
 }
 
-function annualEvents(events: readonly ServiceEvent[]) {
+function annualChargeEvents(events: readonly ServiceEvent[]) {
   return events
-    .filter((event) => isLive(event) && event.eventType === "ANNUAL_LEAVE")
+    .filter(
+      (event) =>
+        isLive(event) &&
+        (event.eventType === "ANNUAL_LEAVE" ||
+          isAnnualLeaveAttendanceType(event.eventType)),
+    )
     .sort((a, b) => a.startDate.localeCompare(b.startDate));
+}
+
+function normalizeAnnualMinuteCarry(value: LeaveQuantity): LeaveQuantity {
+  if (value.minutes === 0) return value;
+  const wholeDays = Math.trunc(
+    value.minutes / ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY,
+  );
+  if (wholeDays === 0) return value;
+  return {
+    halfDays: value.halfDays + wholeDays * 2,
+    minutes:
+      value.minutes -
+      wholeDays * ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY,
+  };
 }
 
 function corrections(adjustments: readonly LeaveAdjustment[]) {
@@ -235,7 +258,7 @@ export function computeAnnualLeaveBalance(
   let used = ZERO_QUANTITY;
   let scheduled = ZERO_QUANTITY;
   const unresolvedEventIds: string[] = [];
-  for (const event of annualEvents(input.events)) {
+  for (const event of annualChargeEvents(input.events)) {
     const amount = eventLeaveQuantity(event);
     if (amount === null) {
       unresolvedEventIds.push(event.id);
@@ -247,6 +270,9 @@ export function computeAnnualLeaveBalance(
       scheduled = addQuantities(scheduled, amount);
     }
   }
+
+  used = normalizeAnnualMinuteCarry(used);
+  scheduled = normalizeAnnualMinuteCarry(scheduled);
 
   const correctionTotal = corrections(input.adjustments)
     .filter((item) => compareDateOnly(item.effectiveDate, asOf) <= 0)
@@ -271,12 +297,6 @@ export function computeAnnualLeaveBalance(
 
   let status: BalanceStatus = "RESOLVED";
   if (pendingCreditKeys.length) status = "NEEDS_CREDIT_CONFIRMATION";
-  else if (
-    input.workdayMinutes === null &&
-    remainingAfterScheduled.minutes !== 0
-  ) {
-    status = "NEEDS_WORKDAY_MINUTES";
-  }
 
   return {
     asOf,
@@ -349,7 +369,10 @@ export function reconcileWithInstitution(
     );
   }
 
-  const differenceMinutes = quantityToMinutes(difference, input.workdayMinutes);
+  const differenceMinutes = quantityToMinutes(
+    difference,
+    ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY,
+  );
   if (differenceMinutes === 0) difference = ZERO_QUANTITY;
   const matched =
     (difference.halfDays === 0 && difference.minutes === 0) ||
@@ -385,14 +408,15 @@ function buildEntries(
     });
   }
 
-  for (const event of annualEvents(input.events)) {
+  for (const event of annualChargeEvents(input.events)) {
     const amount = eventLeaveQuantity(event);
     if (!amount) continue;
     rows.push({
       date: event.startDate,
       kind: "USAGE",
-      label:
-        event.timing.kind === "HALF_DAY"
+      label: isAnnualLeaveAttendanceType(event.eventType)
+        ? `${SERVICE_EVENT_TYPE_LABELS[event.eventType]} (연가 누계)`
+        : event.timing.kind === "HALF_DAY"
           ? "반가"
           : event.timing.kind === "PARTIAL"
             ? "시간 단위 연가"
@@ -468,7 +492,8 @@ export function buildLeaveLedger(input: LeaveLedgerInput): LeaveLedger {
   const assumptions = [
     "연가 사용량은 캘린더 기록에서만 계산해요. 따로 입력한 사용량은 없어요.",
     "1년차 미사용 연가가 2년차로 이어진다고 보고 누적 잔여를 보여줘요. 이월 기준은 기관에 확인하세요.",
-    "반가는 반일(0.5일) 단위로 차감하며 분으로 바꾸지 않아요.",
+    "반가는 반일(0.5일) 승인 단위이며, 단순히 4시간이라고 반가로 바꾸지 않아요.",
+    "질병·부상 외 지각·조퇴·외출은 구분 없이 누계 8시간을 연가 1일로 공제해요.",
   ];
   const warnings: string[] = [];
 
@@ -480,11 +505,6 @@ export function buildLeaveLedger(input: LeaveLedgerInput): LeaveLedger {
   if (balance.unresolvedEventIds.length) {
     warnings.push(
       `사용 시간이 확인되지 않은 연가 기록 ${balance.unresolvedEventIds.length}건은 잔여 계산에서 뺐어요.`,
-    );
-  }
-  if (balance.status === "NEEDS_WORKDAY_MINUTES") {
-    warnings.push(
-      "시간 단위 연가가 있어요. 1일 근무시간을 설정하기 전에는 일수와 분을 합치지 않아요.",
     );
   }
   // Records saved before overlap validation existed, or imported with
@@ -500,14 +520,6 @@ export function buildLeaveLedger(input: LeaveLedgerInput): LeaveLedger {
       `같은 날 시간이 겹치는지 확인할 수 없는 휴가 기록이 ${overlaps.unresolved.length}쌍 있어요. 시작·종료 시각을 넣으면 확인할 수 있어요.`,
     );
   }
-  const attendanceTotal =
-    attendance.OUTING + attendance.LATE_ARRIVAL + attendance.EARLY_LEAVE;
-  if (attendanceTotal > 0) {
-    warnings.push(
-      "외출·지각·조퇴 시간을 연가에서 차감하는 기준은 검증되지 않아 자동 차감하지 않았어요.",
-    );
-  }
-
   return {
     credits,
     balance,
