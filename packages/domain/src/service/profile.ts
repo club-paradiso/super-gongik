@@ -16,6 +16,17 @@ const dateOnlySchema = z
   .refine(isDateOnly, "유효한 날짜를 입력해 주세요.")
   .transform((value) => value as DateOnly);
 
+const CLOCK_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
+const workClockSchema = z
+  .string()
+  .regex(CLOCK_PATTERN, "HH:MM 형식의 시각을 입력해 주세요.");
+
+function clockMinutes(value: string) {
+  const match = CLOCK_PATTERN.exec(value);
+  if (!match) return null;
+  return Number(match[1]) * 60 + Number(match[2]);
+}
+
 /**
  * 병역법 시행령 제62조제2항 제1호~제7호. Each 호 credits a different period
  * computed under a different provision, so the app records which one applies
@@ -72,6 +83,15 @@ export const serviceProfileInputSchema = z
       .max(24 * 60)
       .nullable()
       .default(null),
+    /**
+     * Ordinary scheduled start/end clocks. They are user-confirmed because
+     * flexible or institution-specific schedules can differ. These anchors
+     * are used only to classify partial annual-leave use as authorized
+     * late-arrival / early-leave / outing; a duration alone never implies
+     * half-day leave.
+     */
+    workdayStartTime: workClockSchema.nullable().default(null),
+    workdayEndTime: workClockSchema.nullable().default(null),
     /**
      * Whether prior service is credited toward pay grade (병역법 시행령
      * 제62조제2항 cases). null = not answered; compensation stays gated.
@@ -130,6 +150,26 @@ export const serviceProfileInputSchema = z
         message:
           "이전 복무 경력이 있을 때만 인정 근거와 기간을 입력할 수 있어요.",
       });
+    }
+    const hasStart = profile.workdayStartTime !== null;
+    const hasEnd = profile.workdayEndTime !== null;
+    if (hasStart !== hasEnd) {
+      context.addIssue({
+        code: "custom",
+        path: ["workdayStartTime"],
+        message: "근무 시작 시각과 종료 시각을 함께 입력해 주세요.",
+      });
+    }
+    if (profile.workdayStartTime && profile.workdayEndTime) {
+      const start = clockMinutes(profile.workdayStartTime);
+      const end = clockMinutes(profile.workdayEndTime);
+      if (start === null || end === null || end <= start) {
+        context.addIssue({
+          code: "custom",
+          path: ["workdayEndTime"],
+          message: "근무 종료 시각은 시작 시각보다 늦어야 해요.",
+        });
+      }
     }
     if (
       profile.workWeekdays &&
