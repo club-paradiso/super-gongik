@@ -31,8 +31,8 @@ body:has(.offline-banner) .onboarding {
   background: var(--warning-bg);
   padding: 12px 8px 12px 14px;
   color: var(--warning-fg);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .storage-notice p {
@@ -73,7 +73,7 @@ body > .storage-notice {
 
 .onboarding__inner {
   display: grid;
-  gap: 20px;
+  gap: 16px;
   width: min(100%, 440px);
   margin: 0 auto;
 }
@@ -96,9 +96,9 @@ body > .storage-notice {
 .onboarding__hero h1 {
   margin: 4px 0 0;
   color: var(--text);
-  font-size: 30px;
+  font-size: 29px;
   font-weight: 800;
-  line-height: 1.27;
+  line-height: 1.24;
   letter-spacing: -0.04em;
 }
 
@@ -111,16 +111,17 @@ body > .storage-notice {
 
 .onboarding__form {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .setup-card {
   min-width: 0;
+  overflow: hidden;
   margin: 0;
   border: 0;
   border-radius: var(--radius-card);
   background: var(--surface);
-  padding: 16px 16px 18px;
+  padding: 0;
   box-shadow: var(--shadow-card);
 }
 
@@ -128,8 +129,8 @@ body > .storage-notice {
 .setup-card > legend {
   float: left;
   width: 100%;
-  margin: 0 0 12px;
-  padding: 0;
+  margin: 0;
+  padding: 16px 16px 10px;
 }
 
 .setup-card > legend + * {
@@ -141,9 +142,31 @@ body > .storage-notice {
   align-items: baseline;
   gap: 6px;
   color: var(--text-2);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12.5px;
+  font-weight: 750;
   letter-spacing: -0.01em;
+}
+
+.setup-section {
+  padding: 0 16px 16px;
+}
+
+.setup-section--secondary {
+  border-top: 1px solid var(--line);
+  background: #fbfcfd;
+  padding-top: 14px;
+}
+
+.setup-section__title {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+}
+
+.setup-section__title .optional {
+  margin-left: 4px;
 }
 
 .setup-row {
@@ -153,7 +176,7 @@ body > .storage-notice {
 }
 
 .setup-row + .setup-row {
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 .setup-row__label {
@@ -190,10 +213,11 @@ body > .storage-notice {
 }
 
 .restore-card {
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: var(--radius-card);
-  background: rgb(255 255 255 / 60%);
+  background: var(--surface);
   padding: 6px;
+  box-shadow: var(--shadow-card);
 }
 
 .restore-card h2 {
@@ -426,7 +450,7 @@ body > .storage-notice {
 .tab-button__icon {
   display: grid;
   place-items: center;
-  width: 52px;
+  width: 44px;
   height: 28px;
   border-radius: 999px;
   transition:
