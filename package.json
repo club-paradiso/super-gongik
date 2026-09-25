@@ -11,7 +11,7 @@
     "build": "pnpm --filter @super-gongik/web build",
     "lint": "pnpm -r --if-present lint",
     "format": "prettier --write .",
-    "format:check": "prettier --write apps/web/tests/import-adapters.test.ts && git diff --exit-code -- apps/web/tests/import-adapters.test.ts",
+    "format:check": "prettier --check .",
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm -r --if-present test",
     "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test && pnpm build"
