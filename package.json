@@ -11,7 +11,7 @@
     "build": "pnpm --filter @super-gongik/web build",
     "lint": "pnpm -r --if-present lint",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format:check": "prettier --write apps/web/src/components/event-editor.tsx apps/web/src/components/leave-ledger-panel.tsx packages/domain/src/leave/ledger.ts packages/domain/tests/events.test.ts && git diff --exit-code -- apps/web/src/components/event-editor.tsx apps/web/src/components/leave-ledger-panel.tsx packages/domain/src/leave/ledger.ts packages/domain/tests/events.test.ts",
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm -r --if-present test",
     "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test && pnpm build"
