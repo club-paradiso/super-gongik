@@ -268,49 +268,57 @@ describe.skipIf(!enabled)("Supabase transport against PostgREST + RLS", () => {
     });
   });
 
-  it("converges independent offline edits and refuses a stale enable preview after a remote write", async () => {
-    const a = device("release-phone-a", userE, undefined, seedDocument("profile-e"));
-    await a.store.load();
-    await a.enable();
+  it(
+    "converges independent offline edits and refuses a stale enable preview after a remote write",
+    async () => {
+      const a = device(
+        "release-phone-a",
+        userE,
+        undefined,
+        seedDocument("profile-e"),
+      );
+      await a.store.load();
+      await a.enable();
 
-    const b = device("release-tablet-b", userE);
-    await b.enable();
+      const b = device("release-tablet-b", userE);
+      await b.enable();
 
-    await a.act((data, ctx) =>
-      createServiceEvent(data, leave("2026-11-03", "A only"), ctx),
-    );
-    await b.act((data, ctx) =>
-      createServiceEvent(data, leave("2026-11-04", "B only"), ctx),
-    );
+      await a.act((data, ctx) =>
+        createServiceEvent(data, leave("2026-11-03", "A only"), ctx),
+      );
+      await b.act((data, ctx) =>
+        createServiceEvent(data, leave("2026-11-04", "B only"), ctx),
+      );
 
-    expect((await a.engine.sync()).conflicts).toEqual([]);
-    expect((await b.engine.sync()).conflicts).toEqual([]);
-    expect((await a.engine.sync()).conflicts).toEqual([]);
-    expect(records(a.data())).toBe(records(b.data()));
-    expect(a.data().events).toHaveLength(2);
+      expect((await a.engine.sync()).conflicts).toEqual([]);
+      expect((await b.engine.sync()).conflicts).toEqual([]);
+      expect((await a.engine.sync()).conflicts).toEqual([]);
+      expect(records(a.data())).toBe(records(b.data()));
+      expect(a.data().events).toHaveLength(2);
 
-    const fresh = device(
-      "release-fresh-c",
-      userE,
-      undefined,
-      seedDocument("profile-e"),
-    );
-    await fresh.store.load();
-    await fresh.engine.init();
-    const preview = await fresh.engine.previewEnable();
-    expect(preview.kind).toBe("READY");
+      const fresh = device(
+        "release-fresh-c",
+        userE,
+        undefined,
+        seedDocument("profile-e"),
+      );
+      await fresh.store.load();
+      await fresh.engine.init();
+      const preview = await fresh.engine.previewEnable();
+      expect(preview.kind).toBe("READY");
 
-    await a.act((data, ctx) =>
-      createServiceEvent(data, leave("2026-11-05", "after preview"), ctx),
-    );
-    expect((await a.engine.sync()).phase).toBe("IDLE");
+      await a.act((data, ctx) =>
+        createServiceEvent(data, leave("2026-11-05", "after preview"), ctx),
+      );
+      expect((await a.engine.sync()).phase).toBe("IDLE");
 
-    if (preview.kind !== "READY") throw new Error(preview.kind);
-    expect(await fresh.engine.enable(preview)).toEqual({
-      kind: "STALE_PREVIEW",
-      reason: "REMOTE",
-    });
-  });
+      if (preview.kind !== "READY") throw new Error(preview.kind);
+      expect(await fresh.engine.enable(preview)).toEqual({
+        kind: "STALE_PREVIEW",
+        reason: "REMOTE",
+      });
+    },
+  );
 
   it("a push whose response is lost is retried without duplicates", async () => {
     let lose = true;
