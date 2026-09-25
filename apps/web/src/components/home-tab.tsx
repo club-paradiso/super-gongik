@@ -28,10 +28,7 @@ export function serviceStateLabel(
   return "복무 중";
 }
 
-export function remainingLeaveLabel(
-  projection: AppProjection,
-  profile: ServiceProfile,
-) {
+export function remainingLeaveLabel(projection: AppProjection) {
   const balance = projection.ledger.balance;
   if (balance.status === "NEEDS_CREDIT_CONFIRMATION") return "확인 필요";
   return formatLeaveQuantity(
@@ -125,7 +122,7 @@ export function HomeTab({
                 : "stat-tile__value"
             }
           >
-            {remainingLeaveLabel(projection, profile)}
+            {remainingLeaveLabel(projection)}
           </strong>
           <span className="stat-tile__caption">
             {balance.status === "NEEDS_CREDIT_CONFIRMATION"
