@@ -21,6 +21,7 @@ import { BackupPanel, downloadFullBackup } from "@/components/backup-panel";
 import { CloudSyncPanel } from "@/components/cloud-sync-panel";
 import { RecordImportPanel } from "@/components/record-import-panel";
 import { Button } from "@/components/ui/button";
+import { DateInput } from "@/components/ui/date-input";
 import { useCloud } from "@/hooks/use-cloud";
 
 type PriorAnswer = "" | "NONE" | "HAS_PRIOR_SERVICE";
@@ -280,226 +281,233 @@ function ProfileForm({
 
   return (
     <form className="profile-form" onSubmit={handleSubmit}>
-      <label className="form-field">
-        <span>소집일</span>
-        <input
-          required
-          type="date"
-          value={callUpDate}
-          onChange={(event) => handleCallUpDate(event.target.value)}
-        />
-      </label>
-      <label className="form-field">
-        <span>소집해제 예정일</span>
-        <input
-          required
-          type="date"
-          value={expectedDischargeDate}
-          onChange={(event) => setExpectedDischargeDate(event.target.value)}
-        />
-        <small>
-          소집일을 바꾸면 21개월 기준으로 다시 계산해요. 연장 등은 직접
-          고치세요.
-        </small>
-      </label>
-      <label className="form-field">
-        <span>복무 분야</span>
-        <input
-          maxLength={80}
-          placeholder="선택 사항"
-          value={serviceCategory}
-          onChange={(event) => setServiceCategory(event.target.value)}
-        />
-      </label>
+      <SettingsGroup title="복무 기간">
+        <label className="form-field">
+          <span>소집일</span>
+          <DateInput
+            required
+            value={callUpDate}
+            onValueChange={handleCallUpDate}
+          />
+        </label>
+        <label className="form-field">
+          <span>소집해제 예정일</span>
+          <DateInput
+            required
+            value={expectedDischargeDate}
+            onValueChange={setExpectedDischargeDate}
+          />
+          <small>
+            소집일을 바꾸면 21개월 기준으로 다시 계산해요. 연장 등은 직접
+            고치세요.
+          </small>
+        </label>
+        <label className="form-field">
+          <span>복무 분야</span>
+          <input
+            maxLength={80}
+            placeholder="선택 사항"
+            value={serviceCategory}
+            onChange={(event) => setServiceCategory(event.target.value)}
+          />
+        </label>
+      </SettingsGroup>
 
-      <div className="form-field">
-        <span>1일 근무시간</span>
-        <div className="unit-row">
-          <div className="unit-input">
-            <input
-              aria-label="근무 시간"
-              inputMode="numeric"
-              max="24"
-              min="0"
-              type="number"
-              value={workHours}
-              onChange={(event) => setWorkHours(event.target.value)}
-            />
-            <span>시간</span>
-          </div>
-          <div className="unit-input">
-            <input
-              aria-label="근무 분"
-              inputMode="numeric"
-              max="59"
-              min="0"
-              type="number"
-              value={workMinutes}
-              onChange={(event) => setWorkMinutes(event.target.value)}
-            />
-            <span>분</span>
-          </div>
-        </div>
-        <small>
-          시간 단위 휴가를 일수와 합칠 때만 써요. 기관마다 달라서 비워 두면
-          가정하지 않아요.
-        </small>
-      </div>
-
-      <fieldset className="form-field choice-field">
-        <legend>이전 복무 경력(현역 등)이 보수 등급에 인정되나요?</legend>
-        {(
-          [
-            ["NONE", "없어요"],
-            ["HAS_PRIOR_SERVICE", "있어요"],
-            ["", "잘 모르겠어요"],
-          ] as const
-        ).map(([value, label]) => (
-          <label key={value || "unknown"}>
-            <input
-              checked={prior === value}
-              name="prior-service"
-              onChange={() => setPrior(value)}
-              type="radio"
-            />
-            {label}
-          </label>
-        ))}
-        <small>
-          병역법 시행령 제62조제2항의 7가지 경우에만 기간이 합산돼요. &lsquo;잘
-          모르겠어요&rsquo;면 기본 보수를 계산하지 않아요.
-        </small>
-      </fieldset>
-
-      {prior === "HAS_PRIOR_SERVICE" ? (
-        <div className="prior-detail">
-          <label className="form-field">
-            <span>해당하는 경우 (제62조제2항)</span>
-            <select
-              value={priorBasis}
-              onChange={(event) =>
-                setPriorBasis(event.target.value as PriorServiceBasis | "")
-              }
-            >
-              <option value="">선택해 주세요</option>
-              {PRIOR_SERVICE_BASES.map((basis) => (
-                <option key={basis} value={basis}>
-                  {PRIOR_SERVICE_BASIS_LABELS[basis]}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="form-field">
-            <span>복무기관이 확인한 인정 기간 (개월)</span>
-            <input
-              disabled={creditPartialMonth}
-              inputMode="numeric"
-              max="36"
-              min="1"
-              type="number"
-              value={creditedMonths}
-              onChange={(event) => setCreditedMonths(event.target.value)}
-            />
-            <small>
-              기간은 호마다 계산법이 달라 앱이 추정하지 않아요. 기관에 확인한
-              값을 넣어 주세요.
-            </small>
-          </label>
-          <label className="check-row">
-            <input
-              checked={creditPartialMonth}
-              onChange={(event) => setCreditPartialMonth(event.target.checked)}
-              type="checkbox"
-            />
-            인정 기간이 개월 단위로 딱 떨어지지 않아요
-          </label>
-        </div>
-      ) : null}
-
-      <fieldset className="form-field choice-field">
-        <legend>복무형태</legend>
-        {(
-          [
-            ["WEEKDAY_DAYTIME", "주간 출퇴근"],
-            ["NIGHT_SHIFT_ROTATION", "주·야간 교대(24시간 근무지)"],
-            ["RESIDENTIAL", "합숙 근무"],
-            ["OTHER", "그 밖의 형태"],
-            ["", "아직 모르겠어요"],
-          ] as const
-        ).map(([value, label]) => (
-          <label key={value || "unknown"}>
-            <input
-              checked={workPattern === value}
-              name="work-pattern"
-              onChange={() => setWorkPattern(value)}
-              type="radio"
-            />
-            {label}
-          </label>
-        ))}
-        <small>
-          중식비·교통비 근무일 계산은 주간 출퇴근만 지원해요. 야간 교대는
-          근무일수를 2일로 보는 별도 규정이 있어 계산하지 않아요.
-        </small>
-      </fieldset>
-
-      {workPattern === "WEEKDAY_DAYTIME" ? (
-        <fieldset className="form-field choice-field">
-          <legend>정해진 근무 요일</legend>
-          <div className="weekday-row">
-            {WEEKDAY_LABELS.map((label, day) => (
-              <label className="weekday-chip" key={label}>
-                <input
-                  checked={weekdays.includes(day)}
-                  onChange={() => toggleWeekday(day)}
-                  type="checkbox"
-                />
-                {label}
-              </label>
-            ))}
+      <SettingsGroup title="근무 조건">
+        <div className="form-field">
+          <span>1일 근무시간</span>
+          <div className="unit-row">
+            <div className="unit-input">
+              <input
+                aria-label="근무 시간"
+                inputMode="numeric"
+                max="24"
+                min="0"
+                type="number"
+                value={workHours}
+                onChange={(event) => setWorkHours(event.target.value)}
+              />
+              <span>시간</span>
+            </div>
+            <div className="unit-input">
+              <input
+                aria-label="근무 분"
+                inputMode="numeric"
+                max="59"
+                min="0"
+                type="number"
+                value={workMinutes}
+                onChange={(event) => setWorkMinutes(event.target.value)}
+              />
+              <span>분</span>
+            </div>
           </div>
           <small>
-            {profile.workWeekdays
-              ? "저장한 근무 요일이에요."
-              : "토요일 휴무 원칙(국가공무원 복무규정 제9조)에 따라 월~금으로 채워 두었어요. 맞으면 저장해 주세요."}
+            시간 단위 휴가를 일수와 합칠 때만 써요. 기관마다 달라서 비워 두면
+            가정하지 않아요.
+          </small>
+        </div>
+
+        <fieldset className="form-field choice-field">
+          <legend>복무형태</legend>
+          {(
+            [
+              ["WEEKDAY_DAYTIME", "주간 출퇴근"],
+              ["NIGHT_SHIFT_ROTATION", "주·야간 교대(24시간 근무지)"],
+              ["RESIDENTIAL", "합숙 근무"],
+              ["OTHER", "그 밖의 형태"],
+              ["", "아직 모르겠어요"],
+            ] as const
+          ).map(([value, label]) => (
+            <label key={value || "unknown"}>
+              <input
+                checked={workPattern === value}
+                name="work-pattern"
+                onChange={() => setWorkPattern(value)}
+                type="radio"
+              />
+              {label}
+            </label>
+          ))}
+          <small>
+            중식비·교통비 근무일 계산은 주간 출퇴근만 지원해요. 야간 교대는
+            근무일수를 2일로 보는 별도 규정이 있어 계산하지 않아요.
           </small>
         </fieldset>
-      ) : null}
 
-      <label className="form-field">
-        <span>1일 중식비 (기관이 더 줄 때만)</span>
-        <input
-          inputMode="numeric"
-          min="0"
-          placeholder="비워 두면 9,000원(2026 최소기준)"
-          type="number"
-          value={mealRate}
-          onChange={(event) => setMealRate(event.target.value)}
-        />
-        <small>
-          병무청 2026년 지급 기준은 1일 9,000원이 최소이고, 기관이 예산 범위에서
-          더 줄 수 있어요. 더 받는 경우에만 그 금액을 넣으세요.
-        </small>
-      </label>
+        {workPattern === "WEEKDAY_DAYTIME" ? (
+          <fieldset className="form-field choice-field">
+            <legend>정해진 근무 요일</legend>
+            <div className="weekday-row">
+              {WEEKDAY_LABELS.map((label, day) => (
+                <label className="weekday-chip" key={label}>
+                  <input
+                    checked={weekdays.includes(day)}
+                    onChange={() => toggleWeekday(day)}
+                    type="checkbox"
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+            <small>
+              {profile.workWeekdays
+                ? "저장한 근무 요일이에요."
+                : "토요일 휴무 원칙(국가공무원 복무규정 제9조)에 따라 월~금으로 채워 두었어요. 맞으면 저장해 주세요."}
+            </small>
+          </fieldset>
+        ) : null}
+      </SettingsGroup>
 
-      <label className="form-field">
-        <span>
-          <MapPin aria-hidden="true" size={17} />
-          1일 교통비 (시내버스 왕복 현금요금)
-        </span>
-        <input
-          inputMode="numeric"
-          min="0"
-          placeholder="기관 승인 금액 또는 실제 운임"
-          type="number"
-          value={commuteCost}
-          onChange={(event) => setCommuteCost(event.target.value)}
-        />
-        <small>
-          병무청 기준: 시내버스 왕복 현금요금. 환승·지하철 장거리 등 추가비용이
-          있으면 교통카드 금액 기준 실비예요. 걸어서 다녀도 같은 기준이에요.
-        </small>
-      </label>
+      <SettingsGroup title="보수 계산 기준">
+        <fieldset className="form-field choice-field">
+          <legend>이전 복무 경력(현역 등)이 보수 등급에 인정되나요?</legend>
+          {(
+            [
+              ["NONE", "없어요"],
+              ["HAS_PRIOR_SERVICE", "있어요"],
+              ["", "잘 모르겠어요"],
+            ] as const
+          ).map(([value, label]) => (
+            <label key={value || "unknown"}>
+              <input
+                checked={prior === value}
+                name="prior-service"
+                onChange={() => setPrior(value)}
+                type="radio"
+              />
+              {label}
+            </label>
+          ))}
+          <small>
+            병역법 시행령 제62조제2항의 7가지 경우에만 기간이 합산돼요.
+            &lsquo;잘 모르겠어요&rsquo;면 기본 보수를 계산하지 않아요.
+          </small>
+        </fieldset>
+
+        {prior === "HAS_PRIOR_SERVICE" ? (
+          <div className="prior-detail">
+            <label className="form-field">
+              <span>해당하는 경우 (제62조제2항)</span>
+              <select
+                value={priorBasis}
+                onChange={(event) =>
+                  setPriorBasis(event.target.value as PriorServiceBasis | "")
+                }
+              >
+                <option value="">선택해 주세요</option>
+                {PRIOR_SERVICE_BASES.map((basis) => (
+                  <option key={basis} value={basis}>
+                    {PRIOR_SERVICE_BASIS_LABELS[basis]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="form-field">
+              <span>복무기관이 확인한 인정 기간 (개월)</span>
+              <input
+                disabled={creditPartialMonth}
+                inputMode="numeric"
+                max="36"
+                min="1"
+                type="number"
+                value={creditedMonths}
+                onChange={(event) => setCreditedMonths(event.target.value)}
+              />
+              <small>
+                기간은 호마다 계산법이 달라 앱이 추정하지 않아요. 기관에 확인한
+                값을 넣어 주세요.
+              </small>
+            </label>
+            <label className="check-row">
+              <input
+                checked={creditPartialMonth}
+                onChange={(event) =>
+                  setCreditPartialMonth(event.target.checked)
+                }
+                type="checkbox"
+              />
+              인정 기간이 개월 단위로 딱 떨어지지 않아요
+            </label>
+          </div>
+        ) : null}
+
+        <label className="form-field">
+          <span>1일 중식비 (기관이 더 줄 때만)</span>
+          <input
+            inputMode="numeric"
+            min="0"
+            placeholder="비워 두면 9,000원(2026 최소기준)"
+            type="number"
+            value={mealRate}
+            onChange={(event) => setMealRate(event.target.value)}
+          />
+          <small>
+            병무청 2026년 지급 기준은 1일 9,000원이 최소이고, 기관이 예산
+            범위에서 더 줄 수 있어요. 더 받는 경우에만 그 금액을 넣으세요.
+          </small>
+        </label>
+
+        <label className="form-field">
+          <span>
+            <MapPin aria-hidden="true" size={17} />
+            1일 교통비 (시내버스 왕복 현금요금)
+          </span>
+          <input
+            inputMode="numeric"
+            min="0"
+            placeholder="기관 승인 금액 또는 실제 운임"
+            type="number"
+            value={commuteCost}
+            onChange={(event) => setCommuteCost(event.target.value)}
+          />
+          <small>
+            병무청 기준: 시내버스 왕복 현금요금. 환승·지하철 장거리 등
+            추가비용이 있으면 교통카드 금액 기준 실비예요. 걸어서 다녀도 같은
+            기준이에요.
+          </small>
+        </label>
+      </SettingsGroup>
 
       {saved ? (
         <p className="save-message" role="status">
@@ -511,7 +519,24 @@ function ProfileForm({
           {error}
         </p>
       ) : null}
-      <Button type="submit">변경 사항 저장</Button>
+      <div className="profile-form__submit">
+        <Button type="submit">변경 사항 저장</Button>
+      </div>
     </form>
+  );
+}
+
+function SettingsGroup({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="settings-group">
+      <h2 className="settings-group__title">{title}</h2>
+      <div className="settings-card">{children}</div>
+    </section>
   );
 }

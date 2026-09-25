@@ -23,6 +23,7 @@ import { MoneyTab } from "@/components/money-tab";
 import { Onboarding } from "@/components/onboarding";
 import { ProfileTab } from "@/components/profile-tab";
 import { StorageNotice } from "@/components/storage-notice";
+import { BrandMark } from "@/components/ui/brand-mark";
 import { useAppData } from "@/hooks/use-app-data";
 import { buildAppProjection } from "@/lib/projections";
 
@@ -56,7 +57,7 @@ export function ServiceApp() {
 
   if (snapshot.phase === "LOADING") {
     return (
-      <main className="onboarding-shell" aria-busy="true">
+      <main className="app-loading" aria-busy="true">
         <p className="loading-line" role="status">
           기기에 저장된 기록을 불러오는 중…
         </p>
@@ -143,10 +144,12 @@ function Dashboard({
   return (
     <main className="app-shell">
       <aside className="desktop-rail">
-        <p className="rail-wordmark">
-          SUPER
-          <br />
-          GONGIK
+        <p className="rail-brand">
+          <BrandMark size={32} />
+          <span>
+            슈퍼공익
+            <small>SUPER GONGIK</small>
+          </span>
         </p>
         <span className="status-chip">
           {serviceStateLabel(projection.progress.state)}
@@ -169,14 +172,11 @@ function Dashboard({
 
       <div className="app-main">
         <header className="app-header">
-          <div className="app-header__top">
-            <p className="wordmark mobile-wordmark">SUPER GONGIK</p>
+          <div className="app-header__bar">
+            <h1>{activeCopy.title}</h1>
             <SyncStatusChip className="sync-chip--header" onOpen={openSync} />
           </div>
-          <div className="page-heading">
-            <h1>{activeCopy.title}</h1>
-            <p>{activeCopy.description}</p>
-          </div>
+          <p className="app-header__description">{activeCopy.description}</p>
         </header>
 
         <div className="tab-notice">{notice}</div>
@@ -245,8 +245,10 @@ function TabButton({
       onClick={onClick}
       type="button"
     >
-      <Icon aria-hidden="true" size={24} />
-      <span>{label}</span>
+      <span className="tab-button__icon">
+        <Icon aria-hidden="true" size={22} strokeWidth={active ? 2.3 : 1.9} />
+      </span>
+      <span className="tab-button__label">{label}</span>
     </button>
   );
 }

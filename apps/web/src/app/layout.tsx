@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 import "pretendard/dist/web/variable/PretendardVariable-VF.css";
@@ -24,8 +24,9 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport = {
-  themeColor: "#ffffff",
+export const viewport: Viewport = {
+  themeColor: "#f2f4f7",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

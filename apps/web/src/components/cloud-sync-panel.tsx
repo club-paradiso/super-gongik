@@ -89,7 +89,7 @@ export function CloudSyncPanel({
       className="backup-panel cloud-panel"
       id="cloud-sync"
     >
-      <div className="record-import__heading">
+      <div className="panel-head">
         <div>
           <h2 id="cloud-sync-title">계정과 클라우드 동기화</h2>
           <p>
