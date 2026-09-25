@@ -35,9 +35,10 @@ export type AnnualLeaveCreditInput = {
 
 /**
  * A balance is two independent integers. Half-days are the smallest
- * rule-backed day unit (two half-day annual leaves equal one day). Minutes
- * come from explicit partial-day records. They are only combined when the
- * user's workday length is known.
+ * rule-backed day unit (two half-day annual leaves equal one day). Minute
+ * charges come from explicit partial-day records. Authorized late arrival,
+ * early leave and outing minutes carry into annual leave at eight cumulative
+ * hours per day; half-day approval remains a separate unit.
  */
 export type LeaveQuantity = { halfDays: number; minutes: number };
 
@@ -445,7 +446,7 @@ function buildEntries(
 
   let running = ZERO_QUANTITY;
   return rows.map((row) => {
-    running = addQuantities(running, row.delta);
+    running = normalizeAnnualMinuteCarry(addQuantities(running, row.delta));
     return { ...row, running };
   });
 }
