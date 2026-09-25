@@ -43,11 +43,37 @@ describe("annual leave attendance classification", () => {
     expect(result?.kind).not.toBe("HALF_DAY");
   });
 
-  it("classifies end-of-day and middle-of-day intervals by position", () => {
+  it("uses the 14:00 boundary for exact morning and afternoon half-day ranges", () => {
+    expect(
+      classifyAnnualLeaveUsage({
+        eventType: "ANNUAL_LEAVE",
+        timing: partial("09:00", "14:00", 300),
+        ...schedule,
+      }),
+    ).toMatchObject({
+      kind: "HALF_DAY",
+      label: "오전 반가",
+      halfDayPart: "AM",
+    });
+
     expect(
       classifyAnnualLeaveUsage({
         eventType: "ANNUAL_LEAVE",
         timing: partial("14:00", "18:00", 240),
+        ...schedule,
+      }),
+    ).toMatchObject({
+      kind: "HALF_DAY",
+      label: "오후 반가",
+      halfDayPart: "PM",
+    });
+  });
+
+  it("classifies non-half-day end and middle intervals by position", () => {
+    expect(
+      classifyAnnualLeaveUsage({
+        eventType: "ANNUAL_LEAVE",
+        timing: partial("15:00", "18:00", 180),
         ...schedule,
       })?.kind,
     ).toBe("EARLY_LEAVE");
