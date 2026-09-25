@@ -176,6 +176,68 @@ describe("PDF table reconstruction", () => {
     ]);
   });
 
+  it("reconstructs centered daily-service PDF rows with fragmented headers", () => {
+    const tabular = tabularFromPositionedPdfText([
+      { page: 1, x: 92.5, y: 700, text: "날짜" },
+      { page: 1, x: 249.5, y: 700, text: "복무상황" },
+      { page: 1, x: 297.2, y: 700, text: "(확인자)" },
+      { page: 1, x: 473.8, y: 700, text: "비" },
+      { page: 1, x: 492.2, y: 700, text: "고" },
+
+      { page: 1, x: 63.9, y: 680, text: "2026-04-27" },
+      { page: 1, x: 125.6, y: 680, text: "(월)" },
+      { page: 1, x: 155, y: 680, text: "연가" },
+      { page: 1, x: 198.3, y: 680, text: "[담당자]." },
+      { page: 1, x: 440, y: 680, text: "가사" },
+
+      { page: 1, x: 63.9, y: 660, text: "2026-04-30" },
+      { page: 1, x: 125.6, y: 660, text: "(목)" },
+      { page: 1, x: 155, y: 660, text: "병가조퇴" },
+      { page: 1, x: 198.3, y: 660, text: "[담당자]." },
+      { page: 1, x: 440, y: 660, text: "5시간" },
+      { page: 1, x: 469.2, y: 660, text: "0분" },
+
+      { page: 2, x: 92.5, y: 700, text: "날짜" },
+      { page: 2, x: 249.5, y: 700, text: "복무상황" },
+      { page: 2, x: 297.2, y: 700, text: "(확인자)" },
+      { page: 2, x: 473.8, y: 700, text: "비" },
+      { page: 2, x: 492.2, y: 700, text: "고" },
+      { page: 2, x: 63.9, y: 680, text: "2026-05-28" },
+      { page: 2, x: 125.6, y: 680, text: "(목)" },
+      { page: 2, x: 155, y: 680, text: "연가" },
+      { page: 2, x: 198.3, y: 680, text: "[담당자]." },
+      { page: 2, x: 440, y: 680, text: "개인" },
+      { page: 2, x: 466, y: 680, text: "용무" },
+    ]);
+
+    expect(tabular.headers).toEqual([
+      "날짜",
+      "복무상황",
+      "사용시간",
+      "비고",
+    ]);
+    expect(tabular.rows).toEqual([
+      {
+        날짜: "2026-04-27",
+        복무상황: "연가",
+        사용시간: "",
+        비고: "가사",
+      },
+      {
+        날짜: "2026-04-30",
+        복무상황: "병가조퇴",
+        사용시간: "5시간 0분",
+        비고: "",
+      },
+      {
+        날짜: "2026-05-28",
+        복무상황: "연가",
+        사용시간: "",
+        비고: "개인 용무",
+      },
+    ]);
+  });
+
   it("refuses a PDF fixture without a recognizable table header", () => {
     expect(() =>
       tabularFromPositionedPdfText([
