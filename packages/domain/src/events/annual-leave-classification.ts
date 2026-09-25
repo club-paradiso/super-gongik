@@ -20,6 +20,7 @@ export type AnnualLeaveUsageClassification = {
   label: string;
   eventType: ServiceEventType;
   automatic: boolean;
+  halfDayPart: "AM" | "PM" | null;
   reason: string;
 };
 
@@ -38,6 +39,7 @@ function partialFallback(
     label: "시간 연가",
     eventType,
     automatic: false,
+    halfDayPart: null,
     reason,
   };
 }
@@ -67,6 +69,7 @@ export function classifyAnnualLeaveUsage(input: {
       label: "종일 연가",
       eventType: "ANNUAL_LEAVE",
       automatic: true,
+      halfDayPart: null,
       reason: "하루 단위 연가로 기록해요.",
     };
   }
@@ -77,8 +80,9 @@ export function classifyAnnualLeaveUsage(input: {
       label: "반가",
       eventType: "ANNUAL_LEAVE",
       automatic: true,
+      halfDayPart: timing.half,
       reason:
-        "반가는 시간 수가 아니라 오전·오후 반일 승인 단위예요. 4시간이라고 자동으로 반가가 되지 않아요.",
+        "반가는 시간 수가 아니라 14:00를 경계로 한 오전·오후 반일 승인 단위예요. 임의의 4시간이라고 반가가 되지는 않아요.",
     };
   }
 
@@ -109,7 +113,43 @@ export function classifyAnnualLeaveUsage(input: {
       label: "종일 연가",
       eventType: "ANNUAL_LEAVE",
       automatic: true,
+      halfDayPart: null,
       reason: `${workdayStartTime}–${workdayEndTime} 근무시간 전체를 덮어 종일 연가로 봐요.`,
+    };
+  }
+
+  const halfDayBoundary = 14 * 60;
+  if (
+    workStart < halfDayBoundary &&
+    halfDayBoundary < workEnd &&
+    start <= workStart &&
+    end === halfDayBoundary
+  ) {
+    return {
+      kind: "HALF_DAY",
+      label: "오전 반가",
+      eventType: "ANNUAL_LEAVE",
+      automatic: true,
+      halfDayPart: "AM",
+      reason:
+        "근무 시작부터 14:00까지라 복무관리 규정의 오전 반일 경계와 정확히 맞아요.",
+    };
+  }
+
+  if (
+    workStart < halfDayBoundary &&
+    halfDayBoundary < workEnd &&
+    start === halfDayBoundary &&
+    end >= workEnd
+  ) {
+    return {
+      kind: "HALF_DAY",
+      label: "오후 반가",
+      eventType: "ANNUAL_LEAVE",
+      automatic: true,
+      halfDayPart: "PM",
+      reason:
+        "14:00부터 근무 종료까지라 복무관리 규정의 오후 반일 경계와 정확히 맞아요.",
     };
   }
 
@@ -119,6 +159,7 @@ export function classifyAnnualLeaveUsage(input: {
       label: "허가지각",
       eventType: "LATE_ARRIVAL",
       automatic: true,
+      halfDayPart: null,
       reason: `근무 시작 ${workdayStartTime}부터 쉬고 ${timing.endTime}에 복귀하므로 허가지각으로 기록해요.`,
     };
   }
@@ -129,6 +170,7 @@ export function classifyAnnualLeaveUsage(input: {
       label: "허가조퇴",
       eventType: "EARLY_LEAVE",
       automatic: true,
+      halfDayPart: null,
       reason: `${timing.startTime}부터 근무 종료 ${workdayEndTime}까지 쉬므로 허가조퇴로 기록해요.`,
     };
   }
@@ -139,6 +181,7 @@ export function classifyAnnualLeaveUsage(input: {
       label: "허가외출",
       eventType: "OUTING",
       automatic: true,
+      halfDayPart: null,
       reason: "근무시간 중간 구간만 비우므로 허가외출로 기록해요.",
     };
   }
