@@ -413,8 +413,8 @@ function isRepeatedPdfHeader(row: PdfRow, headerCells: PositionedPdfText[]) {
   return matches >= Math.max(2, Math.ceil(headerCells.length * 0.6));
 }
 
-const PDF_WEEKDAY = /^\\([월화수목금토일]\\)$/;
-const PDF_CONFIRMER = /^\\[[^\\]]+\\]\\.?$/;
+const PDF_WEEKDAY = /^\([월화수목금토일]\)$/;
+const PDF_CONFIRMER = /^\[[^\]]+\]\.?$/;
 
 function isDailyServiceStatusHeader(row: PdfRow) {
   const merged = normalizePdfHeaderText(
