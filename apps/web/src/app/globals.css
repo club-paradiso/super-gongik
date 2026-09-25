@@ -63,3 +63,20 @@ select:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--teal) 35%, transparent);
   outline-offset: 2px;
 }
+
+/* Mobile interaction fundamentals ----------------------------------------- */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+button {
+  touch-action: manipulation;
+}
+
+@media (max-width: 959px) {
+  body {
+    background: var(--surface-raised);
+  }
+}
