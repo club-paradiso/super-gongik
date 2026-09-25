@@ -226,8 +226,7 @@ function normalizeAnnualMinuteCarry(value: LeaveQuantity): LeaveQuantity {
   return {
     halfDays: value.halfDays + wholeDays * 2,
     minutes:
-      value.minutes -
-      wholeDays * ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY,
+      value.minutes - wholeDays * ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY,
   };
 }
 
