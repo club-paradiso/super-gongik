@@ -8,7 +8,6 @@ import {
   addLeaveCorrection,
   confirmLeaveCredit,
   deleteLeaveAdjustment,
-  editProfile,
   formatDurationMinutes,
   formatLeaveQuantity,
   formatKoreanDate,
