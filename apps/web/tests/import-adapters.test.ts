@@ -176,7 +176,7 @@ describe("PDF table reconstruction", () => {
     ]);
   });
 
-  it("reconstructs centered daily-service PDF rows with fragmented headers", () => {
+  it("reconstructs centered daily-service PDF rows", () => {
     const tabular = tabularFromPositionedPdfText([
       { page: 1, x: 92.5, y: 700, text: "날짜" },
       { page: 1, x: 249.5, y: 700, text: "복무상황" },
