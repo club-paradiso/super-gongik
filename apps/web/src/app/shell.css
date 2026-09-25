@@ -31,8 +31,8 @@ body:has(.offline-banner) .onboarding {
   background: var(--warning-bg);
   padding: 12px 8px 12px 14px;
   color: var(--warning-fg);
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .storage-notice p {
@@ -213,11 +213,10 @@ body > .storage-notice {
 }
 
 .restore-card {
-  border: 0;
+  border: 1px solid var(--line);
   border-radius: var(--radius-card);
-  background: var(--surface);
+  background: rgb(255 255 255 / 58%);
   padding: 6px;
-  box-shadow: var(--shadow-card);
 }
 
 .restore-card h2 {
