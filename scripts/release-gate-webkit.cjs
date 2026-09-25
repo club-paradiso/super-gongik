@@ -70,11 +70,7 @@ async function runViewport(browser, viewport) {
   });
 
   const discharge = await dateInputs.nth(1).inputValue();
-  assert.match(
-    discharge,
-    /^\d{4}-\d{2}-\d{2}$/,
-    "auto discharge date missing",
-  );
+  assert.match(discharge, /^\d{4}-\d{2}-\d{2}$/, "auto discharge date missing");
   const formatted = await page
     .locator(".date-input__display")
     .first()
@@ -106,9 +102,7 @@ async function runViewport(browser, viewport) {
   );
   await shot(page, viewport, "home");
 
-  await tabBar
-    .getByRole("button", { name: "캘린더", exact: true })
-    .click();
+  await tabBar.getByRole("button", { name: "캘린더", exact: true }).click();
   await page.locator(".calendar-page").waitFor({ state: "visible" });
   await assertNoHorizontalOverflow(page, `${viewport.width} calendar`);
   await shot(page, viewport, "calendar");
@@ -136,9 +130,7 @@ async function runViewport(browser, viewport) {
   await page.locator(".money-page").waitFor({ state: "visible" });
   await assertNoHorizontalOverflow(page, `${viewport.width} money`);
 
-  await tabBar
-    .getByRole("button", { name: "내 정보", exact: true })
-    .click();
+  await tabBar.getByRole("button", { name: "내 정보", exact: true }).click();
   await page.locator(".profile-page").waitFor({ state: "visible" });
   await assertNoHorizontalOverflow(page, `${viewport.width} profile`);
   await shot(page, viewport, "profile");
