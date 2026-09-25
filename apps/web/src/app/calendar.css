@@ -1578,3 +1578,168 @@ button.summary-card {
 body:has(.offline-banner) .app-header {
   padding-top: calc(max(22px, env(safe-area-inset-top)) + 40px);
 }
+
+/* Mobile calendar and editor polish --------------------------------------- */
+
+@media (max-width: 959px) {
+  .tab-notice {
+    padding: 14px 16px 0;
+  }
+
+  .calendar-page {
+    gap: 14px;
+  }
+
+  .day-panel,
+  .agenda-group,
+  .ledger-card,
+  .ledger-summary,
+  .backup-panel {
+    border-color: #dfe5ec;
+    box-shadow: 0 2px 10px rgb(11 31 58 / 4%);
+  }
+
+  .filter-row {
+    margin-inline: -16px;
+    padding-right: 16px;
+    padding-left: 16px;
+    scroll-padding-inline: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ledger-entries {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ledger-entries table {
+    min-width: 540px;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .calendar-toolbar .segmented {
+    width: 100%;
+    flex-basis: auto;
+  }
+
+  .calendar-toolbar > button {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  .segmented__item {
+    min-height: 42px;
+    padding-inline: 8px;
+    font-size: 13px;
+  }
+
+  .month-header {
+    gap: 2px;
+  }
+
+  .month-header h2 {
+    font-size: 17px;
+  }
+
+  .month-cell {
+    min-height: 50px;
+    border-radius: 10px;
+  }
+
+  .month-cell__day {
+    width: 29px;
+    height: 29px;
+    font-size: 14px;
+  }
+
+  .day-panel,
+  .agenda-group,
+  .ledger-card,
+  .ledger-summary,
+  .backup-panel {
+    padding: 14px;
+  }
+
+  .event-row {
+    gap: 8px;
+    min-height: 56px;
+    padding: 9px 10px;
+  }
+
+  .event-chip {
+    padding-inline: 7px;
+    font-size: 12px;
+  }
+
+  .sheet {
+    position: fixed;
+    inset: auto 0 0;
+    width: 100%;
+    max-width: none;
+    max-height: 94dvh;
+    margin: 0;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .sheet__form {
+    gap: 14px;
+    padding: 18px 16px;
+  }
+
+  .sheet__actions {
+    margin: 0 -16px -18px;
+    padding: 12px 16px max(12px, env(safe-area-inset-bottom));
+  }
+
+  .field-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .field-row__full {
+    grid-column: auto;
+  }
+
+  .ledger-summary__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .credit-list li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .credit-list .badge {
+    justify-self: start;
+  }
+
+  .adjustment-list li,
+  .deleted-list li {
+    align-items: flex-start;
+  }
+
+  .backup-summary div,
+  .usage-table div {
+    align-items: flex-start;
+  }
+
+  .backup-summary dd,
+  .usage-table dd {
+    max-width: 58%;
+  }
+
+  .restore-plan div {
+    grid-template-columns: 1fr;
+  }
+
+  .restore-plan dd {
+    text-align: left;
+  }
+}
