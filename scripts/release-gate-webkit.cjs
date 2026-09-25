@@ -86,7 +86,11 @@ async function runViewport(browser, viewport) {
   );
 
   const primary = page.getByRole("button", { name: "복무 현황 보기" });
-  assert.equal(await primary.isEnabled(), true, "primary CTA should be enabled");
+  assert.equal(
+    await primary.isEnabled(),
+    true,
+    "primary CTA should be enabled",
+  );
   await shot(page, viewport, "onboarding");
 
   await primary.click();
@@ -102,7 +106,9 @@ async function runViewport(browser, viewport) {
   );
   await shot(page, viewport, "home");
 
-  await tabBar.getByRole("button", { name: "캘린더", exact: true }).click();
+  await tabBar
+    .getByRole("button", { name: "캘린더", exact: true })
+    .click();
   await page.locator(".calendar-page").waitFor({ state: "visible" });
   await assertNoHorizontalOverflow(page, `${viewport.width} calendar`);
   await shot(page, viewport, "calendar");
@@ -130,7 +136,9 @@ async function runViewport(browser, viewport) {
   await page.locator(".money-page").waitFor({ state: "visible" });
   await assertNoHorizontalOverflow(page, `${viewport.width} money`);
 
-  await tabBar.getByRole("button", { name: "내 정보", exact: true }).click();
+  await tabBar
+    .getByRole("button", { name: "내 정보", exact: true })
+    .click();
   await page.locator(".profile-page").waitFor({ state: "visible" });
   await assertNoHorizontalOverflow(page, `${viewport.width} profile`);
   await shot(page, viewport, "profile");
