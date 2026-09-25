@@ -307,6 +307,10 @@ describe("event-derived annual leave ledger", () => {
       LATE_ARRIVAL: 240,
       EARLY_LEAVE: 0,
     });
+    expect(partialResult.entries.at(-1)?.running).toEqual({
+      halfDays: 28,
+      minutes: 0,
+    });
     expect(
       formatLeaveQuantity(partialResult.balance.remainingAfterScheduled, 480),
     ).toBe("14일");
