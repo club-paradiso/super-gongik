@@ -126,6 +126,7 @@ describe("tabular import", () => {
   it("normalizes common civil date formats", () => {
     expect(parseDateCell("2026.09.01")).toBe("2026-09-01");
     expect(parseDateCell("2026년 9월 1일")).toBe("2026-09-01");
+    expect(parseDateCell("2026-09-01 (화)")).toBe("2026-09-01");
     expect(parseDateCell("20260901")).toBe("2026-09-01");
     expect(parseDateCell("2026-02-30")).toBeNull();
   });
@@ -144,6 +145,10 @@ describe("tabular import", () => {
     expect(classifyEventType("연가").eventType).toBe("ANNUAL_LEAVE");
     expect(classifyEventType("특휴").eventType).toBe("SPECIAL_LEAVE");
     expect(classifyEventType("복무기본교육").eventType).toBe("EDUCATION");
+    expect(classifyEventType("병가조퇴").eventType).toBe("SICK_LEAVE");
+    expect(classifyEventType("병가지각").eventType).toBe("SICK_LEAVE");
+    expect(classifyEventType("허가외출").eventType).toBe("OUTING");
+    expect(classifyEventType("공가(시간)").eventType).toBe("OFFICIAL_LEAVE");
     expect(classifyEventType("복무이탈").eventType).toBe("SERVICE_ABSENCE");
     expect(classifyEventType("분할복무").eventType).toBe("SERVICE_SUSPENSION");
     expect(classifyEventType("연가초과 결근").eventType).toBe(

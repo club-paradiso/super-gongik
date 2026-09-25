@@ -8,8 +8,21 @@ const EVENT_TYPE_SYNONYMS: Array<{
     type: "ANNUAL_LEAVE",
     labels: ["연가", "연차", "반가", "오전반가", "오후반가", "annualleave"],
   },
-  { type: "SICK_LEAVE", labels: ["병가", "질병휴가", "sickleave"] },
-  { type: "OFFICIAL_LEAVE", labels: ["공가", "officialleave"] },
+  {
+    type: "SICK_LEAVE",
+    labels: [
+      "병가",
+      "질병휴가",
+      "병가조퇴",
+      "병가지각",
+      "병가외출",
+      "sickleave",
+    ],
+  },
+  {
+    type: "OFFICIAL_LEAVE",
+    labels: ["공가", "공가(시간)", "officialleave"],
+  },
   {
     type: "SPECIAL_LEAVE",
     labels: ["특별휴가", "특휴", "포상휴가", "specialleave"],
@@ -18,9 +31,18 @@ const EVENT_TYPE_SYNONYMS: Array<{
     type: "COMPASSIONATE_LEAVE",
     labels: ["청원휴가", "경조휴가", "가족돌봄휴가", "compassionateleave"],
   },
-  { type: "OUTING", labels: ["외출", "개인외출", "outing"] },
-  { type: "LATE_ARRIVAL", labels: ["지각", "late", "latearrival"] },
-  { type: "EARLY_LEAVE", labels: ["조퇴", "earlyleave"] },
+  {
+    type: "OUTING",
+    labels: ["외출", "개인외출", "허가외출", "outing"],
+  },
+  {
+    type: "LATE_ARRIVAL",
+    labels: ["지각", "허가지각", "late", "latearrival"],
+  },
+  {
+    type: "EARLY_LEAVE",
+    labels: ["조퇴", "허가조퇴", "earlyleave"],
+  },
   {
     type: "EDUCATION",
     labels: ["교육", "복무기본교육", "직무교육", "education"],

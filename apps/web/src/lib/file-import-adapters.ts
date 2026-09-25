@@ -1,7 +1,10 @@
 import {
   assessTableHeaders,
+  classifyEventType,
   makeUniqueHeaders,
+  parseDateCell,
   parseDelimitedText,
+  parseDurationMinutes,
   type ImportSourceFormat,
   type TabularAdapterResult,
   type TabularCell,
@@ -410,10 +413,128 @@ function isRepeatedPdfHeader(row: PdfRow, headerCells: PositionedPdfText[]) {
   return matches >= Math.max(2, Math.ceil(headerCells.length * 0.6));
 }
 
+const PDF_WEEKDAY = /^\([월화수목금토일]\)$/;
+const PDF_CONFIRMER = /^\[[^\]]+\]\.?$/;
+
+function isDailyServiceStatusHeader(row: PdfRow) {
+  const merged = normalizePdfHeaderText(
+    row.cells.map((cell) => cell.text).join(""),
+  );
+  return (
+    merged.includes("날짜") &&
+    merged.includes("복무상황") &&
+    merged.includes("비고")
+  );
+}
+
+function durationWindow(cells: PositionedPdfText[]) {
+  for (let size = Math.min(3, cells.length); size >= 1; size -= 1) {
+    for (let start = 0; start + size <= cells.length; start += 1) {
+      const text = cells
+        .slice(start, start + size)
+        .map((cell) => cell.text)
+        .join(" ")
+        .trim();
+      if (parseDurationMinutes(text) !== null) {
+        return { start, end: start + size, text };
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Some official daily-service PDFs center their column headings while the row
+ * contents are left-aligned. A midpoint-of-heading algorithm then puts the
+ * event label into the date column (for example, "2026-04-27 (월) 연가") and
+ * can also split a centered "비고" heading into separate glyph runs.
+ *
+ * For the recognizable 날짜 / 복무상황 / 비고 layout, reconstruct rows from
+ * semantic tokens instead of guessing table borders. This path works for both
+ * positioned PDF text and OCR output and deliberately keeps unknown labels for
+ * preview rather than coercing them.
+ */
+function dailyServiceStatusTable(
+  rows: PdfRow[],
+  headerIndex: number,
+): TabularAdapterResult | null {
+  const header = rows[headerIndex];
+  if (!header || !isDailyServiceStatusHeader(header)) return null;
+
+  const tableRows: TabularRow[] = [];
+  for (const row of rows.slice(headerIndex + 1)) {
+    if (isDailyServiceStatusHeader(row)) continue;
+
+    const dateIndex = row.cells.findIndex(
+      (cell) => parseDateCell(cell.text) !== null,
+    );
+    if (dateIndex < 0) continue;
+
+    const date = parseDateCell(row.cells[dateIndex]?.text ?? "");
+    if (!date) continue;
+
+    const remainder = row.cells.slice(dateIndex + 1);
+    while (remainder[0] && PDF_WEEKDAY.test(remainder[0].text.trim())) {
+      remainder.shift();
+    }
+
+    const duration = durationWindow(remainder);
+    const withoutDuration = remainder.filter(
+      (_cell, index) =>
+        !duration || index < duration.start || index >= duration.end,
+    );
+    const confirmerIndex = withoutDuration.findIndex((cell) =>
+      PDF_CONFIRMER.test(cell.text.trim()),
+    );
+    const eventCells =
+      confirmerIndex >= 0
+        ? withoutDuration.slice(0, confirmerIndex)
+        : withoutDuration;
+    const noteCells =
+      confirmerIndex >= 0 ? withoutDuration.slice(confirmerIndex + 1) : [];
+
+    const eventText = eventCells
+      .map((cell) => cell.text.trim())
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+    let noteText = noteCells
+      .map((cell) => cell.text.trim())
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+
+    if (!noteText && eventText && !classifyEventType(eventText).eventType) {
+      noteText = eventText;
+    }
+
+    tableRows.push({
+      날짜: date,
+      복무상황: eventText,
+      사용시간: duration?.text ?? "",
+      비고: noteText,
+    });
+  }
+
+  if (tableRows.length === 0) return null;
+  return {
+    format: "PDF_TEXT",
+    headers: ["날짜", "복무상황", "사용시간", "비고"],
+    rows: tableRows,
+    sourceLabel: `PDF ${Math.max(...rows.map((row) => row.page), 1)}페이지 · 날짜/복무상황 표`,
+  };
+}
+
 export function tabularFromPositionedPdfText(
   items: PositionedPdfText[],
 ): TabularAdapterResult {
   const rows = groupPdfRows(items);
+  const dailyHeaderIndex = rows.findIndex(isDailyServiceStatusHeader);
+  if (dailyHeaderIndex >= 0) {
+    const daily = dailyServiceStatusTable(rows, dailyHeaderIndex);
+    if (daily) return daily;
+  }
+
   const header = rows
     .map((row, index) => ({ row, index, score: headerScore(row) }))
     .sort((a, b) => b.score - a.score)[0];

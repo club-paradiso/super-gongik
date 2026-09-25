@@ -26,8 +26,9 @@ export function parseDateCell(value: TabularCell): string | null {
 
   const source = cellToString(value).normalize("NFKC").trim();
   if (!source) return null;
+  const civilDateSource = source.replace(/\s*\([월화수목금토일]\)\s*$/, "");
 
-  const compact = source.match(/^(\d{4})(\d{2})(\d{2})$/);
+  const compact = civilDateSource.match(/^(\d{4})(\d{2})(\d{2})$/);
   if (compact) {
     return validateDateParts(
       Number(compact[1]),
@@ -36,7 +37,7 @@ export function parseDateCell(value: TabularCell): string | null {
     );
   }
 
-  const delimited = source.match(
+  const delimited = civilDateSource.match(
     /^(\d{4})\s*(?:년|[-./])\s*(\d{1,2})\s*(?:월|[-./])\s*(\d{1,2})\s*일?$/,
   );
   if (delimited) {
