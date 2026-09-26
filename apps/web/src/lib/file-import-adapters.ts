@@ -416,6 +416,27 @@ function isRepeatedPdfHeader(row: PdfRow, headerCells: PositionedPdfText[]) {
 const PDF_WEEKDAY = /^\([월화수목금토일]\)$/;
 const PDF_CONFIRMER = /^\[[^\]]+\]\.?$/;
 
+/**
+ * Daily service ledgers include calendar/status rows that are not personal
+ * leave or attendance usage. They must not become unresolved import records
+ * merely because they contain a date. Keep this deliberately conservative:
+ * exact weekend/status labels and explicit public-holiday wording only.
+ */
+function isNonUsageDailyStatus(value: string) {
+  const normalized = value.normalize("NFKC").replace(/\s+/g, "").trim();
+  if (!normalized) return true;
+
+  return (
+    /^(토요일|일요일|주말|휴무|휴무일|비번|정상근무|정상출근|근무)$/.test(
+      normalized,
+    ) ||
+    /(공휴일|대체공휴일|임시공휴일|국경일)$/.test(normalized) ||
+    /^(신정|설날|삼일절|어린이날|부처님오신날|현충일|광복절|개천절|한글날|추석|성탄절|크리스마스)$/.test(
+      normalized,
+    )
+  );
+}
+
 function isDailyServiceStatusHeader(row: PdfRow) {
   const merged = normalizePdfHeaderText(
     row.cells.map((cell) => cell.text).join(""),
@@ -504,8 +525,15 @@ function dailyServiceStatusTable(
       .join(" ")
       .trim();
 
-    if (!noteText && eventText && !classifyEventType(eventText).eventType) {
+    const classification = classifyEventType(eventText);
+    if (!noteText && eventText && !classification.eventType) {
       noteText = eventText;
+    }
+
+    // Public holidays, weekends and plain work/status rows are calendar facts,
+    // not leave usage. Do not force the user to classify them by hand.
+    if (!classification.eventType && isNonUsageDailyStatus(eventText)) {
+      continue;
     }
 
     tableRows.push({
