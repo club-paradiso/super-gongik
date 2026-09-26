@@ -163,7 +163,7 @@ export function HomeTab({
             <CircleDollarSign aria-hidden="true" size={20} />
           </span>
           <span className="list-row__body">
-            <strong>이번 달 보수</strong>
+            <strong>이번 달 급여</strong>
             <span>{compensation.headline}</span>
           </span>
           <ChevronRight
