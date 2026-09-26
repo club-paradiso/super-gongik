@@ -4,17 +4,20 @@ import { ChevronLeft, ChevronRight, Plus, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import {
+  ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY,
   addMonthsToYearMonth,
   buildMonthGrid,
   compareDateOnly,
   createServiceEvent,
   dayOfWeek,
   deleteServiceEvent,
+  formatLeaveQuantity,
   isLive,
   restoreServiceEvent,
   updateServiceEvent,
   yearMonthOf,
   type DateOnly,
+  type LeaveLedger,
   type ServiceEvent,
   type ServiceProfile,
   type UserData,
@@ -53,6 +56,7 @@ function eventsOn(events: readonly ServiceEvent[], date: DateOnly) {
 }
 
 export function CalendarTab({
+  createOnOpen = null,
   data,
   profile,
   projection,
@@ -61,6 +65,8 @@ export function CalendarTab({
   view,
   onViewChange,
 }: {
+  /** Open the editor for a new record on this date when the tab mounts. */
+  createOnOpen?: DateOnly | null;
   data: UserData;
   profile: ServiceProfile;
   projection: AppProjection;
@@ -69,9 +75,15 @@ export function CalendarTab({
   view: CalendarView;
   onViewChange: (view: CalendarView) => void;
 }) {
-  const [editor, setEditor] = useState<EditorState>({ mode: "closed" });
-  const [selectedDate, setSelectedDate] = useState<DateOnly>(today);
-  const [month, setMonth] = useState<YearMonth>(yearMonthOf(today));
+  const [editor, setEditor] = useState<EditorState>(() =>
+    createOnOpen ? { mode: "create", date: createOnOpen } : { mode: "closed" },
+  );
+  const [selectedDate, setSelectedDate] = useState<DateOnly>(
+    createOnOpen ?? today,
+  );
+  const [month, setMonth] = useState<YearMonth>(
+    yearMonthOf(createOnOpen ?? today),
+  );
   const [undo, setUndo] = useState<ServiceEvent | null>(null);
   const [message, setMessage] = useState("");
 
@@ -173,6 +185,14 @@ export function CalendarTab({
         </Button>
       </div>
 
+      {view !== "ledger" ? (
+        <LeaveStrip
+          ledger={projection.ledger}
+          onOpenLedger={() => onViewChange("ledger")}
+          state={projection.progress.state}
+        />
+      ) : null}
+
       {undo ? (
         <div className="undo-bar" role="status">
           <span>{eventLabel(undo)} 기록을 삭제했어요.</span>
@@ -235,6 +255,54 @@ export function CalendarTab({
         />
       ) : null}
     </section>
+  );
+}
+
+/** Leave balance kept in sight while planning, one tap from the ledger. */
+function LeaveStrip({
+  ledger,
+  state,
+  onOpenLedger,
+}: {
+  ledger: LeaveLedger;
+  state: AppProjection["progress"]["state"];
+  onOpenLedger: () => void;
+}) {
+  if (state === "COMPLETED") return null;
+  const balance = ledger.balance;
+  const needsConfirmation = balance.status === "NEEDS_CREDIT_CONFIRMATION";
+  const scheduled =
+    balance.scheduled.halfDays !== 0 || balance.scheduled.minutes !== 0;
+  return (
+    <button className="leave-strip" onClick={onOpenLedger} type="button">
+      <span className="leave-strip__label">남은 연가</span>
+      <strong
+        className={needsConfirmation ? "leave-strip__value--attention" : ""}
+      >
+        {state === "NOT_STARTED"
+          ? "소집 후 부여"
+          : needsConfirmation
+            ? "부여 일수 확인 필요"
+            : formatLeaveQuantity(
+                balance.remainingAfterScheduled,
+                ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY,
+              )}
+      </strong>
+      {scheduled && !needsConfirmation ? (
+        <span className="leave-strip__hint">
+          예정{" "}
+          {formatLeaveQuantity(
+            balance.scheduled,
+            ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY,
+          )}{" "}
+          반영
+        </span>
+      ) : null}
+      <span className="leave-strip__end">
+        원장
+        <ChevronRight aria-hidden="true" size={16} />
+      </span>
+    </button>
   );
 }
 
@@ -325,9 +393,15 @@ function MonthView({
             <div className="month-grid__week" key={week[0]?.date}>
               {week.map((cell) => {
                 const dayEvents = eventsOn(events, cell.date);
+                // A multi-day record reads as one continuous bar across days.
+                const span = dayEvents.find(
+                  (event) => event.startDate !== event.endDate,
+                );
                 const categories = [
                   ...new Set(
-                    dayEvents.map((event) => EVENT_CATEGORY[event.eventType]),
+                    dayEvents
+                      .filter((event) => event !== span)
+                      .map((event) => EVENT_CATEGORY[event.eventType]),
                   ),
                 ] as EventCategory[];
                 const classes = ["month-cell"];
@@ -354,6 +428,21 @@ function MonthView({
                     <span className="month-cell__day">
                       {Number(cell.date.slice(8))}
                     </span>
+                    {span ? (
+                      <span
+                        aria-hidden="true"
+                        className={[
+                          "month-cell__range",
+                          `month-cell__range--${EVENT_CATEGORY[span.eventType]}`,
+                          span.startDate === cell.date || weekday === 0
+                            ? "is-start"
+                            : "",
+                          span.endDate === cell.date || weekday === 6
+                            ? "is-end"
+                            : "",
+                        ].join(" ")}
+                      />
+                    ) : null}
                     <span className="month-cell__dots" aria-hidden="true">
                       {categories.slice(0, 3).map((category) => (
                         <i className={`dot dot--${category}`} key={category} />

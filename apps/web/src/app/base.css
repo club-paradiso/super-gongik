@@ -11,7 +11,8 @@
   --navy-soft: #16305a;
   --text: #0b1f3a;
   --text-2: #4d5d72;
-  --text-3: #7d8a9c;
+  /* 4.5:1 on both --surface and --bg (was #7d8a9c, 3.2:1 on --bg). */
+  --text-3: #627084;
   --teal: #0c9b82;
   --teal-deep: #087d6b;
   --teal-strong: #066657;
@@ -54,7 +55,43 @@
   --radius-sm: 10px;
   --radius-control: 14px;
   --radius-card: 20px;
+  --radius-hero: 28px;
   --radius-sheet: 26px;
+  --radius-pill: 999px;
+
+  /* Type scale. Display is the D-day; everything else steps down from it. */
+  --font-display: clamp(56px, 17vw, 72px);
+  --font-title-1: 26px;
+  --font-title-2: 20px;
+  --font-title-3: 17px;
+  --font-body: 15px;
+  --font-label: 14px;
+  --font-caption: 13px;
+  --font-micro: 12px;
+
+  /* Spacing (4 px grid). */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Hero (the one dark surface). */
+  --hero-bg: var(--navy);
+  --hero-fg: #ffffff;
+  --hero-fg-2: #c3cfdf;
+  --hero-fg-3: #8fa3bd;
+  --hero-track: rgb(255 255 255 / 14%);
+  --hero-line: rgb(255 255 255 / 12%);
+  --hero-accent: #5fe0c6;
+  --hero-accent-strong: #12b596;
+  /* Final stretch and discharge: warm, still calm. 9:1 on navy. */
+  --hero-final: #f5b544;
+  --hero-final-strong: #e08a1e;
+
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   --shadow-card: 0 1px 2px rgb(11 31 58 / 4%), 0 2px 8px rgb(11 31 58 / 3%);
   --shadow-raised: 0 8px 28px rgb(11 31 58 / 14%);
@@ -182,13 +219,14 @@ a {
   font-size: 16px;
 }
 
+/* --teal-deep keeps white label text at 5:1 (plain --teal is 3.5:1). */
 .btn--primary {
-  background: var(--teal);
+  background: var(--teal-deep);
   color: #fff;
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: var(--teal-deep);
+  background: var(--teal-strong);
 }
 
 .btn--outline {

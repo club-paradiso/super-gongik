@@ -1,260 +1,576 @@
-/* Home: one dark progress hero, two stat tiles, one grouped list. */
+/*
+ * Home. Three levels, deliberately unequal:
+ *   primary   .hero        — D-day, discharge date, progress, next milestone
+ *   secondary .stat-pair   — annual leave + this month's pay
+ *   tertiary  .home-card   — upcoming schedule; .quick-actions
+ */
 
-.progress-hero {
-  position: relative;
-  overflow: hidden;
-  border-radius: 24px;
-  background:
-    radial-gradient(
-      120% 90% at 100% 0%,
-      rgb(12 155 130 / 38%) 0%,
-      transparent 60%
-    ),
-    var(--navy);
-  padding: 20px 20px 18px;
-  color: #fff;
+/* Header ------------------------------------------------------------------- */
+
+.app-header--home .app-header__bar {
+  min-height: 40px;
 }
 
-.progress-hero__top {
+.home-brand {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.progress-hero__eyebrow {
+  gap: var(--space-2);
   margin: 0;
-  color: #b8c6d8;
-  font-size: 14px;
-  font-weight: 650;
-}
-
-.progress-hero__state {
-  border-radius: 999px;
-  background: rgb(255 255 255 / 12%);
-  padding: 4px 10px;
-  color: #9ff0e1;
-  font-size: 12px;
-  font-weight: 750;
-}
-
-.progress-hero__dday {
-  display: block;
-  margin-top: 6px;
-  font-size: 52px;
+  color: var(--text);
+  font-size: 16px;
   font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.02;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.02em;
 }
 
-.progress-hero__date {
-  margin: 8px 0 0;
-  color: #c6d2e1;
-  font-size: 14px;
-  font-weight: 550;
-}
-
-.progress-bar {
-  height: 8px;
-  margin-top: 20px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 14%);
-}
-
-.progress-bar > span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #12b596, #5fe0c6);
-  transition: width 500ms ease;
-}
-
-.progress-hero__meta {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 4px 12px;
-  margin-top: 10px;
-  color: #b8c6d8;
-  font-size: 13px;
-  font-weight: 550;
-  font-variant-numeric: tabular-nums;
-}
-
-.progress-hero__meta b {
-  color: #fff;
-  font-weight: 800;
-}
-
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.stat-tile {
-  display: grid;
-  align-content: start;
-  gap: 4px;
+.app-header__today {
   min-width: 0;
-  min-height: 104px;
-  border: 0;
-  border-radius: var(--radius-card);
-  background: var(--surface);
-  padding: 16px;
-  box-shadow: var(--shadow-card);
-  text-align: left;
-  transition: transform 140ms ease;
-}
-
-.stat-tile:active,
-.list-row:active {
-  transform: scale(0.985);
-}
-
-.stat-tile__label {
+  margin: 0 0 0 auto;
   overflow: hidden;
   color: var(--text-2);
-  font-size: 13px;
+  font-size: var(--font-caption);
   font-weight: 650;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.stat-tile__value {
-  color: var(--text);
-  font-size: 20px;
-  font-weight: 800;
-  line-height: 1.3;
-  letter-spacing: -0.03em;
-}
-
-.stat-tile__value--attention {
-  color: var(--warning-fg);
-}
-
-.stat-tile__caption {
-  color: var(--text-3);
-  font-size: 12.5px;
-  line-height: 1.45;
-}
-
-/* Grouped list (iOS-settings-like rows on one card, not stacked cards). */
-.list-group {
+.home {
   display: grid;
-  overflow: hidden;
-  border-radius: var(--radius-card);
-  background: var(--surface);
-  box-shadow: var(--shadow-card);
-}
-
-.list-row {
-  position: relative;
-  display: grid;
-  grid-template-columns: 38px minmax(0, 1fr) 20px;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  min-height: 68px;
-  border: 0;
-  background: transparent;
-  padding: 12px 14px 12px 16px;
-  text-align: left;
-  transition: background-color 140ms ease;
-}
-
-.list-row + .list-row::before {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 66px;
-  height: 1px;
-  background: var(--line);
-  content: "";
-}
-
-.list-row:hover {
-  background: #fafbfc;
-}
-
-.list-row__icon {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: var(--teal-pale);
-  color: var(--teal-deep);
-}
-
-.list-row__icon--money {
-  background: var(--cat-duty-bg);
-  color: var(--cat-duty-fg);
-}
-
-.list-row__icon--ledger {
-  background: var(--cat-attendance-bg);
-  color: var(--cat-attendance-fg);
-}
-
-.list-row__body {
-  display: grid;
-  gap: 2px;
+  gap: var(--space-3);
   min-width: 0;
 }
 
-.list-row__body strong {
-  font-size: 15px;
+/* Hero --------------------------------------------------------------------- */
+
+.hero {
+  --accent: var(--hero-accent);
+  --accent-strong: var(--hero-accent-strong);
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-hero);
+  background:
+    radial-gradient(
+      110% 80% at 100% 0%,
+      color-mix(in srgb, var(--accent-strong) 34%, transparent) 0%,
+      transparent 62%
+    ),
+    var(--hero-bg);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  color: var(--hero-fg);
+}
+
+.hero[data-phase="FINAL_STRETCH"],
+.hero[data-phase="DISCHARGE_DAY"] {
+  --accent: var(--hero-final);
+  --accent-strong: var(--hero-final-strong);
+}
+
+.hero[data-phase="COMPLETED"] {
+  --accent: #a8b8cc;
+  --accent-strong: #5b7596;
+}
+
+.hero__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.hero__eyebrow {
+  margin: 0;
+  color: var(--hero-fg-2);
+  font-size: var(--font-label);
   font-weight: 700;
 }
 
-.list-row__body span {
+.hero__state {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 5px;
+  min-height: 26px;
+  border-radius: var(--radius-pill);
+  background: rgb(255 255 255 / 11%);
+  padding: 0 10px;
+  color: var(--accent);
+  font-size: var(--font-micro);
+  font-weight: 800;
+}
+
+.hero__headline {
+  margin: 2px 0 0;
+  font-size: var(--font-display);
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.hero[data-phase="COMPLETED"] .hero__headline {
+  font-size: clamp(44px, 13vw, 56px);
+  letter-spacing: -0.04em;
+}
+
+.hero__date {
+  margin: var(--space-2) 0 0;
+  color: var(--hero-fg-2);
+  font-size: var(--font-label);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero__celebrate {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: var(--space-3) 0 0;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  padding: 6px 12px;
+  color: var(--accent);
+  font-size: var(--font-caption);
+  font-weight: 750;
+}
+
+.hero__progress {
+  margin-top: var(--space-5);
+}
+
+.hero-bar {
+  position: relative;
+  height: 10px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--hero-track);
+}
+
+/* transform-only fill: composited, no layout work on update. */
+.hero-bar__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent-strong), var(--accent));
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+  animation: hero-fill 900ms var(--ease-out) both;
+}
+
+@keyframes hero-fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.hero-bar__tick {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: rgb(11 31 58 / 45%);
+}
+
+.hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px var(--space-3);
+  margin-top: var(--space-2);
+  color: var(--hero-fg-2);
+  font-size: var(--font-caption);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero__meta b {
+  color: var(--hero-fg);
+  font-weight: 800;
+}
+
+.hero__percent {
+  color: var(--hero-fg);
+  font-size: var(--font-title-3);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Fixed width per character: the ticking digits never shift the layout. */
+.hero__percent--live {
+  font-variant-numeric: tabular-nums;
+}
+
+.hero__next {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  border-top: 1px solid var(--hero-line);
+  padding-top: var(--space-3);
+}
+
+.hero__next-label {
+  border-radius: 8px;
+  background: rgb(255 255 255 / 9%);
+  padding: 3px 8px;
+  color: var(--hero-fg-2);
+  font-size: var(--font-micro);
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.hero__next-body {
+  display: grid;
+  min-width: 0;
+}
+
+.hero__next-body strong {
+  overflow: hidden;
+  font-size: var(--font-label);
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hero__next-body small,
+.hero__next-when small {
+  color: var(--hero-fg-3);
+  font-size: var(--font-micro);
+  font-weight: 550;
+  line-height: 1.4;
+}
+
+.hero__next-when {
+  display: grid;
+  justify-items: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero__next-when b {
+  color: var(--accent);
+  font-size: var(--font-label);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* Secondary: leave + pay --------------------------------------------------- */
+
+.stat-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  min-height: 120px;
+  border: 0;
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+  text-align: left;
+  transition: transform 140ms ease;
+}
+
+.stat-card:active,
+.quick-actions button:active {
+  transform: scale(0.98);
+}
+
+.stat-card__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: var(--space-1);
   color: var(--text-2);
-  font-size: 13px;
+  font-size: var(--font-caption);
+  font-weight: 700;
+}
+
+.stat-card__label svg {
+  color: var(--teal-deep);
+}
+
+.stat-card__value {
+  color: var(--text);
+  font-size: var(--font-title-2);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+}
+
+.stat-card__value--muted {
+  color: var(--text-2);
+}
+
+.stat-card__caption {
+  color: var(--text-3);
+  font-size: var(--font-micro);
+  font-weight: 550;
   line-height: 1.45;
 }
 
-.list-row__end {
+.stat-card__caption--attention {
+  color: var(--warning-fg);
+  font-weight: 650;
+}
+
+.stat-card__tag {
+  margin-top: auto;
+  padding-top: var(--space-2);
+  color: var(--cat-duty-fg);
+  font-size: var(--font-micro);
+  font-weight: 750;
+}
+
+/* Very narrow phones: stack instead of squeezing amounts onto three lines. */
+@media (max-width: 359px) {
+  .stat-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stat-card {
+    min-height: 0;
+  }
+}
+
+/* Tertiary: schedule card and quick actions -------------------------------- */
+
+.home-card {
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  box-shadow: var(--shadow-card);
+}
+
+.home-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: -6px -8px 2px 0;
+}
+
+.home-card__head h2 {
+  margin: 0;
+  font-size: var(--font-title-3);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.home-card__text {
+  margin: 0 0 var(--space-3);
+  color: var(--text-2);
+  font-size: var(--font-label);
+  line-height: 1.55;
+}
+
+.home-card__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 48px;
+  margin-bottom: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--fill);
+  padding: 0 var(--space-3) 0 var(--space-4);
+  color: var(--text);
+  font-size: var(--font-body);
+  font-weight: 700;
+}
+
+.home-card__link svg:last-child {
+  margin-left: auto;
   color: var(--text-3);
 }
 
-@media (min-width: 640px) {
-  .progress-hero {
-    padding: 26px 28px 24px;
-  }
+.agenda-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
 
-  .progress-hero__dday {
-    font-size: 60px;
+.agenda-row {
+  display: grid;
+  grid-template-columns: 64px 4px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 56px;
+  padding: var(--space-2) 0;
+}
+
+.agenda-row + .agenda-row {
+  border-top: 1px solid var(--line);
+}
+
+.agenda-row__when {
+  display: grid;
+  font-variant-numeric: tabular-nums;
+}
+
+.agenda-row__when b {
+  font-size: var(--font-label);
+  font-weight: 800;
+}
+
+.agenda-row__when small {
+  color: var(--text-3);
+  font-size: var(--font-micro);
+  font-weight: 600;
+}
+
+.agenda-row__bar {
+  align-self: stretch;
+  border-radius: 2px;
+  background: var(--cat-note);
+}
+
+.agenda-row__bar--leave {
+  background: var(--cat-leave);
+}
+.agenda-row__bar--sick {
+  background: var(--cat-sick);
+}
+.agenda-row__bar--attendance {
+  background: var(--cat-attendance);
+}
+.agenda-row__bar--duty {
+  background: var(--cat-duty);
+}
+.agenda-row__bar--nonpayable {
+  background: var(--cat-nonpayable);
+}
+
+.agenda-row__body {
+  display: grid;
+  min-width: 0;
+}
+
+.agenda-row__body strong {
+  overflow: hidden;
+  font-size: var(--font-body);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agenda-row__body small {
+  color: var(--text-2);
+  font-size: var(--font-caption);
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.quick-actions button {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 6px;
+  min-height: 76px;
+  border: 0;
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  padding: var(--space-3) var(--space-1);
+  box-shadow: var(--shadow-card);
+  color: var(--text);
+  font-size: var(--font-caption);
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  transition: transform 140ms ease;
+}
+
+.quick-actions svg {
+  color: var(--teal-deep);
+}
+
+@media (hover: hover) {
+  .stat-card:hover,
+  .quick-actions button:hover {
+    background: #fafbfc;
   }
 }
 
-@media (min-width: 960px) {
-  .tab-content:has(> .progress-hero) {
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-    align-items: start;
-    gap: 16px;
+/* Tablet and up --------------------------------------------------------------- */
+
+@media (min-width: 640px) {
+  .hero {
+    padding: var(--space-6) 28px var(--space-5);
   }
 
-  .progress-hero {
+  .hero__headline {
+    font-size: 80px;
+  }
+}
+
+/* Desktop: hero on the left, supporting column on the right. */
+@media (min-width: 960px) {
+  /* The rail already carries the brand. */
+  .home-brand {
+    display: none;
+  }
+
+  .app-header__today {
+    margin-left: 0;
+    color: var(--text);
+    font-size: var(--font-title-3);
+    font-weight: 800;
+  }
+
+  .home {
+    grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr);
+    grid-template-areas:
+      "hero stats"
+      "hero agenda"
+      "actions agenda";
+    align-items: start;
+    gap: var(--space-4);
+  }
+
+  .hero {
     display: flex;
     flex-direction: column;
-    grid-row: span 2;
+    grid-area: hero;
     align-self: stretch;
-    padding: 30px 32px 28px;
+    min-height: 420px;
+    padding: 32px 32px 24px;
   }
 
-  .progress-hero__dday {
-    margin-top: 18px;
-    font-size: 72px;
+  .hero__headline {
+    margin-top: var(--space-3);
+    font-size: 96px;
   }
 
-  .progress-bar {
+  .hero__progress {
     margin-top: auto;
+    padding-top: var(--space-8);
   }
 
-  .progress-hero__date {
-    margin-bottom: 40px;
+  .stat-pair {
+    grid-area: stats;
+  }
+
+  .home-card {
+    grid-area: agenda;
+  }
+
+  .quick-actions {
+    grid-area: actions;
   }
 }

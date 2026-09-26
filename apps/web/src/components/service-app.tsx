@@ -10,7 +10,7 @@ import {
 import { useMemo, useState } from "react";
 
 import {
-  dateOnlyInTimeZone,
+  type DateOnly,
   type ServiceProfile,
   type UserData,
   type UserDataStore,
@@ -25,6 +25,8 @@ import { ProfileTab } from "@/components/profile-tab";
 import { StorageNotice } from "@/components/storage-notice";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { useAppData } from "@/hooks/use-app-data";
+import { useSeoulToday } from "@/hooks/use-seoul-today";
+import { buildHomeModel } from "@/lib/home-model";
 import { buildAppProjection } from "@/lib/projections";
 
 type AppTab = "home" | "calendar" | "money" | "profile";
@@ -105,25 +107,42 @@ function Dashboard({
 }) {
   const [activeTab, setActiveTab] = useState<AppTab>("home");
   const [calendarView, setCalendarView] = useState<CalendarView>("month");
-  const today = dateOnlyInTimeZone(new Date());
+  // Opening the calendar straight into a new record (home quick action).
+  const [createOnOpen, setCreateOnOpen] = useState<DateOnly | null>(null);
+  const today = useSeoulToday();
   const projection = useMemo(
     () => buildAppProjection(data, profile, today),
     [data, profile, today],
   );
+  const homeModel = useMemo(
+    () => buildHomeModel(profile, projection, today),
+    [profile, projection, today],
+  );
   const activeCopy = tabCopy[activeTab];
 
-  function openSync() {
-    setActiveTab("profile");
+  function selectTab(tab: AppTab) {
+    setCreateOnOpen(null);
+    setActiveTab(tab);
+  }
+
+  function openProfileSection(find: () => Element | null | undefined) {
+    selectTab("profile");
     // After the profile tab renders.
     window.setTimeout(() => {
-      document
-        .getElementById("cloud-sync")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      find()?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 0);
   }
 
-  function openCalendar(view: CalendarView) {
+  function openSync() {
+    openProfileSection(() => document.getElementById("cloud-sync"));
+  }
+
+  function openCalendar(
+    view: CalendarView,
+    createDate: DateOnly | null = null,
+  ) {
     setCalendarView(view);
+    setCreateOnOpen(createDate);
     setActiveTab("calendar");
   }
 
@@ -135,7 +154,7 @@ function Dashboard({
           icon={tab.icon}
           key={tab.key}
           label={tab.label}
-          onClick={() => setActiveTab(tab.key)}
+          onClick={() => selectTab(tab.key)}
         />
       ))}
     </nav>
@@ -157,7 +176,7 @@ function Dashboard({
         {navigation("데스크톱 주요 메뉴", "desktop-nav")}
         <button
           className="rail-profile"
-          onClick={() => setActiveTab("profile")}
+          onClick={() => selectTab("profile")}
           type="button"
         >
           <UserRound aria-hidden="true" size={19} />
@@ -171,28 +190,58 @@ function Dashboard({
       </aside>
 
       <div className="app-main">
-        <header className="app-header">
-          <div className="app-header__bar">
-            <h1>{activeCopy.title}</h1>
-            <SyncStatusChip className="sync-chip--header" onOpen={openSync} />
-          </div>
-          <p className="app-header__description">{activeCopy.description}</p>
-        </header>
+        {activeTab === "home" ? (
+          <header className="app-header app-header--home">
+            <div className="app-header__bar">
+              <p className="home-brand">
+                <BrandMark size={28} />
+                <span>슈퍼공익</span>
+              </p>
+              <p className="app-header__today">
+                <time dateTime={today}>{formatTodayHeading(today)}</time>
+              </p>
+              <SyncStatusChip className="sync-chip--header" onOpen={openSync} />
+            </div>
+            <h1 className="visually-hidden">홈</h1>
+          </header>
+        ) : (
+          <header className="app-header">
+            <div className="app-header__bar">
+              <h1>{activeCopy.title}</h1>
+              <SyncStatusChip className="sync-chip--header" onOpen={openSync} />
+            </div>
+            <p className="app-header__description">{activeCopy.description}</p>
+          </header>
+        )}
 
         <div className="tab-notice">{notice}</div>
 
         <section className="tab-content">
           {activeTab === "home" ? (
             <HomeTab
-              onOpenCalendar={() => openCalendar("month")}
-              onOpenLedger={() => openCalendar("ledger")}
-              onOpenMoney={() => setActiveTab("money")}
+              actions={{
+                onOpenCalendar: () => openCalendar("month"),
+                onOpenLedger: () => openCalendar("ledger"),
+                onOpenMoney: () => selectTab("money"),
+                onRecordLeave: () => openCalendar("month", today),
+                onOpenRecords: () =>
+                  openProfileSection(() =>
+                    document.getElementById("backup-title")?.closest("section"),
+                  ),
+                onImportRecords: () =>
+                  openProfileSection(() =>
+                    document
+                      .getElementById("record-import-title")
+                      ?.closest("section"),
+                  ),
+              }}
+              model={homeModel}
               profile={profile}
-              projection={projection}
             />
           ) : null}
           {activeTab === "calendar" ? (
             <CalendarTab
+              createOnOpen={createOnOpen}
               data={data}
               onViewChange={setCalendarView}
               profile={profile}
@@ -205,7 +254,7 @@ function Dashboard({
           {activeTab === "money" ? (
             <MoneyTab
               data={data}
-              onOpenProfile={() => setActiveTab("profile")}
+              onOpenProfile={() => selectTab("profile")}
               profile={profile}
               store={store}
               today={today}
@@ -225,6 +274,13 @@ function Dashboard({
       {navigation("주요 메뉴", "tab-bar")}
     </main>
   );
+}
+
+const WEEKDAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
+
+function formatTodayHeading(date: DateOnly) {
+  const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
+  return `${Number(date.slice(5, 7))}월 ${Number(date.slice(8, 10))}일 ${WEEKDAY_NAMES[weekday]}요일`;
 }
 
 function TabButton({
