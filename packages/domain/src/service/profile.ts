@@ -72,6 +72,13 @@ export const serviceProfileInputSchema = z
       .default(null),
     timezone: z.string().min(1).default(SEOUL_TIME_ZONE),
     /**
+     * User-facing display preference. When enabled, the home hero updates
+     * once per second with a second-level countdown and continuous service
+     * completion percentage. Disabled by default to avoid unnecessary
+     * background work for users who prefer the static day-based display.
+     */
+    liveProgressEnabled: z.boolean().default(false),
+    /**
      * Ordinary workday length at the user's institution, in minutes. Needed
      * only to combine minute-based partial leave with day-based balances;
      * never defaulted because schedules are institution-specific.
