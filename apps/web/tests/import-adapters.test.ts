@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatFromFile,
   parseXlsxFile,
+  positionedFromPdfTextStream,
   tabularFromMarkdownTables,
   tabularFromPositionedPdfText,
   XlsxWorksheetSelectionRequiredError,
@@ -148,6 +149,52 @@ describe("HWP/HWPX table reconstruction", () => {
 });
 
 describe("PDF table reconstruction", () => {
+  it("reads pdf.js text streams through getReader for Safari compatibility", async () => {
+    let reads = 0;
+    let released = false;
+    const chunks = [
+      {
+        items: [
+          { str: " 사용일자 ", transform: [1, 0, 0, 1, 10, 700] },
+          { str: "", transform: [1, 0, 0, 1, 20, 700] },
+        ],
+      },
+      {
+        items: [
+          { str: "연가", transform: [1, 0, 0, 1, 110, 680] },
+          { str: undefined, transform: [1, 0, 0, 1, 210, 680] },
+        ],
+      },
+    ];
+
+    const page = {
+      streamTextContent() {
+        return {
+          getReader() {
+            return {
+              async read() {
+                const value = chunks[reads];
+                reads += 1;
+                return value
+                  ? { done: false, value }
+                  : { done: true, value: undefined };
+              },
+              releaseLock() {
+                released = true;
+              },
+            };
+          },
+        };
+      },
+    };
+
+    await expect(positionedFromPdfTextStream(page, 2)).resolves.toEqual([
+      { page: 2, x: 10, y: 700, text: "사용일자" },
+      { page: 2, x: 110, y: 680, text: "연가" },
+    ]);
+    expect(released).toBe(true);
+  });
+
   it("reconstructs a positioned text table fixture", () => {
     const tabular = tabularFromPositionedPdfText([
       { page: 1, x: 10, y: 700, text: "사용일자" },

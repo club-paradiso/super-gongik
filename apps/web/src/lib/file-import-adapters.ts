@@ -597,24 +597,73 @@ async function loadPdf(file: File) {
   }).promise;
 }
 
+type PdfTextItemLike = {
+  str?: string;
+  transform?: ArrayLike<number>;
+};
+
+type PdfTextChunkLike = {
+  items?: readonly PdfTextItemLike[];
+};
+
+type PdfTextReaderLike = {
+  read(): Promise<{ done: boolean; value?: PdfTextChunkLike }>;
+  releaseLock?: () => void;
+};
+
+type PdfTextStreamLike = {
+  getReader(): PdfTextReaderLike;
+};
+
+type PdfTextPageLike = {
+  streamTextContent(): PdfTextStreamLike;
+};
+
+/**
+ * Safari 26.x does not expose ReadableStream's async iterator consistently.
+ * pdf.js 6 implements getTextContent() with `for await...of`, which throws
+ * "undefined is not a function (near '...t of e...')" on affected Safari
+ * builds. Consume the exact same pdf.js stream through getReader(), which
+ * Safari supports, and keep this browser quirk isolated from table parsing.
+ */
+export async function positionedFromPdfTextStream(
+  page: PdfTextPageLike,
+  pageNumber: number,
+): Promise<PositionedPdfText[]> {
+  const reader = page.streamTextContent().getReader();
+  const positioned: PositionedPdfText[] = [];
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      for (const item of value?.items ?? []) {
+        if (typeof item.str !== "string" || !item.transform) continue;
+        const text = item.str.trim();
+        if (!text) continue;
+        positioned.push({
+          page: pageNumber,
+          x: Number(item.transform[4] ?? 0),
+          y: Number(item.transform[5] ?? 0),
+          text,
+        });
+      }
+    }
+  } finally {
+    reader.releaseLock?.();
+  }
+
+  return positioned;
+}
+
 export async function parsePdfFile(file: File): Promise<TabularAdapterResult> {
   const document = await loadPdf(file);
   const items: PositionedPdfText[] = [];
 
   for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
     const page = await document.getPage(pageNumber);
-    const content = await page.getTextContent();
-    for (const item of content.items) {
-      if (!("str" in item) || !("transform" in item)) continue;
-      const text = item.str.trim();
-      if (!text) continue;
-      items.push({
-        page: pageNumber,
-        x: item.transform[4] ?? 0,
-        y: item.transform[5] ?? 0,
-        text,
-      });
-    }
+    items.push(...(await positionedFromPdfTextStream(page, pageNumber)));
   }
 
   if (items.length === 0) {
