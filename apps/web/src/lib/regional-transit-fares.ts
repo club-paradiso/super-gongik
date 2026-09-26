@@ -31,7 +31,9 @@ export type RegionalFareSuggestion = {
  * current fare source has been verified. Missing regions stay manual rather
  * than receiving a guessed fare.
  */
-const VERIFIED_FARES: Partial<Record<(typeof RESIDENCE_REGIONS)[number], RegionalFareSuggestion>> = {
+const VERIFIED_FARES: Partial<
+  Record<(typeof RESIDENCE_REGIONS)[number], RegionalFareSuggestion>
+> = {
   서울특별시: {
     oneWayCashFare: 1500,
     dailyRoundTripFare: 3000,
