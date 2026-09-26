@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, PiggyBank } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import {
@@ -63,6 +63,114 @@ function monthLabel(month: YearMonth) {
 function dayLabel(date: DateOnly) {
   const [, month, day] = date.split("-");
   return `${Number(month)}/${Number(day)}`;
+}
+
+const SOLDIER_SAVINGS_MONTHLY_MAX = 550_000;
+const SOLDIER_SAVINGS_SOCIAL_SERVICE_MAX_MONTHS = 21;
+
+function SoldierSavingsCalculator() {
+  const [monthlyDeposit, setMonthlyDeposit] = useState(
+    SOLDIER_SAVINGS_MONTHLY_MAX,
+  );
+  const [months, setMonths] = useState(SOLDIER_SAVINGS_SOCIAL_SERVICE_MAX_MONTHS);
+  const [annualRate, setAnnualRate] = useState(5);
+
+  const principal = monthlyDeposit * months;
+  const matchingSupport = principal;
+  // Estimate regular-installment interest with each monthly deposit accruing
+  // for the remaining months. Actual bank timing/rates can differ.
+  const estimatedInterest =
+    monthlyDeposit *
+    (annualRate / 100 / 12) *
+    ((months * (months + 1)) / 2);
+  const estimatedTotal = principal + matchingSupport + estimatedInterest;
+
+  return (
+    <section className="money-history" aria-labelledby="soldier-savings-title">
+      <h2 id="soldier-savings-title">
+        <PiggyBank aria-hidden="true" size={20} /> 장병내일준비적금 계산기
+      </h2>
+      <p className="field-hint">
+        사회복무요원 기준 예상 만기자금을 계산해요. 2026년 기준 개인 월
+        최대 55만원, 최대 21개월, 사회복귀준비금은 인정 납입원금의 100%예요.
+      </p>
+
+      <div className="field-row">
+        <label className="form-field">
+          <span>월 납입액</span>
+          <input
+            inputMode="numeric"
+            max={SOLDIER_SAVINGS_MONTHLY_MAX}
+            min="0"
+            step="50000"
+            type="number"
+            value={monthlyDeposit}
+            onChange={(event) =>
+              setMonthlyDeposit(
+                Math.min(
+                  SOLDIER_SAVINGS_MONTHLY_MAX,
+                  Math.max(0, Number(event.target.value) || 0),
+                ),
+              )
+            }
+          />
+          <small>개인 합산 한도 월 55만원</small>
+        </label>
+        <label className="form-field">
+          <span>납입 개월</span>
+          <input
+            inputMode="numeric"
+            max={SOLDIER_SAVINGS_SOCIAL_SERVICE_MAX_MONTHS}
+            min="1"
+            type="number"
+            value={months}
+            onChange={(event) =>
+              setMonths(
+                Math.min(
+                  SOLDIER_SAVINGS_SOCIAL_SERVICE_MAX_MONTHS,
+                  Math.max(1, Number(event.target.value) || 1),
+                ),
+              )
+            }
+          />
+          <small>사회복무요원 최대 21개월</small>
+        </label>
+      </div>
+
+      <label className="form-field">
+        <span>예상 연이율</span>
+        <div className="unit-input">
+          <input
+            inputMode="decimal"
+            min="0"
+            step="0.01"
+            type="number"
+            value={annualRate}
+            onChange={(event) =>
+              setAnnualRate(Math.max(0, Number(event.target.value) || 0))
+            }
+          />
+          <span>%</span>
+        </div>
+        <small>은행·우대조건마다 달라 직접 조정할 수 있어요.</small>
+      </label>
+
+      <div className="money-total" aria-live="polite">
+        <span>예상 만기자금</span>
+        <strong>{currency.format(Math.round(estimatedTotal))}</strong>
+        <small>
+          원금 {currency.format(principal)} + 사회복귀준비금{" "}
+          {currency.format(matchingSupport)} + 예상 은행이자{" "}
+          {currency.format(Math.round(estimatedInterest))}
+        </small>
+      </div>
+      <p className="money-reference">
+        계산값은 예상치예요. 실제 이자는 은행별 금리·납입일·우대조건에 따라
+        달라지고, 사회복귀준비금은 지원대상으로 인정되는 납입액을 기준으로
+        지급돼요.
+      </p>
+    </section>
+  );
 }
 
 export function MoneyTab({
@@ -128,7 +236,7 @@ export function MoneyTab({
   }
 
   return (
-    <section className="money-page" aria-label="월별 보수 기준">
+    <section className="money-page" aria-label="월별 급여 기준">
       <div className="month-switch">
         <button
           aria-label="이전 달"
@@ -285,6 +393,8 @@ export function MoneyTab({
           </details>
         ) : null}
       </aside>
+
+      <SoldierSavingsCalculator />
 
       {compensation.rule ? (
         <section className="money-history">
