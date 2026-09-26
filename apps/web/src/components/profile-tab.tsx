@@ -23,6 +23,10 @@ import { RecordImportPanel } from "@/components/record-import-panel";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/ui/date-input";
 import { useCloud } from "@/hooks/use-cloud";
+import {
+  RESIDENCE_REGIONS,
+  regionalFareSuggestion,
+} from "@/lib/regional-transit-fares";
 
 type PriorAnswer = "" | "NONE" | "HAS_PRIOR_SERVICE";
 type WorkPatternAnswer = "" | NonNullable<ServiceProfile["workPattern"]>;
@@ -181,6 +185,10 @@ function ProfileForm({
   const [commuteCost, setCommuteCost] = useState(
     profile.defaultCommuteCost?.toString() ?? "",
   );
+  const [residenceRegion, setResidenceRegion] = useState(
+    profile.residenceRegion ?? "",
+  );
+  const fareSuggestion = regionalFareSuggestion(residenceRegion || null);
   const [workHours, setWorkHours] = useState(
     profile.workdayMinutes === null
       ? ""
@@ -254,6 +262,7 @@ function ProfileForm({
           callUpDate,
           expectedDischargeDate,
           serviceCategory: serviceCategory.trim() || null,
+          residenceRegion: residenceRegion || null,
           defaultCommuteCost: commuteCost === "" ? null : Number(commuteCost),
           defaultMealAllowanceOverride:
             mealRate === "" ? null : Number(mealRate),
@@ -542,20 +551,54 @@ function ProfileForm({
         <label className="form-field">
           <span>
             <MapPin aria-hidden="true" size={17} />
-            1일 교통비 (시내버스 왕복 현금요금)
+            거주 지역
           </span>
+          <select
+            value={residenceRegion}
+            onChange={(event) => {
+              const region = event.target.value;
+              setResidenceRegion(region);
+              const suggestion = regionalFareSuggestion(region || null);
+              if (suggestion) {
+                setCommuteCost(String(suggestion.dailyRoundTripFare));
+              }
+            }}
+          >
+            <option value="">지역 선택</option>
+            {RESIDENCE_REGIONS.map((region) => (
+              <option key={region} value={region}>
+                {region}
+              </option>
+            ))}
+          </select>
+          <small>
+            지역 기본 시내버스 운임이 검증된 경우 1일 교통비를 자동으로
+            제안해요. 실제 통근 경로가 다르면 아래 금액을 직접 고치세요.
+          </small>
+        </label>
+
+        <label className="form-field">
+          <span>1일 교통비</span>
           <input
             inputMode="numeric"
             min="0"
-            placeholder="기관 승인 금액 또는 실제 운임"
+            placeholder={
+              fareSuggestion
+                ? `지역 기준 ${fareSuggestion.dailyRoundTripFare.toLocaleString("ko-KR")}원`
+                : "기관 승인 금액 또는 실제 운임"
+            }
             type="number"
             value={commuteCost}
             onChange={(event) => setCommuteCost(event.target.value)}
           />
           <small>
-            병무청 기준: 시내버스 왕복 현금요금. 환승·지하철 장거리 등
-            추가비용이 있으면 교통카드 금액 기준 실비예요. 걸어서 다녀도 같은
-            기준이에요.
+            {fareSuggestion
+              ? `${fareSuggestion.basis} 왕복 기준 ${fareSuggestion.dailyRoundTripFare.toLocaleString("ko-KR")}원을 제안했어요. `
+              : residenceRegion
+                ? "이 지역은 현재 검증된 기본운임 자동값이 없어 직접 입력해야 해요. "
+                : ""}
+            병무청 기준은 시내버스 왕복 현금요금이며, 환승·지하철·장거리 등
+            추가비용은 교통카드 금액 기준 실비예요.
           </small>
         </label>
       </SettingsGroup>
