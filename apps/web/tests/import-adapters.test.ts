@@ -280,6 +280,51 @@ describe("PDF table reconstruction", () => {
     ]);
   });
 
+  it("auto-skips holidays and normal calendar rows in daily-service PDFs", () => {
+    const tabular = tabularFromPositionedPdfText([
+      { page: 1, x: 92.5, y: 700, text: "날짜" },
+      { page: 1, x: 249.5, y: 700, text: "복무상황" },
+      { page: 1, x: 473.8, y: 700, text: "비고" },
+
+      { page: 1, x: 63.9, y: 680, text: "2026-03-01" },
+      { page: 1, x: 125.6, y: 680, text: "(일)" },
+      { page: 1, x: 155, y: 680, text: "삼일절" },
+
+      { page: 1, x: 63.9, y: 660, text: "2026-03-02" },
+      { page: 1, x: 125.6, y: 660, text: "(월)" },
+      { page: 1, x: 155, y: 660, text: "대체공휴일" },
+
+      { page: 1, x: 63.9, y: 640, text: "2026-03-03" },
+      { page: 1, x: 125.6, y: 640, text: "(화)" },
+      { page: 1, x: 155, y: 640, text: "정상근무" },
+
+      { page: 1, x: 63.9, y: 620, text: "2026-03-04" },
+      { page: 1, x: 125.6, y: 620, text: "(수)" },
+      { page: 1, x: 155, y: 620, text: "연가" },
+      { page: 1, x: 198.3, y: 620, text: "[담당자]." },
+      { page: 1, x: 440, y: 620, text: "개인 용무" },
+
+      { page: 1, x: 63.9, y: 600, text: "2026-03-05" },
+      { page: 1, x: 125.6, y: 600, text: "(목)" },
+      { page: 1, x: 155, y: 600, text: "알수없는상태" },
+    ]);
+
+    expect(tabular.rows).toEqual([
+      {
+        날짜: "2026-03-04",
+        복무상황: "연가",
+        사용시간: "",
+        비고: "개인 용무",
+      },
+      {
+        날짜: "2026-03-05",
+        복무상황: "알수없는상태",
+        사용시간: "",
+        비고: "알수없는상태",
+      },
+    ]);
+  });
+
   it("refuses a PDF fixture without a recognizable table header", () => {
     expect(() =>
       tabularFromPositionedPdfText([
