@@ -853,15 +853,6 @@ ul.snapshot-list li div {
   background: var(--fill);
 }
 
-.money-headline {
-  margin: 0;
-  padding: 0 4px;
-  color: var(--text-2);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.55;
-}
-
 .money-total {
   gap: 4px;
   padding: 18px;
@@ -937,10 +928,88 @@ ul.snapshot-list li div {
   color: var(--text-3);
 }
 
-.money-basis {
+.money-basis summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  color: var(--text-2);
+  font-size: var(--font-micro);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.money-basis summary::after {
+  margin-left: 0;
+}
+
+.money-basis p {
   color: var(--text-3);
-  font-size: 12px;
+  font-size: var(--font-micro);
   line-height: 1.5;
+}
+
+/* Money summary: known amount first, then what is still open. */
+.money-summary {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-card);
+}
+
+.money-summary__label {
+  margin: 0;
+  color: var(--text-2);
+  font-size: var(--font-caption);
+  font-weight: 700;
+}
+
+.money-summary__amount {
+  font-size: 32px;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+}
+
+.money-summary__amount--pending {
+  color: var(--text-2);
+  font-size: 24px;
+}
+
+.money-summary__note {
+  margin: var(--space-1) 0 0;
+  color: var(--text-2);
+  font-size: var(--font-caption);
+  line-height: 1.55;
+}
+
+.money-summary__steps {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-3);
+}
+
+.money-summary__steps div {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: var(--space-2);
+  font-size: var(--font-label);
+}
+
+.money-summary__steps dt {
+  color: var(--text-3);
+  font-weight: 650;
+}
+
+.money-summary__steps dd {
+  margin: 0;
+  font-weight: 700;
 }
 
 .money-unresolved {

@@ -1,6 +1,11 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ExternalLink, PiggyBank } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  PiggyBank,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 
 import {
@@ -19,9 +24,11 @@ import {
   type YearMonth,
 } from "@super-gongik/domain";
 import {
+  derivePayBandSchedule,
   evaluateMonthlyCompensation,
   findAttendanceMonth,
   type MonthlyCompensationEvaluation,
+  type PayBandSchedule,
   type ServiceDay,
 } from "@super-gongik/rules";
 
@@ -82,9 +89,7 @@ function SoldierSavingsCalculator() {
   // Estimate regular-installment interest with each monthly deposit accruing
   // for the remaining months. Actual bank timing/rates can differ.
   const estimatedInterest =
-    monthlyDeposit *
-    (annualRate / 100 / 12) *
-    ((months * (months + 1)) / 2);
+    monthlyDeposit * (annualRate / 100 / 12) * ((months * (months + 1)) / 2);
   const estimatedTotal = principal + matchingSupport + estimatedInterest;
 
   return (
@@ -93,8 +98,8 @@ function SoldierSavingsCalculator() {
         <PiggyBank aria-hidden="true" size={20} /> 장병내일준비적금 계산기
       </h2>
       <p className="field-hint">
-        사회복무요원 기준 예상 만기자금을 계산해요. 2026년 기준 개인 월
-        최대 55만원, 최대 21개월, 사회복귀준비금은 인정 납입원금의 100%예요.
+        사회복무요원 기준 예상 만기자금을 계산해요. 2026년 기준 개인 월 최대
+        55만원, 최대 21개월, 사회복귀준비금은 인정 납입원금의 100%예요.
       </p>
 
       <div className="field-row">
@@ -175,6 +180,82 @@ function SoldierSavingsCalculator() {
   );
 }
 
+/**
+ * Leads with what is known. The total appears only when every component is
+ * calculated; otherwise a calculated base pay is shown as base pay, never
+ * as a partial sum.
+ */
+function MoneySummary({
+  compensation,
+  schedule,
+}: {
+  compensation: MonthlyCompensationEvaluation;
+  schedule: PayBandSchedule;
+}) {
+  const base = compensation.components.find((item) => item.key === "BASE_PAY");
+  const baseAmount = base?.status === "CALCULATED" ? base.monthlyAmount : null;
+  const complete = compensation.total !== null;
+
+  let label = "이번 달 급여";
+  let amount: string | null = null;
+  let note = compensation.headline;
+  if (complete) {
+    label = "지급 기준 합계";
+    amount = currency.format(compensation.total!);
+    note =
+      "기본 보수 + 중식비 + 교통비. 확인된 기본 보수 미지급일은 기본 보수에 반영돼요.";
+  } else if (baseAmount !== null) {
+    label = "확정된 기본 보수";
+    amount = currency.format(baseAmount);
+    note =
+      "중식비·교통비는 근무일이 확인되면 더해요. 일부만 더한 합계는 보여 드리지 않아요.";
+  }
+
+  const current = schedule.status === "READY" ? schedule.current : null;
+  const next = schedule.status === "READY" ? schedule.next : null;
+
+  return (
+    <section className="money-summary" aria-live="polite">
+      <p className="money-summary__label">{label}</p>
+      <strong
+        className={
+          amount
+            ? "money-summary__amount"
+            : "money-summary__amount money-summary__amount--pending"
+        }
+      >
+        {amount ?? "아직 계산 전"}
+      </strong>
+      <p className="money-summary__note">{note}</p>
+      {current || compensation.equivalentRank ? (
+        <dl className="money-summary__steps">
+          <div>
+            <dt>지금 단계</dt>
+            <dd>
+              {current?.label ?? compensation.equivalentRank}
+              {compensation.serviceMonthOrdinal
+                ? ` · ${compensation.serviceMonthOrdinal}개월 차`
+                : ""}
+            </dd>
+          </div>
+          {next ? (
+            <div>
+              <dt>다음 단계</dt>
+              <dd>
+                {next.label} · {Number(next.startDate.slice(0, 4))}년{" "}
+                {Number(next.startDate.slice(5, 7))}월부터
+                {next.monthlyAmount !== null
+                  ? ` · 월 ${currency.format(next.monthlyAmount)}`
+                  : ""}
+              </dd>
+            </div>
+          ) : null}
+        </dl>
+      ) : null}
+    </section>
+  );
+}
+
 export function MoneyTab({
   data,
   profile,
@@ -202,6 +283,10 @@ export function MoneyTab({
         attendanceMonths: data.attendanceMonths,
       }),
     [profile, asOfDate, data.events, data.attendanceMonths, attendance],
+  );
+  const schedule = useMemo(
+    () => derivePayBandSchedule(profile, asOfDate),
+    [profile, asOfDate],
   );
   const snapshots = data.compensationSnapshots
     .filter((item) => isLive(item) && item.month === month)
@@ -257,21 +342,7 @@ export function MoneyTab({
         </button>
       </div>
 
-      <p className="money-headline">{compensation.headline}</p>
-
-      <div className="money-total" aria-live="polite">
-        <span>지급 기준 합계</span>
-        <strong>
-          {compensation.total !== null
-            ? currency.format(compensation.total)
-            : "아직 합계 없음"}
-        </strong>
-        <small>
-          {compensation.total !== null
-            ? "기본 보수 + 중식비 + 교통비. 확인된 기본 보수 미지급일은 기본 보수에 반영돼요."
-            : "모든 항목이 계산될 때만 합계를 보여요. 일부만 더한 금액은 보여주지 않아요."}
-        </small>
-      </div>
+      <MoneySummary compensation={compensation} schedule={schedule} />
 
       {compensation.components.length ? (
         <div className="money-list">
@@ -308,7 +379,10 @@ export function MoneyTab({
                     : "1일 금액 출처: 내가 입력한 값 (공식 금액 아님)"}
                 </p>
               ) : null}
-              <small className="money-basis">근거: {component.basis}</small>
+              <details className="money-basis">
+                <summary>근거 법령·기준</summary>
+                <p>{component.basis}</p>
+              </details>
             </article>
           ))}
         </div>

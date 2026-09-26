@@ -393,6 +393,17 @@ body > .storage-notice {
   text-overflow: ellipsis;
 }
 
+/* 32 px pill, 44 px touch target. */
+.sync-chip--header {
+  position: relative;
+}
+
+.sync-chip--header::after {
+  position: absolute;
+  inset: -6px -2px;
+  content: "";
+}
+
 .sync-chip--ok {
   border-color: var(--teal-line);
   color: var(--teal-deep);
