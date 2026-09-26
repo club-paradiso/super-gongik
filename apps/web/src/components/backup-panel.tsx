@@ -381,7 +381,7 @@ export function BackupPanel({
             variant="outline"
           >
             <Download aria-hidden="true" size={18} />
-            연가 원장 CSV
+            연가 사용 내역 CSV
           </Button>
         </div>
       ) : null}
