@@ -149,7 +149,6 @@ describe("HWP/HWPX table reconstruction", () => {
 });
 
 describe("PDF table reconstruction", () => {
-
   it("reads pdf.js text streams through getReader for Safari compatibility", async () => {
     let reads = 0;
     let released = false;
