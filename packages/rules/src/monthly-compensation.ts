@@ -99,7 +99,7 @@ export type MonthlyCompensationEvaluation = {
   warnings: string[];
 };
 
-const RANK_LABELS: Record<string, string> = {
+export const EQUIVALENT_RANK_LABELS: Record<string, string> = {
   PRIVATE_SECOND_CLASS: "이병 상당",
   PRIVATE_FIRST_CLASS: "일병 상당",
   CORPORAL: "상병 상당",
@@ -339,7 +339,7 @@ export function evaluateMonthlyCompensation(
     const pay = calculateMonthlyBasePay({ ...ruleInput, serviceMonthOrdinal });
     const monthlyBasePay = pay.value?.monthlyBasePay ?? null;
     equivalentRank =
-      RANK_LABELS[String(pay.breakdown.equivalentRank)] ??
+      EQUIVALENT_RANK_LABELS[String(pay.breakdown.equivalentRank)] ??
       String(pay.breakdown.equivalentRank);
     const creditText = credit ? ` + 인정 기간 ${credit}개월` : "";
 

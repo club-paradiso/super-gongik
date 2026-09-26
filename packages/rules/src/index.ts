@@ -8,3 +8,4 @@ export * from "./non-payable-days";
 export * from "./schema";
 export * from "./selector";
 export * from "./service-days";
+export * from "./pay-bands";
