@@ -177,7 +177,7 @@ export function HomeTab({
             <ClipboardList aria-hidden="true" size={20} />
           </span>
           <span className="list-row__body">
-            <strong>휴가 원장</strong>
+            <strong>연가 사용 내역</strong>
             <span>부여·사용·예정 연가를 한 번에 확인해요.</span>
           </span>
           <ChevronRight
