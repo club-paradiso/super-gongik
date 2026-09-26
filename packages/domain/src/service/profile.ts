@@ -64,6 +64,7 @@ export const serviceProfileInputSchema = z
     expectedDischargeDate: dateOnlySchema,
     serviceCategory: z.string().trim().max(80).nullable().default(null),
     workplaceType: z.string().trim().max(80).nullable().default(null),
+    residenceRegion: z.string().trim().max(40).nullable().default(null),
     defaultCommuteCost: z.number().nonnegative().nullable().default(null),
     defaultMealAllowanceOverride: z
       .number()
