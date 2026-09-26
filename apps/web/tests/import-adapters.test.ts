@@ -325,6 +325,47 @@ describe("PDF table reconstruction", () => {
     ]);
   });
 
+  it("filters real-ledger non-usage statuses while preserving timed attendance", () => {
+    const tabular = tabularFromPositionedPdfText([
+      { page: 6, x: 92.5, y: 700, text: "날짜" },
+      { page: 6, x: 249.5, y: 700, text: "복무상황" },
+      { page: 6, x: 473.8, y: 700, text: "비고" },
+
+      { page: 6, x: 63.9, y: 680, text: "2026-08-24" },
+      { page: 6, x: 125.6, y: 680, text: "(월)" },
+      { page: 6, x: 155, y: 680, text: "병가지각" },
+      { page: 6, x: 230, y: 680, text: "[고아현]." },
+      { page: 6, x: 440, y: 680, text: "3시간 30분" },
+
+      { page: 6, x: 63.9, y: 660, text: "2026-08-24" },
+      { page: 6, x: 125.6, y: 660, text: "(월)" },
+      { page: 6, x: 155, y: 660, text: "정상출근" },
+      { page: 6, x: 230, y: 660, text: "[고아현]." },
+
+      { page: 6, x: 63.9, y: 640, text: "2026-09-01" },
+      { page: 6, x: 125.6, y: 640, text: "(화)" },
+      { page: 6, x: 155, y: 640, text: "근무편성" },
+      { page: 6, x: 230, y: 640, text: "[고아현]." },
+
+      { page: 7, x: 63.9, y: 620, text: "2026-09-24" },
+      { page: 7, x: 125.6, y: 620, text: "(목)" },
+      { page: 7, x: 440, y: 620, text: "추석연휴" },
+
+      { page: 5, x: 63.9, y: 600, text: "2026-07-17" },
+      { page: 5, x: 125.6, y: 600, text: "(금)" },
+      { page: 5, x: 440, y: 600, text: "제헌절" },
+    ]);
+
+    expect(tabular.rows).toEqual([
+      {
+        날짜: "2026-08-24",
+        복무상황: "병가지각",
+        사용시간: "3시간 30분",
+        비고: "",
+      },
+    ]);
+  });
+
   it("refuses a PDF fixture without a recognizable table header", () => {
     expect(() =>
       tabularFromPositionedPdfText([
