@@ -216,6 +216,9 @@ function ProfileForm({
   const [mealRate, setMealRate] = useState(
     profile.defaultMealAllowanceOverride?.toString() ?? "",
   );
+  const [liveProgressEnabled, setLiveProgressEnabled] = useState(
+    profile.liveProgressEnabled ?? false,
+  );
   const [error, setError] = useState("");
 
   function toggleWeekday(day: number) {
@@ -275,6 +278,7 @@ function ProfileForm({
             workPattern === "WEEKDAY_DAYTIME" && weekdays.length
               ? weekdays
               : null,
+          liveProgressEnabled,
         },
         context,
       ),
@@ -429,6 +433,21 @@ function ProfileForm({
             </small>
           </fieldset>
         ) : null}
+      </SettingsGroup>
+
+      <SettingsGroup title="화면 설정">
+        <label className="check-row">
+          <input
+            checked={liveProgressEnabled}
+            onChange={(event) => setLiveProgressEnabled(event.target.checked)}
+            type="checkbox"
+          />
+          D-day와 복무율을 초 단위로 실시간 표시
+        </label>
+        <small className="field-hint">
+          켜면 홈 화면이 열려 있는 동안 1초마다 남은 시간과 복무율을 갱신해요.
+          끄면 기존처럼 일 단위로 표시해요.
+        </small>
       </SettingsGroup>
 
       <SettingsGroup title="보수 계산 기준">
