@@ -36,7 +36,7 @@ const tabCopy: Record<AppTab, { title: string; description: string }> = {
     description: "한 번 기록하면 휴가 원장과 홈에 함께 반영돼요.",
   },
   money: {
-    title: "보수",
+    title: "급여",
     description: "확인된 기준과 계산에 필요한 조건을 함께 보여드려요.",
   },
   profile: {
@@ -48,7 +48,7 @@ const tabCopy: Record<AppTab, { title: string; description: string }> = {
 const TABS: Array<{ key: AppTab; label: string; icon: typeof Home }> = [
   { key: "home", label: "홈", icon: Home },
   { key: "calendar", label: "캘린더", icon: CalendarDays },
-  { key: "money", label: "보수", icon: WalletCards },
+  { key: "money", label: "급여", icon: WalletCards },
   { key: "profile", label: "내 정보", icon: UserRound },
 ];
 
