@@ -341,7 +341,7 @@ export function LeaveLedgerPanel({
       ) : null}
 
       <details className="ledger-card ledger-entries">
-        <summary>연가 원장 내역 {ledger.entries.length}건</summary>
+        <summary>연가 사용 내역 {ledger.entries.length}건</summary>
         {ledger.entries.length ? (
           <table>
             <thead>
