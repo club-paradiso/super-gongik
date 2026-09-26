@@ -72,7 +72,9 @@ function SoldierSavingsCalculator() {
   const [monthlyDeposit, setMonthlyDeposit] = useState(
     SOLDIER_SAVINGS_MONTHLY_MAX,
   );
-  const [months, setMonths] = useState(SOLDIER_SAVINGS_SOCIAL_SERVICE_MAX_MONTHS);
+  const [months, setMonths] = useState(
+    SOLDIER_SAVINGS_SOCIAL_SERVICE_MAX_MONTHS,
+  );
   const [annualRate, setAnnualRate] = useState(5);
 
   const principal = monthlyDeposit * months;
