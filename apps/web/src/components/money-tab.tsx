@@ -185,6 +185,16 @@ function SoldierSavingsCalculator() {
  * calculated; otherwise a calculated base pay is shown as base pay, never
  * as a partial sum.
  */
+function rankBandMonth(serviceMonthOrdinal: number | null) {
+  if (!serviceMonthOrdinal) return null;
+  if (serviceMonthOrdinal <= 2) return { month: serviceMonthOrdinal, total: 2 };
+  if (serviceMonthOrdinal <= 8)
+    return { month: serviceMonthOrdinal - 2, total: 6 };
+  if (serviceMonthOrdinal <= 14)
+    return { month: serviceMonthOrdinal - 8, total: 6 };
+  return { month: serviceMonthOrdinal - 14, total: null };
+}
+
 function MoneySummary({
   compensation,
   schedule,
@@ -213,6 +223,7 @@ function MoneySummary({
 
   const current = schedule.status === "READY" ? schedule.current : null;
   const next = schedule.status === "READY" ? schedule.next : null;
+  const bandMonth = rankBandMonth(compensation.serviceMonthOrdinal);
 
   return (
     <section className="money-summary" aria-live="polite">
@@ -234,7 +245,10 @@ function MoneySummary({
             <dd>
               {current?.label ?? compensation.equivalentRank}
               {compensation.serviceMonthOrdinal
-                ? ` · ${compensation.serviceMonthOrdinal}개월 차`
+                ? ` · 복무 ${compensation.serviceMonthOrdinal}개월차`
+                : ""}
+              {bandMonth
+                ? ` · 현재 계급 구간 ${bandMonth.month}${bandMonth.total ? `/${bandMonth.total}` : ""}개월차`
                 : ""}
             </dd>
           </div>
