@@ -44,8 +44,5 @@ export function calculateLiveServiceProgress(
 
 export function formatLiveCountdown(progress: LiveServiceProgress) {
   const { days, hours, minutes, seconds } = progress.countdown;
-  return `D-${days} ${String(hours).padStart(2, "0")}:${String(minutes).padStart(
-    2,
-    "0",
-  )}:${String(seconds).padStart(2, "0")}`;
+  return `D-${days} ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
