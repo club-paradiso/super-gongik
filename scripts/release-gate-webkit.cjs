@@ -126,7 +126,7 @@ async function runViewport(browser, viewport) {
   await page.getByRole("button", { name: "닫기" }).click();
   await sheet.waitFor({ state: "hidden" });
 
-  await tabBar.getByRole("button", { name: "보수", exact: true }).click();
+  await tabBar.getByRole("button", { name: "급여", exact: true }).click();
   await page.locator(".money-page").waitFor({ state: "visible" });
   await assertNoHorizontalOverflow(page, `${viewport.width} money`);
 
