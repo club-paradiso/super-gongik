@@ -24,7 +24,7 @@ describe("live service progress", () => {
       seconds: 0,
     });
     expect(result.completionPercentage).toBe(50);
-    expect(formatLiveCountdown(result)).toBe("D-1 00:00:00");
+    expect(formatLiveCountdown(result)).toBe("1일 00:00:00");
   });
 
   it("clamps completion after discharge", () => {
