@@ -16,7 +16,10 @@ import { memo } from "react";
 import type { ServiceProfile } from "@super-gongik/domain";
 
 import { useLiveServiceProgress } from "@/hooks/use-seoul-today";
-import { formatLiveCountdown } from "@/lib/live-service-progress";
+import {
+  formatLiveCompletionPercentage,
+  formatLiveCountdown,
+} from "@/lib/live-service-progress";
 import {
   EVENT_CATEGORY,
   describeTiming,
@@ -183,13 +186,10 @@ const LiveProgress = memo(function LiveProgress({
   profile: ServiceProfile;
 }) {
   const progress = useLiveServiceProgress(profile, true);
-  // Truncate, never round: the final second must not render as 100.0000 early.
-  const value =
-    Math.floor(progress.completionPercentage * 10_000) / 10_000;
   return (
     <span className="hero__live">
       <strong className="hero__percent hero__percent--live">
-        {value.toFixed(4)}%
+        {formatLiveCompletionPercentage(progress)}
       </strong>
       <small className="hero__countdown">
         남은 시간 {formatLiveCountdown(progress)}
