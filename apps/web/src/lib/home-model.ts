@@ -14,6 +14,7 @@ import {
   type ServiceProfile,
 } from "@super-gongik/domain";
 import {
+  currentPayStepOrdinal,
   derivePayBandSchedule,
   type PayBandSchedule,
 } from "@super-gongik/rules";
@@ -353,10 +354,16 @@ function buildPay(
   schedule: PayBandSchedule,
 ): HomePay {
   const { compensation, progress } = projection;
-  const band =
+  const bandLabel =
     schedule.status === "READY" && schedule.current
       ? schedule.current.label
       : compensation.equivalentRank;
+  const payStep = currentPayStepOrdinal(
+    schedule,
+    compensation.serviceMonthOrdinal,
+  );
+  const band =
+    bandLabel && payStep ? `${bandLabel} ${payStep}호봉` : bandLabel;
   if (progress.state === "COMPLETED") {
     return { kind: "NONE", caption: "소집해제 후 달은 계산하지 않아요" };
   }
