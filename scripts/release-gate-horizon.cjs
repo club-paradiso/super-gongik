@@ -53,9 +53,13 @@ async function contrast(page) {
     ].map(([fg, bg]) => ({ fg, bg, a: token(fg), b: token(bg) }));
   });
   const luminance = (hex) => {
-    assert.match(hex, /^#[0-9a-f]{6}$/i);
+    assert.match(hex, /^#[0-9a-f]{3}(?:[0-9a-f]{3})?$/i);
+    const normalized =
+      hex.length === 4
+        ? `#${hex.slice(1).split("").map((part) => part + part).join("")}`
+        : hex;
     const c = [1, 3, 5]
-      .map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+      .map((i) => parseInt(normalized.slice(i, i + 2), 16) / 255)
       .map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
     return c[0] * 0.2126 + c[1] * 0.7152 + c[2] * 0.0722;
   };
