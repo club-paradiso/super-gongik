@@ -385,9 +385,9 @@
 }
 
 .filter-chip.is-active {
-  border-color: var(--brand-navy);
-  background: var(--brand-navy);
-  color: #fff;
+  border-color: var(--accent-primary);
+  background: var(--accent-primary);
+  color: var(--on-accent);
 }
 
 .deleted-list {
