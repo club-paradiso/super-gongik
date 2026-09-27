@@ -51,11 +51,11 @@ A milestone that falls on today shows as a status pill (for example "오늘 D-30
   - `continuousServiceCompletion` (domain) evaluates the same model between Seoul midnights.
   - At 00:00 KST on any date it equals exactly `elapsedDays / totalServiceDays`; a test checks this for several dates.
   - It therefore adds resolution without changing the definition.
-  - It is shown to 4 decimals, which changes about every 5 s for a 21-month term.
+  - It is shown to 6 decimals so a 21-month term visibly advances on every one-second tick.
   - The value is truncated, never rounded.
   - This is not fake precision: it is the exact elapsed fraction of the service period. It is not used for any administrative figure.
 - **Cost:**
-  - Only the memoised `LivePercent` element re-renders once per second.
+  - Only the memoised `LiveProgress` element re-renders once per second.
   - The ticker stops while the page is hidden and slows to once a minute under `prefers-reduced-motion`.
   - Digits are `tabular-nums`, so ticking causes no layout shift.
   - The number is `aria-hidden`; screen readers get the day-based `aria-valuetext`, so they are never flooded with updates.
