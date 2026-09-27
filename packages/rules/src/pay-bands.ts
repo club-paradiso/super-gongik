@@ -44,6 +44,22 @@ export type PayBandSchedule =
       reason: string;
     };
 
+export function currentPayStepOrdinal(
+  schedule: PayBandSchedule,
+  serviceMonthOrdinal: number | null,
+): number | null {
+  if (
+    schedule.status !== "READY" ||
+    !schedule.current ||
+    serviceMonthOrdinal === null
+  ) {
+    return null;
+  }
+  const ordinal =
+    serviceMonthOrdinal - schedule.current.fromServiceMonthOrdinal + 1;
+  return ordinal >= 1 ? ordinal : null;
+}
+
 /**
  * When each base-pay band (이병·일병·상병·병장 상당) begins for this profile.
  *
