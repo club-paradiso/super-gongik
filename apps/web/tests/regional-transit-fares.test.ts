@@ -11,9 +11,9 @@ describe("regional transit fare suggestions", () => {
   });
 
   it("uses verified Jeju local bus cash fare as a round-trip suggestion", () => {
-    expect(
-      regionalFareSuggestion("제주특별자치도")?.dailyRoundTripFare,
-    ).toBe(2400);
+    expect(regionalFareSuggestion("제주특별자치도")?.dailyRoundTripFare).toBe(
+      2400,
+    );
   });
 
   it("does not guess an unverified region fare", () => {

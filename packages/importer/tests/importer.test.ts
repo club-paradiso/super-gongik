@@ -41,6 +41,8 @@ function profileData(): UserData {
       expectedDischargeDate: "2028-02-03",
       serviceCategory: null,
       workplaceType: null,
+      residenceRegion: null,
+      liveProgressEnabled: false,
       defaultCommuteCost: null,
       defaultMealAllowanceOverride: null,
       timezone: "Asia/Seoul",

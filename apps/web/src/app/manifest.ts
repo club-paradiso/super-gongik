@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "사회복무요원을 위한 개인 복무 관리 도구",
     start_url: "/",
     display: "standalone",
-    background_color: "#f2f4f7",
-    theme_color: "#f2f4f7",
+    background_color: "#101129",
+    theme_color: "#101129",
     lang: "ko",
     icons: [
       {

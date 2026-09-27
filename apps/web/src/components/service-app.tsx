@@ -60,6 +60,7 @@ export function ServiceApp() {
   if (snapshot.phase === "LOADING") {
     return (
       <main className="app-loading" aria-busy="true">
+        <BrandMark size={40} />
         <p className="loading-line" role="status">
           기기에 저장된 기록을 불러오는 중…
         </p>
@@ -162,6 +163,9 @@ function Dashboard({
 
   return (
     <main className="app-shell">
+      <a className="skip-link" href="#main-content">
+        본문으로 건너뛰기
+      </a>
       <aside className="desktop-rail">
         <p className="rail-brand">
           <BrandMark size={32} />
@@ -213,7 +217,7 @@ function Dashboard({
 
         <div className="tab-notice">{notice}</div>
 
-        <section className="tab-content">
+        <section className="tab-content" id="main-content" tabIndex={-1}>
           {activeTab === "home" ? (
             <HomeTab
               actions={{
