@@ -28,7 +28,6 @@ describe("live service progress", () => {
     expect(formatLiveCountdown(result)).toBe("1일 00:00:00");
   });
 
-
   it("shows a different six-decimal percentage one second later on a 21-month-scale term", () => {
     const longProfile = {
       callUpDate: "2026-03-16",
@@ -46,7 +45,7 @@ describe("live service progress", () => {
     expect(formatLiveCompletionPercentage(first)).not.toBe(
       formatLiveCompletionPercentage(second),
     );
-    expect(formatLiveCompletionPercentage(first)).toMatch(/^\\d+\\.\\d{6}%$/);
+    expect(formatLiveCompletionPercentage(first)).toMatch(/^\d+\.\d{6}%$/);
   });
 
   it("clamps completion after discharge", () => {
