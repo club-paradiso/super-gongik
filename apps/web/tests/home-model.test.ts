@@ -156,7 +156,7 @@ describe("home secondary cards", () => {
     expect(pay).toMatchObject({
       kind: "BASE_ONLY",
       amount: 1_200_000,
-      band: "상병 상당",
+      band: "상병 상당 4호봉",
     });
     expect(model("incomplete-profile").pay.kind).toBe("PENDING");
     expect(model("completed").pay.kind).toBe("NONE");

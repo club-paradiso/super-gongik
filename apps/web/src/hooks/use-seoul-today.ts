@@ -11,6 +11,11 @@ import {
   type ServiceProfile,
 } from "@super-gongik/domain";
 
+import {
+  calculateLiveServiceProgress,
+  type LiveServiceProgress,
+} from "@/lib/live-service-progress";
+
 /** Milliseconds from `now` until the next 00:00 in Asia/Seoul. */
 export function msUntilNextSeoulMidnight(now: number): number {
   const today = dateOnlyInTimeZone(new Date(now));
@@ -78,6 +83,38 @@ function prefersReducedMotion() {
  * when `enabled` is false or the page is hidden, so it costs nothing in the
  * background. Only the component that calls this re-renders.
  */
+export function useLiveServiceProgress(
+  period: Pick<ServiceProfile, "callUpDate" | "expectedDischargeDate">,
+  enabled: boolean,
+): LiveServiceProgress {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!enabled) return;
+    let timer: ReturnType<typeof setInterval> | undefined;
+    const start = () => {
+      clearInterval(timer);
+      setNow(Date.now());
+      timer = setInterval(
+        () => setNow(Date.now()),
+        prefersReducedMotion() ? 60_000 : 1_000,
+      );
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") start();
+      else clearInterval(timer);
+    };
+    start();
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [enabled]);
+
+  return calculateLiveServiceProgress(period, new Date(now));
+}
+
 export function useLiveCompletion(
   period: Pick<ServiceProfile, "callUpDate" | "expectedDischargeDate">,
   enabled: boolean,

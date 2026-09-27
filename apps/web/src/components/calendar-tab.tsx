@@ -153,7 +153,7 @@ export function CalendarTab({
             [
               ["month", "월간"],
               ["agenda", "목록"],
-              ["ledger", "휴가 원장"],
+              ["ledger", "휴가 내역"],
             ] as const
           ).map(([key, label]) => (
             <button
@@ -299,7 +299,7 @@ function LeaveStrip({
         </span>
       ) : null}
       <span className="leave-strip__end">
-        원장
+        내역
         <ChevronRight aria-hidden="true" size={16} />
       </span>
     </button>

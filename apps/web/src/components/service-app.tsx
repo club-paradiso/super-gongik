@@ -35,7 +35,7 @@ const tabCopy: Record<AppTab, { title: string; description: string }> = {
   home: { title: "홈", description: "오늘의 복무 현황을 확인해요." },
   calendar: {
     title: "캘린더",
-    description: "한 번 기록하면 휴가 원장과 홈에 함께 반영돼요.",
+    description: "한 번 기록하면 휴가 내역과 홈에 함께 반영돼요.",
   },
   money: {
     title: "급여",

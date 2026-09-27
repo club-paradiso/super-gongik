@@ -24,6 +24,7 @@ import {
   type YearMonth,
 } from "@super-gongik/domain";
 import {
+  currentPayStepOrdinal,
   derivePayBandSchedule,
   evaluateMonthlyCompensation,
   findAttendanceMonth,
@@ -185,16 +186,6 @@ function SoldierSavingsCalculator() {
  * calculated; otherwise a calculated base pay is shown as base pay, never
  * as a partial sum.
  */
-function rankBandMonth(serviceMonthOrdinal: number | null) {
-  if (!serviceMonthOrdinal) return null;
-  if (serviceMonthOrdinal <= 2) return { month: serviceMonthOrdinal, total: 2 };
-  if (serviceMonthOrdinal <= 8)
-    return { month: serviceMonthOrdinal - 2, total: 6 };
-  if (serviceMonthOrdinal <= 14)
-    return { month: serviceMonthOrdinal - 8, total: 6 };
-  return { month: serviceMonthOrdinal - 14, total: null };
-}
-
 function MoneySummary({
   compensation,
   schedule,
@@ -223,7 +214,10 @@ function MoneySummary({
 
   const current = schedule.status === "READY" ? schedule.current : null;
   const next = schedule.status === "READY" ? schedule.next : null;
-  const bandMonth = rankBandMonth(compensation.serviceMonthOrdinal);
+  const payStep = currentPayStepOrdinal(
+    schedule,
+    compensation.serviceMonthOrdinal,
+  );
 
   return (
     <section className="money-summary" aria-live="polite">
@@ -241,20 +235,18 @@ function MoneySummary({
       {current || compensation.equivalentRank ? (
         <dl className="money-summary__steps">
           <div>
-            <dt>지금 단계</dt>
+            <dt>현재 보수 단계</dt>
             <dd>
               {current?.label ?? compensation.equivalentRank}
+              {payStep ? ` ${payStep}호봉` : ""}
               {compensation.serviceMonthOrdinal
                 ? ` · 복무 ${compensation.serviceMonthOrdinal}개월차`
-                : ""}
-              {bandMonth
-                ? ` · 현재 계급 구간 ${bandMonth.month}${bandMonth.total ? `/${bandMonth.total}` : ""}개월차`
                 : ""}
             </dd>
           </div>
           {next ? (
             <div>
-              <dt>다음 단계</dt>
+              <dt>다음 보수 단계</dt>
               <dd>
                 {next.label} · {Number(next.startDate.slice(0, 4))}년{" "}
                 {Number(next.startDate.slice(5, 7))}월부터

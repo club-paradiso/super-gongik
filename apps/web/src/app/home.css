@@ -201,6 +201,19 @@
   font-variant-numeric: tabular-nums;
 }
 
+.hero__live {
+  display: grid;
+  gap: 1px;
+}
+
+.hero__countdown {
+  color: var(--hero-fg-2);
+  font-size: var(--font-micro);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .hero__next {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
