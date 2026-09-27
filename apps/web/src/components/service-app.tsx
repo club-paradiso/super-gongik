@@ -165,10 +165,7 @@ function Dashboard({
       <aside className="desktop-rail">
         <p className="rail-brand">
           <BrandMark size={32} />
-          <span>
-            슈퍼공익
-            <small>SUPER GONGIK</small>
-          </span>
+          <span className="brand-wordmark">SUPER-GONGIK</span>
         </p>
         <span className="status-chip">
           {serviceStateLabel(projection.progress.state)}
@@ -195,7 +192,7 @@ function Dashboard({
             <div className="app-header__bar">
               <p className="home-brand">
                 <BrandMark size={28} />
-                <span>슈퍼공익</span>
+                <span className="brand-wordmark">SUPER-GONGIK</span>
               </p>
               <p className="app-header__today">
                 <time dateTime={today}>{formatTodayHeading(today)}</time>
