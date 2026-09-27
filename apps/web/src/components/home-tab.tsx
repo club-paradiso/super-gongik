@@ -15,7 +15,8 @@ import { memo } from "react";
 
 import type { ServiceProfile } from "@super-gongik/domain";
 
-import { useLiveCompletion } from "@/hooks/use-seoul-today";
+import { useLiveServiceProgress } from "@/hooks/use-seoul-today";
+import { formatLiveCountdown } from "@/lib/live-service-progress";
 import {
   EVENT_CATEGORY,
   describeTiming,
@@ -77,6 +78,7 @@ function ServiceHero({
 }) {
   const showProgress = hero.phase !== "PRE_SERVICE";
   const progressText = `복무 ${hero.percentLabel} 완료, ${hero.elapsedDays}일 지남, ${hero.remainingDays}일 남음`;
+  const liveProgressEnabled = hero.live && profile.liveProgressEnabled;
 
   return (
     <section
@@ -133,8 +135,8 @@ function ServiceHero({
             <i className="hero-bar__tick" style={{ left: "75%" }} />
           </div>
           <div className="hero__meta" aria-hidden="true">
-            {hero.live ? (
-              <LivePercent profile={profile} />
+            {liveProgressEnabled ? (
+              <LiveProgress profile={profile} />
             ) : (
               <strong className="hero__percent">{hero.percentLabel}</strong>
             )}
@@ -175,18 +177,24 @@ function ServiceHero({
  * The continuous percentage re-renders every second in isolation, so the
  * rest of the home screen is untouched by the tick.
  */
-const LivePercent = memo(function LivePercent({
+const LiveProgress = memo(function LiveProgress({
   profile,
 }: {
   profile: ServiceProfile;
 }) {
-  const completion = useLiveCompletion(profile, true);
-  // Truncate, never round: 99.99995 must not read as 100.0000.
-  const value = Math.floor(completion * 1_000_000) / 10_000;
+  const progress = useLiveServiceProgress(profile, true);
+  // Truncate, never round: the final second must not render as 100.0000 early.
+  const value =
+    Math.floor(progress.completionPercentage * 10_000) / 10_000;
   return (
-    <strong className="hero__percent hero__percent--live">
-      {value.toFixed(4)}%
-    </strong>
+    <span className="hero__live">
+      <strong className="hero__percent hero__percent--live">
+        {value.toFixed(4)}%
+      </strong>
+      <small className="hero__countdown">
+        남은 시간 {formatLiveCountdown(progress)}
+      </small>
+    </span>
   );
 });
 
@@ -362,7 +370,7 @@ function QuickActions({
       </button>
       <button onClick={actions.onOpenLedger} type="button">
         <ClipboardList aria-hidden="true" size={20} />
-        연가 원장
+        연가 내역
       </button>
       <button onClick={actions.onImportRecords} type="button">
         <FileUp aria-hidden="true" size={20} />
