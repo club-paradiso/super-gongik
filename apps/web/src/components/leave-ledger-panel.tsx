@@ -370,7 +370,7 @@ export function LeaveLedgerPanel({
             </tbody>
           </table>
         ) : (
-          <p className="field-hint">아직 원장 내역이 없어요.</p>
+          <p className="field-hint">아직 내역 내역이 없어요.</p>
         )}
         <Button
           onClick={() =>
@@ -385,7 +385,7 @@ export function LeaveLedgerPanel({
           variant="ghost"
         >
           <Download aria-hidden="true" size={16} />
-          원장 CSV 내려받기
+          내역 CSV 내려받기
         </Button>
       </details>
 
