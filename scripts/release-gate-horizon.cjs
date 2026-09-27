@@ -106,10 +106,26 @@ async function run(browser, width, scheme) {
   const first = await sample();
   const time = await page.locator(".hero__countdown").textContent();
   const rect = await page.locator(".hero__countdown").boundingBox();
-  await page.clock.runFor(1000);
-  const second = await sample();
+  const samples = [first];
+  for (let index = 0; index < 5; index += 1) {
+    await page.clock.runFor(1000);
+    samples.push(await sample());
+  }
   assert.match(first, /^\d+\.\d{6}%$/);
-  assert.ok(parseFloat(second) > parseFloat(first));
+  assert.ok(
+    samples.every(
+      (value, index) =>
+        index === 0 || parseFloat(value) >= parseFloat(samples[index - 1]),
+    ),
+    `live percentage regressed: ${samples.join(" → ")}`,
+  );
+  assert.ok(
+    samples.some(
+      (value, index) =>
+        index > 0 && parseFloat(value) > parseFloat(samples[index - 1]),
+    ),
+    `live percentage did not advance across one-second samples: ${samples.join(" → ")}`,
+  );
   assert.notEqual(await page.locator(".hero__countdown").textContent(), time);
   assert.deepEqual(
     await page.locator(".hero__countdown").boundingBox(),
