@@ -42,6 +42,16 @@ export function calculateLiveServiceProgress(
   };
 }
 
+export function formatLiveCompletionPercentage(
+  progress: LiveServiceProgress,
+  fractionDigits = 6,
+) {
+  const scale = 10 ** fractionDigits;
+  const value =
+    Math.floor(progress.completionPercentage * scale) / scale;
+  return `${value.toFixed(fractionDigits)}%`;
+}
+
 export function formatLiveCountdown(progress: LiveServiceProgress) {
   const { days, hours, minutes, seconds } = progress.countdown;
   return `${days.toLocaleString("ko-KR")}일 ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
