@@ -56,7 +56,11 @@ async function contrast(page) {
     assert.match(hex, /^#[0-9a-f]{3}(?:[0-9a-f]{3})?$/i);
     const normalized =
       hex.length === 4
-        ? `#${hex.slice(1).split("").map((part) => part + part).join("")}`
+        ? `#${hex
+            .slice(1)
+            .split("")
+            .map((part) => part + part)
+            .join("")}`
         : hex;
     const c = [1, 3, 5]
       .map((i) => parseInt(normalized.slice(i, i + 2), 16) / 255)
