@@ -93,7 +93,7 @@ export function Onboarding({
       <div className="onboarding__inner">
         <header className="onboarding__brand">
           <BrandMark />
-          <span>슈퍼공익</span>
+          <span className="brand-wordmark">SUPER-GONGIK</span>
         </header>
 
         <section
