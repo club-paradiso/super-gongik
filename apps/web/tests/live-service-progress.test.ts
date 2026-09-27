@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   calculateLiveServiceProgress,
+  formatLiveCompletionPercentage,
   formatLiveCountdown,
 } from "@/lib/live-service-progress";
 
@@ -25,6 +26,27 @@ describe("live service progress", () => {
     });
     expect(result.completionPercentage).toBe(50);
     expect(formatLiveCountdown(result)).toBe("1일 00:00:00");
+  });
+
+
+  it("shows a different six-decimal percentage one second later on a 21-month-scale term", () => {
+    const longProfile = {
+      callUpDate: "2026-03-16",
+      expectedDischargeDate: "2027-12-16",
+    } as const;
+    const first = calculateLiveServiceProgress(
+      longProfile,
+      new Date("2026-09-27T06:00:00.000Z"),
+    );
+    const second = calculateLiveServiceProgress(
+      longProfile,
+      new Date("2026-09-27T06:00:01.000Z"),
+    );
+
+    expect(formatLiveCompletionPercentage(first)).not.toBe(
+      formatLiveCompletionPercentage(second),
+    );
+    expect(formatLiveCompletionPercentage(first)).toMatch(/^\\d+\\.\\d{6}%$/);
   });
 
   it("clamps completion after discharge", () => {
