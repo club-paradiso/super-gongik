@@ -57,4 +57,22 @@ describe("live service progress", () => {
     expect(result.remainingMilliseconds).toBe(0);
     expect(result.completionPercentage).toBe(100);
   });
+  it("never rounds up to 100% before the actual completion instant", () => {
+    const end = Date.parse("2026-01-03T00:00:00+09:00");
+    const before = calculateLiveServiceProgress(profile, new Date(end - 1));
+    expect(before.completionPercentage).toBeLessThan(100);
+    expect(formatLiveCompletionPercentage(before)).not.toBe("100.000000%");
+    expect(
+      formatLiveCompletionPercentage(
+        calculateLiveServiceProgress(profile, new Date(end)),
+      ),
+    ).toBe("100.000000%");
+  });
+  it("clamps to zero before call-up", () => {
+    const before = calculateLiveServiceProgress(
+      profile,
+      new Date("2025-12-01T00:00:00+09:00"),
+    );
+    expect(formatLiveCompletionPercentage(before)).toBe("0.000000%");
+  });
 });

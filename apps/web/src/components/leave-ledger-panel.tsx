@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/empty-state";
+
 import { AlertTriangle, CheckCircle2, Download, Scale } from "lucide-react";
 import { type FormEvent, useState } from "react";
 
@@ -370,7 +372,11 @@ export function LeaveLedgerPanel({
             </tbody>
           </table>
         ) : (
-          <p className="field-hint">아직 연가 사용 내역이 없어요.</p>
+          <EmptyState
+            title="아직 연가 사용 내역이 없어요"
+            description="기록한 연가는 이곳에 모아 보여드려요."
+            compact
+          />
         )}
         <Button
           onClick={() =>

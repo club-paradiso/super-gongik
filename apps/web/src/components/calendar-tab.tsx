@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/empty-state";
+
 import { ChevronLeft, ChevronRight, Plus, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -485,7 +487,11 @@ function MonthView({
             ))}
           </ul>
         ) : (
-          <p className="empty-line">기록이 없어요.</p>
+          <EmptyState
+            title="기록이 없어요"
+            description="휴가나 근무 일정을 추가해 보세요."
+            compact
+          />
         )}
       </section>
     </>
@@ -565,13 +571,10 @@ function AgendaView({
       </div>
 
       {filtered.length === 0 ? (
-        <section className="empty-state empty-state--compact">
-          <h2>아직 기록이 없어요.</h2>
-          <p>
-            &lsquo;기록 추가&rsquo;로 직접 입력하거나, 내 정보에서 기관 파일을
-            가져올 수 있어요.
-          </p>
-        </section>
+        <EmptyState
+          title="아직 기록이 없어요"
+          description="기록 추가로 직접 입력하거나, 내 정보에서 기관 파일을 가져올 수 있어요."
+        />
       ) : null}
 
       {upcoming.length ? (

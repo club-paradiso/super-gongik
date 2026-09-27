@@ -11,7 +11,9 @@ import {
   Sparkles,
   WalletCards,
 } from "lucide-react";
-import { memo } from "react";
+import { memo, type CSSProperties } from "react";
+
+import { EmptyState } from "@/components/ui/empty-state";
 
 import type { ServiceProfile } from "@super-gongik/domain";
 
@@ -62,7 +64,11 @@ export function HomeTab({
 }) {
   return (
     <div className="home">
-      <ServiceHero hero={model.hero} profile={profile} />
+      <ServiceHero
+        hero={model.hero}
+        profile={profile}
+        payBand={model.pay.kind !== "NONE" ? model.pay.band : null}
+      />
       <HomeStats actions={actions} model={model} />
       <HomeAgenda actions={actions} model={model} />
       <QuickActions actions={actions} completed={model.completed} />
@@ -75,14 +81,12 @@ export function HomeTab({
 function ServiceHero({
   hero,
   profile,
+  payBand,
 }: {
   hero: HomeHero;
   profile: ServiceProfile;
+  payBand: string | null;
 }) {
-  const showProgress = hero.phase !== "PRE_SERVICE";
-  const progressText = `복무 ${hero.percentLabel} 완료, ${hero.elapsedDays}일 지남, ${hero.remainingDays}일 남음`;
-  const liveProgressEnabled = hero.live && profile.liveProgressEnabled;
-
   return (
     <section
       aria-labelledby="hero-headline"
@@ -93,18 +97,16 @@ function ServiceHero({
         <p className="hero__eyebrow">{hero.eyebrow}</p>
         <span className="hero__state">
           {hero.phase === "COMPLETED" || hero.phase === "DISCHARGE_DAY" ? (
-            <Flag aria-hidden="true" size={13} strokeWidth={2.4} />
+            <Flag aria-hidden="true" size={13} />
           ) : null}
           {hero.stateLabel}
         </span>
       </div>
-
-      <h2 className="hero__headline" id="hero-headline">
-        <span aria-hidden="true">{hero.headline}</span>
-        <span className="visually-hidden">{hero.headlineSpoken}</span>
-      </h2>
-      <p className="hero__date">{hero.dateLine}</p>
-
+      {hero.live && profile.liveProgressEnabled ? (
+        <LiveReadout hero={hero} profile={profile} />
+      ) : (
+        <ServiceReadout hero={hero} />
+      )}
       {hero.reachedToday ? (
         <p className="hero__celebrate" role="status">
           {hero.phase === "DISCHARGE_DAY" ? (
@@ -115,48 +117,12 @@ function ServiceHero({
           {hero.reachedToday}
         </p>
       ) : null}
-
-      {showProgress ? (
-        <div className="hero__progress">
-          <div
-            aria-label="복무 진행률"
-            aria-valuemax={100}
-            aria-valuemin={0}
-            aria-valuenow={hero.percent}
-            aria-valuetext={progressText}
-            className="hero-bar"
-            role="progressbar"
-          >
-            <span
-              className="hero-bar__fill"
-              style={
-                { "--progress": hero.percent / 100 } as React.CSSProperties
-              }
-            />
-            <i className="hero-bar__tick" style={{ left: "25%" }} />
-            <i className="hero-bar__tick" style={{ left: "50%" }} />
-            <i className="hero-bar__tick" style={{ left: "75%" }} />
-          </div>
-          <div className="hero__meta" aria-hidden="true">
-            {liveProgressEnabled ? (
-              <LiveProgress profile={profile} />
-            ) : (
-              <strong className="hero__percent">{hero.percentLabel}</strong>
-            )}
-            {hero.phase === "COMPLETED" || hero.phase === "DISCHARGE_DAY" ? (
-              <span>
-                <b>{hero.totalServiceDays.toLocaleString("ko-KR")}일</b> 복무
-              </span>
-            ) : (
-              <span>
-                {hero.elapsedDays.toLocaleString("ko-KR")}일 지남 ·{" "}
-                <b>{hero.remainingDays.toLocaleString("ko-KR")}일</b> 남음
-              </span>
-            )}
-          </div>
-        </div>
+      {payBand ? (
+        <p className="hero__pay">
+          <WalletCards aria-hidden="true" size={16} />
+          {payBand}
+        </p>
       ) : null}
-
       {hero.next ? (
         <div className="hero__next">
           <span className="hero__next-label">
@@ -176,27 +142,99 @@ function ServiceHero({
   );
 }
 
-/**
- * The continuous percentage re-renders every second in isolation, so the
- * rest of the home screen is untouched by the tick.
- */
-const LiveProgress = memo(function LiveProgress({
+/** One clock owns the readout and bar. The shell, cards and rules never tick. */
+const LiveReadout = memo(function LiveReadout({
+  hero,
   profile,
 }: {
+  hero: HomeHero;
   profile: ServiceProfile;
 }) {
   const progress = useLiveServiceProgress(profile, true);
-  return (
-    <span className="hero__live">
-      <strong className="hero__percent hero__percent--live">
-        {formatLiveCompletionPercentage(progress)}
-      </strong>
-      <small className="hero__countdown">
-        남은 시간 {formatLiveCountdown(progress)}
-      </small>
-    </span>
-  );
+  return <ServiceReadout hero={hero} live={progress} />;
 });
+
+function ServiceReadout({
+  hero,
+  live,
+}: {
+  hero: HomeHero;
+  live?: ReturnType<typeof useLiveServiceProgress>;
+}) {
+  const percent = live ? live.completionPercentage : hero.percent;
+  const percentLabel = live
+    ? formatLiveCompletionPercentage(live)
+    : hero.percentLabel;
+  const countdown = live ? formatLiveCountdown(live) : null;
+  const progressText = live
+    ? `복무 ${percentLabel} 완료, 남은 시간 ${countdown}`
+    : `복무 ${hero.percentLabel} 완료, ${hero.elapsedDays}일 지남, ${hero.remainingDays}일 남음`;
+  return (
+    <div
+      className="hero__readout"
+      data-live={live ? "true" : "false"}
+      aria-live="off"
+    >
+      <div className="hero__horizon" aria-hidden="true" />
+      <h2 className="hero__headline" id="hero-headline">
+        {live ? (
+          <>
+            <span aria-hidden="true">
+              {live.countdown.days.toLocaleString("ko-KR")}
+              <small>일</small>
+            </span>
+            <span className="hero__countdown" aria-hidden="true">
+              {countdown?.split(" ")[1]}
+            </span>
+            <span className="visually-hidden">소집해제까지 {countdown}</span>
+          </>
+        ) : (
+          <>
+            <span aria-hidden="true">{hero.headline}</span>
+            <span className="visually-hidden">{hero.headlineSpoken}</span>
+          </>
+        )}
+      </h2>
+      <p className="hero__date">{hero.dateLine}</p>
+      {hero.phase !== "PRE_SERVICE" ? (
+        <div className="hero__progress">
+          <div className="hero__meta" aria-hidden="true">
+            <span>복무 진행률</span>
+            <strong
+              className={
+                live ? "hero__percent hero__percent--live" : "hero__percent"
+              }
+            >
+              {percentLabel}
+            </strong>
+          </div>
+          <div
+            aria-label="복무 진행률"
+            aria-valuemax={100}
+            aria-valuemin={0}
+            aria-valuenow={percent}
+            aria-valuetext={progressText}
+            className="hero-bar"
+            role="progressbar"
+          >
+            <span
+              className="hero-bar__fill"
+              style={{ "--progress": percent / 100 } as CSSProperties}
+            />
+          </div>
+          <div className="hero__endpoints" aria-hidden="true">
+            <span>{hero.elapsedDays.toLocaleString("ko-KR")}일 지남</span>
+            <span>
+              {hero.phase === "COMPLETED" || hero.phase === "DISCHARGE_DAY"
+                ? `총 ${hero.totalServiceDays.toLocaleString("ko-KR")}일 복무`
+                : `${hero.remainingDays.toLocaleString("ko-KR")}일 남음`}
+            </span>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 /* Secondary ───────────────────────────────────────────────────────────── */
 
@@ -346,9 +384,11 @@ function HomeAgenda({
           ))}
         </ul>
       ) : (
-        <p className="home-card__text">
-          예정된 휴가나 일정이 없어요. 휴가를 정했다면 미리 기록해 두세요.
-        </p>
+        <EmptyState
+          title="예정된 일정이 없어요"
+          description="휴가를 정했다면 미리 기록해 두세요."
+          compact
+        />
       )}
     </section>
   );

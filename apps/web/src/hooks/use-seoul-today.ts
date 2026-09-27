@@ -79,7 +79,7 @@ function prefersReducedMotion() {
 
 /**
  * Continuous completion (0–1) for the live percentage. Ticks once a second
- * while visible (once a minute with reduced motion) and stops entirely
+ * while visible and stops entirely
  * when `enabled` is false or the page is hidden, so it costs nothing in the
  * background. Only the component that calls this re-renders.
  */
@@ -95,10 +95,10 @@ export function useLiveServiceProgress(
     const start = () => {
       clearInterval(timer);
       setNow(Date.now());
-      timer = setInterval(
-        () => setNow(Date.now()),
-        prefersReducedMotion() ? 60_000 : 1_000,
-      );
+      // A clock is information, not motion. CSS removes visual interpolation
+      // for reduced motion while seconds remain accurate.
+      if (document.visibilityState !== "visible") return;
+      timer = setInterval(() => setNow(Date.now()), 1_000);
     };
     const onVisibility = () => {
       if (document.visibilityState === "visible") start();

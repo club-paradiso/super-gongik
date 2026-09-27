@@ -112,6 +112,11 @@ jobs:
           RELEASE_GATE_BASE_URL: http://127.0.0.1:3000
           RELEASE_GATE_ARTIFACT_DIR: ${{ github.workspace }}/artifacts/webkit-mobile
         run: node scripts/release-gate-webkit.cjs
+      - name: HORIZON responsive and live preference gate
+        env:
+          NODE_PATH: ${{ github.workspace }}/.ci-playwright/node_modules
+          RELEASE_GATE_ARTIFACT_DIR: ${{ github.workspace }}/artifacts/webkit-mobile
+        run: node scripts/release-gate-horizon.cjs
       - name: Upload WebKit screenshots
         if: always()
         uses: actions/upload-artifact@v4

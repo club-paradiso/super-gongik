@@ -362,8 +362,7 @@ function buildPay(
     schedule,
     compensation.serviceMonthOrdinal,
   );
-  const band =
-    bandLabel && payStep ? `${bandLabel} ${payStep}호봉` : bandLabel;
+  const band = bandLabel && payStep ? `${bandLabel} ${payStep}호봉` : bandLabel;
   if (progress.state === "COMPLETED") {
     return { kind: "NONE", caption: "소집해제 후 달은 계산하지 않아요" };
   }

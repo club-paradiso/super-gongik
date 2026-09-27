@@ -47,8 +47,7 @@ export function formatLiveCompletionPercentage(
   fractionDigits = 6,
 ) {
   const scale = 10 ** fractionDigits;
-  const value =
-    Math.floor(progress.completionPercentage * scale) / scale;
+  const value = Math.floor(progress.completionPercentage * scale) / scale;
   return `${value.toFixed(fractionDigits)}%`;
 }
 
