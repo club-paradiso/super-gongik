@@ -6,7 +6,11 @@ import {
 } from "@super-gongik/domain";
 import { describe, expect, it } from "vitest";
 
-import { derivePayBandSchedule, evaluateMonthlyCompensation } from "../src";
+import {
+  currentPayStepOrdinal,
+  derivePayBandSchedule,
+  evaluateMonthlyCompensation,
+} from "../src";
 
 function profile(
   callUpDate: string,
@@ -39,6 +43,7 @@ describe("pay band schedule", () => {
       ["병장 상당", "2027-01-01"],
     ]);
     expect(schedule.current?.label).toBe("상병 상당");
+    expect(currentPayStepOrdinal(schedule, 12)).toBe(4);
     expect(schedule.next?.label).toBe("병장 상당");
   });
 
@@ -89,6 +94,7 @@ describe("pay band schedule", () => {
       ["상병 상당", "2026-03-09"],
       ["병장 상당", "2026-07-01"],
     ]);
+    expect(currentPayStepOrdinal(schedule, 11)).toBe(3);
     expect(schedule.next?.monthlyAmount).toBe(1_500_000);
   });
 
