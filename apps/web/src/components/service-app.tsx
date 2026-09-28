@@ -165,42 +165,45 @@ function Dashboard({
   );
 
   return (
-    <main className="app-shell">
+    <div className="app-shell">
       <a className="skip-link" href="#main-content">
         본문으로 건너뛰기
       </a>
       <aside className="desktop-rail">
-        <p className="rail-brand">
-          <BrandMark size={44} />
-          <span className="rail-brand__text">
-            <span className="brand-wordmark">SUPER-GONGIK</span>
-            <small>슈퍼공익</small>
+        <div className="desktop-rail__inner">
+          <p className="rail-brand">
+            <BrandMark size={44} />
+            <span className="rail-brand__text">
+              <span className="brand-wordmark">SUPER-GONGIK</span>
+              <small>슈퍼공익</small>
+            </span>
+          </p>
+          <span className="status-chip">
+            <span aria-hidden="true" className="status-chip__dot" />
+            {serviceStateLabel(projection.progress.state)}
           </span>
-        </p>
-        <span className="status-chip">
-          <span aria-hidden="true" className="status-chip__dot" />
-          {serviceStateLabel(projection.progress.state)}
-        </span>
-        {navigation("데스크톱 주요 메뉴", "desktop-nav")}
-        <button
-          className="rail-profile"
-          onClick={() => selectTab("profile")}
-          type="button"
-        >
-          <UserRound aria-hidden="true" size={19} />
-          <span>{profile.serviceCategory ?? "사회복무요원"}</span>
-        </button>
-        <p className="rail-privacy">
-          <LockKeyhole aria-hidden="true" size={18} />
-          <PrivacyLine />
-        </p>
-        <SyncStatusChip className="sync-chip--rail" onOpen={openSync} />
+          {navigation("데스크톱 주요 메뉴", "desktop-nav")}
+          <button
+            className="rail-profile"
+            onClick={() => selectTab("profile")}
+            type="button"
+          >
+            <UserRound aria-hidden="true" size={19} />
+            <span>{profile.serviceCategory ?? "사회복무요원"}</span>
+          </button>
+          <p className="rail-privacy">
+            <LockKeyhole aria-hidden="true" size={18} />
+            <PrivacyLine />
+          </p>
+          <SyncStatusChip className="sync-chip--rail" onOpen={openSync} />
+        </div>
       </aside>
 
       <div className="app-main">
         {activeTab === "home" ? (
           <header className="app-header app-header--home">
             <div className="app-header__bar">
+              <h1 className="app-header__home-title">홈</h1>
               <p className="home-brand">
                 <BrandMark size={32} />
                 <span className="brand-wordmark">SUPER-GONGIK</span>
@@ -210,7 +213,6 @@ function Dashboard({
               </p>
               <SyncStatusChip className="sync-chip--header" onOpen={openSync} />
             </div>
-            <h1 className="visually-hidden">홈</h1>
           </header>
         ) : (
           <header className="app-header">
@@ -224,7 +226,7 @@ function Dashboard({
 
         <div className="tab-notice">{notice}</div>
 
-        <section className="tab-content" id="main-content" tabIndex={-1}>
+        <main className="tab-content" id="main-content" tabIndex={-1}>
           {activeTab === "home" ? (
             <HomeTab
               actions={{
@@ -276,11 +278,11 @@ function Dashboard({
               store={store}
             />
           ) : null}
-        </section>
+        </main>
       </div>
 
       {navigation("주요 메뉴", "tab-bar")}
-    </main>
+    </div>
   );
 }
 

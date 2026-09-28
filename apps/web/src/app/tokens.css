@@ -67,7 +67,6 @@
   --shadow: 0 1px 2px rgb(9 12 28 / 4%), 0 4px 14px rgb(9 12 28 / 5%);
   --shadow-raised: 0 16px 40px rgb(9 12 28 / 18%);
   --shadow-hero: 0 18px 40px -18px rgb(8 31 104 / 55%);
-  --glow: 0 0 18px rgb(253 207 124 / 22%);
   --scrim: rgb(9 12 28 / 56%);
 
   /* Brand gradients: only for hero, rail, onboarding and progress */
@@ -111,6 +110,25 @@
   --hero-final-strong: var(--brand-sun);
   --hero-focus: var(--brand-sun);
   --hero-border: rgb(255 255 255 / 8%);
+
+  /* Warm horizon stops shared by the brand moments (hero, rail, loading). */
+  --horizon-warm: rgb(253 168 112 / 22%);
+  --horizon-warm-soft: rgb(226 104 110 / 8%);
+  --horizon-warm-faint: rgb(253 168 112 / 10%);
+
+  /* Desktop rail: translucent layers over the night-sky gradient. */
+  --rail-width: 248px;
+  --rail-hover: rgb(255 255 255 / 6%);
+  --rail-active: rgb(255 255 255 / 10%);
+  --rail-border: rgb(255 255 255 / 10%);
+  --rail-chip-border: rgb(255 255 255 / 16%);
+  --rail-chip-bg: rgb(255 255 255 / 6%);
+  --rail-status-border: rgb(253 207 124 / 28%);
+  --rail-status-bg: rgb(253 207 124 / 8%);
+
+  /* Desktop frame around the app shell. */
+  --desktop-backdrop: var(--background);
+  --desktop-frame-shadow: 0 24px 64px rgb(9 12 28 / 10%);
 
   /* Record categories: color + label/shape, never color alone */
   --cat-leave: #1f7f68;
@@ -178,6 +196,8 @@
   --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235c6380' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
   --select-chevron-active: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%232740a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
 
+  --check-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3.5 8.5 3 3 6-6.5'/%3E%3C/svg%3E");
+
   --gutter: 16px;
   --control-h: 50px;
   --tabbar-h: 64px;
@@ -230,7 +250,10 @@
     --shadow-hero: 0 18px 44px -20px rgb(0 0 0 / 70%);
     --hero-border: rgb(255 255 255 / 9%);
     --scrim: rgb(3 4 12 / 66%);
+    --desktop-backdrop: #06081a;
+    --desktop-frame-shadow: 0 24px 64px rgb(0 0 0 / 40%);
     --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a0a8c6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+    --check-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%230a1030' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3.5 8.5 3 3 6-6.5'/%3E%3C/svg%3E");
     --select-chevron-active: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a9b8ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
   }
 }

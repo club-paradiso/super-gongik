@@ -66,7 +66,7 @@ body > .storage-notice {
   background:
     radial-gradient(
       70% 45% at 50% 100%,
-      rgb(253 168 112 / 10%),
+      var(--horizon-warm-faint),
       transparent 70%
     ),
     var(--background);
@@ -130,6 +130,16 @@ body > .storage-notice {
   display: none;
 }
 
+/* Keyboard focus never lands beneath the fixed tab bar. */
+@media (max-width: 959px) {
+  html {
+    scroll-padding-top: 16px;
+    scroll-padding-bottom: calc(
+      var(--tabbar-h) + env(safe-area-inset-bottom) + 24px
+    );
+  }
+}
+
 .app-main {
   min-width: 0;
   padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 32px);
@@ -156,6 +166,17 @@ body > .storage-notice {
   font-weight: 800;
   line-height: 1.25;
   letter-spacing: var(--tracking-title);
+}
+
+/* Home keeps the brand bar on phones; the page title is for AT only there. */
+.app-header__home-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .app-header__description {
@@ -312,10 +333,6 @@ body > .storage-notice {
     --gutter: 24px;
   }
 
-  .app-header h1 {
-    font-size: 28px;
-  }
-
   .tab-bar {
     grid-template-columns: repeat(4, minmax(0, 120px));
     justify-content: center;
@@ -324,42 +341,63 @@ body > .storage-notice {
 
 /* Desktop: night-sky rail + content column. */
 @media (min-width: 960px) {
+  :root {
+    --frame-gap: 24px;
+  }
+
   body {
-    padding: 24px;
+    background: var(--desktop-backdrop);
+    padding: var(--frame-gap);
   }
 
   .app-shell {
     display: grid;
-    grid-template-columns: 248px minmax(0, 1fr);
+    grid-template-columns: var(--rail-width) minmax(0, 1fr);
     width: min(100%, 1320px);
-    min-height: calc(100dvh - 48px);
+    min-height: calc(100dvh - 2 * var(--frame-gap));
     margin: 0 auto;
-    overflow: hidden;
+    /* clip, not hidden: hidden would become the scroll container and stop
+       the rail from sticking to the viewport. */
+    overflow: clip;
     border: 1px solid var(--border);
     border-radius: var(--radius-hero);
-    box-shadow: 0 24px 64px rgb(9 12 28 / 10%);
+    box-shadow: var(--desktop-frame-shadow);
   }
 
+  /* The rail column paints the night sky for the full page height; its
+     contents stay pinned to the viewport while long screens scroll. */
   .desktop-rail {
-    position: relative;
-    isolation: isolate;
-    display: flex;
-    flex-direction: column;
+    display: block;
     background: var(--gradient-brand);
-    padding: 28px 16px 22px;
     color: var(--brand-ivory);
   }
 
-  /* One restrained warm horizon at the foot of the rail. */
-  .desktop-rail::before {
+  .desktop-rail__inner {
+    position: sticky;
+    top: var(--frame-gap);
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    /* Reaches the viewport bottom so the warm horizon never leaves a seam
+       above the rest of the rail column while the page scrolls. */
+    height: calc(100dvh - var(--frame-gap) - 1px);
+    max-height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    padding: 28px 16px 22px;
+  }
+
+  /* One restrained warm horizon at the foot of the visible rail. */
+  .desktop-rail__inner::before {
     position: absolute;
     z-index: -1;
     inset: auto 0 0;
     height: 42%;
     background: radial-gradient(
       120% 70% at 20% 110%,
-      rgb(253 168 112 / 22%),
-      rgb(226 104 110 / 8%) 45%,
+      var(--horizon-warm),
+      var(--horizon-warm-soft) 45%,
       transparent 75%
     );
     content: "";
@@ -386,7 +424,7 @@ body > .storage-notice {
 
   .rail-brand small {
     color: var(--hero-fg-3);
-    font-size: 12px;
+    font-size: var(--font-micro);
     font-weight: 650;
     letter-spacing: 0.04em;
     line-height: 1;
@@ -398,12 +436,12 @@ body > .storage-notice {
     align-self: flex-start;
     gap: 7px;
     margin: 20px 6px 14px;
-    border: 1px solid rgb(253 207 124 / 28%);
+    border: 1px solid var(--rail-status-border);
     border-radius: var(--radius-pill);
-    background: rgb(253 207 124 / 8%);
+    background: var(--rail-status-bg);
     padding: 5px 11px;
     color: var(--hero-accent);
-    font-size: 12px;
+    font-size: var(--font-micro);
     font-weight: 750;
   }
 
@@ -428,7 +466,7 @@ body > .storage-notice {
     min-height: 48px;
     padding: 0 14px;
     color: var(--hero-fg-2);
-    font-size: 15px;
+    font-size: var(--font-body);
     font-weight: 650;
     transition:
       background-color var(--duration-base) ease,
@@ -442,12 +480,12 @@ body > .storage-notice {
   }
 
   .desktop-nav .tab-button:hover {
-    background: rgb(255 255 255 / 6%);
+    background: var(--rail-hover);
     color: var(--brand-ivory);
   }
 
   .desktop-nav .tab-button--active {
-    background: rgb(255 255 255 / 10%);
+    background: var(--rail-active);
     color: var(--brand-ivory);
     font-weight: 750;
   }
@@ -468,8 +506,10 @@ body > .storage-notice {
     color: var(--hero-accent);
   }
 
+  /* Inside the scrollable rail an outset ring would be clipped. */
   .desktop-rail :focus-visible {
     outline-color: var(--hero-focus);
+    outline-offset: -2px;
   }
 
   .rail-profile {
@@ -480,18 +520,18 @@ body > .storage-notice {
     width: 100%;
     min-height: 48px;
     margin-top: auto;
-    border: 1px solid rgb(255 255 255 / 10%);
+    border: 1px solid var(--rail-border);
     border-radius: var(--radius-control);
-    background: rgb(255 255 255 / 6%);
+    background: var(--rail-hover);
     padding: 12px;
     color: var(--brand-ivory);
-    font-size: 13px;
+    font-size: var(--font-caption);
     font-weight: 650;
     text-align: left;
   }
 
   .rail-profile:hover {
-    background: rgb(255 255 255 / 10%);
+    background: var(--rail-active);
   }
 
   .rail-privacy {
@@ -501,7 +541,7 @@ body > .storage-notice {
     gap: 8px;
     margin: 14px 6px 0;
     color: var(--hero-fg-3);
-    font-size: 12px;
+    font-size: var(--font-micro);
     line-height: 1.45;
   }
 
@@ -514,8 +554,8 @@ body > .storage-notice {
     align-self: flex-start;
     max-width: 100%;
     margin: 12px 6px 0;
-    border-color: rgb(255 255 255 / 16%);
-    background: rgb(255 255 255 / 6%);
+    border-color: var(--rail-chip-border);
+    background: var(--rail-chip-bg);
     color: var(--hero-fg-2);
   }
 
@@ -528,16 +568,45 @@ body > .storage-notice {
     padding-bottom: 40px;
   }
 
+  /* The shell already caps the column: equal gutters on both sides. */
   .app-header,
   .tab-notice,
   .tab-content {
-    width: min(100%, 1040px);
+    width: 100%;
     margin: 0;
     padding-inline: 32px;
   }
 
   .app-header {
     padding-top: 32px;
+  }
+
+  /* Home reads like every other tab: page title, then the date as caption. */
+  .app-header--home .app-header__home-title {
+    position: static;
+    display: flex;
+    align-items: center;
+    width: auto;
+    height: auto;
+    min-height: 44px;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .app-header--home .app-header__bar {
+    flex-wrap: wrap;
+    gap: 0 12px;
+  }
+
+  .app-header--home .app-header__today {
+    flex: 1 0 100%;
+    margin: 2px 0 0;
+    color: var(--text-secondary);
+    font-size: var(--font-label);
+    font-weight: 400;
+    line-height: 1.5;
   }
 
   .tab-content {
@@ -549,13 +618,16 @@ body > .storage-notice {
   }
 }
 
-@media (min-width: 960px) and (prefers-color-scheme: dark) {
-  .app-shell {
-    border-color: var(--border);
-    box-shadow: 0 24px 64px rgb(0 0 0 / 40%);
+/* Small desktops: a narrower frame and rail leave the content more room. */
+@media (min-width: 960px) and (max-width: 1119px) {
+  :root {
+    --frame-gap: 16px;
+    --rail-width: 232px;
   }
 
-  body {
-    background: #06081a;
+  .app-header,
+  .tab-notice,
+  .tab-content {
+    padding-inline: 24px;
   }
 }
