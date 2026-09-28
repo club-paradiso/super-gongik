@@ -147,6 +147,11 @@
   --font-title-1: 26px;
   --font-title-2: 22px;
   --font-title-3: 18px;
+  /* Roles: page h1 = title-1; profile section = title-section; card title =
+     title-card; month title = title-3; callout title = body/750;
+     legends and group titles = label/750; eyebrow = micro/750 + tracking. */
+  --font-title-section: 20px;
+  --font-title-card: 17px;
   --font-body: 15px;
   --font-label: 14px;
   --font-caption: 13px;
