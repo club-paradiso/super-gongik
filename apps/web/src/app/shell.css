@@ -7,8 +7,8 @@
   right: 0;
   left: 0;
   padding: calc(env(safe-area-inset-top) + 9px) 16px 9px;
-  background: var(--brand-navy);
-  color: #fff;
+  background: var(--brand-night);
+  color: var(--brand-ivory);
   font-size: 13px;
   font-weight: 700;
   text-align: center;
@@ -27,7 +27,7 @@ body:has(.offline-banner) .onboarding {
   max-width: 720px;
   margin: 0 auto;
   border: 1px solid var(--warning-border);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   background: var(--warning-background);
   padding: 12px 8px 12px 14px;
   color: var(--warning);
@@ -60,39 +60,49 @@ body > .storage-notice {
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 20px;
+  gap: 18px;
   min-height: 100dvh;
   padding: 24px;
+  background:
+    radial-gradient(
+      70% 45% at 50% 100%,
+      var(--horizon-warm-faint),
+      transparent 70%
+    ),
+    var(--background);
 }
 
-/* Onboarding ---------------------------------------------------------------- */
-
-.onboarding {
-  min-height: 100dvh;
-  padding: calc(env(safe-area-inset-top) + 16px) var(--gutter)
-    calc(env(safe-area-inset-bottom) + 28px);
-}
-
-.onboarding__inner {
+.app-loading__brand {
   display: grid;
-  gap: 16px;
-  width: min(100%, 440px);
-  margin: 0 auto;
-}
-
-.onboarding__brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 36px;
+  justify-items: center;
+  gap: 14px;
+  margin: 0;
   color: var(--text-primary);
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-size: 17px;
 }
 
+.app-loading__brand .brand-mark {
+  animation: brand-breathe 1.8s var(--ease-out) infinite alternate;
+}
+
+@keyframes brand-breathe {
+  from {
+    opacity: 0.72;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Brand ---------------------------------------------------------------------- */
+
+/* The artwork carries its own squircle and transparent matte. */
 .brand-mark {
   flex: none;
+  display: block;
+  filter: drop-shadow(0 1px 1px rgb(9 12 28 / 18%));
 }
 
 .brand-wordmark {
@@ -103,242 +113,10 @@ body > .storage-notice {
     BlinkMacSystemFont,
     "Apple SD Gothic Neo",
     sans-serif;
-  font-weight: 800;
-  letter-spacing: 0.01em;
+  font-weight: 850;
+  letter-spacing: 0.02em;
   line-height: 1;
   white-space: nowrap;
-}
-
-.onboarding__hero {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-hero);
-  background: var(--gradient-brand);
-  padding: 28px 24px 42px;
-}
-.onboarding__hero::after {
-  content: "";
-  position: absolute;
-  pointer-events: none;
-  bottom: -90px;
-  left: -25%;
-  width: 150%;
-  height: 110px;
-  border-radius: 50%;
-  border-top: 1px solid var(--brand-gold);
-  box-shadow: var(--glow);
-}
-.onboarding__hero h1 {
-  margin: 4px 0 0;
-  color: var(--hero-fg);
-  font-size: 29px;
-  font-weight: 800;
-  line-height: 1.24;
-  letter-spacing: -0.04em;
-}
-
-.onboarding__hero p {
-  margin: 12px 0 0;
-  color: var(--hero-fg-2);
-  font-size: 15px;
-  line-height: 1.55;
-}
-
-.onboarding__form {
-  display: grid;
-  gap: 10px;
-}
-
-.setup-card {
-  min-width: 0;
-  overflow: hidden;
-  margin: 0;
-  border: 0;
-  border-radius: var(--radius-card);
-  background: var(--surface);
-  padding: 0;
-  box-shadow: var(--shadow);
-}
-
-/* Floated legend sits inside the card instead of on its border. */
-.setup-card > legend {
-  float: left;
-  width: 100%;
-  margin: 0;
-  padding: 16px 16px 10px;
-}
-
-.setup-card > legend + * {
-  clear: both;
-}
-
-.setup-card__title {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  color: var(--text-secondary);
-  font-size: 12.5px;
-  font-weight: 750;
-  letter-spacing: -0.01em;
-}
-
-.setup-section {
-  padding: 0 16px 16px;
-}
-
-.setup-section--secondary {
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-  padding-top: 14px;
-}
-
-.setup-section__title {
-  margin: 0 0 10px;
-  color: var(--text-primary);
-  font-size: 14px;
-  font-weight: 750;
-  letter-spacing: -0.015em;
-}
-
-.setup-section__title .optional {
-  margin-left: 4px;
-}
-
-.setup-row {
-  display: grid;
-  gap: 7px;
-  min-width: 0;
-}
-
-.setup-row + .setup-row {
-  margin-top: 14px;
-}
-
-.setup-row__label {
-  color: var(--text-primary);
-  font-size: 14px;
-  font-weight: 650;
-}
-
-.setup-row__hint {
-  color: var(--text-tertiary);
-  font-size: 12.5px;
-  line-height: 1.5;
-}
-
-.onboarding__submit {
-  display: grid;
-  gap: 10px;
-  margin-top: 4px;
-}
-
-.onboarding__privacy {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 550;
-}
-
-.onboarding__privacy svg {
-  color: var(--accent-primary);
-}
-
-.restore-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  background: var(--surface);
-  padding: 6px;
-}
-
-.restore-card h2 {
-  margin: 0;
-  padding: 10px 10px 4px;
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.restore-option + .restore-option {
-  border-top: 1px solid var(--border);
-}
-
-.restore-option__toggle {
-  display: grid;
-  grid-template-columns: 36px minmax(0, 1fr) 20px;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  min-height: 62px;
-  border: 0;
-  border-radius: 14px;
-  background: transparent;
-  padding: 8px 10px;
-  text-align: left;
-}
-
-.restore-option__toggle:hover {
-  background: var(--surface-interactive);
-}
-
-.restore-option__icon {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
-  background: var(--selected-background);
-  color: var(--accent-primary);
-}
-
-.restore-option__text {
-  display: grid;
-  gap: 1px;
-  min-width: 0;
-}
-
-.restore-option__text strong {
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.restore-option__text small {
-  color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.restore-option__chevron {
-  color: var(--text-tertiary);
-  transition: transform 160ms ease;
-}
-
-.restore-option.is-open .restore-option__chevron {
-  transform: rotate(180deg);
-}
-
-.restore-option__panel {
-  padding: 4px 10px 14px;
-}
-
-/* Inside onboarding the toggle already names the panel. */
-.restore-option__panel .backup-panel {
-  margin: 0;
-  border: 0;
-  background: transparent;
-  padding: 0;
-  box-shadow: none;
-}
-
-.restore-option__panel .panel-head {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
 }
 
 /* App shell ------------------------------------------------------------------ */
@@ -352,6 +130,16 @@ body > .storage-notice {
   display: none;
 }
 
+/* Keyboard focus never lands beneath the fixed tab bar. */
+@media (max-width: 959px) {
+  html {
+    scroll-padding-top: 16px;
+    scroll-padding-bottom: calc(
+      var(--tabbar-h) + env(safe-area-inset-bottom) + 24px
+    );
+  }
+}
+
 .app-main {
   min-width: 0;
   padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 32px);
@@ -360,7 +148,7 @@ body > .storage-notice {
 .app-header {
   width: min(100%, 720px);
   margin: 0 auto;
-  padding: calc(env(safe-area-inset-top) + 14px) var(--gutter) 0;
+  padding: calc(env(safe-area-inset-top) + 12px) var(--gutter) 0;
 }
 
 .app-header__bar {
@@ -374,16 +162,27 @@ body > .storage-notice {
 .app-header h1 {
   margin: 0;
   color: var(--text-primary);
-  font-size: 26px;
+  font-size: var(--font-title-1);
   font-weight: 800;
   line-height: 1.25;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-title);
+}
+
+/* Home keeps the brand bar on phones; the page title is for AT only there. */
+.app-header__home-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .app-header__description {
   margin: 2px 0 0;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: var(--font-label);
   line-height: 1.5;
 }
 
@@ -414,7 +213,7 @@ body > .storage-notice {
   min-height: 32px;
   max-width: 55vw;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--surface);
   padding: 0 11px;
   color: var(--text-secondary);
@@ -448,6 +247,19 @@ body > .storage-notice {
   color: var(--text-primary);
 }
 
+.sync-chip--busy svg {
+  animation: sync-pulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes sync-pulse {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .sync-chip--attention {
   border-color: var(--warning-border);
   background: var(--warning-background);
@@ -469,6 +281,7 @@ body > .storage-notice {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   border-top: 1px solid var(--border);
   background: var(--surface-raised);
+  box-shadow: 0 -6px 20px rgb(9 12 28 / 4%);
   padding: 6px max(8px, env(safe-area-inset-right))
     calc(6px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
 }
@@ -479,26 +292,27 @@ body > .storage-notice {
   align-content: center;
   gap: 3px;
   min-width: 0;
-  min-height: 50px;
+  min-height: 52px;
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: transparent;
   padding: 0;
   color: var(--text-tertiary);
   font-size: 12px;
   font-weight: 650;
   letter-spacing: -0.01em;
+  transition: color var(--duration-base) ease;
 }
 
 .tab-button__icon {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 28px;
-  border-radius: 999px;
+  width: 52px;
+  height: 30px;
+  border-radius: var(--radius-pill);
   transition:
-    background-color 160ms ease,
-    color 160ms ease;
+    background-color var(--duration-base) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
 }
 
 .tab-button--active {
@@ -508,30 +322,15 @@ body > .storage-notice {
 
 .tab-button--active .tab-button__icon {
   background: var(--selected-background);
-  box-shadow: inset 0 -2px var(--accent-primary);
 }
 
 .tab-button:active .tab-button__icon {
-  transform: scale(0.94);
+  transform: scale(0.92);
 }
 
 @media (min-width: 640px) {
   :root {
     --gutter: 24px;
-  }
-
-  .onboarding {
-    display: grid;
-    align-items: center;
-    padding-block: 48px;
-  }
-
-  .onboarding__hero h1 {
-    font-size: 34px;
-  }
-
-  .app-header h1 {
-    font-size: 28px;
   }
 
   .tab-bar {
@@ -540,79 +339,138 @@ body > .storage-notice {
   }
 }
 
-/* Desktop: navy rail + content column. */
+/* Desktop: night-sky rail + content column. */
 @media (min-width: 960px) {
+  :root {
+    --frame-gap: 24px;
+  }
+
   body {
-    padding: 24px;
+    background: var(--desktop-backdrop);
+    padding: var(--frame-gap);
   }
 
   .app-shell {
     display: grid;
-    grid-template-columns: 232px minmax(0, 1fr);
-    width: min(100%, 1280px);
-    min-height: calc(100dvh - 48px);
+    grid-template-columns: var(--rail-width) minmax(0, 1fr);
+    width: min(100%, 1320px);
+    min-height: calc(100dvh - 2 * var(--frame-gap));
     margin: 0 auto;
-    overflow: hidden;
+    /* clip, not hidden: hidden would become the scroll container and stop
+       the rail from sticking to the viewport. */
+    overflow: clip;
     border: 1px solid var(--border);
-    border-radius: 24px;
-    box-shadow: 0 22px 64px rgb(11 31 58 / 10%);
+    border-radius: var(--radius-hero);
+    box-shadow: var(--desktop-frame-shadow);
   }
 
+  /* The rail column paints the night sky for the full page height; its
+     contents stay pinned to the viewport while long screens scroll. */
   .desktop-rail {
+    display: block;
+    background: var(--gradient-brand);
+    color: var(--brand-ivory);
+  }
+
+  .desktop-rail__inner {
+    position: sticky;
+    top: var(--frame-gap);
+    isolation: isolate;
     display: flex;
     flex-direction: column;
-    background: var(--gradient-brand);
+    /* Reaches the viewport bottom so the warm horizon never leaves a seam
+       above the rest of the rail column while the page scrolls. */
+    height: calc(100dvh - var(--frame-gap) - 1px);
+    max-height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
     padding: 28px 16px 22px;
-    color: #fff;
+  }
+
+  /* One restrained warm horizon at the foot of the visible rail. */
+  .desktop-rail__inner::before {
+    position: absolute;
+    z-index: -1;
+    inset: auto 0 0;
+    height: 42%;
+    background: radial-gradient(
+      120% 70% at 20% 110%,
+      var(--horizon-warm),
+      var(--horizon-warm-soft) 45%,
+      transparent 75%
+    );
+    content: "";
+    pointer-events: none;
   }
 
   .rail-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     margin: 0;
-    padding: 0 8px;
-    font-size: 17px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    padding: 0 6px;
+  }
+
+  .rail-brand__text {
+    display: grid;
+    gap: 5px;
+  }
+
+  .rail-brand .brand-wordmark {
+    color: var(--brand-ivory);
+    font-size: 16px;
   }
 
   .rail-brand small {
-    display: block;
     color: var(--hero-fg-3);
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    font-size: var(--font-micro);
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    line-height: 1;
   }
 
   .status-chip {
+    display: inline-flex;
+    align-items: center;
     align-self: flex-start;
-    margin: 22px 8px 10px;
-    border-radius: 999px;
-    background: transparent;
+    gap: 7px;
+    margin: 20px 6px 14px;
+    border: 1px solid var(--rail-status-border);
+    border-radius: var(--radius-pill);
+    background: var(--rail-status-bg);
     padding: 5px 11px;
     color: var(--hero-accent);
-    font-size: 12px;
-    font-weight: 700;
+    font-size: var(--font-micro);
+    font-weight: 750;
+  }
+
+  .status-chip__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
   }
 
   .desktop-nav {
     display: grid;
     gap: 4px;
-    margin-top: 8px;
   }
 
   .desktop-nav .tab-button {
+    position: relative;
     grid-template-columns: 24px 1fr;
     justify-items: start;
     align-items: center;
     gap: 12px;
-    min-height: 46px;
-    padding: 0 12px;
+    min-height: 48px;
+    padding: 0 14px;
     color: var(--hero-fg-2);
-    font-size: 14px;
+    font-size: var(--font-body);
     font-weight: 650;
+    transition:
+      background-color var(--duration-base) ease,
+      color var(--duration-base) ease;
   }
 
   .desktop-nav .tab-button__icon {
@@ -622,18 +480,36 @@ body > .storage-notice {
   }
 
   .desktop-nav .tab-button:hover {
-    background: rgb(255 255 255 / 7%);
+    background: var(--rail-hover);
+    color: var(--brand-ivory);
   }
 
   .desktop-nav .tab-button--active {
-    background: rgb(255 255 255 / 11%);
-    color: #fff;
+    background: var(--rail-active);
+    color: var(--brand-ivory);
     font-weight: 750;
+  }
+
+  .desktop-nav .tab-button--active::before {
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    left: 0;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--hero-accent);
+    content: "";
   }
 
   .desktop-nav .tab-button--active .tab-button__icon {
     background: none;
     color: var(--hero-accent);
+  }
+
+  /* Inside the scrollable rail an outset ring would be clipped. */
+  .desktop-rail :focus-visible {
+    outline-color: var(--hero-focus);
+    outline-offset: -2px;
   }
 
   .rail-profile {
@@ -642,15 +518,20 @@ body > .storage-notice {
     align-items: center;
     gap: 10px;
     width: 100%;
+    min-height: 48px;
     margin-top: auto;
-    border: 0;
-    border-radius: 14px;
-    background: rgb(255 255 255 / 7%);
+    border: 1px solid var(--rail-border);
+    border-radius: var(--radius-control);
+    background: var(--rail-hover);
     padding: 12px;
-    color: #fff;
-    font-size: 13px;
-    font-weight: 600;
+    color: var(--brand-ivory);
+    font-size: var(--font-caption);
+    font-weight: 650;
     text-align: left;
+  }
+
+  .rail-profile:hover {
+    background: var(--rail-active);
   }
 
   .rail-privacy {
@@ -658,9 +539,9 @@ body > .storage-notice {
     grid-template-columns: auto 1fr;
     align-items: center;
     gap: 8px;
-    margin: 14px 8px 0;
+    margin: 14px 6px 0;
     color: var(--hero-fg-3);
-    font-size: 11.5px;
+    font-size: var(--font-micro);
     line-height: 1.45;
   }
 
@@ -672,9 +553,9 @@ body > .storage-notice {
     display: inline-flex;
     align-self: flex-start;
     max-width: 100%;
-    margin: 12px 8px 0;
-    border-color: rgb(255 255 255 / 16%);
-    background: rgb(255 255 255 / 6%);
+    margin: 12px 6px 0;
+    border-color: var(--rail-chip-border);
+    background: var(--rail-chip-bg);
     color: var(--hero-fg-2);
   }
 
@@ -687,16 +568,45 @@ body > .storage-notice {
     padding-bottom: 40px;
   }
 
+  /* The shell already caps the column: equal gutters on both sides. */
   .app-header,
   .tab-notice,
   .tab-content {
-    width: min(100%, 960px);
+    width: 100%;
     margin: 0;
-    padding-inline: 28px;
+    padding-inline: 32px;
   }
 
   .app-header {
     padding-top: 32px;
+  }
+
+  /* Home reads like every other tab: page title, then the date as caption. */
+  .app-header--home .app-header__home-title {
+    position: static;
+    display: flex;
+    align-items: center;
+    width: auto;
+    height: auto;
+    min-height: 44px;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .app-header--home .app-header__bar {
+    flex-wrap: wrap;
+    gap: 0 12px;
+  }
+
+  .app-header--home .app-header__today {
+    flex: 1 0 100%;
+    margin: 2px 0 0;
+    color: var(--text-secondary);
+    font-size: var(--font-label);
+    font-weight: 400;
+    line-height: 1.5;
   }
 
   .tab-content {
@@ -705,5 +615,19 @@ body > .storage-notice {
 
   .tab-bar {
     display: none;
+  }
+}
+
+/* Small desktops: a narrower frame and rail leave the content more room. */
+@media (min-width: 960px) and (max-width: 1119px) {
+  :root {
+    --frame-gap: 16px;
+    --rail-width: 232px;
+  }
+
+  .app-header,
+  .tab-notice,
+  .tab-content {
+    padding-inline: 24px;
   }
 }

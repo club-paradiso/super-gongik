@@ -31,3 +31,58 @@ The generated board is visual exploration. Real source content remains authorita
 ## Verification
 
 Baseline: lint passed; format check failed in home-model.ts, live-service-progress.ts and regional-transit-fares.test.ts before edits. Local browser binaries initially absent. Final evidence and limitations will be added after validation.
+
+## Official logo alignment (2026-09)
+
+The illustrated logo (#51) is now the source of truth. It replaced the
+"retain the flag silhouette" decision above: the flag mark is retired and
+must not return.
+
+### Assets
+
+`public/icon-512.jpg` shipped truncated (no JPEG end marker, decoded partly
+or black) and `public/icon-512.png` was still the flag. Every size is now
+generated from the original artwork without touching the illustration:
+
+| File                   | Use                                  | Matte              |
+| ---------------------- | ------------------------------------ | ------------------ |
+| `brand-mark.png` (128) | `BrandMark` in header, rail, loading | transparent        |
+| `icon-192.png`         | favicon, manifest                    | transparent        |
+| `icon-512.png`         | manifest (256-colour, 68 KB)         | transparent        |
+| `apple-touch-icon.png` | iOS home screen (no alpha support)   | midnight `#0c0e24` |
+
+The service-worker shell cache moved to `v4` so installed apps pick them up.
+
+### Palette extraction
+
+Median-cut (16 clusters) over the opaque pixels of the 1254 px source; the
+share is the fraction of logo pixels.
+
+| Token              | Hex       | Share | Role                                |
+| ------------------ | --------- | ----- | ----------------------------------- |
+| `--brand-midnight` | `#090c1c` | 7.5%  | deepest sky, dark canvas anchor     |
+| `--brand-night`    | `#181b42` | 7.4%  | hero/rail depth, offline banner     |
+| `--brand-navy`     | `#081f68` | 8.8%  | structural identity                 |
+| `--brand-indigo`   | `#1e2d78` | 6.2%  | interaction family (accent derives) |
+| `--brand-violet`   | `#3c348e` | 7.0%  | secondary depth only                |
+| `--brand-ivory`    | `#fef1d3` | 16.0% | display type on dark, warm text     |
+| `--brand-sun`      | `#fdcf7c` | 7.3%  | scarce accent: progress, milestones |
+| `--brand-ember`    | `#fda870` | 6.4%  | progress mid-point, horizon glow    |
+| `--brand-coral`    | `#e2686e` | 6.9%  | far end of progress only            |
+
+Structure (navy + midnight + indigo) is ~38% of the mark, warm light ~28%,
+violet ~18%. The UI mirrors that order: the interactive accent moved from
+violet `#3b359f` to royal navy-indigo `#2740a0` (dark: periwinkle
+`#a9b8ff`), and violet stays a secondary tone.
+
+### Rules
+
+- Brand moments (hero, onboarding, loading, desktop rail) may use
+  `--gradient-hero` / `--gradient-brand` and one restrained warm horizon.
+  Operational screens use flat surfaces, tokens and 1 px borders.
+- Warm colours mark value, not decoration: live progress, milestones,
+  confirmed totals, the active rail item.
+- Dark mode is the logo's night sky: midnight canvas, navy surfaces, ivory
+  primary text. Borders carry separation instead of shadows.
+- Radius grows with importance: control 12, card 16, elevated 20, hero 28
+  (the mark's own squircle).

@@ -2,7 +2,14 @@
 
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { ChevronLeft, ChevronRight, Plus, RotateCcw } from "lucide-react";
+import {
+  CalendarCheck2,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  RotateCcw,
+} from "lucide-react";
+import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 
 import {
@@ -143,12 +150,21 @@ export function CalendarTab({
     );
   }
 
+  const strip =
+    view !== "ledger" ? (
+      <LeaveStrip
+        ledger={projection.ledger}
+        onOpenLedger={() => onViewChange("ledger")}
+        state={projection.progress.state}
+      />
+    ) : null;
+
   return (
     <section className="calendar-page" aria-label="복무 캘린더">
       <div className="calendar-toolbar">
         <div
           className="segmented segmented--tabs"
-          role="tablist"
+          role="group"
           aria-label="보기 선택"
         >
           {(
@@ -159,13 +175,12 @@ export function CalendarTab({
             ] as const
           ).map(([key, label]) => (
             <button
-              aria-selected={view === key}
+              aria-pressed={view === key}
               className={
                 view === key ? "segmented__item is-active" : "segmented__item"
               }
               key={key}
               onClick={() => onViewChange(key)}
-              role="tab"
               type="button"
             >
               {label}
@@ -173,6 +188,7 @@ export function CalendarTab({
           ))}
         </div>
         <Button
+          className="calendar-add"
           onClick={() =>
             setEditor({
               mode: "create",
@@ -183,17 +199,9 @@ export function CalendarTab({
           type="button"
         >
           <Plus aria-hidden="true" size={18} strokeWidth={2.4} />
-          기록 추가
+          <span className="calendar-add__label">기록 추가</span>
         </Button>
       </div>
-
-      {view !== "ledger" ? (
-        <LeaveStrip
-          ledger={projection.ledger}
-          onOpenLedger={() => onViewChange("ledger")}
-          state={projection.progress.state}
-        />
-      ) : null}
 
       {undo ? (
         <div className="undo-bar" role="status">
@@ -211,6 +219,7 @@ export function CalendarTab({
 
       {view === "month" ? (
         <MonthView
+          aside={strip}
           events={liveEvents}
           month={month}
           onMonthChange={setMonth}
@@ -222,6 +231,7 @@ export function CalendarTab({
         />
       ) : null}
 
+      {view === "agenda" ? strip : null}
       {view === "agenda" ? (
         <AgendaView
           deletedEvents={deletedEvents}
@@ -277,9 +287,16 @@ function LeaveStrip({
     balance.scheduled.halfDays !== 0 || balance.scheduled.minutes !== 0;
   return (
     <button className="leave-strip" onClick={onOpenLedger} type="button">
+      <span aria-hidden="true" className="leave-strip__icon">
+        <CalendarCheck2 size={18} />
+      </span>
       <span className="leave-strip__label">남은 연가</span>
       <strong
-        className={needsConfirmation ? "leave-strip__value--attention" : ""}
+        className={
+          needsConfirmation
+            ? "leave-strip__value leave-strip__value--attention"
+            : "leave-strip__value"
+        }
       >
         {state === "NOT_STARTED"
           ? "소집 후 부여"
@@ -308,16 +325,23 @@ function LeaveStrip({
   );
 }
 
+/** Category shape: color is never the only cue (circle, diamond, …). */
+function CategoryMark({ category }: { category: EventCategory }) {
+  return <i aria-hidden="true" className={`mark mark--${category}`} />;
+}
+
 function EventChip({ event }: { event: ServiceEvent }) {
   const category = EVENT_CATEGORY[event.eventType];
   return (
     <span className={`event-chip event-chip--${category}`}>
+      <CategoryMark category={category} />
       {eventLabel(event)}
     </span>
   );
 }
 
 function MonthView({
+  aside,
   events,
   month,
   selectedDate,
@@ -327,6 +351,7 @@ function MonthView({
   onOpenEvent,
   onAdd,
 }: {
+  aside: ReactNode;
   events: readonly ServiceEvent[];
   month: YearMonth;
   selectedDate: DateOnly;
@@ -340,13 +365,14 @@ function MonthView({
   const selectedEvents = eventsOn(events, selectedDate);
 
   return (
-    <>
+    <div className="month-layout">
+      {aside}
       <div className="month-card">
         <div className="month-header">
           <h2 aria-live="polite">{formatKoreanMonth(month)}</h2>
           <div className="month-header__controls">
             <button
-              className="chip-button"
+              className="month-header__today"
               onClick={() => {
                 onMonthChange(yearMonthOf(today));
                 onSelectDate(today);
@@ -399,11 +425,10 @@ function MonthView({
                 const span = dayEvents.find(
                   (event) => event.startDate !== event.endDate,
                 );
+                const singles = dayEvents.filter((event) => event !== span);
                 const categories = [
                   ...new Set(
-                    dayEvents
-                      .filter((event) => event !== span)
-                      .map((event) => EVENT_CATEGORY[event.eventType]),
+                    singles.map((event) => EVENT_CATEGORY[event.eventType]),
                   ),
                 ] as EventCategory[];
                 const classes = ["month-cell"];
@@ -413,10 +438,18 @@ function MonthView({
                 const weekday = dayOfWeek(cell.date);
                 if (weekday === 0) classes.push("is-sunday");
                 if (weekday === 6) classes.push("is-saturday");
+                const spanStarts =
+                  span !== undefined &&
+                  (span.startDate === cell.date || weekday === 0);
                 return (
                   <button
+                    aria-current={cell.date === today ? "date" : undefined}
                     aria-label={`${formatDayHeading(cell.date, weekday)}${
-                      dayEvents.length ? `, 기록 ${dayEvents.length}건` : ""
+                      dayEvents.length
+                        ? `, 기록 ${dayEvents.length}건: ${dayEvents
+                            .map((event) => eventLabel(event))
+                            .join(", ")}`
+                        : ""
                     }`}
                     aria-pressed={cell.date === selectedDate}
                     className={classes.join(" ")}
@@ -430,26 +463,53 @@ function MonthView({
                     <span className="month-cell__day">
                       {Number(cell.date.slice(8))}
                     </span>
-                    {span ? (
-                      <span
-                        aria-hidden="true"
-                        className={[
-                          "month-cell__range",
-                          `month-cell__range--${EVENT_CATEGORY[span.eventType]}`,
-                          span.startDate === cell.date || weekday === 0
-                            ? "is-start"
-                            : "",
-                          span.endDate === cell.date || weekday === 6
-                            ? "is-end"
-                            : "",
-                        ].join(" ")}
-                      />
-                    ) : null}
-                    <span className="month-cell__dots" aria-hidden="true">
+                    <span className="month-cell__lane" aria-hidden="true">
+                      {span ? (
+                        <span
+                          className={[
+                            "month-cell__range",
+                            `month-cell__range--${EVENT_CATEGORY[span.eventType]}`,
+                            spanStarts ? "is-start" : "",
+                            span.endDate === cell.date || weekday === 6
+                              ? "is-end"
+                              : "",
+                          ].join(" ")}
+                        >
+                          {spanStarts ? (
+                            <span className="month-cell__range-label">
+                              {eventLabel(span)}
+                            </span>
+                          ) : null}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className="month-cell__marks" aria-hidden="true">
                       {categories.slice(0, 3).map((category) => (
-                        <i className={`dot dot--${category}`} key={category} />
+                        <CategoryMark category={category} key={category} />
                       ))}
                     </span>
+                    {singles.length ? (
+                      <span className="month-cell__chips" aria-hidden="true">
+                        {singles.slice(0, 2).map((event) => (
+                          <span
+                            className={`cell-chip cell-chip--${EVENT_CATEGORY[event.eventType]}`}
+                            key={event.id}
+                          >
+                            <CategoryMark
+                              category={EVENT_CATEGORY[event.eventType]}
+                            />
+                            <span className="cell-chip__text">
+                              {eventLabel(event)}
+                            </span>
+                          </span>
+                        ))}
+                        {singles.length > 2 ? (
+                          <span className="cell-chip cell-chip--more">
+                            +{singles.length - 2}
+                          </span>
+                        ) : null}
+                      </span>
+                    ) : null}
                   </button>
                 );
               })}
@@ -460,16 +520,22 @@ function MonthView({
         <ul className="legend" aria-label="색상 안내">
           {(Object.keys(CATEGORY_LABELS) as EventCategory[]).map((category) => (
             <li key={category}>
-              <i className={`dot dot--${category}`} aria-hidden="true" />
+              <CategoryMark category={category} />
               {CATEGORY_LABELS[category]}
             </li>
           ))}
+          <li className="legend__span">
+            <i aria-hidden="true" className="legend__bar" />
+            여러 날
+          </li>
         </ul>
       </div>
 
       <section className="day-panel" aria-label={`${selectedDate} 기록`}>
         <header>
-          <h3>{formatDayHeading(selectedDate, dayOfWeek(selectedDate))}</h3>
+          <h3 className="num">
+            {formatDayHeading(selectedDate, dayOfWeek(selectedDate))}
+          </h3>
           <button
             className="text-button"
             onClick={() => onAdd(selectedDate)}
@@ -494,7 +560,7 @@ function MonthView({
           />
         )}
       </section>
-    </>
+    </div>
   );
 }
 
@@ -505,16 +571,35 @@ function EventRow({
   event: ServiceEvent;
   onOpen: (event: ServiceEvent) => void;
 }) {
+  // Keep a time range such as "(16:00–18:00)" together when the row wraps.
+  const timing = describeTiming(event);
+  const rangeAt = timing.indexOf(" (");
   return (
     <button className="event-row" onClick={() => onOpen(event)} type="button">
       <EventChip event={event} />
       <span className="event-row__body">
-        <strong>{describeTiming(event)}</strong>
+        <strong className="num">
+          {rangeAt === -1 ? (
+            timing
+          ) : (
+            <>
+              {timing.slice(0, rangeAt)}{" "}
+              <span className="event-row__range">
+                {timing.slice(rangeAt + 1)}
+              </span>
+            </>
+          )}
+        </strong>
         {event.note ? <small>{event.note}</small> : null}
       </span>
       <span className="event-row__source">
         {event.source.kind === "IMPORT" ? "파일" : "직접"}
       </span>
+      <ChevronRight
+        aria-hidden="true"
+        className="event-row__chevron"
+        size={18}
+      />
     </button>
   );
 }
@@ -553,7 +638,7 @@ function AgendaView({
     .reverse();
 
   return (
-    <>
+    <div className="agenda">
       <div className="filter-row" role="group" aria-label="종류 필터">
         {FILTERS.map((item) => (
           <button
@@ -565,6 +650,7 @@ function AgendaView({
             onClick={() => setFilter(item.key)}
             type="button"
           >
+            {item.key !== "all" ? <CategoryMark category={item.key} /> : null}
             {item.label}
           </button>
         ))}
@@ -577,19 +663,23 @@ function AgendaView({
         />
       ) : null}
 
-      {upcoming.length ? (
-        <AgendaGroup
-          events={upcoming}
-          onOpenEvent={onOpenEvent}
-          title="오늘 이후"
-        />
-      ) : null}
-      {past.length ? (
-        <AgendaGroup
-          events={past}
-          onOpenEvent={onOpenEvent}
-          title="지난 기록"
-        />
+      {upcoming.length || past.length ? (
+        <div className="agenda__groups">
+          {upcoming.length ? (
+            <AgendaGroup
+              events={upcoming}
+              onOpenEvent={onOpenEvent}
+              title="오늘 이후"
+            />
+          ) : null}
+          {past.length ? (
+            <AgendaGroup
+              events={past}
+              onOpenEvent={onOpenEvent}
+              title="지난 기록"
+            />
+          ) : null}
+        </div>
       ) : null}
 
       {deletedEvents.length ? (
@@ -598,7 +688,7 @@ function AgendaView({
           <ul>
             {deletedEvents.map((event) => (
               <li key={event.id}>
-                <span>
+                <span className="num">
                   {event.startDate} · {eventLabel(event)} ·{" "}
                   {describeTiming(event)}
                 </span>
@@ -610,7 +700,7 @@ function AgendaView({
           </ul>
         </details>
       ) : null}
-    </>
+    </div>
   );
 }
 
@@ -625,11 +715,11 @@ function AgendaGroup({
 }) {
   return (
     <section className="agenda-group" aria-label={title}>
-      <h3>{title}</h3>
+      <h2>{title}</h2>
       <ul className="event-list">
         {events.map((event) => (
           <li key={event.id}>
-            <time dateTime={event.startDate}>
+            <time className="num" dateTime={event.startDate}>
               {formatDayHeading(event.startDate, dayOfWeek(event.startDate))}
             </time>
             <EventRow event={event} onOpen={onOpenEvent} />

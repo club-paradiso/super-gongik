@@ -91,14 +91,16 @@ export function CloudSyncPanel({
     >
       <div className="panel-head">
         <div>
-          <h2 id="cloud-sync-title">계정과 클라우드 동기화</h2>
+          <h3 id="cloud-sync-title">계정과 클라우드 동기화</h3>
           <p>
             {onboarding
               ? "다른 기기에서 쓰던 기록이 있다면 로그인해 가져올 수 있어요."
               : "로그인 없이도 모든 기능을 쓸 수 있어요. 여러 기기에서 같은 기록을 쓰려면 로그인해 동기화를 켜세요."}
           </p>
         </div>
-        <Cloud aria-hidden="true" size={24} />
+        <span className="panel-head__icon" aria-hidden="true">
+          <Cloud size={20} />
+        </span>
       </div>
       <p className={`sync-line sync-line--${label.tone}`} role="status">
         {label.text}
@@ -835,7 +837,7 @@ function CloudBackups({
 
   return (
     <div className="cloud-backups">
-      <h3>클라우드 백업</h3>
+      <h4>클라우드 백업</h4>
       <p className="field-hint">
         동기화와 별개인 시점 사본이에요. 올린 백업은 바뀌지 않고, 최근 10개를
         보관해요. 복원은 파일 복원과 같은 미리보기를 거쳐요.

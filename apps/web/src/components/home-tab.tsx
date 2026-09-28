@@ -63,7 +63,7 @@ export function HomeTab({
   actions: HomeActions;
 }) {
   return (
-    <div className="home">
+    <div className={model.completed ? "home home--completed" : "home"}>
       <ServiceHero
         hero={model.hero}
         profile={profile}
@@ -94,13 +94,28 @@ function ServiceHero({
       data-phase={hero.phase}
     >
       <div className="hero__top">
-        <p className="hero__eyebrow">{hero.eyebrow}</p>
-        <span className="hero__state">
-          {hero.phase === "COMPLETED" || hero.phase === "DISCHARGE_DAY" ? (
-            <Flag aria-hidden="true" size={13} />
+        <p className="hero__eyebrow">
+          {hero.eyebrow}
+          {/* The eyebrow and headline already carry the state on every width
+              ("소집까지" before call-up, "소집해제까지" in service, "복무 완료"
+              after), so only the time-sensitive states earn a marker here. */}
+          {hero.phase === "FINAL_STRETCH" || hero.phase === "DISCHARGE_DAY" ? (
+            <span className="hero__state">
+              {hero.phase === "DISCHARGE_DAY" ? (
+                <Flag aria-hidden="true" size={13} />
+              ) : (
+                <span aria-hidden="true" className="hero__state-dot" />
+              )}
+              {hero.stateLabel}
+            </span>
           ) : null}
-          {hero.stateLabel}
-        </span>
+        </p>
+        {payBand ? (
+          <p className="hero__pay">
+            <WalletCards aria-hidden="true" size={15} />
+            {payBand}
+          </p>
+        ) : null}
       </div>
       {hero.live && profile.liveProgressEnabled ? (
         <LiveReadout hero={hero} profile={profile} />
@@ -115,12 +130,6 @@ function ServiceHero({
             <Sparkles aria-hidden="true" size={16} />
           )}
           {hero.reachedToday}
-        </p>
-      ) : null}
-      {payBand ? (
-        <p className="hero__pay">
-          <WalletCards aria-hidden="true" size={16} />
-          {payBand}
         </p>
       ) : null}
       {hero.next ? (
@@ -175,11 +184,10 @@ function ServiceReadout({
       data-live={live ? "true" : "false"}
       aria-live="off"
     >
-      <div className="hero__horizon" aria-hidden="true" />
       <h2 className="hero__headline" id="hero-headline">
         {live ? (
           <>
-            <span aria-hidden="true">
+            <span aria-hidden="true" className="hero__days">
               {live.countdown.days.toLocaleString("ko-KR")}
               <small>일</small>
             </span>
@@ -190,7 +198,9 @@ function ServiceReadout({
           </>
         ) : (
           <>
-            <span aria-hidden="true">{hero.headline}</span>
+            <span aria-hidden="true" className="hero__days">
+              {hero.headline}
+            </span>
             <span className="visually-hidden">{hero.headlineSpoken}</span>
           </>
         )}
@@ -258,6 +268,11 @@ function HomeStats({
         <span className="stat-card__label">
           <ClipboardList aria-hidden="true" size={16} />
           남은 연가
+          <ChevronRight
+            aria-hidden="true"
+            className="stat-card__chevron"
+            size={16}
+          />
         </span>
         {leave.kind === "READY" ? (
           <>
@@ -289,12 +304,21 @@ function HomeStats({
         <span className="stat-card__label">
           <WalletCards aria-hidden="true" size={16} />
           이번 달 급여
+          <ChevronRight
+            aria-hidden="true"
+            className="stat-card__chevron"
+            size={16}
+          />
         </span>
         {pay.kind === "TOTAL" || pay.kind === "BASE_ONLY" ? (
           <strong className="stat-card__value">{formatWon(pay.amount)}</strong>
         ) : (
           <strong className="stat-card__value stat-card__value--muted">
-            {pay.kind === "PENDING" ? "확인 필요" : "—"}
+            {pay.kind === "PENDING"
+              ? "확인 필요"
+              : model.hero.phase === "PRE_SERVICE"
+                ? "소집 후"
+                : "—"}
           </strong>
         )}
         <span
@@ -306,9 +330,6 @@ function HomeStats({
         >
           {pay.caption}
         </span>
-        {pay.kind !== "NONE" && pay.band ? (
-          <span className="stat-card__tag">{pay.band}</span>
-        ) : null}
       </button>
     </section>
   );
@@ -404,17 +425,24 @@ function QuickActions({
   if (completed) return null;
   return (
     <nav aria-label="빠른 실행" className="quick-actions">
+      <h2 className="quick-actions__title">빠른 실행</h2>
       <button onClick={actions.onRecordLeave} type="button">
-        <CalendarPlus aria-hidden="true" size={20} />
-        휴가·근태 기록
+        <span aria-hidden="true" className="quick-actions__icon">
+          <CalendarPlus size={20} />
+        </span>
+        <span className="quick-actions__label">휴가·근태 기록</span>
       </button>
       <button onClick={actions.onOpenLedger} type="button">
-        <ClipboardList aria-hidden="true" size={20} />
-        연가 내역
+        <span aria-hidden="true" className="quick-actions__icon">
+          <ClipboardList size={20} />
+        </span>
+        <span className="quick-actions__label">연가 내역</span>
       </button>
       <button onClick={actions.onImportRecords} type="button">
-        <FileUp aria-hidden="true" size={20} />
-        기관 기록 가져오기
+        <span aria-hidden="true" className="quick-actions__icon">
+          <FileUp size={20} />
+        </span>
+        <span className="quick-actions__label">기관 기록 가져오기</span>
       </button>
     </nav>
   );

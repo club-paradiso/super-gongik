@@ -15,7 +15,9 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
-    apple: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   appleWebApp: {
     capable: true,
@@ -26,8 +28,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f5f9" },
-    { media: "(prefers-color-scheme: dark)", color: "#101129" },
+    { media: "(prefers-color-scheme: light)", color: "#f3f4f8" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0d20" },
   ],
   viewportFit: "cover",
 };
