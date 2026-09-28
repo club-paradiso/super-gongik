@@ -7,9 +7,21 @@ export const SOCIAL_AUTH_OPTIONS: ReadonlyArray<{
   label: string;
   pendingLabel: string;
 }> = [
-  { id: "google", label: "Google로 계속하기", pendingLabel: "Google 연결 중…" },
-  { id: "kakao", label: "카카오로 계속하기", pendingLabel: "카카오 연결 중…" },
-  { id: "naver", label: "NAVER로 계속하기", pendingLabel: "NAVER 연결 중…" },
+  {
+    id: "google",
+    label: "Google로 계속하기",
+    pendingLabel: "Google 연결 중…",
+  },
+  {
+    id: "kakao",
+    label: "카카오로 계속하기",
+    pendingLabel: "카카오 연결 중…",
+  },
+  {
+    id: "naver",
+    label: "NAVER로 계속하기",
+    pendingLabel: "NAVER 연결 중…",
+  },
 ];
 
 const PROVIDER_IDS: Record<SocialAuthProvider, string> = {
@@ -18,10 +30,7 @@ const PROVIDER_IDS: Record<SocialAuthProvider, string> = {
   naver: "custom:naver",
 };
 
-export type SocialSignInErrorKind =
-  | "UNCONFIGURED"
-  | "NETWORK"
-  | "PROVIDER";
+export type SocialSignInErrorKind = "UNCONFIGURED" | "NETWORK" | "PROVIDER";
 
 export class SocialSignInError extends Error {
   constructor(readonly kind: SocialSignInErrorKind) {
