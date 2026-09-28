@@ -314,8 +314,28 @@ Project setup:
 2. Auth → Email: enable email sign-in; add `{{ .Token }}` to the "Magic
    Link" and "Confirm signup" templates so the email carries the code
    (needed for the home-screen app, where a link opens in the browser
-   instead); set the site URL / redirect URLs to the app origin.
-3. Set the two public variables in Vercel and redeploy.
+   instead).
+3. Auth → Providers → Google: create a Google web OAuth client, register the
+   Supabase callback URL, then store the client ID and client secret in
+   Supabase.
+4. Auth → Providers → Kakao: create a Kakao Login app, use its REST API key
+   as the client ID, configure the Kakao Login client secret, register the
+   same Supabase callback URL, then enable the built-in Kakao provider.
+5. Auth → Providers → New Provider: configure NAVER as a custom OIDC provider
+   with identifier `custom:naver`, issuer `https://nid.naver.com`, and the
+   NAVER Login client ID/secret. NAVER publishes discovery metadata at
+   `https://nid.naver.com/.well-known/openid-configuration`. Keep
+   `openid` in scope. If the app does not require NAVER to return an email,
+   enable the custom provider's email-optional setting.
+6. Set the Supabase Site URL / allowed redirect URLs to the production app
+   origin (and localhost for development). Provider callback URLs are the
+   Supabase Auth callback shown in the dashboard, typically
+   `https://<project-ref>.supabase.co/auth/v1/callback`.
+7. Set the two public variables in Vercel and redeploy.
+
+OAuth client secrets belong only in the provider configuration in Supabase
+(and in the provider consoles). Never put Google, Kakao or NAVER client
+secrets in `NEXT_PUBLIC_*` variables or client-side code.
 
 Tests:
 
@@ -330,9 +350,9 @@ Tests:
 
 ## 14. Limitations
 
-- Supabase Auth (email delivery, OTP verification, session refresh) and a
-  hosted project were not exercised in automated tests; see the PR's
-  live-verification checklist.
+- Hosted Supabase Auth flows (email delivery, OTP verification, Google, Kakao,
+  NAVER redirects, and session refresh) are not exercised by the deterministic
+  test suite; verify them against the configured hosted project before release.
 - Records blocked by a domain invariant (`REJECTED` overlap, `DUPLICATE`
   content under another id) stay as they are on each side; they are
   reported in that run's counts, not stashed.
