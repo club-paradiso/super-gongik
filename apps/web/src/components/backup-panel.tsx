@@ -332,14 +332,16 @@ export function BackupPanel({
     <section className="backup-panel" aria-labelledby="backup-title">
       <div className="panel-head">
         <div>
-          <h2 id="backup-title">백업과 복원</h2>
+          <h3 id="backup-title">백업과 복원</h3>
           <p>
             {syncEnabled
               ? "동기화와 별개로, 백업 파일을 내려받아 두면 원하는 시점으로 되돌릴 수 있어요."
               : "기록은 이 기기에만 있어요. 기기를 바꾸거나 브라우저 데이터를 지우기 전에 백업 파일을 내려받아 두세요."}
           </p>
         </div>
-        <DatabaseBackup aria-hidden="true" size={24} />
+        <span className="panel-head__icon" aria-hidden="true">
+          <DatabaseBackup size={20} />
+        </span>
       </div>
 
       {!compact ? (
@@ -392,7 +394,9 @@ export function BackupPanel({
           onChange={handleFile}
           type="file"
         />
-        <Upload aria-hidden="true" size={20} />
+        <span className="backup-restore__icon" aria-hidden="true">
+          <Upload size={18} />
+        </span>
         <span>백업 파일(JSON)로 복원하기</span>
       </label>
 

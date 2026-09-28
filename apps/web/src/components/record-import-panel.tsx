@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   FileSpreadsheet,
   FileText,
+  LockKeyhole,
   RotateCcw,
   ScanText,
   Upload,
@@ -488,18 +489,14 @@ export function RecordImportPanel({
     <section className="record-import" aria-labelledby="record-import-title">
       <div className="panel-head">
         <div>
-          <h2 id="record-import-title">복무기록 가져오기</h2>
+          <h3 id="record-import-title">복무기록 가져오기</h3>
           <p>
             기관에서 받은 파일을 기기 안에서 분석해 휴가 기록으로 복원합니다.
           </p>
         </div>
-        <Upload aria-hidden="true" size={24} />
-      </div>
-
-      <div className="record-import__privacy">
-        CSV, XLSX, HWP, HWPX, 텍스트 PDF는 브라우저 안에서 처리합니다. 스캔
-        PDF도 동의 후 브라우저 OCR을 사용하며 원본 파일이나 페이지 이미지는
-        서버에 업로드하지 않습니다.
+        <span className="panel-head__icon" aria-hidden="true">
+          <Upload size={20} />
+        </span>
       </div>
 
       <label className="record-import__dropzone">
@@ -523,6 +520,15 @@ export function RecordImportPanel({
           사용내역으로 만들지 않습니다.
         </small>
       </label>
+
+      <p className="record-import__privacy">
+        <LockKeyhole aria-hidden="true" size={15} />
+        <span>
+          CSV, XLSX, HWP, HWPX, 텍스트 PDF는 브라우저 안에서 처리합니다. 스캔
+          PDF도 동의 후 브라우저 OCR을 사용하며 원본 파일이나 페이지 이미지는
+          서버에 업로드하지 않습니다.
+        </span>
+      </p>
 
       {pendingXlsxFile && xlsxCandidates.length ? (
         <div className="ocr-consent" role="group" aria-label="엑셀 시트 선택">
@@ -769,7 +775,7 @@ export function RecordImportPanel({
 
           {preview.snapshots.length ? (
             <div className="snapshot-list">
-              <h3>기관이 기록한 휴가 잔액</h3>
+              <h4>기관이 기록한 휴가 잔액</h4>
               {preview.snapshots.map((snapshot) => {
                 const blocked =
                   !snapshot.leaveType ||
@@ -813,7 +819,7 @@ export function RecordImportPanel({
 
       {imports.length ? (
         <div className="import-history">
-          <h3>가져오기 기록</h3>
+          <h4>가져오기 기록</h4>
           {imports.slice(0, 8).map((record) => (
             <article key={record.id}>
               <div>

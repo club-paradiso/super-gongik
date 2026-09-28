@@ -1,6 +1,6 @@
 "use client";
 
-import { LockKeyhole, MapPin } from "lucide-react";
+import { LockKeyhole, MapPin, TriangleAlert } from "lucide-react";
 import { type FormEvent, useState } from "react";
 
 import {
@@ -60,107 +60,156 @@ export function ProfileTab({
 
   return (
     <section className="profile-page" aria-label="내 복무 정보">
-      {/* Re-mount the form when the profile changes; the status lives here. */}
-      <ProfileForm
-        key={profile.updatedAt}
-        onSaved={setSaved}
-        profile={profile}
-        saved={saved}
-        store={store}
-      />
+      <div className="profile-page__settings">
+        <SectionHead
+          eyebrow="복무 설정"
+          id="profile-settings-title"
+          title="복무 정보와 계산 기준"
+        />
+        {/* Re-mount the form when the profile changes; the status lives here. */}
+        <ProfileForm
+          key={profile.updatedAt}
+          onSaved={setSaved}
+          profile={profile}
+          saved={saved}
+          store={store}
+        />
+      </div>
 
-      <RecordImportPanel data={data} store={store} />
+      <div className="profile-page__data">
+        <SectionHead
+          eyebrow="데이터"
+          id="profile-data-title"
+          title="백업과 기록 관리"
+        />
 
-      <CloudSyncPanel
-        onRestoreBackup={(text, label) => {
-          setCloudBackup({ text, label, nonce: Date.now() });
-          document
-            .getElementById("backup-title")
-            ?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }}
-      />
+        <section className="profile-security" aria-label="저장 위치">
+          <span className="profile-security__icon" aria-hidden="true">
+            <LockKeyhole size={20} />
+          </span>
+          <div>
+            {syncing ? (
+              <>
+                <h3>이 기기에 먼저 저장하고 동기화해요</h3>
+                <p>
+                  기록은 이 기기에 바로 저장되고, 로그인한 계정의 클라우드와
+                  동기화돼요. 클라우드 데이터는 본인 계정만 읽고 쓸 수 있어요.
+                  종단간 암호화는 아니에요.
+                </p>
+              </>
+            ) : (
+              <>
+                <h3>이 기기에만 저장돼요</h3>
+                <p>
+                  동기화를 켜지 않으면 서버로 보내지 않아요. 백업 파일을 직접
+                  보관해 주세요.
+                </p>
+              </>
+            )}
+          </div>
+        </section>
 
-      <BackupPanel
-        data={data}
-        incoming={cloudBackup}
-        ledger={ledger}
-        onRestored={(mode) => void cloudController.afterRestore(mode)}
-        store={store}
-        syncEnabled={syncing}
-      />
+        <BackupPanel
+          data={data}
+          incoming={cloudBackup}
+          ledger={ledger}
+          onRestored={(mode) => void cloudController.afterRestore(mode)}
+          store={store}
+          syncEnabled={syncing}
+        />
 
-      <section className="profile-security">
-        <LockKeyhole aria-hidden="true" size={24} />
-        <div>
-          {syncing ? (
-            <>
-              <h2>이 기기에 먼저 저장하고 동기화해요</h2>
+        <CloudSyncPanel
+          onRestoreBackup={(text, label) => {
+            setCloudBackup({ text, label, nonce: Date.now() });
+            document
+              .getElementById("backup-title")
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+        />
+
+        <RecordImportPanel data={data} store={store} />
+
+        <section
+          className="profile-danger"
+          aria-labelledby="profile-danger-title"
+        >
+          <div className="profile-danger__head">
+            <TriangleAlert aria-hidden="true" size={18} />
+            <h3 id="profile-danger-title">기기 데이터 초기화</h3>
+          </div>
+          {confirmWipe ? (
+            <div className="confirm-box" role="alert">
               <p>
-                기록은 이 기기에 바로 저장되고, 로그인한 계정의 클라우드와
-                동기화돼요. 클라우드 데이터는 본인 계정만 읽고 쓸 수 있어요.
-                종단간 암호화는 아니에요.
+                이 기기의 복무 프로필과 모든 기록({data.events.length}건)을
+                지워요. 되돌릴 수 없어요.
+                {signedIn
+                  ? " 클라우드의 데이터는 지우지 않고, 로그인도 유지돼요. 이 기기의 동기화는 꺼져요."
+                  : ""}
               </p>
-            </>
+              <div className="backup-actions">
+                <Button
+                  onClick={() => downloadFullBackup(data)}
+                  type="button"
+                  variant="outline"
+                >
+                  먼저 백업 내려받기
+                </Button>
+                <Button
+                  onClick={() =>
+                    void store
+                      .wipeAll()
+                      .then(() => cloudController.afterLocalWipe())
+                  }
+                  type="button"
+                  variant="danger"
+                >
+                  모두 지우기
+                </Button>
+                <Button
+                  onClick={() => setConfirmWipe(false)}
+                  type="button"
+                  variant="ghost"
+                >
+                  취소
+                </Button>
+              </div>
+            </div>
           ) : (
             <>
-              <h2>이 기기에만 저장돼요</h2>
               <p>
-                동기화를 켜지 않으면 서버로 보내지 않아요. 백업 파일을 직접
-                보관해 주세요.
+                복무 프로필과 모든 기록을 이 기기에서 지워요. 지우기 전에 백업
+                파일을 내려받아 두세요.
               </p>
+              <Button
+                className="reset-button"
+                onClick={() => setConfirmWipe(true)}
+                type="button"
+                variant="danger"
+              >
+                이 기기의 모든 데이터 지우기
+              </Button>
             </>
           )}
-        </div>
-      </section>
-
-      {confirmWipe ? (
-        <div className="confirm-box" role="alert">
-          <p>
-            이 기기의 복무 프로필과 모든 기록({data.events.length}건)을 지워요.
-            되돌릴 수 없어요.
-            {signedIn
-              ? " 클라우드의 데이터는 지우지 않고, 로그인도 유지돼요. 이 기기의 동기화는 꺼져요."
-              : ""}
-          </p>
-          <div className="backup-actions">
-            <Button
-              onClick={() => downloadFullBackup(data)}
-              type="button"
-              variant="outline"
-            >
-              먼저 백업 내려받기
-            </Button>
-            <Button
-              onClick={() =>
-                void store
-                  .wipeAll()
-                  .then(() => cloudController.afterLocalWipe())
-              }
-              type="button"
-              variant="danger"
-            >
-              모두 지우기
-            </Button>
-            <Button
-              onClick={() => setConfirmWipe(false)}
-              type="button"
-              variant="ghost"
-            >
-              취소
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <Button
-          className="reset-button"
-          onClick={() => setConfirmWipe(true)}
-          type="button"
-          variant="danger"
-        >
-          이 기기의 모든 데이터 지우기
-        </Button>
-      )}
+        </section>
+      </div>
     </section>
+  );
+}
+
+function SectionHead({
+  eyebrow,
+  id,
+  title,
+}: {
+  eyebrow: string;
+  id: string;
+  title: string;
+}) {
+  return (
+    <header className="profile-section-head">
+      <p className="profile-section-head__eyebrow">{eyebrow}</p>
+      <h2 id={id}>{title}</h2>
+    </header>
   );
 }
 
@@ -303,26 +352,28 @@ function ProfileForm({
   return (
     <form className="profile-form" onSubmit={handleSubmit}>
       <SettingsGroup title="복무 기간">
-        <label className="form-field">
-          <span>소집일</span>
-          <DateInput
-            required
-            value={callUpDate}
-            onValueChange={handleCallUpDate}
-          />
-        </label>
-        <label className="form-field">
-          <span>소집해제 예정일</span>
-          <DateInput
-            required
-            value={expectedDischargeDate}
-            onValueChange={setExpectedDischargeDate}
-          />
-          <small>
+        <div className="field-row profile-dates">
+          <label className="form-field">
+            <span>소집일</span>
+            <DateInput
+              required
+              value={callUpDate}
+              onValueChange={handleCallUpDate}
+            />
+          </label>
+          <label className="form-field">
+            <span>소집해제 예정일</span>
+            <DateInput
+              required
+              value={expectedDischargeDate}
+              onValueChange={setExpectedDischargeDate}
+            />
+          </label>
+          <p className="field-hint field-row__full">
             소집일을 바꾸면 21개월 기준으로 다시 계산해요. 연장 등은 직접
             고치세요.
-          </small>
-        </label>
+          </p>
+        </div>
         <label className="form-field">
           <span>복무 분야</span>
           <input
@@ -393,7 +444,7 @@ function ProfileForm({
           </p>
         </div>
 
-        <fieldset className="form-field choice-field">
+        <fieldset className="form-field choice-field choice-field--tiles">
           <legend>복무형태</legend>
           {(
             [
@@ -421,7 +472,7 @@ function ProfileForm({
         </fieldset>
 
         {workPattern === "WEEKDAY_DAYTIME" ? (
-          <fieldset className="form-field choice-field">
+          <fieldset className="form-field choice-field weekday-field">
             <legend>정해진 근무 요일</legend>
             <div className="weekday-row">
               {WEEKDAY_LABELS.map((label, day) => (
@@ -445,22 +496,26 @@ function ProfileForm({
       </SettingsGroup>
 
       <SettingsGroup title="화면 설정">
-        <label className="check-row">
-          <input
-            checked={liveProgressEnabled}
-            onChange={(event) => setLiveProgressEnabled(event.target.checked)}
-            type="checkbox"
-          />
-          D-day와 복무율을 초 단위로 실시간 표시
-        </label>
-        <small className="field-hint">
-          켜면 홈 화면이 열려 있는 동안 1초마다 남은 시간과 복무율을 갱신해요.
-          끄면 기존처럼 일 단위로 표시해요.
-        </small>
+        <div className="setting-toggle">
+          <label className="check-row setting-toggle__row">
+            <input
+              aria-describedby="live-progress-hint"
+              checked={liveProgressEnabled}
+              className="switch"
+              onChange={(event) => setLiveProgressEnabled(event.target.checked)}
+              type="checkbox"
+            />
+            D-day와 복무율을 초 단위로 실시간 표시
+          </label>
+          <small className="field-hint" id="live-progress-hint">
+            켜면 홈 화면이 열려 있는 동안 1초마다 남은 시간과 복무율을 갱신해요.
+            끄면 기존처럼 일 단위로 표시해요.
+          </small>
+        </div>
       </SettingsGroup>
 
       <SettingsGroup title="보수 계산 기준">
-        <fieldset className="form-field choice-field">
+        <fieldset className="form-field choice-field choice-field--tiles choice-field--inline">
           <legend>이전 복무 경력(현역 등)이 보수 등급에 인정되나요?</legend>
           {(
             [
@@ -629,7 +684,7 @@ function SettingsGroup({
 }) {
   return (
     <section className="settings-group">
-      <h2 className="settings-group__title">{title}</h2>
+      <h3 className="settings-group__title">{title}</h3>
       <div className="settings-card">{children}</div>
     </section>
   );
