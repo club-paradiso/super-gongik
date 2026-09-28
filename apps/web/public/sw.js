@@ -1,9 +1,9 @@
-const CACHE_NAME = "super-gongik-shell-v2";
+const CACHE_NAME = "super-gongik-shell-v3";
 const APP_SHELL = [
   "/",
   "/manifest.webmanifest",
   "/icon-192.png",
-  "/icon-512.png",
+  "/icon-512.jpg",
 ];
 
 self.addEventListener("install", (event) => {
