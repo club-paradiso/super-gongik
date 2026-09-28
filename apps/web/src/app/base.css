@@ -788,8 +788,12 @@ details[open] > summary::after {
   transform: none;
 }
 .empty-state__motif {
-  color: var(--accent-warm);
+  box-sizing: content-box;
   margin-bottom: 4px;
+  border-radius: var(--radius-card);
+  background: var(--surface-interactive);
+  padding: 10px;
+  color: var(--accent-warm);
 }
 .empty-state .empty-state__title {
   color: var(--text-primary);
