@@ -317,7 +317,7 @@ function SignedIn({
   return (
     <div className="cloud-body">
       <p className="field-hint">
-        {state.email ?? "이메일 없음"} 계정으로 로그인됨
+        {state.email ? `${state.email} 계정으로 로그인됨` : "소셜 계정으로 로그인됨"}
       </p>
 
       {!enabled ? (
