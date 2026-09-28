@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 
-/** Official SUPER GONGIK mark, shared with the installed app icon. */
+/** Official SUPER GONGIK mark: the app-icon artwork with a transparent matte. */
 export function BrandMark({ size = 28 }: { size?: number }) {
   return (
     <img
@@ -10,7 +10,7 @@ export function BrandMark({ size = 28 }: { size?: number }) {
       decoding="async"
       draggable={false}
       height={size}
-      src="/icon-192.png"
+      src="/brand-mark.png"
       width={size}
     />
   );

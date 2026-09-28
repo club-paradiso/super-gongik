@@ -1,9 +1,11 @@
-const CACHE_NAME = "super-gongik-shell-v3";
+const CACHE_NAME = "super-gongik-shell-v4";
 const APP_SHELL = [
   "/",
   "/manifest.webmanifest",
   "/icon-192.png",
-  "/icon-512.jpg",
+  "/icon-512.png",
+  "/apple-touch-icon.png",
+  "/brand-mark.png",
 ];
 
 self.addEventListener("install", (event) => {
