@@ -30,11 +30,6 @@ jobs:
         run: pnpm lint
       - name: Check formatting
         run: pnpm format:check
-      - name: Show formatting diff
-        if: failure()
-        run: |
-          pnpm exec prettier --write apps/web/src/components/cloud-sync-panel.tsx
-          git diff -- apps/web/src/components/cloud-sync-panel.tsx
       - name: Typecheck
         run: pnpm typecheck
       - name: Test
