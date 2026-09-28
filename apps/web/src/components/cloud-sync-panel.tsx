@@ -130,7 +130,8 @@ function SignIn() {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
-  const [socialBusy, setSocialBusy] = useState<SocialAuthProvider | null>(null);
+  const [socialBusy, setSocialBusy] =
+    useState<SocialAuthProvider | null>(null);
   const [socialError, setSocialError] = useState("");
 
   async function send(event: FormEvent) {
@@ -317,7 +318,9 @@ function SignedIn({
   return (
     <div className="cloud-body">
       <p className="field-hint">
-        {state.email ? `${state.email} 계정으로 로그인됨` : "소셜 계정으로 로그인됨"}
+        {state.email
+          ? `${state.email} 계정으로 로그인됨`
+          : "소셜 계정으로 로그인됨"}
       </p>
 
       {!enabled ? (
