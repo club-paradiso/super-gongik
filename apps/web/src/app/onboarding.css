@@ -116,7 +116,7 @@
   overflow: hidden;
   margin: 0;
   border: 1px solid var(--border);
-  border-radius: var(--radius-card-lg);
+  border-radius: var(--radius-card);
   background: var(--surface);
   padding: 0;
   box-shadow: var(--shadow);
@@ -136,7 +136,7 @@
 
 .setup-card__title {
   color: var(--text-primary);
-  font-size: var(--font-title-3);
+  font-size: var(--font-title-card);
   font-weight: 800;
   letter-spacing: var(--tracking-title);
   line-height: 1.3;
@@ -171,7 +171,7 @@
 }
 
 .setup-row__label .optional {
-  font-size: 13px;
+  font-size: var(--font-caption);
 }
 
 .setup-row__hint {
@@ -242,9 +242,9 @@
 .restore-card h2 {
   margin: 0;
   padding: 0 4px;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-size: var(--font-label);
-  font-weight: 700;
+  font-weight: 750;
   letter-spacing: -0.01em;
 }
 
@@ -310,7 +310,7 @@
 }
 
 .restore-option__text strong {
-  font-size: 15px;
+  font-size: var(--font-body);
   font-weight: 700;
   letter-spacing: -0.01em;
 }
@@ -438,10 +438,11 @@
     padding: 36px 40px 44px;
   }
 
+  /* 64px keeps the 128px bitmap sharp at 2x. */
   .onboarding__brand .brand-mark {
-    width: 72px;
-    height: 72px;
-    border-radius: 18px;
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
   }
 
   .onboarding__lockup .brand-wordmark {

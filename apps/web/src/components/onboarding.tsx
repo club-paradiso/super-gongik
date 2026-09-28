@@ -144,11 +144,13 @@ export function Onboarding({
 
               <div className="setup-section setup-section--secondary">
                 <label className="setup-row">
-                  <span className="setup-row__label">
+                  <span className="setup-row__label" aria-hidden="true">
                     복무 분야 <span className="optional">선택</span>
                   </span>
                   <span className="select">
                     <select
+                      aria-describedby="onboarding-category-optional"
+                      aria-label="복무 분야"
                       value={serviceCategory}
                       onChange={(event) =>
                         setServiceCategory(event.target.value)
@@ -161,6 +163,12 @@ export function Onboarding({
                       <option value="행정">행정</option>
                       <option value="기타">기타</option>
                     </select>
+                  </span>
+                  <span
+                    className="visually-hidden"
+                    id="onboarding-category-optional"
+                  >
+                    선택 사항
                   </span>
                 </label>
               </div>
