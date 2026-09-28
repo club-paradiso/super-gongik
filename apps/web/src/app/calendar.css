@@ -1659,15 +1659,6 @@ details.ledger-card > :last-child:not(summary) {
     border-top: 1px solid var(--border-strong);
   }
 
-  /* Night surfaces: the active segment reads as a selection (indigo tonal
-   * fill + edge), matching the shared segmented control and selected day. */
-  .calendar-page .segmented__item.is-active,
-  .sheet .segmented__item.is-active {
-    background: var(--selected-background);
-    color: var(--text-primary);
-    box-shadow: inset 0 0 0 1px var(--selected-border);
-  }
-
   .ledger-summary__grid div {
     background: var(--surface-interactive);
   }
