@@ -1,25 +1,78 @@
-/* Calendar, agenda, event editor sheet and leave ledger. */
+/* Calendar, agenda, event editor sheet and leave ledger.
+ *
+ * Operational surface: calm, dense and legible. Brand color is limited to
+ * interaction (indigo) and structure (navy); categories carry color AND a
+ * distinct shape (circle, diamond, triangle, square, ring, dash, bar) so
+ * color is never the only cue.
+ */
 
 .calendar-page {
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
   min-width: 0;
 }
+
+/* Shared card surface: tonal separation + a delicate edge. */
+.month-card,
+.day-panel,
+.agenda-group,
+.deleted-list,
+.leave-strip,
+.ledger-summary,
+.ledger-card {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Toolbar ------------------------------------------------------------------ */
 
 .calendar-toolbar {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .calendar-toolbar .segmented {
   flex: 1 1 auto;
 }
 
-.calendar-toolbar > .btn {
+.calendar-toolbar .segmented__item {
+  padding-inline: 4px;
+}
+
+/* Tonal, not solid: the primary action without shouting over navigation. */
+.calendar-toolbar .calendar-add {
   flex: none;
-  min-height: 44px;
-  padding: 0 14px 0 12px;
+  min-height: 50px;
+  border-color: var(--selected-border);
+  background: var(--selected-background);
+  padding: 0 16px 0 12px;
+  color: var(--accent-primary);
+}
+
+.calendar-toolbar .calendar-add:hover:not(:disabled) {
+  border-color: var(--accent-primary);
+  background: var(--selected-background);
+}
+
+@media (max-width: 369px) {
+  .calendar-toolbar .calendar-add {
+    width: 50px;
+    padding: 0;
+  }
+
+  .calendar-add__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 
 .calendar-page > .save-message {
@@ -30,12 +83,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  border-radius: 14px;
-  background: var(--brand-navy);
-  padding: 6px 6px 6px 16px;
-  color: #fff;
-  font-size: 14px;
+  gap: var(--space-3);
+  border: 1px solid var(--hero-border);
+  border-radius: var(--radius-control);
+  background: var(--hero-bg);
+  padding: 4px 4px 4px var(--space-4);
+  color: var(--hero-fg);
+  font-size: var(--font-label);
   font-weight: 600;
 }
 
@@ -44,28 +98,109 @@
   flex: none;
   align-items: center;
   gap: 6px;
-  min-height: 40px;
+  min-height: 44px;
   border: 0;
   border-radius: 10px;
-  background: rgb(255 255 255 / 14%);
-  padding: 0 12px;
-  color: #fff;
+  background: var(--hero-track);
+  padding: 0 14px;
+  color: var(--hero-accent);
+  font-weight: 750;
+}
+
+.undo-bar button:focus-visible {
+  outline-color: var(--hero-focus);
+}
+
+/* Leave balance strip: visible while planning, one tap from the ledger. ---- */
+
+.leave-strip {
+  display: grid;
+  grid-template-areas:
+    "icon label hint end"
+    "icon value value end";
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 var(--space-2);
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 10px 10px 12px;
+  color: var(--text-primary);
+  text-align: left;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.leave-strip:hover {
+  border-color: var(--border-strong);
+}
+
+.leave-strip__icon {
+  display: grid;
+  grid-area: icon;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-right: 4px;
+  border-radius: var(--radius-control);
+  background: var(--cat-leave-bg);
+  color: var(--cat-leave-fg);
+}
+
+.leave-strip__label {
+  grid-area: label;
+  color: var(--text-secondary);
+  font-size: var(--font-caption);
+  font-weight: 650;
+}
+
+.leave-strip__value {
+  grid-area: value;
+  min-width: 0;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.leave-strip__value--attention {
+  color: var(--warning);
+}
+
+.leave-strip__hint {
+  grid-area: hint;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-tertiary);
+  font-size: var(--font-caption);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leave-strip__end {
+  display: inline-flex;
+  grid-area: end;
+  align-items: center;
+  gap: 2px;
+  min-height: 44px;
+  padding-left: 8px;
+  color: var(--accent-primary);
+  font-size: var(--font-label);
   font-weight: 700;
 }
 
 /* Month -------------------------------------------------------------------- */
 
-.month-card,
-.day-panel,
-.agenda-group {
+.month-layout {
+  display: grid;
+  gap: var(--space-3);
   min-width: 0;
-  border-radius: var(--radius-card);
-  background: var(--surface);
-  box-shadow: var(--shadow);
 }
 
 .month-card {
-  padding: 8px 8px 14px;
+  container: month / inline-size;
+  padding: 8px 8px 12px;
 }
 
 .month-header {
@@ -73,25 +208,44 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 2px 0 6px 10px;
+  padding: 0 0 4px 10px;
 }
 
 .month-header h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: var(--tracking-title);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 .month-header__controls {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 0;
 }
 
-.month-header__controls .chip-button {
-  margin-right: 4px;
+/* 36px visual pill inside a 44px hit target. */
+.month-header__today {
+  min-width: 44px;
+  min-height: 44px;
+  margin-right: 2px;
+  border: 4px solid transparent;
+  border-radius: 14px;
+  background: var(--surface-interactive) padding-box;
+  padding: 0 10px;
+  color: var(--text-primary);
+  font-size: var(--font-label);
+  font-weight: 700;
+}
+
+.month-header__today:hover {
+  background-color: var(--surface-hover);
+}
+
+.month-header__controls .icon-button {
+  color: var(--text-secondary);
 }
 
 .month-grid {
@@ -103,17 +257,17 @@
 .month-grid__week {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 2px;
 }
 
 .month-grid__weekdays span {
-  padding: 4px 0 6px;
+  padding: 6px 0;
   color: var(--text-tertiary);
-  font-size: 12px;
+  font-size: var(--font-caption);
   font-weight: 700;
   text-align: center;
 }
 
+/* Weekend color is text-only; categories never tint numerals. */
 .month-grid__weekdays .is-sunday,
 .month-cell.is-sunday .month-cell__day {
   color: var(--danger);
@@ -125,116 +279,391 @@
 }
 
 .month-cell {
+  position: relative;
   display: grid;
-  grid-template-rows: 34px 6px;
+  grid-template-rows: 32px 4px 7px;
   justify-items: center;
-  align-content: center;
-  gap: 3px;
+  align-content: start;
+  row-gap: 3px;
   min-width: 0;
-  min-height: 48px;
+  min-height: 54px;
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: transparent;
-  padding: 2px 0 4px;
+  padding: 3px 0 5px;
   color: var(--text-primary);
+  transition: background-color var(--duration-fast) var(--ease-out);
 }
 
-.month-cell:hover .month-cell__day {
-  background: var(--surface-interactive);
+.month-cell:focus-visible {
+  outline-offset: -2px;
 }
 
-.month-cell.is-outside .month-cell__day {
-  color: var(--text-tertiary);
-  font-weight: 400;
+@media (hover: hover) {
+  .month-cell:hover {
+    background: var(--surface-interactive);
+  }
 }
 
 .month-cell__day {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
   font-size: 15px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
-.month-cell.is-today .month-cell__day {
+.month-cell.is-outside .month-cell__day {
+  color: var(--text-tertiary);
+  font-weight: 450;
+}
+
+.month-cell.is-outside .month-cell__lane,
+.month-cell.is-outside .month-cell__marks,
+.month-cell.is-outside .month-cell__chips {
+  opacity: 0.55;
+}
+
+/* Selected: a tonal tile with an edge. Today: a solid disc. Distinct at a
+ * glance, and they combine cleanly when today is selected. */
+.month-cell.is-selected,
+.month-cell.is-selected:hover {
   background: var(--selected-background);
-  color: var(--accent-hover);
+  box-shadow: inset 0 0 0 1.5px var(--selected-border);
+}
+
+.month-cell.is-selected .month-cell__day {
   font-weight: 800;
 }
 
-.month-cell.is-selected .month-cell__day,
-.month-cell.is-selected:hover .month-cell__day {
+.month-cell.is-today .month-cell__day {
   background: var(--accent-primary);
   color: var(--on-accent);
   font-weight: 800;
 }
 
-.month-cell__dots {
-  display: flex;
-  gap: 3px;
-  height: 6px;
+/* Multi-day lane: one continuous bar under the dates it covers. */
+.month-cell__lane {
+  position: relative;
+  justify-self: stretch;
+  min-width: 0;
 }
 
-.dot {
-  display: inline-block;
-  flex: none;
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
+.month-cell__range {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
   background: var(--cat-note);
 }
 
-.dot--leave {
+.month-cell__range.is-start {
+  left: 6px;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.month-cell__range.is-end {
+  right: 6px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.month-cell__range--leave {
+  --cat: var(--cat-leave);
+  --cat-bg: var(--cat-leave-bg);
+  --cat-fg: var(--cat-leave-fg);
+}
+
+.month-cell__range--sick {
+  --cat: var(--cat-sick);
+  --cat-bg: var(--cat-sick-bg);
+  --cat-fg: var(--cat-sick-fg);
+}
+
+.month-cell__range--attendance {
+  --cat: var(--cat-attendance);
+  --cat-bg: var(--cat-attendance-bg);
+  --cat-fg: var(--cat-attendance-fg);
+}
+
+.month-cell__range--duty {
+  --cat: var(--cat-duty);
+  --cat-bg: var(--cat-duty-bg);
+  --cat-fg: var(--cat-duty-fg);
+}
+
+.month-cell__range--nonpayable {
+  --cat: var(--cat-nonpayable);
+  --cat-bg: var(--cat-nonpayable-bg);
+  --cat-fg: var(--cat-nonpayable-fg);
+}
+
+.month-cell__range--note {
+  --cat: var(--cat-note);
+  --cat-bg: var(--cat-note-bg);
+  --cat-fg: var(--cat-note-fg);
+}
+
+.month-cell__range {
+  background: var(--cat, var(--cat-note));
+}
+
+.month-cell__range-label {
+  display: none;
+}
+
+.month-cell__marks {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 7px;
+}
+
+.month-cell__chips {
+  display: none;
+}
+
+/* Category marks ------------------------------------------------------------ */
+
+.mark {
+  --mark-size: 7px;
+  display: inline-block;
+  flex: none;
+  width: var(--mark-size);
+  height: var(--mark-size);
+  background: var(--cat-note);
+}
+
+/* 휴가: circle */
+.mark--leave {
+  border-radius: 50%;
   background: var(--cat-leave);
 }
 
-.dot--sick {
+/* 병가: diamond */
+.mark--sick {
+  border-radius: 1px;
   background: var(--cat-sick);
+  transform: rotate(45deg) scale(0.86);
 }
 
-.dot--attendance {
+/* 근태: triangle */
+.mark--attendance {
   background: var(--cat-attendance);
+  clip-path: polygon(50% 4%, 100% 96%, 0 96%);
+  transform: scale(1.12);
 }
 
-.dot--duty {
+/* 교육·훈련: square */
+.mark--duty {
+  border-radius: 1.5px;
   background: var(--cat-duty);
 }
 
-.dot--nonpayable {
-  background: var(--cat-nonpayable);
+/* 보수 미지급: ring */
+.mark--nonpayable {
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--cat-nonpayable);
 }
 
-.dot--note {
+/* 메모: dash */
+.mark--note {
+  height: 2.5px;
+  border-radius: 2px;
   background: var(--cat-note);
 }
 
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 12px;
+  gap: 6px 14px;
   margin: 10px 0 0;
   border-top: 1px solid var(--border);
   padding: 12px 8px 0;
   list-style: none;
   color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 550;
+  font-size: var(--font-caption);
+  font-weight: 600;
 }
 
 .legend li {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  min-height: 20px;
 }
 
-/* Day / agenda lists ------------------------------------------------------- */
+.legend .mark {
+  --mark-size: 9px;
+}
 
-.day-panel,
-.agenda-group {
-  padding: 14px 14px 12px;
+.legend .mark--note {
+  height: 3px;
+}
+
+.legend__bar {
+  display: inline-block;
+  width: 16px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--text-tertiary);
+}
+
+/* Wide month (tablet, desktop): labelled chips inside the cells. */
+@container month (min-width: 520px) {
+  .month-grid__weekdays span {
+    padding: 8px 8px 6px;
+    text-align: left;
+  }
+
+  .month-cell {
+    grid-template-rows: 28px;
+    grid-auto-rows: auto;
+    justify-items: stretch;
+    row-gap: 3px;
+    min-height: 84px;
+    padding: 5px 4px 6px;
+    text-align: left;
+  }
+
+  .month-cell__day {
+    justify-self: start;
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+
+  .month-cell__marks {
+    display: none;
+  }
+
+  .month-cell__lane {
+    height: 22px;
+    margin-inline: -4px;
+  }
+
+  .month-cell__lane:empty {
+    display: none;
+  }
+
+  .month-cell__range {
+    background: var(--cat-bg, var(--cat-note-bg));
+    color: var(--cat-fg, var(--cat-note-fg));
+  }
+
+  .month-cell__range.is-start {
+    left: 6px;
+    border-top-left-radius: var(--radius-xs);
+    border-bottom-left-radius: var(--radius-xs);
+    box-shadow: inset 3px 0 0 var(--cat, var(--cat-note));
+  }
+
+  .month-cell__range.is-end {
+    right: 6px;
+    border-top-right-radius: var(--radius-xs);
+    border-bottom-right-radius: var(--radius-xs);
+  }
+
+  .month-cell__range-label {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    padding: 0 6px 0 9px;
+    font-size: var(--font-micro);
+    font-weight: 750;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .month-cell__chips {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .cell-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    height: 22px;
+    margin-inline: 2px;
+    border-radius: var(--radius-xs);
+    background: var(--cat-note-bg);
+    padding: 0 6px;
+    color: var(--cat-note-fg);
+    font-size: var(--font-micro);
+    font-weight: 750;
+  }
+
+  .cell-chip .mark {
+    --mark-size: 6px;
+  }
+
+  .cell-chip__text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cell-chip--leave {
+    background: var(--cat-leave-bg);
+    color: var(--cat-leave-fg);
+  }
+
+  .cell-chip--sick {
+    background: var(--cat-sick-bg);
+    color: var(--cat-sick-fg);
+  }
+
+  .cell-chip--attendance {
+    background: var(--cat-attendance-bg);
+    color: var(--cat-attendance-fg);
+  }
+
+  .cell-chip--duty {
+    background: var(--cat-duty-bg);
+    color: var(--cat-duty-fg);
+  }
+
+  .cell-chip--nonpayable {
+    background: var(--cat-nonpayable-bg);
+    color: var(--cat-nonpayable-fg);
+  }
+
+  .cell-chip--more {
+    background: transparent;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .month-cell.is-selected .cell-chip,
+  .month-cell.is-selected .month-cell__range {
+    box-shadow: 0 0 0 1px var(--surface);
+  }
+
+  .month-cell.is-selected .month-cell__range.is-start {
+    box-shadow:
+      inset 3px 0 0 var(--cat, var(--cat-note)),
+      0 0 0 1px var(--surface);
+  }
+}
+
+/* Day detail / agenda lists --------------------------------------------------- */
+
+.day-panel {
+  container: day / inline-size;
+  align-self: start;
+  padding: 12px 12px 8px 16px;
 }
 
 .day-panel header {
@@ -242,19 +671,23 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin: -6px -6px 0 2px;
+  min-height: 44px;
 }
 
 .day-panel h3,
 .agenda-group h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
-.agenda-group h3 {
-  padding: 0 2px;
+.day-panel header .text-button {
+  margin-right: -4px;
+}
+
+.day-panel .empty-state {
+  padding-block: 16px 20px;
 }
 
 .empty-line {
@@ -265,70 +698,111 @@
 
 .event-list {
   display: grid;
-  gap: 6px;
-  margin: 8px 0 0;
+  gap: 0;
+  margin: 4px 0 0;
   padding: 0;
   list-style: none;
 }
 
-.event-list time {
-  display: block;
-  margin: 8px 2px 6px;
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 700;
+.event-list > li + li {
+  border-top: 1px solid var(--border);
 }
 
 .event-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 10px;
   width: 100%;
-  min-height: 56px;
+  min-height: 60px;
+  margin: 2px 0;
   border: 0;
-  border-radius: 14px;
-  background: var(--surface-interactive);
-  padding: 8px 12px;
+  border-radius: var(--radius-control);
+  background: transparent;
+  padding: 8px 4px 8px 6px;
   color: var(--text-primary);
   text-align: left;
+  transition: background-color var(--duration-fast) var(--ease-out);
 }
 
-.event-row:hover {
-  background: var(--surface-hover);
+.day-panel .event-row {
+  margin-left: -6px;
+  width: calc(100% + 6px);
+}
+
+@media (hover: hover) {
+  .event-row:hover {
+    background: var(--surface-interactive);
+  }
+}
+
+.event-row:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Narrow day column (desktop side panel): label chip above the timing. */
+@container day (max-width: 330px) {
+  .day-panel .event-row {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    row-gap: 6px;
+  }
+
+  .day-panel .event-row .event-chip {
+    justify-self: start;
+  }
+
+  .day-panel .event-row__body {
+    grid-row: 2;
+  }
+
+  .day-panel .event-row__source,
+  .day-panel .event-row__chevron {
+    grid-row: 1 / span 2;
+    grid-column: auto;
+  }
 }
 
 .event-row__body {
   display: grid;
+  gap: 1px;
   min-width: 0;
 }
 
 .event-row__body strong {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .event-row__body small {
   overflow: hidden;
   color: var(--text-secondary);
-  font-size: 12.5px;
+  font-size: var(--font-caption);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .event-row__source {
   color: var(--text-tertiary);
-  font-size: 12px;
-  font-weight: 650;
+  font-size: var(--font-caption);
+  font-weight: 600;
+}
+
+.event-row__chevron {
+  color: var(--text-tertiary);
 }
 
 .event-chip {
-  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  border-radius: var(--radius-sm);
   background: var(--cat-note-bg);
-  padding: 4px 8px;
+  padding: 0 9px 0 8px;
   color: var(--cat-note-fg);
-  font-size: 12.5px;
-  font-weight: 800;
+  font-size: var(--font-caption);
+  font-weight: 750;
   white-space: nowrap;
 }
 
@@ -357,12 +831,62 @@
   color: var(--cat-nonpayable-fg);
 }
 
+/* Agenda -------------------------------------------------------------------- */
+
+.agenda,
+.agenda__groups {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.agenda-group {
+  container: agenda / inline-size;
+  padding: 14px 12px 6px 16px;
+}
+
+.agenda-group .event-list > li {
+  padding-top: 10px;
+}
+
+.agenda-group .event-list time {
+  display: block;
+  margin: 0 0 2px;
+  color: var(--text-secondary);
+  font-size: var(--font-caption);
+  font-weight: 700;
+}
+
+.agenda-group .event-row {
+  margin-left: -6px;
+  width: calc(100% + 6px);
+}
+
+@container agenda (min-width: 560px) {
+  .agenda-group .event-list > li {
+    display: grid;
+    grid-template-columns: 124px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    padding-top: 0;
+  }
+
+  .agenda-group .event-list time {
+    margin: 0;
+  }
+
+  .agenda-group .event-row {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
 .filter-row {
   display: flex;
   gap: 6px;
   margin-inline: calc(var(--gutter) * -1);
   overflow-x: auto;
-  padding: 0 var(--gutter) 2px;
+  padding: 2px var(--gutter);
   scroll-padding-inline: var(--gutter);
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
@@ -373,35 +897,42 @@
 }
 
 .filter-chip {
+  display: inline-flex;
   flex: none;
-  min-height: 36px;
-  border: 1px solid var(--border-emphasis);
-  border-radius: 999px;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
   background: var(--surface);
   padding: 0 14px;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--font-label);
   font-weight: 700;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.filter-chip:hover {
+  border-color: var(--border-emphasis);
 }
 
 .filter-chip.is-active {
   border-color: var(--accent-primary);
-  background: var(--accent-primary);
-  color: var(--on-accent);
+  background: var(--selected-background);
+  color: var(--accent-primary);
 }
 
 .deleted-list {
-  border-radius: var(--radius-card);
-  background: var(--surface);
-  padding: 2px 14px;
-  font-size: 14px;
-  box-shadow: var(--shadow);
+  padding: 2px 12px 2px 16px;
+  font-size: var(--font-label);
 }
 
 .deleted-list summary {
   display: flex;
   align-items: center;
-  min-height: 48px;
+  min-height: 52px;
   color: var(--text-secondary);
   font-weight: 700;
   cursor: pointer;
@@ -409,8 +940,8 @@
 
 .deleted-list ul {
   display: grid;
-  gap: 8px;
-  margin: 0 0 12px;
+  gap: 0;
+  margin: 0 0 8px;
   padding: 0;
   list-style: none;
 }
@@ -418,23 +949,29 @@
 .deleted-list li,
 .adjustment-list li {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
-  font-size: 14px;
+  font-size: var(--font-label);
   line-height: 1.5;
+}
+
+.deleted-list li {
+  border-top: 1px solid var(--border);
+  padding: 8px 0;
+  color: var(--text-secondary);
 }
 
 .deleted-list li button,
 .adjustment-list button {
   flex: none;
-  min-height: 36px;
-  border: 1px solid var(--border-emphasis);
+  min-height: 40px;
+  border: 1px solid var(--border-strong);
   border-radius: 10px;
   background: var(--surface);
   padding: 0 12px;
   color: var(--accent-primary);
-  font-size: 13px;
+  font-size: var(--font-caption);
   font-weight: 700;
 }
 
@@ -454,7 +991,7 @@
   margin: 0;
   border: 0;
   border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
-  background: var(--surface);
+  background: var(--surface-raised);
   padding: 0;
   color: var(--text-primary);
   box-shadow: var(--shadow-raised);
@@ -464,11 +1001,17 @@
 .sheet[open] {
   display: flex;
   flex-direction: column;
-  animation: sheet-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: sheet-in var(--duration-slow) var(--ease-out);
 }
 
 .sheet::backdrop {
   background: var(--scrim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet[open] {
+    animation: none;
+  }
 }
 
 @keyframes sheet-in {
@@ -490,8 +1033,8 @@
   width: 36px;
   height: 4px;
   margin: 8px auto 0;
-  border-radius: 999px;
-  background: var(--border-emphasis);
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
 }
 
 .sheet__header {
@@ -500,37 +1043,59 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 4px 8px 4px 16px;
+  padding: 4px 8px 4px 20px;
 }
 
 .sheet__header h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--font-title-3);
   font-weight: 800;
   letter-spacing: -0.02em;
+}
+
+.sheet__header .icon-button {
+  color: var(--text-secondary);
 }
 
 .sheet__body {
   display: grid;
   flex: 1 1 auto;
   align-content: start;
-  gap: 16px;
+  gap: 18px;
   min-height: 0;
   overflow-y: auto;
-  padding: 8px 16px 20px;
+  padding: 8px 20px 20px;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
 
+.sheet__group-label {
+  margin: 0 0 -10px;
+  color: var(--text-primary);
+  font-size: var(--font-label);
+  font-weight: 650;
+}
+
 .sheet__source {
   margin: 0;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: var(--surface-interactive);
-  padding: 10px 12px;
+  padding: 11px 14px;
   color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: var(--font-caption);
+  line-height: 1.55;
   overflow-wrap: anywhere;
+}
+
+.sheet__source--auto {
+  border: 1px solid var(--selected-border);
+  background: var(--selected-background);
+  color: var(--text-primary);
+}
+
+.sheet__source--auto strong {
+  color: var(--accent-primary);
+  font-size: var(--font-label);
 }
 
 .sheet__body > .segmented + .field-hint {
@@ -542,8 +1107,8 @@
   flex: none;
   gap: 8px;
   border-top: 1px solid var(--border);
-  background: var(--surface);
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: var(--surface-raised);
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
 }
 
 .sheet__actions > .btn {
@@ -552,6 +1117,7 @@
 
 .sheet__actions > [type="submit"] {
   flex: 1 1 auto;
+  font-size: 16px;
 }
 
 .sheet__delete {
@@ -577,76 +1143,88 @@
 
 .ledger {
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
   min-width: 0;
 }
 
 .ledger-summary,
 .ledger-card {
+  padding: 16px 18px;
+}
+
+.ledger-summary {
+  display: grid;
+  gap: 14px;
+}
+
+.ledger-summary__main {
+  display: grid;
+  gap: 2px;
   min-width: 0;
-  border-radius: var(--radius-card);
-  background: var(--surface);
-  padding: 16px;
-  box-shadow: var(--shadow);
 }
 
 .ledger-summary .eyebrow {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 650;
+  font-size: var(--font-label);
+  font-weight: 700;
 }
 
 .ledger-summary p {
-  margin: 4px 0 0;
+  margin: 2px 0 0;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--font-caption);
 }
 
 .ledger-summary__value {
   display: block;
-  margin-top: 2px;
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 800;
   line-height: 1.25;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.035em;
+}
+
+.ledger-summary__value--attention {
+  color: var(--warning);
+  font-size: 22px;
 }
 
 .ledger-summary__grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
-  margin: 14px 0 0;
+  margin: 0;
 }
 
 .ledger-summary__grid div {
   min-width: 0;
-  border-radius: 12px;
-  background: var(--surface-interactive);
-  padding: 8px 10px;
+  border-radius: var(--radius-control);
+  background: var(--background-elevated);
+  padding: 10px 12px;
 }
 
 .ledger-summary__grid dt {
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: var(--font-caption);
   font-weight: 650;
 }
 
 .ledger-summary__grid dd {
   margin: 2px 0 0;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
+  letter-spacing: -0.01em;
   overflow-wrap: anywhere;
 }
 
-.ledger-summary .field-hint {
-  margin-top: 10px;
+.ledger-summary__note {
+  margin-top: -4px;
 }
 
 .ledger-card h3 {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin: 0;
   font-size: 16px;
   font-weight: 800;
@@ -654,6 +1232,7 @@
 }
 
 .ledger-card h3 svg {
+  flex: none;
   color: var(--accent-primary);
 }
 
@@ -669,10 +1248,21 @@ details.ledger-card > summary,
 .correction-form > summary {
   display: flex;
   align-items: center;
-  min-height: 50px;
+  min-height: 52px;
   font-size: 15px;
   font-weight: 750;
   cursor: pointer;
+}
+
+.correction-form {
+  margin-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.correction-form > summary {
+  min-height: 48px;
+  color: var(--accent-primary);
+  font-size: var(--font-label);
 }
 
 details.ledger-card[open] > summary {
@@ -706,6 +1296,10 @@ details.ledger-card > :last-child:not(summary) {
   padding-top: 4px;
 }
 
+.credit-list li:last-child {
+  padding-bottom: 2px;
+}
+
 .credit-list li > div {
   display: grid;
   gap: 2px;
@@ -721,7 +1315,7 @@ details.ledger-card > :last-child:not(summary) {
 .adjustment-list small,
 .source-list small {
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--font-caption);
   line-height: 1.5;
 }
 
@@ -731,8 +1325,9 @@ details.ledger-card > :last-child:not(summary) {
   grid-column: 1 / -1;
   align-items: end;
   gap: 8px;
-  border-radius: 14px;
-  background: var(--surface-interactive);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-control);
+  background: var(--warning-background);
   padding: 12px;
 }
 
@@ -740,7 +1335,7 @@ details.ledger-card > :last-child:not(summary) {
   display: grid;
   flex: 1 1 150px;
   gap: 6px;
-  font-size: 13px;
+  font-size: var(--font-caption);
   font-weight: 650;
 }
 
@@ -761,9 +1356,9 @@ details.ledger-card > :last-child:not(summary) {
 .reconcile p {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
   margin: 10px 0 0;
-  font-size: 14px;
+  font-size: var(--font-label);
   line-height: 1.55;
 }
 
@@ -772,12 +1367,14 @@ details.ledger-card > :last-child:not(summary) {
   margin-top: 2px;
 }
 
-.reconcile--match {
+.reconcile--match > p:first-child {
   color: var(--cat-leave-fg);
+  font-weight: 700;
 }
 
-.reconcile--different {
+.reconcile--different > p:first-child {
   color: var(--warning);
+  font-weight: 700;
 }
 
 .reconcile .btn {
@@ -797,11 +1394,11 @@ details.ledger-card > :last-child:not(summary) {
 .correction-form form,
 .inline-form {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .correction-form form {
-  padding-bottom: 6px;
+  padding-bottom: 8px;
 }
 
 .inline-form h3 {
@@ -810,8 +1407,8 @@ details.ledger-card > :last-child:not(summary) {
 
 .usage-table {
   display: grid;
-  gap: 8px;
-  margin: 10px 0;
+  gap: 0;
+  margin: 8px 0 10px;
 }
 
 .usage-table div {
@@ -819,7 +1416,9 @@ details.ledger-card > :last-child:not(summary) {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+  padding: 9px 0;
+  font-size: var(--font-label);
 }
 
 .usage-table dt {
@@ -834,11 +1433,16 @@ details.ledger-card > :last-child:not(summary) {
   text-align: right;
 }
 
+.ledger-entries__scroll {
+  min-width: 0;
+  overflow-x: auto;
+}
+
 .ledger-entries table {
   width: 100%;
   margin: 0 0 10px;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--font-caption);
   font-variant-numeric: tabular-nums;
   table-layout: fixed;
 }
@@ -854,7 +1458,7 @@ details.ledger-card > :last-child:not(summary) {
 
 .ledger-entries th {
   color: var(--text-tertiary);
-  font-size: 12px;
+  font-size: var(--font-micro);
   font-weight: 700;
 }
 
@@ -870,18 +1474,30 @@ details.ledger-card > :last-child:not(summary) {
   text-align: right;
 }
 
+.ledger-entries td:nth-child(4) {
+  font-weight: 700;
+}
+
 .ledger-entries tr.is-scheduled td {
   color: var(--text-tertiary);
+}
+
+/* Breakpoints ------------------------------------------------------------------ */
+
+@media (min-width: 480px) {
+  .ledger-summary__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 640px) {
   .sheet {
     inset: 0;
-    width: min(100% - 48px, 520px);
+    width: min(100% - 48px, 540px);
     height: fit-content;
     max-height: min(88dvh, 820px);
     margin: auto;
-    border-radius: var(--radius-sheet);
+    border-radius: var(--radius-card-lg);
   }
 
   .sheet__grabber {
@@ -889,29 +1505,33 @@ details.ledger-card > :last-child:not(summary) {
   }
 
   .sheet__header {
-    padding: 14px 12px 4px 20px;
+    padding: 16px 12px 4px 24px;
   }
 
   .sheet__body {
-    padding-inline: 20px;
+    padding-inline: 24px;
   }
 
   .sheet__actions {
-    padding: 14px 20px;
+    padding: 14px 24px;
   }
 
   .month-card {
-    padding: 12px 14px 16px;
+    padding: 12px 12px 14px;
   }
 
-  .month-cell {
-    min-height: 58px;
+  .month-header {
+    padding-bottom: 8px;
   }
 }
 
 @media (min-width: 960px) {
-  .calendar-page {
-    max-width: 880px;
+  .calendar-toolbar .segmented {
+    flex: 0 1 380px;
+  }
+
+  .calendar-toolbar .calendar-add {
+    margin-left: auto;
   }
 
   .ledger {
@@ -926,104 +1546,101 @@ details.ledger-card > :last-child:not(summary) {
   .ledger > .inline-form {
     grid-column: 1 / -1;
   }
+
+  .ledger-summary {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+    align-items: center;
+    gap: 12px 24px;
+  }
+
+  .ledger-summary__note {
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
+}
+
+/* Month + selected day side by side once both have room. */
+@media (min-width: 1200px) {
+  .month-layout {
+    grid-template-areas:
+      "month strip"
+      "month day";
+    grid-template-rows: auto 1fr;
+    grid-template-columns: minmax(0, 1fr) 336px;
+    align-items: start;
+  }
+
+  .month-layout > .leave-strip {
+    grid-area: strip;
+  }
+
+  .month-layout > .month-card {
+    grid-area: month;
+  }
+
+  .month-layout > .day-panel {
+    grid-area: day;
+  }
+
+  .agenda__groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
 }
 
 @media (max-width: 374px) {
-  .ledger-summary__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .field-row {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .month-card {
+    padding-inline: 4px;
+  }
+
+  .month-header {
+    padding-left: 8px;
+  }
+
+  .month-header h2 {
+    font-size: 18px;
+  }
+
+  .month-cell__day {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
 }
 
-/* Leave balance strip: visible while planning, one tap from the ledger. */
-.leave-strip {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 2px var(--space-2);
-  width: 100%;
-  min-height: 48px;
-  border: 1px solid var(--selected-border);
-  border-radius: var(--radius-control);
-  background: var(--selected-background);
-  padding: 12px 12px 12px var(--space-4);
-  color: var(--text-primary);
-  text-align: left;
+/* Dark: surfaces separate by tone and a 1px edge, not by shadow. */
+@media (prefers-color-scheme: dark) {
+  .month-card,
+  .day-panel,
+  .agenda-group,
+  .deleted-list,
+  .leave-strip,
+  .ledger-summary,
+  .ledger-card {
+    box-shadow: none;
+  }
+
+  .sheet {
+    border-top: 1px solid var(--border-strong);
+  }
+
+  /* On night surfaces the active segment rises instead of sinking. */
+  .calendar-page .segmented__item.is-active,
+  .sheet .segmented__item.is-active {
+    background: var(--surface-hover);
+  }
+
+  .ledger-summary__grid div {
+    background: var(--surface-interactive);
+  }
 }
 
-.leave-strip__label {
-  color: var(--accent-hover);
-  font-size: var(--font-caption);
-  font-weight: 750;
-}
-
-.leave-strip strong {
-  font-size: var(--font-body);
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-
-.leave-strip__value--attention {
-  color: var(--warning);
-}
-
-.leave-strip__hint {
-  color: var(--text-secondary);
-  font-size: var(--font-micro);
-  font-weight: 600;
-}
-
-.leave-strip__end {
-  display: inline-flex;
-  align-items: center;
-  align-self: center;
-  margin-left: auto;
-  color: var(--accent-hover);
-  font-size: var(--font-caption);
-  font-weight: 750;
-}
-
-/* Multi-day records: one continuous bar under the dates it covers. */
-.month-cell {
-  position: relative;
-}
-
-.month-cell__range {
-  position: absolute;
-  right: -1px;
-  bottom: 5px;
-  left: -1px;
-  height: 4px;
-  background: var(--cat-note);
-}
-
-.month-cell__range.is-start {
-  left: 8px;
-  border-top-left-radius: 2px;
-  border-bottom-left-radius: 2px;
-}
-
-.month-cell__range.is-end {
-  right: 8px;
-  border-top-right-radius: 2px;
-  border-bottom-right-radius: 2px;
-}
-
-.month-cell__range--leave {
-  background: var(--cat-leave);
-}
-.month-cell__range--sick {
-  background: var(--cat-sick);
-}
-.month-cell__range--attendance {
-  background: var(--cat-attendance);
-}
-.month-cell__range--duty {
-  background: var(--cat-duty);
-}
-.month-cell__range--nonpayable {
-  background: var(--cat-nonpayable);
+@media (min-width: 640px) and (prefers-color-scheme: dark) {
+  .sheet {
+    border: 1px solid var(--border-strong);
+  }
 }

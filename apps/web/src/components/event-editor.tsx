@@ -368,6 +368,9 @@ export function EventEditor({
             </label>
           ) : null}
 
+          <p aria-hidden="true" className="sheet__group-label">
+            기록 단위
+          </p>
           <fieldset className="segmented" aria-label="기록 단위">
             {(
               [
@@ -570,7 +573,7 @@ export function EventEditor({
           ) : null}
 
           {usageClassification ? (
-            <div className="sheet__source" role="status">
+            <div className="sheet__source sheet__source--auto" role="status">
               <strong>자동 구분: {usageClassification.label}</strong>
               <br />
               {usageClassification.reason}

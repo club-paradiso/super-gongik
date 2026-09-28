@@ -2,7 +2,15 @@
 
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { AlertTriangle, CheckCircle2, Download, Scale } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarPlus2,
+  CheckCircle2,
+  Download,
+  ListChecks,
+  Scale,
+  SlidersHorizontal,
+} from "lucide-react";
 import { type FormEvent, useState } from "react";
 
 import {
@@ -83,18 +91,28 @@ export function LeaveLedgerPanel({
   return (
     <div className="ledger">
       <section className="ledger-summary" aria-labelledby="ledger-title">
-        <p className="eyebrow" id="ledger-title">
-          남은 연가
-        </p>
-        <strong className="ledger-summary__value">
-          {balance.status === "NEEDS_CREDIT_CONFIRMATION"
-            ? "부여 일수 확인 필요"
-            : format(balance.remainingAfterScheduled)}
-        </strong>
-        {balance.scheduled.halfDays || balance.scheduled.minutes ? (
-          <p>예정된 연가 {format(balance.scheduled)}을 뺀 값이에요.</p>
-        ) : null}
-        <dl className="ledger-summary__grid">
+        <div className="ledger-summary__main">
+          <p className="eyebrow" id="ledger-title">
+            남은 연가
+          </p>
+          <strong
+            className={
+              balance.status === "NEEDS_CREDIT_CONFIRMATION"
+                ? "ledger-summary__value ledger-summary__value--attention"
+                : "ledger-summary__value num"
+            }
+          >
+            {balance.status === "NEEDS_CREDIT_CONFIRMATION"
+              ? "부여 일수 확인 필요"
+              : format(balance.remainingAfterScheduled)}
+          </strong>
+          {balance.scheduled.halfDays || balance.scheduled.minutes ? (
+            <p className="num">
+              예정된 연가 {format(balance.scheduled)}을 뺀 값이에요.
+            </p>
+          ) : null}
+        </div>
+        <dl className="ledger-summary__grid num">
           <div>
             <dt>부여</dt>
             <dd>{format(balance.granted)}</dd>
@@ -113,7 +131,7 @@ export function LeaveLedgerPanel({
           </div>
         </dl>
         {balance.upcomingCredits.halfDays ? (
-          <p className="field-hint">
+          <p className="field-hint ledger-summary__note">
             앞으로 {format(balance.upcomingCredits)}이 더 부여될 예정이에요.
           </p>
         ) : null}
@@ -139,13 +157,16 @@ export function LeaveLedgerPanel({
       ) : null}
 
       <section className="ledger-card" aria-labelledby="credits-title">
-        <h3 id="credits-title">연가 부여</h3>
+        <h3 id="credits-title">
+          <CalendarPlus2 aria-hidden="true" size={18} />
+          연가 부여
+        </h3>
         <ul className="credit-list">
           {ledger.credits.map((credit) => (
             <li key={credit.key}>
               <div>
                 <strong>{credit.label}</strong>
-                <span>
+                <span className="num">
                   {formatKoreanDate(credit.grantDate)} ·{" "}
                   {credit.countedHalfDays !== null
                     ? formatLeaveQuantity(
@@ -206,7 +227,7 @@ export function LeaveLedgerPanel({
           <div
             className={`reconcile reconcile--${reconciliation.status.toLowerCase()}`}
           >
-            <p>
+            <p className="num">
               {reconciliation.status === "MATCH" ? (
                 <CheckCircle2 aria-hidden="true" size={18} />
               ) : (
@@ -258,12 +279,15 @@ export function LeaveLedgerPanel({
       </section>
 
       <section className="ledger-card" aria-labelledby="corrections-title">
-        <h3 id="corrections-title">보정</h3>
+        <h3 id="corrections-title">
+          <SlidersHorizontal aria-hidden="true" size={18} />
+          보정
+        </h3>
         {corrections.length ? (
           <ul className="adjustment-list">
             {corrections.map((item) => (
               <li key={item.id}>
-                <span>
+                <span className="num">
                   {formatKoreanDate(item.effectiveDate)} ·{" "}
                   {format({
                     halfDays: item.amountHalfDays,
@@ -305,8 +329,11 @@ export function LeaveLedgerPanel({
       attendance.LATE_ARRIVAL ||
       attendance.EARLY_LEAVE ? (
         <section className="ledger-card" aria-labelledby="other-title">
-          <h3 id="other-title">다른 휴가·근태 합계</h3>
-          <dl className="usage-table">
+          <h3 id="other-title">
+            <ListChecks aria-hidden="true" size={18} />
+            다른 휴가·근태 합계
+          </h3>
+          <dl className="usage-table num">
             {otherTypes.map((item) => (
               <div key={item.eventType}>
                 <dt>{item.label}</dt>
@@ -345,32 +372,34 @@ export function LeaveLedgerPanel({
       <details className="ledger-card ledger-entries">
         <summary>연가 사용 내역 {ledger.entries.length}건</summary>
         {ledger.entries.length ? (
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">날짜</th>
-                <th scope="col">내용</th>
-                <th scope="col">변동</th>
-                <th scope="col">누적</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ledger.entries.map((entry) => (
-                <tr
-                  className={entry.scheduled ? "is-scheduled" : undefined}
-                  key={`${entry.kind}-${entry.referenceId}`}
-                >
-                  <td>{entry.date.slice(2).replaceAll("-", ".")}</td>
-                  <td>
-                    {entry.label}
-                    {entry.scheduled ? " (예정)" : ""}
-                  </td>
-                  <td>{format(entry.delta)}</td>
-                  <td>{format(entry.running)}</td>
+          <div className="ledger-entries__scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">날짜</th>
+                  <th scope="col">내용</th>
+                  <th scope="col">변동</th>
+                  <th scope="col">누적</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {ledger.entries.map((entry) => (
+                  <tr
+                    className={entry.scheduled ? "is-scheduled" : undefined}
+                    key={`${entry.kind}-${entry.referenceId}`}
+                  >
+                    <td>{entry.date.slice(2).replaceAll("-", ".")}</td>
+                    <td>
+                      {entry.label}
+                      {entry.scheduled ? " (예정)" : ""}
+                    </td>
+                    <td>{format(entry.delta)}</td>
+                    <td>{format(entry.running)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <EmptyState
             title="아직 연가 사용 내역이 없어요"
