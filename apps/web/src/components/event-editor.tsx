@@ -529,46 +529,51 @@ export function EventEditor({
                   }
                 />
               </label>
-              <label className="form-field">
-                <span>사용 시간</span>
-                <div className="unit-input">
-                  <input
-                    aria-label="시간"
-                    inputMode="numeric"
-                    min="0"
-                    max="23"
-                    type="number"
-                    value={form.hours}
-                    onChange={(change) =>
-                      update({
-                        hours: change.target.value,
-                        durationTouched: true,
-                      })
-                    }
-                  />
-                  <span>시간</span>
+              {/* Hours and minutes are one value: one label, always side by
+                  side, even when the time row above stacks on small phones. */}
+              <div
+                aria-labelledby="event-duration-label"
+                className="form-field field-row__full"
+                role="group"
+              >
+                <span id="event-duration-label">사용 시간</span>
+                <div className="unit-row duration-row">
+                  <div className="unit-input">
+                    <input
+                      aria-label="시간"
+                      inputMode="numeric"
+                      min="0"
+                      max="23"
+                      type="number"
+                      value={form.hours}
+                      onChange={(change) =>
+                        update({
+                          hours: change.target.value,
+                          durationTouched: true,
+                        })
+                      }
+                    />
+                    <span>시간</span>
+                  </div>
+                  <div className="unit-input">
+                    <input
+                      aria-label="분"
+                      inputMode="numeric"
+                      min="0"
+                      max="59"
+                      type="number"
+                      value={form.minutes}
+                      onChange={(change) =>
+                        update({
+                          minutes: change.target.value,
+                          durationTouched: true,
+                        })
+                      }
+                    />
+                    <span>분</span>
+                  </div>
                 </div>
-              </label>
-              <label className="form-field">
-                <span className="visually-hidden">분</span>
-                <div className="unit-input unit-input--offset">
-                  <input
-                    aria-label="분"
-                    inputMode="numeric"
-                    min="0"
-                    max="59"
-                    type="number"
-                    value={form.minutes}
-                    onChange={(change) =>
-                      update({
-                        minutes: change.target.value,
-                        durationTouched: true,
-                      })
-                    }
-                  />
-                  <span>분</span>
-                </div>
-              </label>
+              </div>
             </div>
           ) : null}
 

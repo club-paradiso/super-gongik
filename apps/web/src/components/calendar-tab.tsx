@@ -164,7 +164,7 @@ export function CalendarTab({
       <div className="calendar-toolbar">
         <div
           className="segmented segmented--tabs"
-          role="tablist"
+          role="group"
           aria-label="보기 선택"
         >
           {(
@@ -175,13 +175,12 @@ export function CalendarTab({
             ] as const
           ).map(([key, label]) => (
             <button
-              aria-selected={view === key}
+              aria-pressed={view === key}
               className={
                 view === key ? "segmented__item is-active" : "segmented__item"
               }
               key={key}
               onClick={() => onViewChange(key)}
-              role="tab"
               type="button"
             >
               {label}
@@ -572,11 +571,25 @@ function EventRow({
   event: ServiceEvent;
   onOpen: (event: ServiceEvent) => void;
 }) {
+  // Keep a time range such as "(16:00–18:00)" together when the row wraps.
+  const timing = describeTiming(event);
+  const rangeAt = timing.indexOf(" (");
   return (
     <button className="event-row" onClick={() => onOpen(event)} type="button">
       <EventChip event={event} />
       <span className="event-row__body">
-        <strong className="num">{describeTiming(event)}</strong>
+        <strong className="num">
+          {rangeAt === -1 ? (
+            timing
+          ) : (
+            <>
+              {timing.slice(0, rangeAt)}{" "}
+              <span className="event-row__range">
+                {timing.slice(rangeAt + 1)}
+              </span>
+            </>
+          )}
+        </strong>
         {event.note ? <small>{event.note}</small> : null}
       </span>
       <span className="event-row__source">
@@ -702,7 +715,7 @@ function AgendaGroup({
 }) {
   return (
     <section className="agenda-group" aria-label={title}>
-      <h3>{title}</h3>
+      <h2>{title}</h2>
       <ul className="event-list">
         {events.map((event) => (
           <li key={event.id}>

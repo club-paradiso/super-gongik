@@ -100,7 +100,7 @@
   gap: 6px;
   min-height: 44px;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   background: var(--hero-track);
   padding: 0 14px;
   color: var(--hero-accent);
@@ -213,7 +213,7 @@
 
 .month-header h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: var(--font-title-3);
   font-weight: 800;
   letter-spacing: var(--tracking-title);
   font-variant-numeric: tabular-nums;
@@ -232,7 +232,7 @@
   min-height: 44px;
   margin-right: 2px;
   border: 4px solid transparent;
-  border-radius: 14px;
+  border-radius: calc(var(--radius-control) + 4px);
   background: var(--surface-interactive) padding-box;
   padding: 0 10px;
   color: var(--text-primary);
@@ -675,11 +675,11 @@
 }
 
 .day-panel h3,
-.agenda-group h3 {
+.agenda-group h2 {
   margin: 0;
-  font-size: 17px;
+  font-size: var(--font-title-card);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tracking-title);
 }
 
 .day-panel header .text-button {
@@ -772,6 +772,10 @@
   font-size: 15px;
   font-weight: 700;
   letter-spacing: -0.01em;
+}
+
+.event-row__range {
+  white-space: nowrap;
 }
 
 .event-row__body small {
@@ -901,7 +905,7 @@
   flex: none;
   align-items: center;
   gap: 7px;
-  min-height: 40px;
+  min-height: 44px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-pill);
   background: var(--surface);
@@ -967,7 +971,7 @@
   flex: none;
   min-height: 40px;
   border: 1px solid var(--border-strong);
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   background: var(--surface);
   padding: 0 12px;
   color: var(--accent-primary);
@@ -1073,7 +1077,7 @@
   margin: 0 0 -10px;
   color: var(--text-primary);
   font-size: var(--font-label);
-  font-weight: 650;
+  font-weight: 750;
 }
 
 .sheet__source {
@@ -1137,6 +1141,16 @@
 .field-row .form-field,
 .sheet .form-field {
   min-width: 0;
+}
+
+/* 시간 · 분: same gap as the time row above, equal suffix widths so the two
+ * inputs line up with 시작/종료 시각. */
+.sheet .duration-row {
+  gap: 12px;
+}
+
+.sheet .duration-row .unit-input > span {
+  width: 2.25em;
 }
 
 /* Leave ledger ----------------------------------------------------------------- */
@@ -1221,17 +1235,23 @@
   margin-top: -4px;
 }
 
-.ledger-card h3 {
+/* Column wrappers only lay out on wide screens; below that the cards are
+ * direct grid items of .ledger. */
+.ledger__column {
+  display: contents;
+}
+
+.ledger-card h2 {
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 0;
-  font-size: 16px;
+  font-size: var(--font-title-card);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tracking-title);
 }
 
-.ledger-card h3 svg {
+.ledger-card h2 svg {
   flex: none;
   color: var(--accent-primary);
 }
@@ -1533,7 +1553,11 @@ details.ledger-card > :last-child:not(summary) {
   .calendar-toolbar .calendar-add {
     margin-left: auto;
   }
+}
 
+/* Two ledger columns only once each has a readable measure. Each column
+ * stacks on its own, so card heights never leave holes across a row. */
+@media (min-width: 1200px) {
   .ledger {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
@@ -1547,6 +1571,17 @@ details.ledger-card > :last-child:not(summary) {
     grid-column: 1 / -1;
   }
 
+  .ledger__column {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+}
+
+/* Headline and the four figures side by side only when each figure still
+ * fits on one line ("4일 1시간 30분"). */
+@media (min-width: 1360px) {
   .ledger-summary {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
     align-items: center;
@@ -1601,10 +1636,6 @@ details.ledger-card > :last-child:not(summary) {
     padding-left: 8px;
   }
 
-  .month-header h2 {
-    font-size: 18px;
-  }
-
   .month-cell__day {
     width: 30px;
     height: 30px;
@@ -1628,10 +1659,13 @@ details.ledger-card > :last-child:not(summary) {
     border-top: 1px solid var(--border-strong);
   }
 
-  /* On night surfaces the active segment rises instead of sinking. */
+  /* Night surfaces: the active segment reads as a selection (indigo tonal
+   * fill + edge), matching the shared segmented control and selected day. */
   .calendar-page .segmented__item.is-active,
   .sheet .segmented__item.is-active {
-    background: var(--surface-hover);
+    background: var(--selected-background);
+    color: var(--text-primary);
+    box-shadow: inset 0 0 0 1px var(--selected-border);
   }
 
   .ledger-summary__grid div {
