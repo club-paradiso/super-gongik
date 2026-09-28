@@ -15,6 +15,12 @@ import { Button } from "@/components/ui/button";
 import { useCloud } from "@/hooks/use-cloud";
 import { isAccountChanged } from "@/lib/sync/cloud-controller";
 import {
+  SOCIAL_AUTH_OPTIONS,
+  SocialSignInError,
+  startSocialSignIn,
+  type SocialAuthProvider,
+} from "@/lib/sync/social-auth";
+import {
   COLLECTION_LABELS,
   CONFLICT_TYPE_COPY,
   describeVersion,
@@ -124,6 +130,8 @@ function SignIn() {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const [socialBusy, setSocialBusy] = useState<SocialAuthProvider | null>(null);
+  const [socialError, setSocialError] = useState("");
 
   async function send(event: FormEvent) {
     event.preventDefault();
@@ -139,6 +147,25 @@ function SignIn() {
     setBusy(true);
     await cloud.verifyCode(code.trim());
     setBusy(false);
+  }
+
+  async function social(provider: SocialAuthProvider) {
+    if (busy) return;
+    setBusy(true);
+    setSocialBusy(provider);
+    setSocialError("");
+    try {
+      await startSocialSignIn(provider);
+    } catch (error) {
+      setSocialError(
+        error instanceof SocialSignInError && error.kind === "NETWORK"
+          ? "인터넷에 연결되지 않았어요. 연결을 확인해 주세요."
+          : "소셜 로그인을 시작하지 못했어요. 로그인 제공자 설정을 확인해 주세요.",
+      );
+    } finally {
+      setBusy(false);
+      setSocialBusy(null);
+    }
   }
 
   const error = state.authError ? (
@@ -183,28 +210,55 @@ function SignIn() {
   }
 
   return (
-    <form className="cloud-form" onSubmit={send}>
-      <label className="form-field">
-        <span>이메일</span>
-        <input
-          autoComplete="email"
-          disabled={state.phase === "LOADING"}
-          inputMode="email"
-          onChange={(event) => setEmail(event.target.value)}
-          required
-          type="email"
-          value={email}
-        />
-      </label>
-      {error}
-      <Button disabled={busy || state.phase === "LOADING"} type="submit">
-        로그인 코드 받기
-      </Button>
-      <p className="field-hint">
-        로그인하면 동기화를 켤지 먼저 물어봐요. 로그인만으로는 아무것도 올리지
-        않아요.
-      </p>
-    </form>
+    <div className="cloud-signin">
+      <div
+        aria-label="소셜 계정으로 로그인"
+        className="cloud-social-login"
+        role="group"
+      >
+        {SOCIAL_AUTH_OPTIONS.map((option) => (
+          <Button
+            disabled={busy || state.phase === "LOADING"}
+            key={option.id}
+            onClick={() => void social(option.id)}
+            type="button"
+            variant="outline"
+          >
+            {socialBusy === option.id ? option.pendingLabel : option.label}
+          </Button>
+        ))}
+      </div>
+      {socialError ? (
+        <p className="form-error" role="alert">
+          {socialError}
+        </p>
+      ) : null}
+      <div aria-hidden="true" className="cloud-auth-divider">
+        <span>또는 이메일</span>
+      </div>
+      <form className="cloud-form" onSubmit={send}>
+        <label className="form-field">
+          <span>이메일</span>
+          <input
+            autoComplete="email"
+            disabled={state.phase === "LOADING"}
+            inputMode="email"
+            onChange={(event) => setEmail(event.target.value)}
+            required
+            type="email"
+            value={email}
+          />
+        </label>
+        {error}
+        <Button disabled={busy || state.phase === "LOADING"} type="submit">
+          로그인 코드 받기
+        </Button>
+        <p className="field-hint">
+          어떤 방식으로 로그인해도 동기화를 켤지 먼저 물어봐요. 로그인만으로는
+          아무것도 올리지 않아요.
+        </p>
+      </form>
+    </div>
   );
 }
 
