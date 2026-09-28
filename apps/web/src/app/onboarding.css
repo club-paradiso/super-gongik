@@ -1,0 +1,269 @@
+/* Onboarding: first-run setup and restore entry points. */
+
+.onboarding {
+  min-height: 100dvh;
+  padding: calc(env(safe-area-inset-top) + 16px) var(--gutter)
+    calc(env(safe-area-inset-bottom) + 28px);
+}
+
+.onboarding__inner {
+  display: grid;
+  gap: 16px;
+  width: min(100%, 440px);
+  margin: 0 auto;
+}
+
+.onboarding__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.onboarding__hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-hero);
+  background: var(--gradient-brand);
+  padding: 28px 24px 42px;
+}
+.onboarding__hero::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  bottom: -90px;
+  left: -25%;
+  width: 150%;
+  height: 110px;
+  border-radius: 50%;
+  border-top: 1px solid var(--brand-gold);
+  box-shadow: var(--glow);
+}
+.onboarding__hero h1 {
+  margin: 4px 0 0;
+  color: var(--hero-fg);
+  font-size: 29px;
+  font-weight: 800;
+  line-height: 1.24;
+  letter-spacing: -0.04em;
+}
+
+.onboarding__hero p {
+  margin: 12px 0 0;
+  color: var(--hero-fg-2);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.onboarding__form {
+  display: grid;
+  gap: 10px;
+}
+
+.setup-card {
+  min-width: 0;
+  overflow: hidden;
+  margin: 0;
+  border: 0;
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  padding: 0;
+  box-shadow: var(--shadow);
+}
+
+/* Floated legend sits inside the card instead of on its border. */
+.setup-card > legend {
+  float: left;
+  width: 100%;
+  margin: 0;
+  padding: 16px 16px 10px;
+}
+
+.setup-card > legend + * {
+  clear: both;
+}
+
+.setup-card__title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
+.setup-section {
+  padding: 0 16px 16px;
+}
+
+.setup-section--secondary {
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  padding-top: 14px;
+}
+
+.setup-section__title {
+  margin: 0 0 10px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+}
+
+.setup-section__title .optional {
+  margin-left: 4px;
+}
+
+.setup-row {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.setup-row + .setup-row {
+  margin-top: 14px;
+}
+
+.setup-row__label {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.setup-row__hint {
+  color: var(--text-tertiary);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.onboarding__submit {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.onboarding__privacy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.onboarding__privacy svg {
+  color: var(--accent-primary);
+}
+
+.restore-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  padding: 6px;
+}
+
+.restore-card h2 {
+  margin: 0;
+  padding: 10px 10px 4px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.restore-option + .restore-option {
+  border-top: 1px solid var(--border);
+}
+
+.restore-option__toggle {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 20px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 62px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.restore-option__toggle:hover {
+  background: var(--surface-interactive);
+}
+
+.restore-option__icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: var(--selected-background);
+  color: var(--accent-primary);
+}
+
+.restore-option__text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.restore-option__text strong {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.restore-option__text small {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.restore-option__chevron {
+  color: var(--text-tertiary);
+  transition: transform 160ms ease;
+}
+
+.restore-option.is-open .restore-option__chevron {
+  transform: rotate(180deg);
+}
+
+.restore-option__panel {
+  padding: 4px 10px 14px;
+}
+
+/* Inside onboarding the toggle already names the panel. */
+.restore-option__panel .backup-panel {
+  margin: 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+.restore-option__panel .panel-head {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+@media (min-width: 640px) {
+  .onboarding {
+    display: grid;
+    align-items: center;
+    padding-block: 48px;
+  }
+
+  .onboarding__hero h1 {
+    font-size: 34px;
+  }
+}
