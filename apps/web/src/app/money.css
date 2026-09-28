@@ -43,10 +43,11 @@
   box-shadow: var(--money-card-shadow);
 }
 
+/* Card title role. */
 .money-page h2 {
   margin: 0;
   color: var(--text-primary);
-  font-size: 17px;
+  font-size: var(--font-title-card);
   font-weight: 800;
   line-height: 1.35;
   letter-spacing: var(--tracking-title);
@@ -66,8 +67,9 @@
   padding: var(--space-1);
 }
 
+/* Month title role, shared with the calendar month header. */
 .month-switch h2 {
-  font-size: 17px;
+  font-size: var(--font-title-3);
   text-align: center;
 }
 
@@ -103,7 +105,6 @@
 .money-summary {
   display: grid;
   gap: var(--space-1);
-  border-radius: var(--radius-card-lg);
   padding: var(--space-5);
 }
 
@@ -177,7 +178,7 @@
 .money-summary__steps dd {
   margin: 0;
   color: var(--text-primary);
-  font-size: 15px;
+  font-size: var(--font-body);
   font-weight: 700;
   line-height: 1.45;
   font-variant-numeric: tabular-nums;
@@ -217,7 +218,7 @@
   gap: 6px var(--space-2);
   min-width: 0;
   color: var(--text-primary);
-  font-size: 15px;
+  font-size: var(--font-body);
   font-weight: 750;
 }
 
@@ -309,7 +310,9 @@
   align-items: center;
   gap: var(--space-2);
   color: var(--warning);
-  font-size: 15px;
+  /* Callout title role. */
+  font-size: var(--font-body);
+  font-weight: 750;
 }
 
 .money-unresolved .plain-list li {
@@ -361,7 +364,7 @@
 
 .attendance-summary strong {
   color: var(--accent-primary);
-  font-size: 17px;
+  font-size: var(--font-title-card);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
@@ -384,7 +387,8 @@
   margin-bottom: 0;
   padding: 0;
   color: var(--text-primary);
-  font-size: 15px;
+  /* Group title role. */
+  font-size: var(--font-label);
   font-weight: 750;
 }
 
@@ -465,7 +469,7 @@
   width: 16px;
   height: 16px;
   border: 1.5px solid var(--border-emphasis);
-  border-radius: 5px;
+  border-radius: var(--radius-xs);
   background: var(--surface) center / 12px 12px no-repeat;
   content: "";
 }
@@ -532,6 +536,36 @@
 
 .attendance-editor .check-row {
   font-size: var(--font-label);
+}
+
+/* Drawn like the day tiles' box so the native control does not fall back to
+   the system's gray square on the navy card in dark mode. */
+.attendance-editor .check-row input {
+  box-sizing: border-box;
+  border: 1.5px solid var(--border-emphasis);
+  border-radius: var(--radius-xs);
+  background: var(--surface) center / 14px 14px no-repeat;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.attendance-editor .check-row input:hover {
+  border-color: var(--accent-primary);
+}
+
+.attendance-editor .check-row input:checked {
+  border-color: var(--accent-primary);
+  background-color: var(--accent-primary);
+  background-image: var(--money-check);
+}
+
+.attendance-editor .check-row input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 /* Meal/transport decisions: one row per day. */
@@ -645,6 +679,20 @@
 .rule-note dt {
   flex: none;
   white-space: nowrap;
+}
+
+/* Human rule name first; the raw bundle id and version stay as a quiet
+   second line for anyone checking against the source. */
+.rule-note .rule-note__rule {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+}
+
+.rule-note__rule small {
+  color: var(--text-tertiary);
+  font-size: var(--font-micro);
+  font-weight: 500;
 }
 
 .rule-note dd {
@@ -838,6 +886,20 @@
   font-size: var(--font-caption);
 }
 
+/* Helper prose keeps a readable measure inside full-width cards. */
+.money-page .field-hint,
+.money-page .form-field > small,
+.money-page .choice-field > small,
+.money-page .money-reference,
+.money-summary__note {
+  max-width: 68ch;
+}
+
+/* Paired number fields: equal suffix width keeps the input edges aligned. */
+.money-savings .unit-input > span {
+  width: 2.25em;
+}
+
 /* Wider layouts ------------------------------------------------------------- */
 
 @media (min-width: 720px) {
@@ -873,6 +935,7 @@
   .attendance-save,
   .money-history > .btn {
     justify-self: start;
+    width: auto;
     min-width: 200px;
   }
 

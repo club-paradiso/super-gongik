@@ -36,11 +36,12 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-const currency = new Intl.NumberFormat("ko-KR", {
-  style: "currency",
-  currency: "KRW",
-  maximumFractionDigits: 0,
-});
+// Same "1,200,000원" form as the home stat card, so one amount reads the
+// same on every screen. Display only: amounts arrive already rounded.
+const wonFormat = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 });
+const currency = {
+  format: (amount: number) => `${wonFormat.format(amount)}원`,
+};
 
 const savedAtFormat = new Intl.DateTimeFormat("ko-KR", {
   timeZone: "Asia/Seoul",
@@ -62,6 +63,12 @@ const DAY_KIND_LABELS: Record<ServiceDay["kind"], string> = {
   FULL_DAY_LEAVE: "종일 휴가",
   NEEDS_DECISION: "직접 정해야 함",
   WORKED: "근무일",
+};
+
+// Human names for rule bundle ids; the raw id stays visible as a secondary
+// line so nothing is lost when a bundle has no name here yet.
+const RULE_LABELS: Record<string, string> = {
+  "kr.mma.social-service.compensation": "병무청 사회복무요원 보수 기준",
 };
 
 function monthLabel(month: YearMonth) {
@@ -110,41 +117,47 @@ function SoldierSavingsCalculator() {
       <div className="field-row money-savings__fields">
         <label className="form-field">
           <span>월 납입액</span>
-          <input
-            inputMode="numeric"
-            max={SOLDIER_SAVINGS_MONTHLY_MAX}
-            min="0"
-            step="50000"
-            type="number"
-            value={monthlyDeposit}
-            onChange={(event) =>
-              setMonthlyDeposit(
-                Math.min(
-                  SOLDIER_SAVINGS_MONTHLY_MAX,
-                  Math.max(0, Number(event.target.value) || 0),
-                ),
-              )
-            }
-          />
+          <div className="unit-input">
+            <input
+              inputMode="numeric"
+              max={SOLDIER_SAVINGS_MONTHLY_MAX}
+              min="0"
+              step="50000"
+              type="number"
+              value={monthlyDeposit}
+              onChange={(event) =>
+                setMonthlyDeposit(
+                  Math.min(
+                    SOLDIER_SAVINGS_MONTHLY_MAX,
+                    Math.max(0, Number(event.target.value) || 0),
+                  ),
+                )
+              }
+            />
+            <span>원</span>
+          </div>
           <small>개인 합산 한도 월 55만원</small>
         </label>
         <label className="form-field">
           <span>납입 개월</span>
-          <input
-            inputMode="numeric"
-            max={SOLDIER_SAVINGS_SOCIAL_SERVICE_MAX_MONTHS}
-            min="1"
-            type="number"
-            value={months}
-            onChange={(event) =>
-              setMonths(
-                Math.min(
-                  SOLDIER_SAVINGS_SOCIAL_SERVICE_MAX_MONTHS,
-                  Math.max(1, Number(event.target.value) || 1),
-                ),
-              )
-            }
-          />
+          <div className="unit-input">
+            <input
+              inputMode="numeric"
+              max={SOLDIER_SAVINGS_SOCIAL_SERVICE_MAX_MONTHS}
+              min="1"
+              type="number"
+              value={months}
+              onChange={(event) =>
+                setMonths(
+                  Math.min(
+                    SOLDIER_SAVINGS_SOCIAL_SERVICE_MAX_MONTHS,
+                    Math.max(1, Number(event.target.value) || 1),
+                  ),
+                )
+              }
+            />
+            <span>개월</span>
+          </div>
           <small>사회복무요원 최대 21개월</small>
         </label>
       </div>
@@ -364,9 +377,7 @@ export function MoneyTab({
         >
           <ChevronLeft aria-hidden="true" size={20} />
         </button>
-        <h2 className="num" aria-live="polite">
-          {monthLabel(month)}
-        </h2>
+        <h2 className="num">{monthLabel(month)}</h2>
         <button
           aria-label="다음 달"
           onClick={() => changeMonth(1)}
@@ -465,14 +476,22 @@ export function MoneyTab({
       ) : null}
 
       <div className="money-more">
-        <aside className="rule-note">
-          <h2>계산 기준</h2>
+        <section className="rule-note" aria-labelledby="money-rule-title">
+          <h2 id="money-rule-title">계산 기준</h2>
           {compensation.rule ? (
             <dl>
               <div>
                 <dt>적용 규칙</dt>
-                <dd>
-                  {compensation.rule.id} v{compensation.rule.version}
+                <dd
+                  className="rule-note__rule"
+                  title={`${compensation.rule.id} v${compensation.rule.version}`}
+                >
+                  <span>
+                    {RULE_LABELS[compensation.rule.id] ?? compensation.rule.id}
+                  </span>
+                  <small className="num">
+                    {compensation.rule.id} v{compensation.rule.version}
+                  </small>
                 </dd>
               </div>
               <div>
@@ -517,7 +536,7 @@ export function MoneyTab({
               </ul>
             </details>
           ) : null}
-        </aside>
+        </section>
 
         <SoldierSavingsCalculator />
 
@@ -528,7 +547,11 @@ export function MoneyTab({
               저장하면 그때의 규칙 버전·입력·결과가 그대로 남아요. 규칙이
               바뀌어도 다시 계산되지 않아요.
             </p>
-            <Button onClick={() => void saveSnapshot()} type="button">
+            <Button
+              onClick={() => void saveSnapshot()}
+              type="button"
+              variant="outline"
+            >
               이 달 계산 저장
             </Button>
             {message ? (
@@ -887,6 +910,7 @@ function AttendanceEditor({
       <Button
         className="attendance-save"
         onClick={() => void save()}
+        size="large"
         type="button"
       >
         이 달 확인 저장
