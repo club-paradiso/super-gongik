@@ -4,6 +4,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ExternalLink,
+  Hourglass,
   PiggyBank,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -94,7 +95,10 @@ function SoldierSavingsCalculator() {
   const estimatedTotal = principal + matchingSupport + estimatedInterest;
 
   return (
-    <section className="money-history" aria-labelledby="soldier-savings-title">
+    <section
+      className="money-history money-savings"
+      aria-labelledby="soldier-savings-title"
+    >
       <h2 id="soldier-savings-title">
         <PiggyBank aria-hidden="true" size={20} /> 장병내일준비적금 계산기
       </h2>
@@ -103,7 +107,7 @@ function SoldierSavingsCalculator() {
         55만원, 최대 21개월, 사회복귀준비금은 인정 납입원금의 100%예요.
       </p>
 
-      <div className="field-row">
+      <div className="field-row money-savings__fields">
         <label className="form-field">
           <span>월 납입액</span>
           <input
@@ -163,14 +167,31 @@ function SoldierSavingsCalculator() {
         <small>은행·우대조건마다 달라 직접 조정할 수 있어요.</small>
       </label>
 
-      <div className="money-total" aria-live="polite">
-        <span>예상 만기자금</span>
-        <strong>{currency.format(Math.round(estimatedTotal))}</strong>
-        <small>
-          원금 {currency.format(principal)} + 사회복귀준비금{" "}
-          {currency.format(matchingSupport)} + 예상 은행이자{" "}
-          {currency.format(Math.round(estimatedInterest))}
-        </small>
+      <div className="money-savings__result" aria-live="polite">
+        <span className="money-savings__label">예상 만기자금</span>
+        <strong className="money-savings__amount num">
+          {currency.format(Math.round(estimatedTotal))}
+        </strong>
+        <dl className="money-savings__parts">
+          <div>
+            <dt>원금</dt>
+            <dd className="num">{currency.format(principal)}</dd>
+          </div>
+          <div>
+            <dt>
+              <span aria-hidden="true">+ </span>사회복귀준비금
+            </dt>
+            <dd className="num">{currency.format(matchingSupport)}</dd>
+          </div>
+          <div>
+            <dt>
+              <span aria-hidden="true">+ </span>예상 은행이자
+            </dt>
+            <dd className="num">
+              {currency.format(Math.round(estimatedInterest))}
+            </dd>
+          </div>
+        </dl>
       </div>
       <p className="money-reference">
         계산값은 예상치예요. 실제 이자는 은행별 금리·납입일·우대조건에 따라
@@ -220,12 +241,17 @@ function MoneySummary({
   );
 
   return (
-    <section className="money-summary" aria-live="polite">
+    <section
+      className={
+        complete ? "money-summary money-summary--complete" : "money-summary"
+      }
+      aria-live="polite"
+    >
       <p className="money-summary__label">{label}</p>
       <strong
         className={
           amount
-            ? "money-summary__amount"
+            ? "money-summary__amount num"
             : "money-summary__amount money-summary__amount--pending"
         }
       >
@@ -338,7 +364,9 @@ export function MoneyTab({
         >
           <ChevronLeft aria-hidden="true" size={20} />
         </button>
-        <h2>{monthLabel(month)}</h2>
+        <h2 className="num" aria-live="polite">
+          {monthLabel(month)}
+        </h2>
         <button
           aria-label="다음 달"
           onClick={() => changeMonth(1)}
@@ -348,65 +376,79 @@ export function MoneyTab({
         </button>
       </div>
 
-      <MoneySummary compensation={compensation} schedule={schedule} />
+      <div className="money-overview">
+        <MoneySummary compensation={compensation} schedule={schedule} />
 
-      {compensation.components.length ? (
-        <div className="money-list">
-          {compensation.components.map((component) => (
-            <article key={component.key}>
-              <div className="money-list__title">
-                <span>{component.label}</span>
-                <span
-                  className={`badge badge--${component.status.toLowerCase()}`}
-                >
-                  {STATUS_LABELS[component.status]}
-                </span>
-              </div>
-              <strong>
-                {component.monthlyAmount !== null
-                  ? currency.format(component.monthlyAmount)
-                  : "—"}
-              </strong>
-              {component.dailyRate !== null ||
-              component.eligibleDays !== null ? (
-                <p className="money-formula">
-                  1일{" "}
-                  {component.dailyRate !== null
-                    ? currency.format(component.dailyRate)
-                    : "금액 미입력"}{" "}
-                  × {component.eligibleDays ?? "?"}일
-                </p>
-              ) : null}
-              <p>{component.explanation}</p>
-              {component.rateSource ? (
-                <p className="money-reference">
-                  {component.rateSource === "OFFICIAL_MINIMUM"
-                    ? "1일 금액 출처: 병무청 2026년 지급 기준(최소기준)"
-                    : "1일 금액 출처: 내가 입력한 값 (공식 금액 아님)"}
-                </p>
-              ) : null}
-              <details className="money-basis">
-                <summary>근거 법령·기준</summary>
-                <p>{component.basis}</p>
-              </details>
-            </article>
-          ))}
-        </div>
-      ) : null}
-
-      {compensation.unresolved.length ? (
-        <section className="money-unresolved">
-          <h2>아직 계산하지 못하는 것</h2>
-          <ul className="plain-list">
-            {compensation.unresolved.map((item) => (
-              <li key={item}>{item}</li>
+        {compensation.components.length ? (
+          <div className="money-list">
+            {compensation.components.map((component) => (
+              <article
+                className={
+                  component.monthlyAmount !== null
+                    ? "money-item"
+                    : "money-item money-item--pending"
+                }
+                key={component.key}
+              >
+                <div className="money-item__head">
+                  <div className="money-list__title">
+                    <span>{component.label}</span>
+                    <span
+                      className={`badge badge--${component.status.toLowerCase()}`}
+                    >
+                      {STATUS_LABELS[component.status]}
+                    </span>
+                  </div>
+                  <strong className="money-item__amount num">
+                    {component.monthlyAmount !== null
+                      ? currency.format(component.monthlyAmount)
+                      : "—"}
+                  </strong>
+                </div>
+                {component.dailyRate !== null ||
+                component.eligibleDays !== null ? (
+                  <p className="money-formula num">
+                    1일{" "}
+                    {component.dailyRate !== null
+                      ? currency.format(component.dailyRate)
+                      : "금액 미입력"}{" "}
+                    × {component.eligibleDays ?? "?"}일
+                  </p>
+                ) : null}
+                <p>{component.explanation}</p>
+                {component.rateSource ? (
+                  <p className="money-reference">
+                    {component.rateSource === "OFFICIAL_MINIMUM"
+                      ? "1일 금액 출처: 병무청 2026년 지급 기준(최소기준)"
+                      : "1일 금액 출처: 내가 입력한 값 (공식 금액 아님)"}
+                  </p>
+                ) : null}
+                <details className="money-basis">
+                  <summary>근거 법령·기준</summary>
+                  <p>{component.basis}</p>
+                </details>
+              </article>
             ))}
-          </ul>
-          <Button onClick={onOpenProfile} type="button" variant="outline">
-            내 정보에서 입력하기
-          </Button>
-        </section>
-      ) : null}
+          </div>
+        ) : null}
+
+        {compensation.unresolved.length ? (
+          <section className="money-unresolved">
+            <h2>
+              <Hourglass aria-hidden="true" size={18} />
+              아직 계산하지 못하는 것
+            </h2>
+            <ul className="plain-list">
+              {compensation.unresolved.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <Button onClick={onOpenProfile} type="button" variant="outline">
+              내 정보에서 입력하기
+            </Button>
+          </section>
+        ) : null}
+      </div>
 
       {compensation.serviceDays &&
       compensation.serviceDays.status !== "UNSUPPORTED" &&
@@ -422,113 +464,115 @@ export function MoneyTab({
         />
       ) : null}
 
-      <aside className="rule-note">
-        <h2>계산 기준</h2>
-        {compensation.rule ? (
-          <dl>
-            <div>
-              <dt>적용 규칙</dt>
-              <dd>
-                {compensation.rule.id} v{compensation.rule.version}
-              </dd>
-            </div>
-            <div>
-              <dt>적용 기간</dt>
-              <dd>
-                {compensation.rule.effectiveFrom} ~{" "}
-                {compensation.rule.effectiveUntil ?? "현재"}
-              </dd>
-            </div>
-            <div>
-              <dt>원문 확인일</dt>
-              <dd>{compensation.rule.verifiedAt}</dd>
-            </div>
-            <div>
-              <dt>기준일</dt>
-              <dd>{compensation.asOfDate}</dd>
-            </div>
-          </dl>
-        ) : (
-          <p>적용할 수 있는 검증된 규칙이 없어요.</p>
-        )}
-        {compensation.assumptions.length ? (
-          <ul className="plain-list">
-            {compensation.assumptions.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        ) : null}
-        {compensation.rule ? (
-          <details>
-            <summary>출처 {compensation.rule.sources.length}건</summary>
-            <ul className="source-list">
-              {compensation.rule.sources.map((source) => (
-                <li key={`${source.title}-${source.url}`}>
-                  <a href={source.url} rel="noreferrer" target="_blank">
-                    {source.title}
-                    <ExternalLink aria-hidden="true" size={13} />
-                  </a>
-                  <small>{source.authority}</small>
-                </li>
+      <div className="money-more">
+        <aside className="rule-note">
+          <h2>계산 기준</h2>
+          {compensation.rule ? (
+            <dl>
+              <div>
+                <dt>적용 규칙</dt>
+                <dd>
+                  {compensation.rule.id} v{compensation.rule.version}
+                </dd>
+              </div>
+              <div>
+                <dt>적용 기간</dt>
+                <dd className="num">
+                  {compensation.rule.effectiveFrom} ~{" "}
+                  {compensation.rule.effectiveUntil ?? "현재"}
+                </dd>
+              </div>
+              <div>
+                <dt>원문 확인일</dt>
+                <dd className="num">{compensation.rule.verifiedAt}</dd>
+              </div>
+              <div>
+                <dt>기준일</dt>
+                <dd className="num">{compensation.asOfDate}</dd>
+              </div>
+            </dl>
+          ) : (
+            <p>적용할 수 있는 검증된 규칙이 없어요.</p>
+          )}
+          {compensation.assumptions.length ? (
+            <ul className="plain-list">
+              {compensation.assumptions.map((item) => (
+                <li key={item}>{item}</li>
               ))}
             </ul>
-          </details>
-        ) : null}
-      </aside>
+          ) : null}
+          {compensation.rule ? (
+            <details className="money-sources">
+              <summary>출처 {compensation.rule.sources.length}건</summary>
+              <ul className="source-list">
+                {compensation.rule.sources.map((source) => (
+                  <li key={`${source.title}-${source.url}`}>
+                    <a href={source.url} rel="noreferrer" target="_blank">
+                      {source.title}
+                      <ExternalLink aria-hidden="true" size={13} />
+                    </a>
+                    <small>{source.authority}</small>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ) : null}
+        </aside>
 
-      <SoldierSavingsCalculator />
+        <SoldierSavingsCalculator />
 
-      {compensation.rule ? (
-        <section className="money-history">
-          <h2>저장한 계산</h2>
-          <p className="field-hint">
-            저장하면 그때의 규칙 버전·입력·결과가 그대로 남아요. 규칙이 바뀌어도
-            다시 계산되지 않아요.
-          </p>
-          <Button onClick={() => void saveSnapshot()} type="button">
-            이 달 계산 저장
-          </Button>
-          {message ? (
-            <p className="save-message" role="status">
-              {message}
+        {compensation.rule ? (
+          <section className="money-history">
+            <h2>저장한 계산</h2>
+            <p className="field-hint">
+              저장하면 그때의 규칙 버전·입력·결과가 그대로 남아요. 규칙이
+              바뀌어도 다시 계산되지 않아요.
             </p>
-          ) : null}
-          {snapshots.length ? (
-            <ul className="snapshot-list">
-              {snapshots.map((snapshot) => (
-                <li key={snapshot.id}>
-                  <div>
-                    <strong>
-                      {snapshot.total !== null
-                        ? currency.format(snapshot.total)
-                        : "합계 없음"}
-                    </strong>
-                    <small>
-                      {savedAtFormat.format(new Date(snapshot.generatedAt))} ·
-                      규칙 v{snapshot.ruleVersion}
-                    </small>
-                  </div>
-                  <Button
-                    onClick={() =>
-                      void store.run((current, context) =>
-                        deleteCompensationSnapshot(
-                          current,
-                          snapshot.id,
-                          context,
-                        ),
-                      )
-                    }
-                    type="button"
-                    variant="ghost"
-                  >
-                    삭제
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </section>
-      ) : null}
+            <Button onClick={() => void saveSnapshot()} type="button">
+              이 달 계산 저장
+            </Button>
+            {message ? (
+              <p className="save-message" role="status">
+                {message}
+              </p>
+            ) : null}
+            {snapshots.length ? (
+              <ul className="snapshot-list">
+                {snapshots.map((snapshot) => (
+                  <li key={snapshot.id}>
+                    <div>
+                      <strong className="num">
+                        {snapshot.total !== null
+                          ? currency.format(snapshot.total)
+                          : "합계 없음"}
+                      </strong>
+                      <small className="num">
+                        {savedAtFormat.format(new Date(snapshot.generatedAt))} ·
+                        규칙 v{snapshot.ruleVersion}
+                      </small>
+                    </div>
+                    <Button
+                      onClick={() =>
+                        void store.run((current, context) =>
+                          deleteCompensationSnapshot(
+                            current,
+                            snapshot.id,
+                            context,
+                          ),
+                        )
+                      }
+                      type="button"
+                      variant="ghost"
+                    >
+                      삭제
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </section>
+        ) : null}
+      </div>
     </section>
   );
 }
@@ -671,8 +715,19 @@ function AttendanceEditor({
       </p>
       {status ? (
         <p className="attendance-summary">
-          중식비 대상 {status.mealEligibleDays ?? "?"}일 · 교통비 대상{" "}
-          {status.transportEligibleDays ?? "?"}일
+          <span>
+            중식비 대상{" "}
+            <strong className="num">{status.mealEligibleDays ?? "?"}일</strong>
+          </span>
+          <span aria-hidden="true" className="attendance-summary__sep">
+            {" · "}
+          </span>
+          <span>
+            교통비 대상{" "}
+            <strong className="num">
+              {status.transportEligibleDays ?? "?"}일
+            </strong>
+          </span>
         </p>
       ) : null}
 
@@ -680,13 +735,13 @@ function AttendanceEditor({
         <legend>근무 요일 중 쉬는 날 (공휴일·기관 휴무)</legend>
         <div className="day-grid">
           {scheduled.map((day) => (
-            <label className="day-toggle" key={day.date}>
+            <label className="day-toggle" data-kind={day.kind} key={day.date}>
               <input
                 checked={nonWorking.has(day.date)}
                 onChange={() => toggleNonWorking(day.date)}
                 type="checkbox"
               />
-              <span>{dayLabel(day.date)}</span>
+              <span className="num">{dayLabel(day.date)}</span>
               <small>{DAY_KIND_LABELS[day.kind]}</small>
             </label>
           ))}
@@ -694,13 +749,13 @@ function AttendanceEditor({
       </fieldset>
 
       {decisionDays.filter((day) => !nonWorking.has(day.date)).length ? (
-        <fieldset className="form-field choice-field">
+        <fieldset className="form-field choice-field attendance-decisions">
           <legend>중식비·교통비 지급 여부를 정할 날</legend>
           {decisionDays
             .filter((day) => !nonWorking.has(day.date))
             .map((day) => (
               <div className="decision-row" key={day.date}>
-                <span>
+                <span className="num">
                   {dayLabel(day.date)}
                   <small>{DAY_KIND_LABELS[day.kind]}</small>
                 </span>
@@ -745,7 +800,7 @@ function AttendanceEditor({
         </fieldset>
       ) : null}
 
-      <fieldset className="form-field choice-field">
+      <fieldset className="form-field choice-field attendance-nonpay">
         <legend>기본 보수 미지급 날짜</legend>
         <p className="field-hint">
           복무중단·복무이탈·연가 초과 결근·보수 미지급 병가처럼 기본 보수를 받지
@@ -771,7 +826,7 @@ function AttendanceEditor({
                   onChange={() => toggleNonPayable(day.date)}
                   type="checkbox"
                 />
-                <span>{dayLabel(day.date)}</span>
+                <span className="num">{dayLabel(day.date)}</span>
                 <small>
                   {derivedNonPayableSet.has(day.date)
                     ? "기록에서 자동 도출"
@@ -802,7 +857,7 @@ function AttendanceEditor({
         </label>
       </fieldset>
 
-      <label className="form-field">
+      <label className="form-field attendance-rounding">
         <span>기본 보수 끝수 처리</span>
         <select
           value={roundingPolicy ?? ""}
@@ -829,7 +884,11 @@ function AttendanceEditor({
         </small>
       </label>
 
-      <Button onClick={() => void save()} type="button">
+      <Button
+        className="attendance-save"
+        onClick={() => void save()}
+        type="button"
+      >
         이 달 확인 저장
       </Button>
       {message ? (
