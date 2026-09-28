@@ -200,6 +200,16 @@
   opacity: 0.38;
 }
 
+/* Periwinkle at low opacity turns muddy on the night canvas. */
+@media (prefers-color-scheme: dark) {
+  .onboarding__submit .btn--primary:disabled {
+    border-color: var(--border-strong);
+    background: var(--surface-interactive);
+    color: var(--text-tertiary);
+    opacity: 1;
+  }
+}
+
 .onboarding__submit .btn--primary[aria-busy="true"] {
   opacity: 0.72;
 }
