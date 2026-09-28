@@ -91,130 +91,140 @@ export function Onboarding({
   return (
     <main className="onboarding">
       <div className="onboarding__inner">
-        <header className="onboarding__brand">
-          <BrandMark />
-          <span className="brand-wordmark">SUPER-GONGIK</span>
-        </header>
-
         <section
           className="onboarding__hero"
           aria-labelledby="onboarding-title"
         >
-          <h1 id="onboarding-title">
-            복무 현황,
-            <br />
-            한눈에 챙겨요
-          </h1>
-          <p>소집일만 입력하면 D-Day와 진행률을 바로 보여드려요.</p>
-        </section>
-
-        <form className="onboarding__form" onSubmit={handleSubmit}>
-          <fieldset className="setup-card">
-            <legend className="setup-card__title">복무 정보</legend>
-
-            <div className="setup-section">
-              <p className="setup-section__title">복무 기간</p>
-              <label className="setup-row">
-                <span className="setup-row__label">소집일</span>
-                <DateInput
-                  onValueChange={updateCallUpDate}
-                  placeholder="날짜를 선택하세요"
-                  required
-                  value={callUpDate}
-                />
-              </label>
-              <label className="setup-row">
-                <span className="setup-row__label">소집해제 예정일</span>
-                <DateInput
-                  onValueChange={setExpectedDischargeDate}
-                  placeholder="소집일을 먼저 선택하세요"
-                  required
-                  value={expectedDischargeDate}
-                />
-                <small className="setup-row__hint">
-                  {STANDARD_SERVICE_MONTHS}개월 기준으로 자동 계산해요. 연장된
-                  경우 직접 고칠 수 있어요.
-                </small>
-              </label>
-            </div>
-
-            <div className="setup-section setup-section--secondary">
-              <p className="setup-section__title">
-                복무 분야 <span className="optional">선택</span>
-              </p>
-              <label className="setup-row">
-                <span className="visually-hidden">복무 분야</span>
-                <span className="select">
-                  <select
-                    value={serviceCategory}
-                    onChange={(event) => setServiceCategory(event.target.value)}
-                  >
-                    <option value="">나중에 정할게요</option>
-                    <option value="사회복지">사회복지</option>
-                    <option value="보건의료">보건의료</option>
-                    <option value="교육">교육</option>
-                    <option value="행정">행정</option>
-                    <option value="기타">기타</option>
-                  </select>
-                </span>
-              </label>
-            </div>
-          </fieldset>
-
-          {error ? (
-            <p className="form-error" role="alert">
-              {error}
-            </p>
-          ) : null}
-
-          <div className="onboarding__submit">
-            <Button
-              aria-busy={submitting || undefined}
-              disabled={!ready || submitting}
-              size="large"
-              type="submit"
-            >
-              {submitting ? "저장하는 중…" : "복무 현황 보기"}
-            </Button>
-            <p className="onboarding__privacy">
-              <LockKeyhole aria-hidden="true" size={14} />
-              회원가입 없이 이 기기에만 저장돼요.
-            </p>
+          <div className="onboarding__brand">
+            <BrandMark size={64} />
+            <span className="onboarding__lockup">
+              <span className="brand-wordmark">SUPER-GONGIK</span>
+              <span className="onboarding__caption">슈퍼공익</span>
+            </span>
           </div>
-        </form>
-
-        <section
-          className="restore-card"
-          aria-labelledby="onboarding-restore-title"
-        >
-          <h2 id="onboarding-restore-title">이미 쓰던 기록이 있나요?</h2>
-          <RestoreOption
-            description="내려받아 둔 JSON 백업으로 이어서 써요."
-            icon={FileUp}
-            label="백업 파일로 복원"
-            onToggle={() =>
-              setRestorePath((current) => (current === "file" ? null : "file"))
-            }
-            open={openPath === "file"}
-          >
-            <BackupPanel compact data={data} ledger={null} store={store} />
-          </RestoreOption>
-          {cloudAvailable ? (
-            <RestoreOption
-              description="다른 기기에서 동기화한 기록을 가져와요."
-              icon={Cloud}
-              label="계정으로 로그인"
-              onToggle={() =>
-                setRestorePath((current) =>
-                  current === "cloud" ? null : "cloud",
-                )
-              }
-              open={openPath === "cloud"}
-            >
-              <CloudSyncPanel onboarding />
-            </RestoreOption>
-          ) : null}
+          <div className="onboarding__intro">
+            <h1 id="onboarding-title">
+              복무 현황,
+              <br />
+              한눈에 챙겨요
+            </h1>
+            <p>소집일만 입력하면 D-Day와 진행률을 바로 보여드려요.</p>
+          </div>
         </section>
+
+        <div className="onboarding__main">
+          <form className="onboarding__form" onSubmit={handleSubmit}>
+            <fieldset className="setup-card">
+              <legend className="setup-card__title">복무 정보</legend>
+
+              <div className="setup-section">
+                <label className="setup-row">
+                  <span className="setup-row__label">소집일</span>
+                  <DateInput
+                    onValueChange={updateCallUpDate}
+                    placeholder="날짜를 선택하세요"
+                    required
+                    value={callUpDate}
+                  />
+                </label>
+                <label className="setup-row">
+                  <span className="setup-row__label">소집해제 예정일</span>
+                  <DateInput
+                    onValueChange={setExpectedDischargeDate}
+                    placeholder="소집일을 먼저 선택하세요"
+                    required
+                    value={expectedDischargeDate}
+                  />
+                  <small className="setup-row__hint">
+                    {STANDARD_SERVICE_MONTHS}개월 기준으로 자동 계산해요. 연장된
+                    경우 직접 고칠 수 있어요.
+                  </small>
+                </label>
+              </div>
+
+              <div className="setup-section setup-section--secondary">
+                <label className="setup-row">
+                  <span className="setup-row__label">
+                    복무 분야 <span className="optional">선택</span>
+                  </span>
+                  <span className="select">
+                    <select
+                      value={serviceCategory}
+                      onChange={(event) =>
+                        setServiceCategory(event.target.value)
+                      }
+                    >
+                      <option value="">나중에 정할게요</option>
+                      <option value="사회복지">사회복지</option>
+                      <option value="보건의료">보건의료</option>
+                      <option value="교육">교육</option>
+                      <option value="행정">행정</option>
+                      <option value="기타">기타</option>
+                    </select>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+
+            {error ? (
+              <p className="form-error" role="alert">
+                {error}
+              </p>
+            ) : null}
+
+            <div className="onboarding__submit">
+              <Button
+                aria-busy={submitting || undefined}
+                disabled={!ready || submitting}
+                size="large"
+                type="submit"
+              >
+                {submitting ? "저장하는 중…" : "복무 현황 보기"}
+              </Button>
+              <p className="onboarding__privacy">
+                <LockKeyhole aria-hidden="true" size={15} />
+                회원가입 없이 이 기기에만 저장돼요.
+              </p>
+            </div>
+          </form>
+
+          <section
+            className="restore-card"
+            aria-labelledby="onboarding-restore-title"
+          >
+            <h2 id="onboarding-restore-title">이미 쓰던 기록이 있나요?</h2>
+            <div className="restore-card__list">
+              <RestoreOption
+                description="내려받아 둔 JSON 백업으로 이어서 써요."
+                icon={FileUp}
+                label="백업 파일로 복원"
+                onToggle={() =>
+                  setRestorePath((current) =>
+                    current === "file" ? null : "file",
+                  )
+                }
+                open={openPath === "file"}
+              >
+                <BackupPanel compact data={data} ledger={null} store={store} />
+              </RestoreOption>
+              {cloudAvailable ? (
+                <RestoreOption
+                  description="다른 기기에서 동기화한 기록을 가져와요."
+                  icon={Cloud}
+                  label="계정으로 로그인"
+                  onToggle={() =>
+                    setRestorePath((current) =>
+                      current === "cloud" ? null : "cloud",
+                    )
+                  }
+                  open={openPath === "cloud"}
+                >
+                  <CloudSyncPanel onboarding />
+                </RestoreOption>
+              ) : null}
+            </div>
+          </section>
+        </div>
       </div>
     </main>
   );
