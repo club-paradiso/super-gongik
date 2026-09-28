@@ -7,8 +7,8 @@
   right: 0;
   left: 0;
   padding: calc(env(safe-area-inset-top) + 9px) 16px 9px;
-  background: var(--brand-navy);
-  color: #fff;
+  background: var(--brand-night);
+  color: var(--brand-ivory);
   font-size: 13px;
   font-weight: 700;
   text-align: center;
@@ -27,7 +27,7 @@ body:has(.offline-banner) .onboarding {
   max-width: 720px;
   margin: 0 auto;
   border: 1px solid var(--warning-border);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   background: var(--warning-background);
   padding: 12px 8px 12px 14px;
   color: var(--warning);
@@ -60,15 +60,49 @@ body > .storage-notice {
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 20px;
+  gap: 18px;
   min-height: 100dvh;
   padding: 24px;
+  background:
+    radial-gradient(
+      70% 45% at 50% 100%,
+      rgb(253 168 112 / 10%),
+      transparent 70%
+    ),
+    var(--background);
+}
+
+.app-loading__brand {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 17px;
+}
+
+.app-loading__brand .brand-mark {
+  animation: brand-breathe 1.8s var(--ease-out) infinite alternate;
+}
+
+@keyframes brand-breathe {
+  from {
+    opacity: 0.72;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* Brand ---------------------------------------------------------------------- */
 
+/* The artwork carries its own squircle and transparent matte. */
 .brand-mark {
   flex: none;
+  display: block;
+  filter: drop-shadow(0 1px 1px rgb(9 12 28 / 18%));
 }
 
 .brand-wordmark {
@@ -79,8 +113,8 @@ body > .storage-notice {
     BlinkMacSystemFont,
     "Apple SD Gothic Neo",
     sans-serif;
-  font-weight: 800;
-  letter-spacing: 0.01em;
+  font-weight: 850;
+  letter-spacing: 0.02em;
   line-height: 1;
   white-space: nowrap;
 }
@@ -104,7 +138,7 @@ body > .storage-notice {
 .app-header {
   width: min(100%, 720px);
   margin: 0 auto;
-  padding: calc(env(safe-area-inset-top) + 14px) var(--gutter) 0;
+  padding: calc(env(safe-area-inset-top) + 12px) var(--gutter) 0;
 }
 
 .app-header__bar {
@@ -118,16 +152,16 @@ body > .storage-notice {
 .app-header h1 {
   margin: 0;
   color: var(--text-primary);
-  font-size: 26px;
+  font-size: var(--font-title-1);
   font-weight: 800;
   line-height: 1.25;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-title);
 }
 
 .app-header__description {
   margin: 2px 0 0;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: var(--font-label);
   line-height: 1.5;
 }
 
@@ -158,7 +192,7 @@ body > .storage-notice {
   min-height: 32px;
   max-width: 55vw;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--surface);
   padding: 0 11px;
   color: var(--text-secondary);
@@ -192,6 +226,19 @@ body > .storage-notice {
   color: var(--text-primary);
 }
 
+.sync-chip--busy svg {
+  animation: sync-pulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes sync-pulse {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .sync-chip--attention {
   border-color: var(--warning-border);
   background: var(--warning-background);
@@ -213,6 +260,7 @@ body > .storage-notice {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   border-top: 1px solid var(--border);
   background: var(--surface-raised);
+  box-shadow: 0 -6px 20px rgb(9 12 28 / 4%);
   padding: 6px max(8px, env(safe-area-inset-right))
     calc(6px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
 }
@@ -223,26 +271,27 @@ body > .storage-notice {
   align-content: center;
   gap: 3px;
   min-width: 0;
-  min-height: 50px;
+  min-height: 52px;
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: transparent;
   padding: 0;
   color: var(--text-tertiary);
   font-size: 12px;
   font-weight: 650;
   letter-spacing: -0.01em;
+  transition: color var(--duration-base) ease;
 }
 
 .tab-button__icon {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 28px;
-  border-radius: 999px;
+  width: 52px;
+  height: 30px;
+  border-radius: var(--radius-pill);
   transition:
-    background-color 160ms ease,
-    color 160ms ease;
+    background-color var(--duration-base) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
 }
 
 .tab-button--active {
@@ -252,11 +301,10 @@ body > .storage-notice {
 
 .tab-button--active .tab-button__icon {
   background: var(--selected-background);
-  box-shadow: inset 0 -2px var(--accent-primary);
 }
 
 .tab-button:active .tab-button__icon {
-  transform: scale(0.94);
+  transform: scale(0.92);
 }
 
 @media (min-width: 640px) {
@@ -274,7 +322,7 @@ body > .storage-notice {
   }
 }
 
-/* Desktop: navy rail + content column. */
+/* Desktop: night-sky rail + content column. */
 @media (min-width: 960px) {
   body {
     padding: 24px;
@@ -282,71 +330,109 @@ body > .storage-notice {
 
   .app-shell {
     display: grid;
-    grid-template-columns: 232px minmax(0, 1fr);
-    width: min(100%, 1280px);
+    grid-template-columns: 248px minmax(0, 1fr);
+    width: min(100%, 1320px);
     min-height: calc(100dvh - 48px);
     margin: 0 auto;
     overflow: hidden;
     border: 1px solid var(--border);
-    border-radius: 24px;
-    box-shadow: 0 22px 64px rgb(11 31 58 / 10%);
+    border-radius: var(--radius-hero);
+    box-shadow: 0 24px 64px rgb(9 12 28 / 10%);
   }
 
   .desktop-rail {
+    position: relative;
+    isolation: isolate;
     display: flex;
     flex-direction: column;
     background: var(--gradient-brand);
     padding: 28px 16px 22px;
-    color: #fff;
+    color: var(--brand-ivory);
+  }
+
+  /* One restrained warm horizon at the foot of the rail. */
+  .desktop-rail::before {
+    position: absolute;
+    z-index: -1;
+    inset: auto 0 0;
+    height: 42%;
+    background: radial-gradient(
+      120% 70% at 20% 110%,
+      rgb(253 168 112 / 22%),
+      rgb(226 104 110 / 8%) 45%,
+      transparent 75%
+    );
+    content: "";
+    pointer-events: none;
   }
 
   .rail-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     margin: 0;
-    padding: 0 8px;
-    font-size: 17px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    padding: 0 6px;
+  }
+
+  .rail-brand__text {
+    display: grid;
+    gap: 5px;
+  }
+
+  .rail-brand .brand-wordmark {
+    color: var(--brand-ivory);
+    font-size: 16px;
   }
 
   .rail-brand small {
-    display: block;
     color: var(--hero-fg-3);
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    line-height: 1;
   }
 
   .status-chip {
+    display: inline-flex;
+    align-items: center;
     align-self: flex-start;
-    margin: 22px 8px 10px;
-    border-radius: 999px;
-    background: transparent;
+    gap: 7px;
+    margin: 20px 6px 14px;
+    border: 1px solid rgb(253 207 124 / 28%);
+    border-radius: var(--radius-pill);
+    background: rgb(253 207 124 / 8%);
     padding: 5px 11px;
     color: var(--hero-accent);
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 750;
+  }
+
+  .status-chip__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
   }
 
   .desktop-nav {
     display: grid;
     gap: 4px;
-    margin-top: 8px;
   }
 
   .desktop-nav .tab-button {
+    position: relative;
     grid-template-columns: 24px 1fr;
     justify-items: start;
     align-items: center;
     gap: 12px;
-    min-height: 46px;
-    padding: 0 12px;
+    min-height: 48px;
+    padding: 0 14px;
     color: var(--hero-fg-2);
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 650;
+    transition:
+      background-color var(--duration-base) ease,
+      color var(--duration-base) ease;
   }
 
   .desktop-nav .tab-button__icon {
@@ -356,18 +442,34 @@ body > .storage-notice {
   }
 
   .desktop-nav .tab-button:hover {
-    background: rgb(255 255 255 / 7%);
+    background: rgb(255 255 255 / 6%);
+    color: var(--brand-ivory);
   }
 
   .desktop-nav .tab-button--active {
-    background: rgb(255 255 255 / 11%);
-    color: #fff;
+    background: rgb(255 255 255 / 10%);
+    color: var(--brand-ivory);
     font-weight: 750;
+  }
+
+  .desktop-nav .tab-button--active::before {
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    left: 0;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--hero-accent);
+    content: "";
   }
 
   .desktop-nav .tab-button--active .tab-button__icon {
     background: none;
     color: var(--hero-accent);
+  }
+
+  .desktop-rail :focus-visible {
+    outline-color: var(--hero-focus);
   }
 
   .rail-profile {
@@ -376,15 +478,20 @@ body > .storage-notice {
     align-items: center;
     gap: 10px;
     width: 100%;
+    min-height: 48px;
     margin-top: auto;
-    border: 0;
-    border-radius: 14px;
-    background: rgb(255 255 255 / 7%);
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-radius: var(--radius-control);
+    background: rgb(255 255 255 / 6%);
     padding: 12px;
-    color: #fff;
+    color: var(--brand-ivory);
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 650;
     text-align: left;
+  }
+
+  .rail-profile:hover {
+    background: rgb(255 255 255 / 10%);
   }
 
   .rail-privacy {
@@ -392,9 +499,9 @@ body > .storage-notice {
     grid-template-columns: auto 1fr;
     align-items: center;
     gap: 8px;
-    margin: 14px 8px 0;
+    margin: 14px 6px 0;
     color: var(--hero-fg-3);
-    font-size: 11.5px;
+    font-size: 12px;
     line-height: 1.45;
   }
 
@@ -406,7 +513,7 @@ body > .storage-notice {
     display: inline-flex;
     align-self: flex-start;
     max-width: 100%;
-    margin: 12px 8px 0;
+    margin: 12px 6px 0;
     border-color: rgb(255 255 255 / 16%);
     background: rgb(255 255 255 / 6%);
     color: var(--hero-fg-2);
@@ -424,9 +531,9 @@ body > .storage-notice {
   .app-header,
   .tab-notice,
   .tab-content {
-    width: min(100%, 960px);
+    width: min(100%, 1040px);
     margin: 0;
-    padding-inline: 28px;
+    padding-inline: 32px;
   }
 
   .app-header {
@@ -439,5 +546,16 @@ body > .storage-notice {
 
   .tab-bar {
     display: none;
+  }
+}
+
+@media (min-width: 960px) and (prefers-color-scheme: dark) {
+  .app-shell {
+    border-color: var(--border);
+    box-shadow: 0 24px 64px rgb(0 0 0 / 40%);
+  }
+
+  body {
+    background: #06081a;
   }
 }

@@ -1,71 +1,128 @@
-/* HORIZON: primitives are private; screens consume semantic roles. */
+/*
+ * HORIZON — SUPER GONGIK design tokens.
+ *
+ * Brand primitives are sampled from the official logo artwork
+ * (median-cut clusters of public/icon-512.png, see docs/design/horizon.md).
+ * Screens consume the semantic roles below, never the primitives directly,
+ * except for brand moments (hero, rail, onboarding, loading).
+ *
+ * Usage rule: navy/midnight is structure, indigo/violet is depth and
+ * secondary interaction, sun/ember is a scarce high-value accent, coral is
+ * the far end of the progress horizon only, ivory is warmth on dark.
+ */
 :root {
   color-scheme: light;
-  --brand-navy: #081757;
-  --brand-midnight: #101129;
-  --brand-indigo: #222e7b;
-  --brand-violet: #493db8;
-  --brand-ivory: #fcf0d6;
-  --brand-gold: #fcbd6b;
-  --brand-coral: #f68069;
 
-  --background: #f5f5f9;
-  --background-elevated: #eeeef5;
+  /* Brand primitives (logo clusters) */
+  --brand-midnight: #090c1c;
+  --brand-night: #181b42;
+  --brand-navy: #081f68;
+  --brand-indigo: #1e2d78;
+  --brand-violet: #3c348e;
+  --brand-ivory: #fef1d3;
+  --brand-sun: #fdcf7c;
+  --brand-ember: #fda870;
+  --brand-coral: #e2686e;
+
+  /* Canvas and surfaces */
+  --background: #f3f4f8;
+  --background-elevated: #eceef5;
   --surface: #ffffff;
   --surface-raised: #ffffff;
-  --surface-interactive: #ededf5;
-  --surface-hover: #e4e5f0;
-  --border: #dedfea;
-  --border-emphasis: #9397af;
-  --text-primary: #151a36;
-  --text-secondary: #4d526b;
-  --text-tertiary: #636980;
-  --accent-primary: #3b359f;
-  --accent-secondary: #493db8;
-  --accent-hover: #292575;
-  --accent-warm: #87500c;
+  --surface-interactive: #eceef6;
+  --surface-hover: #e2e5f0;
+  --border: #dfe2ec;
+  --border-strong: #c5cadb;
+  --border-emphasis: #7c84a3;
+
+  /* Text */
+  --text-primary: #111735;
+  --text-secondary: #474e6a;
+  --text-tertiary: #5c6380;
+
+  /* Interaction */
+  --accent-primary: #2740a0;
+  --accent-secondary: #4a3fa6;
+  --accent-hover: #1a2d7c;
+  --accent-warm: #8a5200;
   --on-accent: #ffffff;
-  --selected-background: #e9e7fa;
-  --selected-border: #aaa3e5;
-  --success: #176451;
-  --success-background: #e5f3ed;
-  --warning: #805008;
-  --warning-background: #fff3df;
-  --warning-border: #d9b778;
-  --danger: #b02f46;
-  --danger-background: #fbe9ee;
-  --danger-border: #d89eac;
-  --info: #2853a4;
-  --info-background: #e8effc;
-  --focus-ring: #5548c8;
-  --shadow: 0 2px 8px rgb(16 17 41 / 4%);
-  --shadow-raised: 0 12px 36px rgb(16 17 41 / 18%);
-  --glow: 0 0 16px rgb(252 189 107 / 18%);
-  --scrim: rgb(9 12 32 / 56%);
-  --gradient-brand: linear-gradient(150deg, #081757, #171938 68%, #222e7b);
-  --gradient-progress: linear-gradient(90deg, #fcf0d6, #fcbd6b 65%, #f68069);
+  --selected-background: #e7ebfb;
+  --selected-border: #9dadea;
+  --focus-ring: #2f4bd0;
 
-  --hero-bg: var(--brand-navy);
+  /* Feedback — always paired with text or an icon, never color alone */
+  --success: #146150;
+  --success-background: #e4f3ec;
+  --warning: #7d4e05;
+  --warning-background: #fff2dc;
+  --warning-border: #dcb46f;
+  --danger: #ad2c43;
+  --danger-background: #fbe8ec;
+  --danger-border: #dc9dab;
+  --info: #22539f;
+  --info-background: #e7eefb;
+
+  /* Elevation: navy-tinted, never neon */
+  --shadow-sm: 0 1px 2px rgb(9 12 28 / 6%);
+  --shadow: 0 1px 2px rgb(9 12 28 / 4%), 0 4px 14px rgb(9 12 28 / 5%);
+  --shadow-raised: 0 16px 40px rgb(9 12 28 / 18%);
+  --shadow-hero: 0 18px 40px -18px rgb(8 31 104 / 55%);
+  --glow: 0 0 18px rgb(253 207 124 / 22%);
+  --scrim: rgb(9 12 28 / 56%);
+
+  /* Brand gradients: only for hero, rail, onboarding and progress */
+  --gradient-brand: linear-gradient(
+    168deg,
+    #0b2275 0%,
+    #0f1856 46%,
+    #181b42 100%
+  );
+  --gradient-hero:
+    radial-gradient(
+      90% 65% at 12% 118%,
+      rgb(253 168 112 / 30%) 0%,
+      rgb(226 104 110 / 12%) 38%,
+      transparent 70%
+    ),
+    radial-gradient(
+      60% 55% at 100% 0%,
+      rgb(60 52 142 / 55%) 0%,
+      transparent 70%
+    ),
+    linear-gradient(160deg, #0b2275 0%, #0e1752 52%, #151a45 100%);
+  --gradient-progress: linear-gradient(
+    90deg,
+    #fef1d3 0%,
+    #fdcf7c 55%,
+    #fda870 82%,
+    #e2686e 100%
+  );
+
+  /* Hero (always the night sky, in both schemes) */
+  --hero-bg: #0c1446;
   --hero-fg: var(--brand-ivory);
-  --hero-fg-2: #d1d4eb;
-  --hero-fg-3: #b1b8d5;
-  --hero-track: #424c76;
-  --hero-line: #41466b;
-  --hero-accent: var(--brand-gold);
-  --hero-accent-strong: var(--brand-coral);
+  --hero-fg-2: #d3d8ef;
+  --hero-fg-3: #aab3d6;
+  --hero-track: rgb(211 216 239 / 18%);
+  --hero-line: rgb(211 216 239 / 16%);
+  --hero-accent: var(--brand-sun);
+  --hero-accent-strong: var(--brand-ember);
   --hero-final: var(--brand-ivory);
-  --hero-final-strong: var(--brand-gold);
+  --hero-final-strong: var(--brand-sun);
+  --hero-focus: var(--brand-sun);
+  --hero-border: rgb(255 255 255 / 8%);
 
-  --cat-leave: #26816b;
+  /* Record categories: color + label/shape, never color alone */
+  --cat-leave: #1f7f68;
   --cat-leave-bg: var(--success-background);
   --cat-leave-fg: var(--success);
-  --cat-sick: #ba661b;
+  --cat-sick: #b8641b;
   --cat-sick-bg: var(--warning-background);
   --cat-sick-fg: var(--warning);
-  --cat-attendance: #7260c5;
-  --cat-attendance-bg: var(--selected-background);
-  --cat-attendance-fg: var(--accent-primary);
-  --cat-duty: #3f6ccc;
+  --cat-attendance: #6a55c0;
+  --cat-attendance-bg: #efecfb;
+  --cat-attendance-fg: #4a3fa6;
+  --cat-duty: #2f63c7;
   --cat-duty-bg: var(--info-background);
   --cat-duty-fg: var(--info);
   --cat-nonpayable: #b34461;
@@ -75,20 +132,30 @@
   --cat-note-bg: var(--surface-interactive);
   --cat-note-fg: var(--text-secondary);
 
+  /* Shape: soft squircle echo of the mark, graded by importance */
+  --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-control: 12px;
   --radius-card: 16px;
-  --radius-hero: 24px;
+  --radius-card-lg: 20px;
+  --radius-hero: 28px;
   --radius-sheet: 24px;
   --radius-pill: 999px;
-  --font-display: clamp(48px, 14vw, 68px);
+
+  /* Type */
+  --font-display: clamp(52px, 15vw, 72px);
   --font-title-1: 26px;
   --font-title-2: 22px;
   --font-title-3: 18px;
   --font-body: 15px;
   --font-label: 14px;
   --font-caption: 13px;
-  --font-micro: 13px;
+  --font-micro: 12px;
+  --tracking-display: -0.045em;
+  --tracking-title: -0.03em;
+  --tracking-eyebrow: 0.06em;
+
+  /* Space: 4px grid */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -96,7 +163,16 @@
   --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
+
+  /* Motion: short, purposeful, disabled by reduced motion */
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 320ms;
+
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235c6380' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+  --select-chevron-active: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%232740a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+
   --gutter: 16px;
   --control-h: 50px;
   --tabbar-h: 64px;
@@ -105,42 +181,51 @@
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --background: #101129;
-    --background-elevated: #191c36;
-    --surface: #1c203b;
-    --surface-raised: #252944;
-    --surface-interactive: #292e4c;
-    --surface-hover: #343a5d;
-    --border: #383d5b;
-    --border-emphasis: #777e9f;
-    --text-primary: #f3f1fa;
-    --text-secondary: #c7c8de;
-    --text-tertiary: #a5abc6;
-    --accent-primary: #c0b9ff;
-    --accent-secondary: #ada6f5;
-    --accent-hover: #d4cfff;
-    --accent-warm: #fcbd6b;
-    --on-accent: #15132e;
-    --selected-background: #343052;
-    --selected-border: #7970b6;
-    --success: #85dfbd;
-    --success-background: #193e39;
-    --warning: #f4c981;
-    --warning-background: #3b3023;
-    --warning-border: #8d7046;
-    --danger: #ffaabb;
-    --danger-background: #422839;
-    --danger-border: #9e6275;
-    --info: #aec9ff;
-    --info-background: #253654;
-    --focus-ring: #dfd9ff;
-    --cat-leave: #85dfbd;
-    --cat-sick: #f4c981;
-    --cat-attendance: #c0b9ff;
-    --cat-duty: #aec9ff;
-    --cat-nonpayable: #ffaabb;
-    --cat-note: #a5abc6;
-    --shadow: 0 2px 8px rgb(0 0 0 / 10%);
-    --shadow-raised: 0 12px 36px rgb(0 0 0 / 36%);
+    --background: #0a0d20;
+    --background-elevated: #10142c;
+    --surface: #151a35;
+    --surface-raised: #1c2242;
+    --surface-interactive: #222a4d;
+    --surface-hover: #2b345c;
+    --border: #2c3458;
+    --border-strong: #3d4671;
+    --border-emphasis: #6b75a0;
+    --text-primary: #f3efe6;
+    --text-secondary: #c3c8dc;
+    --text-tertiary: #a0a8c6;
+    --accent-primary: #a9b8ff;
+    --accent-secondary: #bdb3f5;
+    --accent-hover: #c6d0ff;
+    --accent-warm: #fdcf7c;
+    --on-accent: #0a1030;
+    --selected-background: #1f2a5c;
+    --selected-border: #5d6fc4;
+    --focus-ring: #c6d0ff;
+    --success: #84dcbb;
+    --success-background: #143a33;
+    --warning: #f5c97f;
+    --warning-background: #372c1d;
+    --warning-border: #8b6c40;
+    --danger: #ffa9b5;
+    --danger-background: #3f2230;
+    --danger-border: #9b5d6d;
+    --info: #a9c6ff;
+    --info-background: #1c2e52;
+    --cat-leave: #84dcbb;
+    --cat-sick: #f5c97f;
+    --cat-attendance: #bdb3f5;
+    --cat-attendance-bg: #2a2553;
+    --cat-attendance-fg: #d3cdfa;
+    --cat-duty: #a9c6ff;
+    --cat-nonpayable: #ffa9b5;
+    --cat-note: #a0a8c6;
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 24%);
+    --shadow: 0 1px 2px rgb(0 0 0 / 20%), 0 6px 18px rgb(0 0 0 / 18%);
+    --shadow-raised: 0 18px 44px rgb(0 0 0 / 45%);
+    --shadow-hero: 0 18px 44px -20px rgb(0 0 0 / 70%);
+    --hero-border: rgb(255 255 255 / 9%);
+    --scrim: rgb(3 4 12 / 66%);
+    --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a0a8c6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+    --select-chevron-active: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a9b8ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
   }
 }

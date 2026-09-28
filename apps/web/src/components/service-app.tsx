@@ -60,7 +60,10 @@ export function ServiceApp() {
   if (snapshot.phase === "LOADING") {
     return (
       <main className="app-loading" aria-busy="true">
-        <BrandMark size={40} />
+        <p className="app-loading__brand">
+          <BrandMark size={72} />
+          <span className="brand-wordmark">SUPER-GONGIK</span>
+        </p>
         <p className="loading-line" role="status">
           기기에 저장된 기록을 불러오는 중…
         </p>
@@ -168,10 +171,14 @@ function Dashboard({
       </a>
       <aside className="desktop-rail">
         <p className="rail-brand">
-          <BrandMark size={32} />
-          <span className="brand-wordmark">SUPER-GONGIK</span>
+          <BrandMark size={44} />
+          <span className="rail-brand__text">
+            <span className="brand-wordmark">SUPER-GONGIK</span>
+            <small>슈퍼공익</small>
+          </span>
         </p>
         <span className="status-chip">
+          <span aria-hidden="true" className="status-chip__dot" />
           {serviceStateLabel(projection.progress.state)}
         </span>
         {navigation("데스크톱 주요 메뉴", "desktop-nav")}
@@ -195,7 +202,7 @@ function Dashboard({
           <header className="app-header app-header--home">
             <div className="app-header__bar">
               <p className="home-brand">
-                <BrandMark size={28} />
+                <BrandMark size={32} />
                 <span className="brand-wordmark">SUPER-GONGIK</span>
               </p>
               <p className="app-header__today">
