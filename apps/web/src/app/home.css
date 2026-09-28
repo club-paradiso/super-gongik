@@ -439,12 +439,13 @@
   margin-right: -8px;
 }
 
-.home-card__head h2 {
+.home-card__head h2,
+.quick-actions__title {
   margin: 0;
   color: var(--text-primary);
-  font-size: var(--font-title-3);
+  font-size: var(--font-title-card);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tracking-title);
 }
 
 /* A head without a trailing button still keeps the 44 px rhythm. */
@@ -622,6 +623,18 @@
   min-width: 0;
 }
 
+/* Phones and tablets: the nav's own name is enough; the tiles speak for
+   themselves. The title becomes visible once the actions form a card. */
+.quick-actions__title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 @media (hover: hover) {
   .stat-card:hover,
   .quick-actions button:hover {
@@ -689,7 +702,7 @@
   }
 }
 
-/* Desktop: a two-column dashboard next to the rail ------------------------- */
+/* Desktop ------------------------------------------------------------------ */
 
 @media (min-width: 960px) {
   /* The rail already carries the brand. */
@@ -703,7 +716,13 @@
     font-size: var(--font-title-3);
     font-weight: 800;
   }
+}
 
+/* Wide desktop: a two-column dashboard. Below 1120px the column next to the
+   rail is too narrow to split, so the tablet stack (full-width hero, 2-up
+   stats, tile actions) carries on and the hero never shrinks at 960. */
+
+@media (min-width: 1120px) {
   .home {
     grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
     grid-template-areas:
@@ -713,13 +732,25 @@
     gap: var(--space-4);
   }
 
+  /* Completed: hero and archive share one row at the same height, and the
+     export action settles at the card foot. */
   .home--completed {
     grid-template-areas: "hero agenda";
-    align-items: start;
   }
 
   .home--completed .hero {
     min-height: 0;
+  }
+
+  .home--completed .home-card {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: var(--space-3);
+  }
+
+  .home--completed .home-card__link {
+    margin-top: auto;
+    margin-bottom: 0;
   }
 
   .hero {
@@ -738,6 +769,13 @@
     display: flex;
     flex: 1;
     flex-direction: column;
+  }
+
+  /* Before call-up there is no progress block: centre the countdown in the
+     stretched hero instead of leaving an empty band above the footer. */
+  .hero[data-phase="PRE_SERVICE"] .hero__readout {
+    justify-content: center;
+    padding-block: var(--space-4);
   }
 
   .hero__progress {
@@ -772,6 +810,11 @@
     font-size: 30px;
   }
 
+  /* "소집 후" / "확인 필요" are states, not figures. */
+  .stat-card__value--muted {
+    font-size: 22px;
+  }
+
   .stat-card__value + .stat-card__caption {
     margin-top: auto;
     padding-top: var(--space-3);
@@ -782,14 +825,11 @@
     padding: var(--space-3) var(--space-5) var(--space-2);
   }
 
-  .home--completed .home-card {
-    padding-bottom: var(--space-3);
-  }
-
-  /* Quick actions become a quiet list card in the right column. */
+  /* Quick actions become a titled list card in the right column. */
   .quick-actions {
     grid-area: actions;
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
     grid-auto-rows: minmax(56px, 1fr);
     gap: 0;
     align-content: stretch;
@@ -798,7 +838,20 @@
     border-radius: var(--radius-card);
     background: var(--surface);
     box-shadow: var(--shadow-sm);
-    padding: var(--space-2);
+    padding: var(--space-3) var(--space-2) var(--space-2);
+  }
+
+  .quick-actions__title {
+    position: static;
+    display: flex;
+    align-items: center;
+    width: auto;
+    height: auto;
+    min-height: 44px;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    padding: 0 var(--space-3);
   }
 
   .quick-actions button {
@@ -834,7 +887,7 @@
   }
 }
 
-@media (min-width: 960px) and (prefers-color-scheme: dark) {
+@media (min-width: 1120px) and (prefers-color-scheme: dark) {
   .quick-actions {
     box-shadow: none;
   }

@@ -96,8 +96,9 @@ function ServiceHero({
       <div className="hero__top">
         <p className="hero__eyebrow">
           {hero.eyebrow}
-          {/* The rail and headline already say "복무 중/소집 전/복무 완료";
-              only the time-sensitive states earn a marker here. */}
+          {/* The eyebrow and headline already carry the state on every width
+              ("소집까지" before call-up, "소집해제까지" in service, "복무 완료"
+              after), so only the time-sensitive states earn a marker here. */}
           {hero.phase === "FINAL_STRETCH" || hero.phase === "DISCHARGE_DAY" ? (
             <span className="hero__state">
               {hero.phase === "DISCHARGE_DAY" ? (
@@ -313,7 +314,11 @@ function HomeStats({
           <strong className="stat-card__value">{formatWon(pay.amount)}</strong>
         ) : (
           <strong className="stat-card__value stat-card__value--muted">
-            {pay.kind === "PENDING" ? "확인 필요" : "—"}
+            {pay.kind === "PENDING"
+              ? "확인 필요"
+              : model.hero.phase === "PRE_SERVICE"
+                ? "소집 후"
+                : "—"}
           </strong>
         )}
         <span
@@ -420,6 +425,7 @@ function QuickActions({
   if (completed) return null;
   return (
     <nav aria-label="빠른 실행" className="quick-actions">
+      <h2 className="quick-actions__title">빠른 실행</h2>
       <button onClick={actions.onRecordLeave} type="button">
         <span aria-hidden="true" className="quick-actions__icon">
           <CalendarPlus size={20} />
