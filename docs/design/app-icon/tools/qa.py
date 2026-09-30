@@ -48,7 +48,7 @@ for r, (im, t) in enumerate([(B, 'CURRENT'), (A, 'REFINED')]):
 mk.save(f'{out}/qa_launcher_masks.png')
 # before / after
 ba = Image.new('RGB', (2 * 1024 + 72, 1024 + 80 + 400), '#EEECE6'); d = ImageDraw.Draw(ba)
-for i, (im, t) in enumerate([(B, 'CURRENT (Figma 95:3)'), (A, 'REFINED (V2)')]):
+for i, (im, t) in enumerate([(B, 'CURRENT (Figma 95:3)'), (A, 'REFINED')]):
     ox = 24 + i * (1024 + 24)
     ba.paste(im, (ox, 60)); label(d, (ox, 20), t)
     x = ox; y = 1024 + 100
