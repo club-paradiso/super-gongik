@@ -743,6 +743,8 @@
   background: var(--warning);
 }
 
+.cloud-signin,
+.cloud-social-login,
 .cloud-form,
 .cloud-body,
 .cloud-enable,
@@ -751,6 +753,28 @@
   display: grid;
   gap: 12px;
   min-width: 0;
+}
+
+.cloud-social-login .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.cloud-auth-divider {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cloud-auth-divider::before,
+.cloud-auth-divider::after {
+  height: 1px;
+  background: var(--border);
+  content: "";
 }
 
 .cloud-account,
