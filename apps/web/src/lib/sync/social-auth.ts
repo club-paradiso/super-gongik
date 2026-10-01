@@ -77,6 +77,11 @@ export async function startSocialSignIn(
     provider: providerId,
     options: {
       redirectTo: window.location.origin,
+      // Supabase's Kakao defaults include account_email even when email is
+      // optional. Override the provider scope for non-Biz Kakao apps.
+      ...(provider === "kakao"
+        ? { queryParams: { scope: "profile_nickname profile_image" } }
+        : {}),
     },
   });
 
