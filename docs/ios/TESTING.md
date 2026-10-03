@@ -33,16 +33,16 @@ second and the simulator build (`ios` job on `macos-15`). App unit tests
 
 ## Matrix
 
-| Area        | Covered by                                                                                                      | Gaps                                                  |
-| ----------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| Domain      | 387 fixture cases (DOMAIN-CONFORMANCE.md)                                                                       | sync engine runs, importer on real files              |
-| Persistence | port tests; store lifecycle on files; quarantine; newer version; pre-restore; wipe via shared store             | disk-full on device, migration from a future v4       |
-| Backup      | web→iOS→iOS export round trip; iOS export→web parse/plan; idempotent merge; tampering; destructive confirmation | very large backups on device                          |
-| Sync / auth | not implemented                                                                                                 | all (SYNC.md, AUTH.md)                                |
-| Widgets     | `WidgetModel` tests (Seoul midnight, states, flooring); extension builds                                        | timeline on device; App Group data path needs signing |
-| Reminders   | planning tests (evening-before, generic text, disabled categories)                                              | delivery on device                                    |
-| Lock        | builds; logic reviewed                                                                                          | Face ID / passcode on hardware                        |
-| UI          | simulator screenshots (below); contrast tests                                                                   | XCUITest automation; VoiceOver pass on device         |
+| Area        | Covered by                                                                                                                                                                      | Gaps                                            |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Domain      | 387 fixture cases (DOMAIN-CONFORMANCE.md)                                                                                                                                       | sync engine runs, importer on real files        |
+| Persistence | port tests; store lifecycle on files; quarantine; newer version; pre-restore; wipe via shared store                                                                             | disk-full on device, migration from a future v4 |
+| Backup      | web→iOS→iOS export round trip; iOS export→web parse/plan; idempotent merge; tampering; destructive confirmation                                                                 | very large backups on device                    |
+| Sync / auth | PostgREST client tests; full native path over the reference server; controller in JSC through the Swift host; auth tests; PostgREST + RLS scenarios with the native client (CI) | hosted Supabase, real devices                   |
+| Widgets     | `WidgetModel` tests (Seoul midnight, states, flooring); extension builds; App Group snapshot written on the simulator (file content checked)                                    | home-screen rendering; timeline on device       |
+| Reminders   | planning tests (evening-before, generic text, disabled categories)                                                                                                              | delivery on device                              |
+| Lock        | builds; logic reviewed                                                                                                                                                          | Face ID / passcode on hardware                  |
+| UI          | simulator screenshots (below); contrast tests                                                                                                                                   | XCUITest automation; VoiceOver pass on device   |
 
 ## Simulator QA done
 
@@ -59,6 +59,8 @@ Defects found and fixed: missing picker label (onboarding); duplicated
 "기본 보수" caption on the pay card; confirmed 1st-year credit shown as
 "기관 확인 필요" (now shows the counted amount like the web); hero rows
 breaking mid-unit at accessibility sizes (rows now stack).
+
+Also checked: 급여 attendance editor and the signed-out cloud screen (placeholder project URL, no request made).
 
 Not done: compact (SE) and Pro Max sizes, iPad, landscape, Reduce Motion
 visual pass, Increase Contrast visual pass, empty states of every tab,

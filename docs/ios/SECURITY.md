@@ -5,9 +5,9 @@ Scope: this branch (local-only client). Reviewed 2026-10-04.
 | Area                   | State                                                                                                                                                                                                                         |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Local storage          | Files in Application Support with `completeUntilFirstUserAuthentication`; atomic writes; nothing in plaintext caches or the pasteboard.                                                                                       |
-| Keychain               | Not used yet (no credentials exist). Sync will store tokens with `AfterFirstUnlockThisDeviceOnly` (AUTH.md).                                                                                                                  |
+| Keychain               | Supabase session only, `AfterFirstUnlockThisDeviceOnly`, never synced; removed on sign-out or account deletion.                                                                                                               |
 | Secrets                | None in source or xcconfig. Supabase values are publishable and empty by default; `Config/Local.xcconfig` is git-ignored.                                                                                                     |
-| Network                | None. The app makes no request in v1 (no SDKs, no analytics, no crash reporter). External links (law.go.kr sources) open in Safari via `Link`.                                                                                |
+| Network                | None for guests. Signed in with cloud configured: Supabase Auth and PostgREST over HTTPS, ephemeral `URLSession` (no cache, no cookies); the sync transport is pinned to the configured host. No analytics or crash SDK.      |
 | JavaScript             | `sg-core.js` ships inside the signed bundle and is never downloaded. Only whitelisted facade functions are callable. Host functions expose file KV for the app's own store directory, random bytes, SHA-256 and logging only. |
 | Logging                | `os.Logger` with `.private` for every message; messages carry error domains/codes and phases, never record content, notes, tokens or file text.                                                                               |
 | Crash reports          | No third-party reporter. Apple's opt-in diagnostics only.                                                                                                                                                                     |
@@ -21,10 +21,11 @@ Scope: this branch (local-only client). Reviewed 2026-10-04.
 
 ## Open items
 
-- Sync/auth introduce tokens, network and a server-side account deletion
-  function; they need their own review before shipping (AUTH.md, SYNC.md).
-- App Group must be provisioned for widget data; until then widgets show the
-  empty state (no data leaks, no crash).
+- The account-deletion Edge Function holds the service-role key in the
+  Supabase runtime only; it deletes the user identified by the caller's
+  token, never an id from the request (tests in handler_test.ts).
+- XcodeGen rewrites `.entitlements` from `project.yml`; entitlements must be
+  edited there (a hand-written App Group was silently emptied once).
 - `swift test --sanitize=thread` passes every test but reports races inside
   `CoreRuntime.installExceptionHandler` between worker threads. Every
   JavaScriptCore entry asserts `dispatchPrecondition(.onQueue(coreQueue))`,

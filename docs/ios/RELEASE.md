@@ -5,29 +5,29 @@ requires explicit authorization and the credentials listed below.
 
 ## Status by phase
 
-| Phase                | Status                                                                                                                                                                         |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 0 Audit              | done — NATIVE-IOS-AUDIT.md, ADR 0003, ADR 0004                                                                                                                                 |
-| 1 Foundation         | done — XcodeGen project, SuperGongikKit, HORIZON tokens, tab shell, CI job (CI not yet run: branch not pushed)                                                                 |
-| 2 Canonical contract | done — native-core facade, 387 fixture cases passing in Node, JavaScriptCore and the Swift slice                                                                               |
-| 3 Core product       | done for local data — onboarding, 오늘, 기록, 휴가, 급여, 더보기. Missing: attendance-month editor on 급여 (web only), CSV exports, import panel                               |
-| 4 Persistence        | done — file store under the shared repository, notices, export/restore, wipe; interchange gate both directions                                                                 |
-| 5 Cloud sync / auth  | **not started** — plan in SYNC.md / AUTH.md; blocked on hosted Supabase (issue #29)                                                                                            |
-| 6 Native advantages  | partial — Face ID lock + cover, reminders, widgets done; widget data path needs a provisioned App Group; native file import (CSV/XLSX/HWP/PDF) and share extension not started |
-| 7 OCR                | not started (depends on moving web PDF table reconstruction into `packages/importer`)                                                                                          |
-| 8 Polish audits      | partial — contrast tests, dark mode, accessibility-size pass on two screens; no Instruments profiling yet                                                                      |
-| 9 TestFlight         | prepared below; not submitted                                                                                                                                                  |
+| Phase                | Status                                                                                                                                                                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0 Audit              | done — NATIVE-IOS-AUDIT.md, ADR 0003, ADR 0004                                                                                                                                                                      |
+| 1 Foundation         | done — XcodeGen project, SuperGongikKit, HORIZON tokens, tab shell, CI job (CI not yet run: branch not pushed)                                                                                                      |
+| 2 Canonical contract | done — native-core facade, 387 fixture cases passing in Node, JavaScriptCore and the Swift slice                                                                                                                    |
+| 3 Core product       | done — onboarding, 오늘, 기록, 휴가, 급여 (incl. month attendance editor), 더보기, CSV/TSV import, CSV exports                                                                                                      |
+| 4 Persistence        | done — file store under the shared repository, notices, export/restore, wipe; interchange gate both directions                                                                                                      |
+| 5 Cloud sync / auth  | implemented — web controller/engine/transport in JSC, Swift auth (email code, PKCE OAuth, Apple), account-deletion function; verified with fakes and (CI) PostgREST + RLS; hosted verification blocked on issue #29 |
+| 6 Native advantages  | partial — Face ID lock + cover, reminders, widgets (snapshot verified on the simulator), CSV/TSV import done; XLSX/HWP/PDF import and share extension not started                                                   |
+| 7 OCR                | not started (depends on moving web PDF table reconstruction into `packages/importer`)                                                                                                                               |
+| 8 Polish audits      | partial — contrast tests, dark mode, accessibility-size pass on two screens; no Instruments profiling yet                                                                                                           |
+| 9 TestFlight         | prepared below; not submitted                                                                                                                                                                                       |
 
 ## Identifiers and capabilities
 
-| Item              | Value (placeholder until confirmed)                              | Where                                 |
-| ----------------- | ---------------------------------------------------------------- | ------------------------------------- |
-| Bundle id (app)   | `app.supergongik.ios`                                            | `Config/Base.xcconfig` `SG_BUNDLE_ID` |
-| Widget extension  | `$(SG_BUNDLE_ID).widgets`                                        | `project.yml`                         |
-| App Group         | `group.app.supergongik.shared`                                   | both `.entitlements` files            |
-| Team              | `SG_DEVELOPMENT_TEAM` (empty)                                    | `Config/Local.xcconfig` (git-ignored) |
-| Capabilities      | App Groups. Later: Sign in with Apple, Associated Domains (sync) | Apple Developer portal                |
-| Deployment target | iOS 18.0; built with the iOS 26.2 SDK (Xcode 26.3)               | `project.yml`                         |
+| Item              | Value (placeholder until confirmed)                        | Where                                 |
+| ----------------- | ---------------------------------------------------------- | ------------------------------------- |
+| Bundle id (app)   | `app.supergongik.ios`                                      | `Config/Base.xcconfig` `SG_BUNDLE_ID` |
+| Widget extension  | `$(SG_BUNDLE_ID).widgets`                                  | `project.yml`                         |
+| App Group         | `group.app.supergongik.shared`                             | both `.entitlements` files            |
+| Team              | `SG_DEVELOPMENT_TEAM` (empty)                              | `Config/Local.xcconfig` (git-ignored) |
+| Capabilities      | App Groups, Sign in with Apple (declared in `project.yml`) | Apple Developer portal                |
+| Deployment target | iOS 18.0; built with the iOS 26.2 SDK (Xcode 26.3)         | `project.yml`                         |
 
 The bundle id and App Group are placeholders: confirm the final identifiers
 (and whether the product name stays SUPER-GONGIK) before registering them.
@@ -49,8 +49,9 @@ The bundle id and App Group are placeholders: confirm the final identifiers
       ≥ 1024 px, or a decision to adopt the V3 candidate.
 - [ ] Re-check App Review guidelines in force at submission (do not rely on
       this document): 2.5.2 (bundled JavaScript via JavaScriptCore), 4.8
-      (Sign in with Apple, once social login ships), 5.1.1(v) (in-app account
-      deletion, once accounts ship), privacy labels.
+      (Sign in with Apple is offered alongside Google/Kakao/NAVER), 5.1.1(v)
+      (in-app account deletion is implemented; the Edge Function must be
+      deployed), privacy labels (sync collects data: PRIVACY.md).
 - [ ] Privacy manifest (`PrivacyInfo.xcprivacy`, app and widget) reviewed
       against the final API use; App Store privacy answers from PRIVACY.md.
 - [ ] Export compliance: `ITSAppUsesNonExemptEncryption = false` (no

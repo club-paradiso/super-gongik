@@ -11,16 +11,17 @@
 | UI preferences (lock, cover, reminder categories, last backup time)                   | UserDefaults                  | OS device backup only                                           |
 | Scheduled reminders (generic text)                                                    | UserNotifications (on device) | No                                                              |
 
-No account, no network requests, no analytics, no advertising identifier,
-no crash-reporting SDK, no third-party code besides the bundled Pretendard
-font.
+Without sign-in: no network requests, no analytics, no advertising
+identifier, no crash-reporting SDK, no third-party code besides the bundled
+Pretendard font. Sign-in and sync are optional and off by default.
 
 ## App Store privacy answers (this version)
 
-"Data Not Collected." The developer does not collect any data: nothing is
-transmitted off the device by the app.
+Builds without cloud configuration: "Data Not Collected". Builds with cloud
+sync configured must declare the data below (App Store labels and
+`PrivacyInfo.xcprivacy` `NSPrivacyCollectedDataTypes`) before submission.
 
-## When cloud sync ships (planned, not in this version)
+## When a user signs in and turns sync on
 
 | Category (App Store)              | Data                                                                        | Linked to user | Tracking | Purpose           |
 | --------------------------------- | --------------------------------------------------------------------------- | -------------- | -------- | ----------------- |

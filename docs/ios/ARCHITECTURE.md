@@ -87,6 +87,6 @@ The UI never waits on a network request: there is none in v1.
 
 ## Not built yet
 
-Cloud sync and sign-in (see [SYNC.md](./SYNC.md), [AUTH.md](./AUTH.md)),
-native file import beyond backups, OCR, share extension, attendance-month
-editor on the money screen. See [RELEASE.md](./RELEASE.md) for status.
+XLSX/HWP/PDF import, OCR, share extension, background sync. Cloud sync and
+sign-in exist but are unverified against a hosted project
+([SYNC.md](./SYNC.md), [AUTH.md](./AUTH.md)). Status: [RELEASE.md](./RELEASE.md).
