@@ -2,30 +2,8 @@ import Foundation
 import SGCore
 import SGFoundation
 
-/// Minimal data for widgets, written to the shared App Group container after
-/// every change. Widgets never open the document store (ADR 0004): this file
-/// holds only what a widget displays, and nothing about notes, health-related
-/// leave details or imported documents.
-struct WidgetSnapshot: Codable, Equatable {
-    static let appGroup = "group.app.supergongik.shared"
-    static let fileName = "widget-snapshot.json"
-
-    var callUpDate: CivilDate
-    var expectedDischargeDate: CivilDate
-    /// Formatted by the core exactly as the home screen shows it ("12일").
-    var leaveRemaining: String?
-    /// Next upcoming record: date and the generic type label only.
-    var nextEventDate: CivilDate?
-    var nextEventLabel: String?
-    var writtenAt: Date
-}
-
 enum WidgetSnapshotWriter {
-    private static var url: URL? {
-        FileManager.default
-            .containerURL(forSecurityApplicationGroupIdentifier: WidgetSnapshot.appGroup)?
-            .appendingPathComponent(WidgetSnapshot.fileName)
-    }
+    private static var url: URL? { WidgetSnapshot.url }
 
     @MainActor
     static func write(projection: Projection?, today: CivilDate) {

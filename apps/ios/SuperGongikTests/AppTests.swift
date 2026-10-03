@@ -1,4 +1,5 @@
 import SGCore
+import SGFoundation
 import UserNotifications
 import Testing
 @testable import SuperGongik
@@ -56,5 +57,41 @@ struct ReminderPlanTests {
     @Test("nothing is planned for disabled categories")
     func disabled() throws {
         #expect(ReminderScheduler.plan(projection: try Self.projection(), enabled: [], now: .now, lastBackup: nil).isEmpty)
+    }
+}
+
+@Suite("Widget model")
+struct WidgetModelTests {
+    func snapshot() -> WidgetSnapshot {
+        WidgetSnapshot(callUpDate: CivilDate("2026-05-04")!, expectedDischargeDate: CivilDate("2028-02-03")!,
+                       leaveRemaining: nil, nextEventDate: nil, nextEventLabel: nil, writtenAt: .now)
+    }
+
+    func model(at iso: String) -> WidgetModel? {
+        WidgetModel(snapshot: snapshot(), date: ISO8601DateFormatter().date(from: iso)!)
+    }
+
+    @Test("D-Day changes at Seoul midnight, not UTC midnight")
+    func seoulMidnight() throws {
+        // 14:59:59Z on 10/3 is 23:59:59 KST on 10/3; one second later is 10/4.
+        #expect(try #require(model(at: "2026-10-03T14:59:59Z")).headline == "D-488")
+        #expect(try #require(model(at: "2026-10-03T15:00:00Z")).headline == "D-487")
+    }
+
+    @Test("pre-service, discharge day and completed states")
+    func states() throws {
+        let before = try #require(model(at: "2026-05-01T00:00:00Z"))
+        #expect(before.caption == "소집까지" && before.headline == "D-3")
+        let discharge = try #require(model(at: "2028-02-03T03:00:00Z"))
+        #expect(discharge.headline == "D-Day" && discharge.percentText == "100.0%")
+        let after = try #require(model(at: "2028-06-01T03:00:00Z"))
+        #expect(after.headline == "복무 완료")
+        #expect(WidgetModel(snapshot: nil, date: .now) == nil, "no profile → empty state")
+    }
+
+    @Test("widget percentage is floored like the home hero")
+    func floored() throws {
+        // 152/640 = 23.75 % → the hero and widget show 23.7 %, never 23.8 %.
+        #expect(try #require(model(at: "2026-10-03T03:00:00Z")).percentText == "23.7%")
     }
 }
