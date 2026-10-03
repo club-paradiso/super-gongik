@@ -26,8 +26,6 @@ import {
 } from "@super-gongik/domain";
 import {
   currentPayStepOrdinal,
-  derivePayBandSchedule,
-  evaluateMonthlyCompensation,
   findAttendanceMonth,
   type MonthlyCompensationEvaluation,
   type PayBandSchedule,
@@ -35,6 +33,7 @@ import {
 } from "@super-gongik/rules";
 
 import { Button } from "@/components/ui/button";
+import { evaluateMoneyMonth } from "@/lib/money-model";
 
 // Same "1,200,000원" form as the home stat card, so one amount reads the
 // same on every screen. Display only: amounts arrive already rounded.
@@ -315,23 +314,10 @@ export function MoneyTab({
   onOpenProfile: () => void;
 }) {
   const [month, setMonth] = useState<YearMonth>(yearMonthOf(today));
-  // Evaluate the selected month on its current day for this month, else on
-  // the 15th (any in-month date selects the same month-wide bundle).
-  const asOfDate =
-    month === yearMonthOf(today) ? today : (`${month}-15` as DateOnly);
   const attendance = findAttendanceMonth(data.attendanceMonths, month);
-  const compensation = useMemo(
-    () =>
-      evaluateMonthlyCompensation(profile, asOfDate, {
-        events: data.events,
-        attendance,
-        attendanceMonths: data.attendanceMonths,
-      }),
-    [profile, asOfDate, data.events, data.attendanceMonths, attendance],
-  );
-  const schedule = useMemo(
-    () => derivePayBandSchedule(profile, asOfDate),
-    [profile, asOfDate],
+  const { compensation, schedule } = useMemo(
+    () => evaluateMoneyMonth(data, profile, month, today),
+    [data, profile, month, today],
   );
   const snapshots = data.compensationSnapshots
     .filter((item) => isLive(item) && item.month === month)
