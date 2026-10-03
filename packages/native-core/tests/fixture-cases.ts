@@ -727,6 +727,22 @@ const eventForm: FixtureSuite = {
       null,
     ),
     call(
+      "money month current",
+      "evaluateMoneyMonth",
+      fullDocument(),
+      fullDocument().profile,
+      "2026-10",
+      "2026-10-03",
+    ),
+    call(
+      "money month past",
+      "evaluateMoneyMonth",
+      fullDocument(),
+      fullDocument().profile,
+      "2026-07",
+      "2026-10-03",
+    ),
+    call(
       "expected discharge from call-up",
       "calculateExpectedDischargeDate",
       "2026-05-04",
