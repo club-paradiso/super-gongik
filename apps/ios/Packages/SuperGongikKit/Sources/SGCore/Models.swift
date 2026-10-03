@@ -37,8 +37,13 @@ public struct UserDocument: Decodable, Sendable {
     public let deviceId: String
     public let profile: ServiceProfile?
     public let events: [ServiceEvent]
+    public let leaveAdjustments: [LeaveAdjustment]
     public let imports: [ImportRecord]
     public let compensationSnapshots: [CompensationSnapshot]
+
+    public var hasAnyRecord: Bool {
+        profile != nil || !events.isEmpty || !leaveAdjustments.isEmpty || !imports.isEmpty
+    }
 
     public var liveEvents: [ServiceEvent] { events.filter { $0.deletedAt == nil } }
     public var deletedEvents: [ServiceEvent] { events.filter { $0.deletedAt != nil } }
@@ -97,6 +102,17 @@ public struct ServiceEvent: Codable, Sendable, Identifiable, Equatable {
     public let sickLeaveCategory: String?
 
     public func covers(_ date: CivilDate) -> Bool { startDate <= date && date <= endDate }
+}
+
+public struct LeaveAdjustment: Decodable, Sendable, Identifiable {
+    public let id: String
+    public let kind: String
+    public let creditKey: String?
+    public let effectiveDate: CivilDate
+    public let amountHalfDays: Int
+    public let amountMinutes: Int
+    public let reason: String
+    public let deletedAt: String?
 }
 
 public struct ImportRecord: Decodable, Sendable, Identifiable {
@@ -215,7 +231,12 @@ public struct LeaveLedger: Decodable, Sendable {
         public let explanation: String
         public let granted: Bool
         public let state: String
+        public let confirmation: Confirmation?
         public var id: String { key }
+
+        public struct Confirmation: Decodable, Sendable {
+            public let amountHalfDays: Int
+        }
     }
 
     public struct Balance: Decodable, Sendable {
@@ -276,12 +297,18 @@ public struct LeaveText: Decodable, Sendable {
         public let running: String
     }
 
+    public struct Credit: Decodable, Sendable {
+        public let amount: String
+        public let explanation: String
+    }
+
     public struct Reconciliation: Decodable, Sendable {
         public let institutionRemaining: String
         public let appRemaining: String
         public let difference: String
     }
 
+    public let credits: [Credit]
     public let balance: Balance
     public let entries: [Entry]
     public let byType: [String]
@@ -353,6 +380,64 @@ public struct PayBandSchedule: Decodable, Sendable {
     public let steps: [Step]?
 }
 
+/// `eventTaxonomy` (web lib/event-display.ts + domain labels).
+public struct EventTaxonomy: Decodable, Sendable {
+    public struct Group: Decodable, Sendable, Identifiable {
+        public let label: String
+        public let types: [String]
+        public var id: String { label }
+    }
+
+    public let typeLabels: [String: String]
+    public let categoryOfType: [String: String]
+    public let categoryLabels: [String: String]
+    public let typeGroups: [Group]
+
+    public func label(_ type: String) -> String { typeLabels[type] ?? type }
+    public func category(_ type: String) -> String { categoryOfType[type] ?? "note" }
+}
+
+/// `FormState` of the shared event editor model (web lib/event-form.ts).
+public struct EventFormState: Codable, Sendable, Equatable {
+    public var eventType: String
+    public var mode: String
+    public var startDate: String
+    public var endDate: String
+    public var dayCount: String
+    public var dayCountTouched: Bool
+    public var half: String
+    public var startTime: String
+    public var endTime: String
+    public var hours: String
+    public var minutes: String
+    public var durationTouched: Bool
+    public var sickLeaveCategory: String
+    public var title: String
+    public var note: String
+}
+
+/// `eventFormEvaluate`: what the editor shows for the current form.
+public struct EventFormEvaluation: Decodable, Sendable {
+    public struct Validation: Decodable, Sendable {
+        public let errors: [EventIssue]
+        public let warnings: [EventIssue]
+    }
+
+    public struct Classification: Decodable, Sendable {
+        public let kind: String
+        public let label: String
+        public let reason: String
+        public let automatic: Bool
+    }
+
+    public let draft: JSONValue
+    public let validation: Validation
+    public let classification: Classification?
+    public let isLeave: Bool
+    public let isAnnualCharge: Bool
+    public let isNonPayable: Bool
+}
+
 /// `evaluateMoneyMonth` (web lib/money-model.ts).
 public struct MoneyMonth: Decodable, Sendable {
     public let asOfDate: CivilDate
@@ -366,6 +451,12 @@ public struct EventIssue: Decodable, Sendable, Equatable, Hashable {
     public let code: String
     public let message: String
     public let field: String?
+
+    public init(code: String, message: String, field: String?) {
+        self.code = code
+        self.message = message
+        self.field = field
+    }
 }
 
 /// `RunResult<T>` without the value (screens re-read the snapshot).

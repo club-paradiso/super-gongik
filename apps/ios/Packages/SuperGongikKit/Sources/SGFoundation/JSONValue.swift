@@ -5,7 +5,7 @@ import Foundation
 /// output with the shared fixtures in `contracts/fixtures`. Booleans and numbers are kept
 /// apart (Foundation bridges both to NSNumber), and numbers compare as
 /// IEEE doubles, which is what JavaScript produced.
-public indirect enum JSONValue: Equatable, CustomStringConvertible, Sendable {
+public indirect enum JSONValue: Hashable, CustomStringConvertible, Sendable {
     case null
     case bool(Bool)
     case number(Double)

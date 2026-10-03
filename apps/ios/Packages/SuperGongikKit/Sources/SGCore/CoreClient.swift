@@ -35,6 +35,11 @@ public extension CoreRuntime {
         try decode(RunOutcome.self, from: await callJSONAsync("run", [command, Self.arguments(arguments)]))
     }
 
+    /// Patch the stored profile (unmodelled fields are kept by the core).
+    func editProfile(_ patch: [String: JSONValue]) async throws -> RunOutcome {
+        try decode(RunOutcome.self, from: await callJSONAsync("editProfile", [JSONValue.object(patch).jsonText]))
+    }
+
     func wipeAll() async throws -> RunOutcome {
         try decode(RunOutcome.self, from: await callJSONAsync("wipeAll"))
     }
@@ -46,6 +51,29 @@ public extension CoreRuntime {
     func readRaw(key: String) async throws -> String? {
         let data = try await callJSONAsync("readRaw", [key])
         return try JSONDecoder().decode(String?.self, from: data)
+    }
+
+    func moneyMonth(_ month: String, today: CivilDate) throws -> MoneyMonth {
+        try unwrap(PureEnvelope<MoneyMonth>.self, callJSON("moneyMonth", [month, today.description]), "moneyMonth")
+    }
+
+    func eventFormInitial(eventId: String?, date: CivilDate) throws -> EventFormState {
+        try unwrap(PureEnvelope<EventFormState>.self,
+                   callJSON("eventFormInitial", [eventId.map { $0 as Any } ?? NSNull(), date.description]), "eventFormInitial")
+    }
+
+    func eventFormEvaluate(_ form: EventFormState, editingId: String?) throws -> EventFormEvaluation {
+        try unwrap(PureEnvelope<EventFormEvaluation>.self,
+                   callJSON("eventFormEvaluate", [try Self.encode(form), editingId.map { $0 as Any } ?? NSNull()]),
+                   "eventFormEvaluate")
+    }
+
+    private func unwrap<Value>(_ type: PureEnvelope<Value>.Type, _ data: Data, _ name: String) throws -> Value {
+        let envelope = try decode(type, from: data)
+        guard envelope.ok, let value = envelope.value else {
+            throw CoreError.javaScript(envelope.error.map { "\($0.name): \($0.message)" } ?? "\(name) failed")
+        }
+        return value
     }
 
     // MARK: Pure calls

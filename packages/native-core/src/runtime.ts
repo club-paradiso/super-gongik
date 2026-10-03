@@ -16,6 +16,17 @@ import {
   type UserDataStore,
 } from "@super-gongik/domain";
 
+import {
+  COLLECTION_LABELS,
+  CONFLICT_TYPE_COPY,
+  PROFILE_COPY,
+  describeCounts,
+  describeVersion,
+  parseErrorTitle,
+  restoreErrorTitle,
+  restoreGate,
+} from "@/lib/restore-copy";
+
 import { createNativeStorage, host } from "./host";
 import { buildNativeProjection } from "./projection";
 import { applyCommand, callPure } from "./pure";
@@ -129,6 +140,28 @@ export function createNativeRuntime() {
       return json(result);
     },
 
+    /**
+     * Edit the profile by patching the stored one, the way the web profile
+     * form submits `{ ...profile, ...fields }`. Merging here means fields the
+     * native client does not model are kept, never reset.
+     */
+    async editProfile(patchJson: string): Promise<string> {
+      const patch: unknown = JSON.parse(patchJson);
+      if (typeof patch !== "object" || patch === null || Array.isArray(patch)) {
+        throw new TypeError("patch must be an object.");
+      }
+      const result = await requireStore().run((data, context) => {
+        if (!data.profile)
+          return domain.editProfile(data, patch as never, context);
+        return domain.editProfile(
+          data,
+          { ...data.profile, ...(patch as object) } as never,
+          context,
+        );
+      });
+      return json(result);
+    },
+
     /** "이 기기의 모든 데이터 지우기": records and every recovery copy. */
     async wipeAll(): Promise<string> {
       return json(await requireStore().wipeAll());
@@ -137,6 +170,38 @@ export function createNativeRuntime() {
     /** Everything the screens render for `today` (a Seoul civil date). */
     project(today: string): string {
       return json(buildNativeProjection(readyData(), today));
+    },
+
+    /** Money screen month evaluation over the stored document. */
+    moneyMonth(month: string, today: string): string {
+      const data = readyData();
+      if (!data.profile) throw new Error("No profile.");
+      return json(
+        callPure("evaluateMoneyMonth", [data, data.profile, month, today]),
+      );
+    },
+
+    /** Editor initial state for a stored event (or a new one on `date`). */
+    eventFormInitial(eventId: string | null, date: string): string {
+      const event =
+        eventId === null
+          ? null
+          : (readyData().events.find((item) => item.id === eventId) ?? null);
+      return json(callPure("eventFormInitial", [event, date]));
+    },
+
+    /** Editor evaluation against the stored profile and events. */
+    eventFormEvaluate(formJson: string, editingId: string | null): string {
+      const data = readyData();
+      if (!data.profile) throw new Error("No profile.");
+      return json(
+        callPure("eventFormEvaluate", [
+          JSON.parse(formJson),
+          data.profile,
+          data.events,
+          editingId,
+        ]),
+      );
     },
 
     /** Pure domain/rules/importer functions by whitelisted name. */
@@ -169,19 +234,27 @@ export function createNativeRuntime() {
       return json({ text: serializeBackup(backup), backup });
     },
 
-    /** Parse and preview; never writes. */
+    /**
+     * Parse and preview; never writes. Returns the plan plus the web backup
+     * panel's wording for it (restore-copy.ts), and whether the confirm
+     * button may be enabled for the given choices.
+     */
     previewRestore(
       text: string,
       mode: RestoreMode,
       optionsJson: string,
     ): string {
       const parsed = parseBackup(text);
-      if (!parsed.ok) return json({ ok: false, parsed });
+      if (!parsed.ok) {
+        return json({ ok: false, parsed, title: parseErrorTitle(parsed.kind) });
+      }
       const current = readyData();
-      const options = JSON.parse(optionsJson) as MergeOptions | null;
+      const options = (JSON.parse(optionsJson) ?? {}) as MergeOptions & {
+        destructiveConfirmed?: boolean;
+      };
       const plan = planRestore(current, parsed.data, {
         mode,
-        options: options ?? undefined,
+        options,
         now: new Date().toISOString(),
         deviceId: current.deviceId,
       });
@@ -189,7 +262,26 @@ export function createNativeRuntime() {
         ok: true,
         summary: parsed.summary,
         info: parsed.info,
-        plan,
+        plan: { ...plan, result: null },
+        presentation: {
+          profile: PROFILE_COPY[plan.profile],
+          collections: Object.entries(plan.counts).map(([key, counts]) => ({
+            key,
+            label: COLLECTION_LABELS[key as keyof typeof COLLECTION_LABELS],
+            text: describeCounts(counts),
+          })),
+          conflicts: plan.conflicts.map((conflict) => ({
+            key: conflict.key,
+            collection: COLLECTION_LABELS[conflict.collection],
+            explanation: CONFLICT_TYPE_COPY[conflict.type],
+            local: describeVersion(conflict.local),
+            incoming: describeVersion(conflict.incoming),
+          })),
+          gate: restoreGate(plan, {
+            resolutions: options.resolutions ?? {},
+            destructiveConfirmed: options.destructiveConfirmed ?? false,
+          }),
+        },
       });
     },
 
@@ -199,7 +291,11 @@ export function createNativeRuntime() {
       if (!parsed.ok) return json({ ok: false, code: "INVALID", parsed });
       const request = JSON.parse(requestJson);
       const execution = await requireStore().restore(parsed.data, request);
-      return json(execution);
+      return json(
+        execution.ok
+          ? { ok: true, plan: { ...execution.plan, result: null } }
+          : { ...execution, title: restoreErrorTitle(execution.code) },
+      );
     },
 
     /** Raw stored text for a key (quarantine export); null when absent. */

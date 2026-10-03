@@ -1,0 +1,14 @@
+// Shared build settings. Real values for the bundle id, team and Supabase
+// project go in Config/Local.xcconfig (git-ignored). Nothing secret belongs
+// in any xcconfig: the Supabase anon key is a publishable key protected by
+// row-level security, and service-role keys must never reach the app.
+
+SG_BUNDLE_ID = app.supergongik.ios
+SG_DEVELOPMENT_TEAM =
+
+// Cloud sync stays hidden unless both are set (same rule as the web's
+// NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY).
+SG_SUPABASE_URL =
+SG_SUPABASE_ANON_KEY =
+
+#include? "Local.xcconfig"

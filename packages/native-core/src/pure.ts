@@ -26,6 +26,10 @@ import {
   type FormState,
 } from "@/lib/event-form";
 import { evaluateMoneyMonth } from "@/lib/money-model";
+import {
+  RESIDENCE_REGIONS,
+  regionalFareSuggestion,
+} from "@/lib/regional-transit-fares";
 import { buildLedgerForProfile } from "@/lib/projections";
 
 /**
@@ -157,6 +161,17 @@ const PURE = {
     };
   },
   calculateExpectedDischargeDate: domain.calculateExpectedDischargeDate,
+  /** Choices and labels the profile form needs (web profile tab). */
+  profileOptions: () => ({
+    residenceRegions: RESIDENCE_REGIONS,
+    priorServiceBases: domain.PRIOR_SERVICE_BASES.map((basis) => ({
+      value: basis,
+      label: domain.PRIOR_SERVICE_BASIS_LABELS[basis],
+    })),
+    standardServiceMonths: domain.STANDARD_SERVICE_MONTHS,
+  }),
+  /** Verified regional fare suggestion, or null (web lib). */
+  regionalFareSuggestion,
   // money screen month evaluation (web lib/money-model.ts)
   evaluateMoneyMonth,
   floorPercent,

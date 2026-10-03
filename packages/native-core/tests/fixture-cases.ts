@@ -726,6 +726,13 @@ const eventForm: FixtureSuite = {
       existing,
       null,
     ),
+    call("profile options", "profileOptions"),
+    call("fare suggestion seoul", "regionalFareSuggestion", "서울특별시"),
+    call(
+      "fare suggestion unverified region",
+      "regionalFareSuggestion",
+      "경기도",
+    ),
     call(
       "money month current",
       "evaluateMoneyMonth",

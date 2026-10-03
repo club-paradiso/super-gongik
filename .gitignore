@@ -22,3 +22,4 @@ apps/ios/DerivedData/
 apps/ios/*.xcodeproj/
 xcuserdata/
 *.xcuserstate
+apps/ios/Config/Local.xcconfig

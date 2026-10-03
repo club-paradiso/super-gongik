@@ -1084,6 +1084,16 @@
             "completed": false
           },
           "leaveText": {
+            "credits": [
+              {
+                "amount": "15일",
+                "explanation": "2026. 04. 23. 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+              },
+              {
+                "amount": "13일",
+                "explanation": "2026. 08. 28. 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+              }
+            ],
             "balance": {
               "granted": "0일",
               "upcomingCredits": "28일",
@@ -2254,6 +2264,16 @@
             "completed": false
           },
           "leaveText": {
+            "credits": [
+              {
+                "amount": "15일",
+                "explanation": "2026. 04. 23. 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+              },
+              {
+                "amount": "13일",
+                "explanation": "2026. 08. 28. 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+              }
+            ],
             "balance": {
               "granted": "15일",
               "upcomingCredits": "13일",
@@ -3324,6 +3344,16 @@
             "completed": false
           },
           "leaveText": {
+            "credits": [
+              {
+                "amount": "15일",
+                "explanation": "2026. 04. 23. 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+              },
+              {
+                "amount": "13일",
+                "explanation": "2026. 08. 28. 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+              }
+            ],
             "balance": {
               "granted": "15일",
               "upcomingCredits": "13일",
@@ -4324,6 +4354,16 @@
             "completed": false
           },
           "leaveText": {
+            "credits": [
+              {
+                "amount": "15일",
+                "explanation": "2026. 04. 23. 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+              },
+              {
+                "amount": "13일",
+                "explanation": "2026. 08. 28. 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+              }
+            ],
             "balance": {
               "granted": "28일",
               "upcomingCredits": "0일",
@@ -5321,6 +5361,16 @@
             "completed": true
           },
           "leaveText": {
+            "credits": [
+              {
+                "amount": "15일",
+                "explanation": "2026. 04. 23. 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+              },
+              {
+                "amount": "13일",
+                "explanation": "2026. 08. 28. 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+              }
+            ],
             "balance": {
               "granted": "28일",
               "upcomingCredits": "0일",
@@ -6318,6 +6368,16 @@
             "completed": true
           },
           "leaveText": {
+            "credits": [
+              {
+                "amount": "15일",
+                "explanation": "2026. 04. 23. 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+              },
+              {
+                "amount": "13일",
+                "explanation": "2026. 08. 28. 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+              }
+            ],
             "balance": {
               "granted": "28일",
               "upcomingCredits": "0일",
@@ -7492,6 +7552,16 @@
             "completed": false
           },
           "leaveText": {
+            "credits": [
+              {
+                "amount": "15일",
+                "explanation": "2026. 04. 23. 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+              },
+              {
+                "amount": "13일",
+                "explanation": "2026. 08. 28. 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+              }
+            ],
             "balance": {
               "granted": "15일",
               "upcomingCredits": "13일",

@@ -1,5 +1,6 @@
 import {
   ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY,
+  formatKoreanDate,
   formatLeaveQuantity,
   isDateOnly,
   type DateOnly,
@@ -36,7 +37,23 @@ function presentLedger(ledger: LeaveLedger) {
   const format = (value: LeaveQuantity) =>
     formatLeaveQuantity(value, ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY);
   const balance = ledger.balance;
+  // Same display transform as the web ledger panel's `withKoreanDates`:
+  // ISO dates inside rule text read as "2026. 08. 28.".
+  const koreanDates = (text: string) =>
+    text.replace(/\b\d{4}-\d{2}-\d{2}\b/g, (date) =>
+      isDateOnly(date) ? formatKoreanDate(date) : date,
+    );
   return {
+    credits: ledger.credits.map((credit) => ({
+      amount:
+        credit.countedHalfDays !== null
+          ? formatLeaveQuantity(
+              { halfDays: credit.countedHalfDays, minutes: 0 },
+              null,
+            )
+          : "미확인",
+      explanation: koreanDates(credit.explanation),
+    })),
     balance: {
       granted: format(balance.granted),
       upcomingCredits: format(balance.upcomingCredits),

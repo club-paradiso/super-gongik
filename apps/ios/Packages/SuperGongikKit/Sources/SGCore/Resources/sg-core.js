@@ -5483,6 +5483,10 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		const values = Object.fromEntries(parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value]));
 		return `${values.year}-${values.month}-${values.day}`;
 	}
+	function formatKoreanDate(date) {
+		const { year, month, day } = parseDateOnly(date);
+		return `${year}. ${pad(month)}. ${pad(day)}.`;
+	}
 
 //#endregion
 //#region ../domain/src/calendar/month.ts
@@ -6620,6 +6624,15 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		"ARTICLE_62_2_7_ALTERNATIVE_SERVICE"
 	];
 	const priorServiceBasisSchema = _enum(PRIOR_SERVICE_BASES);
+	const PRIOR_SERVICE_BASIS_LABELS = {
+		ARTICLE_62_2_1_SHIPBOARD_RESERVE: "제1호 승선근무예비역 편입 취소",
+		ARTICLE_62_2_2_ARTS_SPORTS: "제2호 예술·체육요원 편입 취소",
+		ARTICLE_62_2_3_PUBLIC_HEALTH_LEGAL_VET: "제3호 공중보건의사·병역판정검사전담의사·공익법무관·공중방역수의사 편입 취소",
+		ARTICLE_62_2_4_RESEARCH_INDUSTRIAL: "제4호 전문연구요원·산업기능요원 편입 취소",
+		ARTICLE_62_2_5_MILITARY_SCHOOL_WITHDRAWAL: "제5호 입교 전 신분 복귀(퇴교 전 교육기간)",
+		ARTICLE_62_2_6_ARTICLE_137_RECLASSIFIED: "제6호 제137조제7항 보충역 편입",
+		ARTICLE_62_2_7_ALTERNATIVE_SERVICE: "제7호 대체역 편입 취소"
+	};
 	const serviceProfileInputSchema = object({
 		callUpDate: dateOnlySchema$1,
 		expectedDischargeDate: dateOnlySchema$1,
@@ -9633,6 +9646,101 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	});
 
 //#endregion
+//#region ../../apps/web/src/lib/restore-copy.ts
+	const COLLECTION_LABELS = {
+		profile: "복무 프로필",
+		events: "복무 기록",
+		leaveAdjustments: "연가 보정·확인",
+		leaveSnapshots: "기관 잔액 기록",
+		imports: "가져오기 이력",
+		attendanceMonths: "월 근무일 확인",
+		compensationSnapshots: "보수 계산 기록"
+	};
+	/** Display order and wording; outcomes not listed are not shown. */
+	const OUTCOME_COPY = [
+		["ADDED", "추가"],
+		["UPDATED", "갱신"],
+		["RESTORED", "되살림"],
+		["RESOLVED_INCOMING", "백업 값 사용"],
+		["RESOLVED_LOCAL", "이 기기 값 유지"],
+		["REPLACED", "백업 내용으로 바뀜"],
+		["DELETED", "삭제됨"],
+		["REMOVED", "사라짐"],
+		["CONFLICT", "충돌"],
+		["DUPLICATE", "중복이라 건너뜀"],
+		["REJECTED", "겹쳐서 건너뜀"],
+		["LOCAL_DELETION_KEPT", "이 기기에서 지운 상태 유지"],
+		["INCOMING_DELETION_NOT_APPLIED", "백업의 삭제는 적용 안 함"],
+		["ADDED_HISTORY", "삭제 이력 추가"],
+		["HISTORY_UPDATED", "삭제 이력 갱신"],
+		["UNCHANGED", "같음"],
+		["RETAINED_LOCAL", "이 기기 기록 유지"]
+	];
+	function describeCounts(counts) {
+		const parts = OUTCOME_COPY.filter(([outcome]) => (counts[outcome] ?? 0) > 0).map(([outcome, label]) => `${label} ${counts[outcome]}`);
+		return parts.length ? parts.join(" · ") : "변화 없음";
+	}
+	const PROFILE_COPY = {
+		SAME_PROFILE: "이 기기와 같은 복무 프로필",
+		NO_LOCAL_PROFILE: "이 기기에는 아직 프로필이 없음",
+		DIFFERENT_PROFILE: "다른 복무 프로필 (합치기 불가, 덮어쓰기만 가능)",
+		NO_BACKUP_PROFILE: "백업에 프로필 없음 (합치기 불가)"
+	};
+	function parseErrorTitle(kind) {
+		switch (kind) {
+			case "TRUNCATED":
+			case "INTEGRITY_MISMATCH": return "백업 파일이 손상됐어요.";
+			case "NEWER_SCHEMA":
+			case "UNSUPPORTED_FORMAT_VERSION": return "앱 업데이트가 필요한 백업이에요.";
+			default: return "복원할 수 없는 파일이에요.";
+		}
+	}
+	function restoreErrorTitle(code) {
+		switch (code) {
+			case "STORAGE_WRITE_FAILED": return "기기에 저장하지 못했어요.";
+			case "PRESERVE_FAILED": return "안전 사본을 만들지 못해 멈췄어요.";
+			case "STALE_PREVIEW": return "다시 확인이 필요해요.";
+			default: return "복원하지 않았어요.";
+		}
+	}
+	const CONFLICT_TYPE_COPY = {
+		EQUAL_VERSION_DIVERGENT: "같은 버전인데 내용이 달라요.",
+		CROSS_DEVICE_DIVERGENT: "양쪽에서 따로 고쳐졌어요. 어느 쪽이 다른 쪽을 보고 고쳤는지 증명할 기록이 없어요.",
+		IMMUTABLE_RECORD_DIVERGENT: "한 번 저장되면 바뀌지 않는 기록인데 내용이 달라요.",
+		UNVERSIONED_DIVERGENT: "버전 정보가 없는 기록이라 어느 쪽이 나중인지 알 수 없어요."
+	};
+	function describeVersion(side) {
+		return [
+			side.revision === null ? "버전 정보 없음" : `버전 ${side.revision}`,
+			side.updatedAt ? `${new Date(side.updatedAt).toLocaleString("ko-KR")} 수정` : null,
+			side.deleted ? "삭제됨" : null
+		].filter(Boolean).join(" · ");
+	}
+	/**
+	* Whether the confirm button may be pressed. The domain enforces the same
+	* rules again in `executeRestore`; this only keeps the UI honest.
+	*/
+	function restoreGate(plan, input) {
+		if (plan.mode === "MERGE") {
+			if (plan.blocked && plan.blocked.reason !== "UNRESOLVED_CONFLICTS") return {
+				enabled: false,
+				reason: plan.blocked.message
+			};
+			const open = plan.conflicts.filter((conflict) => !input.resolutions[conflict.key]);
+			if (open.length > 0) return {
+				enabled: false,
+				reason: `어느 쪽을 남길지 아직 고르지 않은 충돌이 ${open.length}건 있어요.`
+			};
+			return { enabled: true };
+		}
+		if (plan.requiresDestructiveConfirmation && !input.destructiveConfirmed) return {
+			enabled: false,
+			reason: "덮어쓰기 전에 아래 확인란을 직접 체크해 주세요."
+		};
+		return { enabled: true };
+	}
+
+//#endregion
 //#region src/host.ts
 	function host() {
 		const value = globalThis.__sgHost;
@@ -11898,7 +12006,15 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	function presentLedger(ledger) {
 		const format = (value) => formatLeaveQuantity(value, 480);
 		const balance = ledger.balance;
+		const koreanDates = (text) => text.replace(/\b\d{4}-\d{2}-\d{2}\b/g, (date) => isDateOnly(date) ? formatKoreanDate(date) : date);
 		return {
+			credits: ledger.credits.map((credit) => ({
+				amount: credit.countedHalfDays !== null ? formatLeaveQuantity({
+					halfDays: credit.countedHalfDays,
+					minutes: 0
+				}, null) : "미확인",
+				explanation: koreanDates(credit.explanation)
+			})),
 			balance: {
 				granted: format(balance.granted),
 				upcomingCredits: format(balance.upcomingCredits),
@@ -12802,6 +12918,53 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 
 //#endregion
+//#region ../../apps/web/src/lib/regional-transit-fares.ts
+	const RESIDENCE_REGIONS = [
+		"서울특별시",
+		"부산광역시",
+		"대구광역시",
+		"인천광역시",
+		"광주광역시",
+		"대전광역시",
+		"울산광역시",
+		"세종특별자치시",
+		"경기도",
+		"강원특별자치도",
+		"충청북도",
+		"충청남도",
+		"전북특별자치도",
+		"전라남도",
+		"경상북도",
+		"경상남도",
+		"제주특별자치도"
+	];
+	/**
+	* Conservative suggestions only. A region is enabled after an official
+	* current fare source has been verified. Missing regions stay manual rather
+	* than receiving a guessed fare.
+	*/
+	const VERIFIED_FARES = {
+		서울특별시: {
+			oneWayCashFare: 1500,
+			dailyRoundTripFare: 3e3,
+			basis: "서울 간·지선 시내버스 일반 현금 기본요금",
+			sourceUrl: "https://news.seoul.go.kr/traffic/archives/1706",
+			verifiedAt: "2026-09-26"
+		},
+		제주특별자치도: {
+			oneWayCashFare: 1200,
+			dailyRoundTripFare: 2400,
+			basis: "제주 간·지선버스 일반 현금 단일요금",
+			sourceUrl: "https://bus.jeju.go.kr/mobile/schedule/busfare",
+			verifiedAt: "2026-09-26"
+		}
+	};
+	function regionalFareSuggestion(region) {
+		if (!region) return null;
+		return VERIFIED_FARES[region] ?? null;
+	}
+
+//#endregion
 //#region src/pure.ts
 	const PURE = {
 		parseDateOnly,
@@ -12902,6 +13065,17 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			};
 		},
 		calculateExpectedDischargeDate,
+		/** Choices and labels the profile form needs (web profile tab). */
+		profileOptions: () => ({
+			residenceRegions: RESIDENCE_REGIONS,
+			priorServiceBases: PRIOR_SERVICE_BASES.map((basis) => ({
+				value: basis,
+				label: PRIOR_SERVICE_BASIS_LABELS[basis]
+			})),
+			standardServiceMonths: 21
+		}),
+		/** Verified regional fare suggestion, or null (web lib). */
+		regionalFareSuggestion,
 		evaluateMoneyMonth,
 		floorPercent,
 		formatDdayNumber,
@@ -13088,6 +13262,22 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				const args = parseArgs(argsJson);
 				return json(await requireStore().run((data, context) => command(data, ...args, context)));
 			},
+			/**
+			* Edit the profile by patching the stored one, the way the web profile
+			* form submits `{ ...profile, ...fields }`. Merging here means fields the
+			* native client does not model are kept, never reset.
+			*/
+			async editProfile(patchJson) {
+				const patch = JSON.parse(patchJson);
+				if (typeof patch !== "object" || patch === null || Array.isArray(patch)) throw new TypeError("patch must be an object.");
+				return json(await requireStore().run((data, context) => {
+					if (!data.profile) return editProfile(data, patch, context);
+					return editProfile(data, {
+						...data.profile,
+						...patch
+					}, context);
+				}));
+			},
 			/** "이 기기의 모든 데이터 지우기": records and every recovery copy. */
 			async wipeAll() {
 				return json(await requireStore().wipeAll());
@@ -13095,6 +13285,33 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			/** Everything the screens render for `today` (a Seoul civil date). */
 			project(today) {
 				return json(buildNativeProjection(readyData(), today));
+			},
+			/** Money screen month evaluation over the stored document. */
+			moneyMonth(month, today) {
+				const data = readyData();
+				if (!data.profile) throw new Error("No profile.");
+				return json(callPure("evaluateMoneyMonth", [
+					data,
+					data.profile,
+					month,
+					today
+				]));
+			},
+			/** Editor initial state for a stored event (or a new one on `date`). */
+			eventFormInitial(eventId, date) {
+				const event = eventId === null ? null : readyData().events.find((item) => item.id === eventId) ?? null;
+				return json(callPure("eventFormInitial", [event, date]));
+			},
+			/** Editor evaluation against the stored profile and events. */
+			eventFormEvaluate(formJson, editingId) {
+				const data = readyData();
+				if (!data.profile) throw new Error("No profile.");
+				return json(callPure("eventFormEvaluate", [
+					JSON.parse(formJson),
+					data.profile,
+					data.events,
+					editingId
+				]));
 			},
 			/** Pure domain/rules/importer functions by whitelisted name. */
 			call(name, argsJson) {
@@ -13111,18 +13328,23 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					backup
 				});
 			},
-			/** Parse and preview; never writes. */
+			/**
+			* Parse and preview; never writes. Returns the plan plus the web backup
+			* panel's wording for it (restore-copy.ts), and whether the confirm
+			* button may be enabled for the given choices.
+			*/
 			previewRestore(text, mode, optionsJson) {
 				const parsed = parseBackup(text);
 				if (!parsed.ok) return json({
 					ok: false,
-					parsed
+					parsed,
+					title: parseErrorTitle(parsed.kind)
 				});
 				const current = readyData();
-				const options = JSON.parse(optionsJson);
+				const options = JSON.parse(optionsJson) ?? {};
 				const plan = planRestore(current, parsed.data, {
 					mode,
-					options: options ?? void 0,
+					options,
 					now: (/* @__PURE__ */ new Date()).toISOString(),
 					deviceId: current.deviceId
 				});
@@ -13130,7 +13352,29 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					ok: true,
 					summary: parsed.summary,
 					info: parsed.info,
-					plan
+					plan: {
+						...plan,
+						result: null
+					},
+					presentation: {
+						profile: PROFILE_COPY[plan.profile],
+						collections: Object.entries(plan.counts).map(([key, counts]) => ({
+							key,
+							label: COLLECTION_LABELS[key],
+							text: describeCounts(counts)
+						})),
+						conflicts: plan.conflicts.map((conflict) => ({
+							key: conflict.key,
+							collection: COLLECTION_LABELS[conflict.collection],
+							explanation: CONFLICT_TYPE_COPY[conflict.type],
+							local: describeVersion(conflict.local),
+							incoming: describeVersion(conflict.incoming)
+						})),
+						gate: restoreGate(plan, {
+							resolutions: options.resolutions ?? {},
+							destructiveConfirmed: options.destructiveConfirmed ?? false
+						})
+					}
 				});
 			},
 			/** Apply a previewed restore; the store re-plans and refuses stale previews. */
@@ -13142,7 +13386,17 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					parsed
 				});
 				const request = JSON.parse(requestJson);
-				return json(await requireStore().restore(parsed.data, request));
+				const execution = await requireStore().restore(parsed.data, request);
+				return json(execution.ok ? {
+					ok: true,
+					plan: {
+						...execution.plan,
+						result: null
+					}
+				} : {
+					...execution,
+					title: restoreErrorTitle(execution.code)
+				});
 			},
 			/** Raw stored text for a key (quarantine export); null when absent. */
 			async readRaw(key) {

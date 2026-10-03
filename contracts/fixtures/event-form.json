@@ -1126,6 +1126,97 @@
       }
     },
     {
+      "id": "profile options",
+      "kind": "call",
+      "fn": "profileOptions",
+      "args": [],
+      "expected": {
+        "ok": true,
+        "value": {
+          "residenceRegions": [
+            "서울특별시",
+            "부산광역시",
+            "대구광역시",
+            "인천광역시",
+            "광주광역시",
+            "대전광역시",
+            "울산광역시",
+            "세종특별자치시",
+            "경기도",
+            "강원특별자치도",
+            "충청북도",
+            "충청남도",
+            "전북특별자치도",
+            "전라남도",
+            "경상북도",
+            "경상남도",
+            "제주특별자치도"
+          ],
+          "priorServiceBases": [
+            {
+              "value": "ARTICLE_62_2_1_SHIPBOARD_RESERVE",
+              "label": "제1호 승선근무예비역 편입 취소"
+            },
+            {
+              "value": "ARTICLE_62_2_2_ARTS_SPORTS",
+              "label": "제2호 예술·체육요원 편입 취소"
+            },
+            {
+              "value": "ARTICLE_62_2_3_PUBLIC_HEALTH_LEGAL_VET",
+              "label": "제3호 공중보건의사·병역판정검사전담의사·공익법무관·공중방역수의사 편입 취소"
+            },
+            {
+              "value": "ARTICLE_62_2_4_RESEARCH_INDUSTRIAL",
+              "label": "제4호 전문연구요원·산업기능요원 편입 취소"
+            },
+            {
+              "value": "ARTICLE_62_2_5_MILITARY_SCHOOL_WITHDRAWAL",
+              "label": "제5호 입교 전 신분 복귀(퇴교 전 교육기간)"
+            },
+            {
+              "value": "ARTICLE_62_2_6_ARTICLE_137_RECLASSIFIED",
+              "label": "제6호 제137조제7항 보충역 편입"
+            },
+            {
+              "value": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+              "label": "제7호 대체역 편입 취소"
+            }
+          ],
+          "standardServiceMonths": 21
+        }
+      }
+    },
+    {
+      "id": "fare suggestion seoul",
+      "kind": "call",
+      "fn": "regionalFareSuggestion",
+      "args": [
+        "서울특별시"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "oneWayCashFare": 1500,
+          "dailyRoundTripFare": 3000,
+          "basis": "서울 간·지선 시내버스 일반 현금 기본요금",
+          "sourceUrl": "https://news.seoul.go.kr/traffic/archives/1706",
+          "verifiedAt": "2026-09-26"
+        }
+      }
+    },
+    {
+      "id": "fare suggestion unverified region",
+      "kind": "call",
+      "fn": "regionalFareSuggestion",
+      "args": [
+        "경기도"
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
       "id": "money month current",
       "kind": "call",
       "fn": "evaluateMoneyMonth",
