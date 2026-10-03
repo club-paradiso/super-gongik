@@ -9,3 +9,4 @@ apps/ios/**/*.xcodeproj
 apps/ios/**/.build
 apps/ios/**/.swiftpm
 apps/ios/Packages/SuperGongikKit/Sources/SGCore/Resources/sg-shims.js
+contracts/interchange

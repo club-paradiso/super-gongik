@@ -1,0 +1,335 @@
+{
+  "format": "super-gongik.backup",
+  "formatVersion": 2,
+  "exportedAt": "2026-09-21T14:13:20.000Z",
+  "schemaVersion": 3,
+  "integrity": {
+    "algorithm": "SHA-256",
+    "canonicalization": "JCS",
+    "digest": "b04b600a34bef77a421d64980762faace2db4735e709769face52344ac1a0582"
+  },
+  "data": {
+    "schemaVersion": 3,
+    "documentRevision": 1,
+    "savedAt": "2026-10-03T15:01:25.239Z",
+    "deviceId": "ab4c808d-5536-454a-a774-78ae56159564",
+    "profile": {
+      "callUpDate": "2026-05-04",
+      "expectedDischargeDate": "2028-02-03",
+      "serviceCategory": null,
+      "workplaceType": null,
+      "residenceRegion": null,
+      "defaultCommuteCost": 2800,
+      "defaultMealAllowanceOverride": null,
+      "timezone": "Asia/Seoul",
+      "liveProgressEnabled": false,
+      "workdayMinutes": null,
+      "workdayStartTime": null,
+      "workdayEndTime": null,
+      "priorServiceCredit": null,
+      "priorServiceBasis": null,
+      "priorServiceCreditedMonths": null,
+      "priorServiceCreditHasPartialMonth": false,
+      "workPattern": null,
+      "workWeekdays": null,
+      "id": "profile-1",
+      "ownerId": null,
+      "localProfileId": "profile-1",
+      "createdAt": "2026-05-04T00:00:00.000Z",
+      "updatedAt": "2026-05-04T00:00:00.000Z"
+    },
+    "events": [
+      {
+        "eventType": "ANNUAL_LEAVE",
+        "startDate": "2026-07-01",
+        "endDate": "2026-07-01",
+        "timing": {
+          "kind": "ALL_DAY",
+          "dayCount": 1
+        },
+        "title": "연가",
+        "note": "여름 휴가",
+        "id": "fx-1",
+        "serviceProfileId": "profile-1",
+        "createdAt": "2026-09-20T01:00:00.000Z",
+        "updatedAt": "2026-09-20T01:00:00.000Z",
+        "deletedAt": null,
+        "revision": 1,
+        "deviceId": "device-fixture",
+        "status": "CONFIRMED",
+        "source": {
+          "kind": "MANUAL"
+        }
+      },
+      {
+        "eventType": "ANNUAL_LEAVE",
+        "startDate": "2026-07-08",
+        "endDate": "2026-07-08",
+        "timing": {
+          "kind": "HALF_DAY",
+          "half": "AM"
+        },
+        "title": null,
+        "note": null,
+        "id": "fx-2",
+        "serviceProfileId": "profile-1",
+        "createdAt": "2026-09-20T01:00:00.000Z",
+        "updatedAt": "2026-09-20T01:00:00.000Z",
+        "deletedAt": null,
+        "revision": 1,
+        "deviceId": "device-fixture",
+        "status": "CONFIRMED",
+        "source": {
+          "kind": "MANUAL"
+        }
+      },
+      {
+        "eventType": "SICK_LEAVE",
+        "startDate": "2026-07-15",
+        "endDate": "2026-07-15",
+        "timing": {
+          "kind": "PARTIAL",
+          "durationMinutes": 120,
+          "startTime": null,
+          "endTime": null
+        },
+        "title": null,
+        "note": null,
+        "sickLeaveCategory": "ORDINARY",
+        "id": "fx-3",
+        "serviceProfileId": "profile-1",
+        "createdAt": "2026-09-20T01:00:00.000Z",
+        "updatedAt": "2026-09-20T01:00:00.000Z",
+        "deletedAt": null,
+        "revision": 1,
+        "deviceId": "device-fixture",
+        "status": "CONFIRMED",
+        "source": {
+          "kind": "MANUAL"
+        }
+      },
+      {
+        "eventType": "ANNUAL_LEAVE",
+        "startDate": "2026-07-20",
+        "endDate": "2026-07-20",
+        "timing": {
+          "kind": "ALL_DAY",
+          "dayCount": 1
+        },
+        "title": null,
+        "note": null,
+        "id": "fx-4",
+        "serviceProfileId": "profile-1",
+        "createdAt": "2026-09-20T01:00:00.000Z",
+        "updatedAt": "2026-09-20T01:00:00.000Z",
+        "deletedAt": "2026-09-20T01:00:00.000Z",
+        "revision": 2,
+        "deviceId": "device-fixture",
+        "status": "CONFIRMED",
+        "source": {
+          "kind": "MANUAL"
+        }
+      },
+      {
+        "eventType": "ANNUAL_LEAVE",
+        "startDate": "2026-06-12",
+        "endDate": "2026-06-12",
+        "timing": {
+          "kind": "ALL_DAY",
+          "dayCount": 1
+        },
+        "title": null,
+        "note": null,
+        "id": "fx-7",
+        "serviceProfileId": "profile-1",
+        "createdAt": "2026-09-20T01:00:00.000Z",
+        "updatedAt": "2026-09-20T01:00:00.000Z",
+        "deletedAt": null,
+        "revision": 1,
+        "deviceId": "device-fixture",
+        "status": "CONFIRMED",
+        "source": {
+          "kind": "IMPORT",
+          "batchId": "batch-active",
+          "format": "CSV",
+          "fileName": "batch-active.csv",
+          "fingerprint": "fp-batch-active",
+          "confidence": 1,
+          "sourceRowIndex": 2
+        }
+      },
+      {
+        "eventType": "ANNUAL_LEAVE",
+        "startDate": "2026-06-19",
+        "endDate": "2026-06-19",
+        "timing": {
+          "kind": "ALL_DAY",
+          "dayCount": 1
+        },
+        "title": null,
+        "note": null,
+        "id": "fx-9",
+        "serviceProfileId": "profile-1",
+        "createdAt": "2026-09-20T01:00:00.000Z",
+        "updatedAt": "2026-09-20T01:00:00.000Z",
+        "deletedAt": "2026-09-20T01:00:00.000Z",
+        "revision": 2,
+        "deviceId": "device-fixture",
+        "status": "CONFIRMED",
+        "source": {
+          "kind": "IMPORT",
+          "batchId": "batch-rolled-back",
+          "format": "CSV",
+          "fileName": "batch-rolled-back.csv",
+          "fingerprint": "fp-batch-rolled-back",
+          "confidence": 1,
+          "sourceRowIndex": 2
+        }
+      }
+    ],
+    "leaveAdjustments": [
+      {
+        "id": "fx-5",
+        "serviceProfileId": "profile-1",
+        "createdAt": "2026-09-20T01:00:00.000Z",
+        "updatedAt": "2026-09-20T01:00:00.000Z",
+        "deletedAt": null,
+        "revision": 1,
+        "deviceId": "device-fixture",
+        "leaveType": "ANNUAL_LEAVE",
+        "kind": "GRANT_CONFIRMATION",
+        "creditKey": "YEAR_1",
+        "effectiveDate": "2026-05-04",
+        "amountHalfDays": 30,
+        "amountMinutes": 0,
+        "reason": "기관 확인"
+      },
+      {
+        "id": "fx-6",
+        "serviceProfileId": "profile-1",
+        "createdAt": "2026-09-20T01:00:00.000Z",
+        "updatedAt": "2026-09-20T01:00:00.000Z",
+        "deletedAt": null,
+        "revision": 1,
+        "deviceId": "device-fixture",
+        "leaveType": "ANNUAL_LEAVE",
+        "kind": "CORRECTION",
+        "creditKey": null,
+        "effectiveDate": "2026-09-01",
+        "amountHalfDays": -1,
+        "amountMinutes": 0,
+        "reason": "기관 기록 반영"
+      }
+    ],
+    "leaveSnapshots": [
+      {
+        "id": "fx-8",
+        "serviceProfileId": "profile-1",
+        "importBatchId": "batch-active",
+        "leaveType": "ANNUAL_LEAVE",
+        "asOfDate": "2026-06-30",
+        "grantedDays": 15,
+        "grantedMinutes": null,
+        "usedDays": 1,
+        "usedMinutes": null,
+        "remainingDays": 14,
+        "remainingMinutes": 0,
+        "confidence": 1,
+        "sourceRowIndex": 3,
+        "createdAt": "2026-09-20T01:00:00.000Z",
+        "deletedAt": null
+      },
+      {
+        "id": "fx-10",
+        "serviceProfileId": "profile-1",
+        "importBatchId": "batch-rolled-back",
+        "leaveType": "ANNUAL_LEAVE",
+        "asOfDate": "2026-06-30",
+        "grantedDays": 15,
+        "grantedMinutes": null,
+        "usedDays": 1,
+        "usedMinutes": null,
+        "remainingDays": 14,
+        "remainingMinutes": 0,
+        "confidence": 1,
+        "sourceRowIndex": 3,
+        "createdAt": "2026-09-20T01:00:00.000Z",
+        "deletedAt": "2026-09-20T01:00:00.000Z"
+      }
+    ],
+    "imports": [
+      {
+        "id": "batch-rolled-back",
+        "serviceProfileId": "profile-1",
+        "fileName": "batch-rolled-back.csv",
+        "sourceFormat": "CSV",
+        "fileSha256": null,
+        "createdAt": "2026-09-01T00:00:00.000Z",
+        "eventCount": 1,
+        "snapshotCount": 1,
+        "skippedDuplicateCount": 0,
+        "status": "ROLLED_BACK",
+        "rolledBackAt": "2026-09-20T01:00:00.000Z"
+      },
+      {
+        "id": "batch-active",
+        "serviceProfileId": "profile-1",
+        "fileName": "batch-active.csv",
+        "sourceFormat": "CSV",
+        "fileSha256": null,
+        "createdAt": "2026-09-01T00:00:00.000Z",
+        "eventCount": 1,
+        "snapshotCount": 1,
+        "skippedDuplicateCount": 0,
+        "status": "ACTIVE",
+        "rolledBackAt": null
+      }
+    ],
+    "attendanceMonths": [
+      {
+        "id": "fx-11",
+        "serviceProfileId": "profile-1",
+        "createdAt": "2026-09-20T01:00:00.000Z",
+        "updatedAt": "2026-09-20T01:00:00.000Z",
+        "deletedAt": null,
+        "revision": 1,
+        "deviceId": "device-fixture",
+        "month": "2026-07",
+        "nonWorkingDates": [
+          "2026-07-17"
+        ],
+        "dayOverrides": [],
+        "hadNonPayableAbsence": false,
+        "nonPayableDates": [],
+        "nonPayableDatesConfirmed": false,
+        "roundingPolicy": null,
+        "basisFingerprint": "[\"2026-05-04\",\"2028-02-03\",null,null,[[\"ANNUAL_LEAVE|2026-07-01|2026-07-01|D1\",null],[\"ANNUAL_LEAVE|2026-07-08|2026-07-08|HAM\",null],[\"SICK_LEAVE|2026-07-15|2026-07-15|P120@-\",\"ORDINARY\"]]]"
+      }
+    ],
+    "compensationSnapshots": [
+      {
+        "id": "fx-12",
+        "serviceProfileId": "profile-1",
+        "createdAt": "2026-09-20T01:00:00.000Z",
+        "updatedAt": "2026-09-20T01:00:00.000Z",
+        "deletedAt": null,
+        "revision": 1,
+        "deviceId": "device-fixture",
+        "month": "2026-07",
+        "generatedAt": "2026-09-20T01:00:00.000Z",
+        "ruleId": "compensation-2026",
+        "ruleVersion": "2026.1",
+        "total": 812345,
+        "evaluation": {
+          "lines": [
+            {
+              "code": "MEAL",
+              "amount": 1.5
+            }
+          ],
+          "note": null
+        }
+      }
+    ]
+  }
+}
