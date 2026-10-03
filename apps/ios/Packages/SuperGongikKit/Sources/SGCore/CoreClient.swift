@@ -59,12 +59,12 @@ public extension CoreRuntime {
 
     func eventFormInitial(eventId: String?, date: CivilDate) throws -> EventFormState {
         try unwrap(PureEnvelope<EventFormState>.self,
-                   callJSON("eventFormInitial", [eventId.map { $0 as Any } ?? NSNull(), date.description]), "eventFormInitial")
+                   callJSON("eventFormInitial", [eventId, date.description]), "eventFormInitial")
     }
 
     func eventFormEvaluate(_ form: EventFormState, editingId: String?) throws -> EventFormEvaluation {
         try unwrap(PureEnvelope<EventFormEvaluation>.self,
-                   callJSON("eventFormEvaluate", [try Self.encode(form), editingId.map { $0 as Any } ?? NSNull()]),
+                   callJSON("eventFormEvaluate", [try Self.encode(form), editingId]),
                    "eventFormEvaluate")
     }
 
@@ -78,18 +78,18 @@ public extension CoreRuntime {
 
     // MARK: Cloud (web cloud controller in the core)
 
-    func cloud(_ method: String, _ arguments: [Any] = []) async throws -> JSONValue {
+    func cloud(_ method: String, _ arguments: [String?] = []) async throws -> JSONValue {
         try JSONValue(data: await callJSONAsync(method, arguments))
     }
 
-    func cloudSync(_ method: String, _ arguments: [Any] = []) throws -> JSONValue {
+    func cloudSync(_ method: String, _ arguments: [String?] = []) throws -> JSONValue {
         try JSONValue(data: callJSON(method, arguments))
     }
 
     /// The platform signed in (OAuth, Apple) or lost the session.
     func cloudSessionChanged(_ session: CoreSession?) throws {
         let text = session.flatMap { try? JSONEncoder().encode($0) }.map { String(decoding: $0, as: UTF8.self) }
-        _ = try callJSON("cloudSessionChanged", [text as Any? ?? NSNull()])
+        _ = try callJSON("cloudSessionChanged", [text])
     }
 
     // MARK: Pure calls

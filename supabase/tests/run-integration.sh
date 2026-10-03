@@ -26,45 +26,58 @@ netloc = p.netloc if len(sys.argv) < 4 else sys.argv[3] + "@" + p.netloc.split("
 print(p._replace(path="/" + sys.argv[2], netloc=netloc).geturl())' "$@"
 }
 
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -c "create database $db"
+# Each client gets its own fresh database and PostgREST, so the second run
+# never sees rows written by the first.
 pid=""
+current_db=""
 cleanup() {
   if [ -n "$pid" ]; then kill "$pid" 2>/dev/null || true; fi
-  psql "$DATABASE_URL" -q -c "drop database if exists $db with (force)" >/dev/null
+  pid=""
+  if [ -n "$current_db" ]; then
+    psql "$DATABASE_URL" -q -c "drop database if exists $current_db with (force)" >/dev/null
+  fi
+  current_db=""
 }
 trap cleanup EXIT
 
-test_url="$(url_for "$DATABASE_URL" "$db")"
-run() { psql "$test_url" -v ON_ERROR_STOP=1 -q -X "$@"; }
-run -f "$here/shim/supabase-auth.sql"
-for migration in "$root"/supabase/migrations/*.sql; do
-  run -o /dev/null -f "$migration"
-done
-run -c "insert into auth.users (id) select unnest(string_to_array('$users', ','))::uuid"
+run_suite() {
+  local client="$1"
+  current_db="${db}_${client}"
+  psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -c "create database $current_db"
+  local test_url
+  test_url="$(url_for "$DATABASE_URL" "$current_db")"
+  run() { psql "$test_url" -v ON_ERROR_STOP=1 -q -X "$@"; }
+  run -f "$here/shim/supabase-auth.sql"
+  for migration in "$root"/supabase/migrations/*.sql; do
+    run -o /dev/null -f "$migration"
+  done
+  run -c "insert into auth.users (id) select unnest(string_to_array('$users', ','))::uuid"
 
-PGRST_DB_URI="$(url_for "$DATABASE_URL" "$db" "authenticator:authenticator")" \
-PGRST_DB_SCHEMAS=public \
-PGRST_DB_ANON_ROLE=anon \
-PGRST_JWT_SECRET="$secret" \
-PGRST_SERVER_PORT="$port" \
-  "$postgrest" >"${TMPDIR:-/tmp}/postgrest-$$.log" 2>&1 &
-pid=$!
+  PGRST_DB_URI="$(url_for "$DATABASE_URL" "$current_db" "authenticator:authenticator")" \
+  PGRST_DB_SCHEMAS=public \
+  PGRST_DB_ANON_ROLE=anon \
+  PGRST_JWT_SECRET="$secret" \
+  PGRST_SERVER_PORT="$port" \
+    "$postgrest" >"${TMPDIR:-/tmp}/postgrest-$$-$client.log" 2>&1 &
+  pid=$!
 
-for _ in $(seq 1 50); do
-  if curl -fsS "http://127.0.0.1:$port/" >/dev/null 2>&1; then break; fi
-  sleep 0.2
-done
-curl -fsS "http://127.0.0.1:$port/" >/dev/null
+  for _ in $(seq 1 50); do
+    if curl -fsS "http://127.0.0.1:$port/" >/dev/null 2>&1; then break; fi
+    sleep 0.2
+  done
+  curl -fsS "http://127.0.0.1:$port/" >/dev/null
 
-cd "$root"
-SUPER_GONGIK_IT_REST_URL="http://127.0.0.1:$port" \
-SUPER_GONGIK_IT_JWT_SECRET="$secret" \
-SUPER_GONGIK_IT_USERS="$users" \
-  pnpm --filter @super-gongik/web exec vitest run tests/supabase-transport.integration.test.ts
+  (
+    cd "$root"
+    SUPER_GONGIK_IT_REST_URL="http://127.0.0.1:$port" \
+    SUPER_GONGIK_IT_JWT_SECRET="$secret" \
+    SUPER_GONGIK_IT_USERS="$users" \
+    SUPER_GONGIK_IT_CLIENT="$client" \
+      pnpm --filter @super-gongik/web exec vitest run tests/supabase-transport.integration.test.ts
+  )
+  cleanup
+}
 
+run_suite supabase
 # Same scenarios through the native iOS client's PostgREST client.
-SUPER_GONGIK_IT_REST_URL="http://127.0.0.1:$port" \
-SUPER_GONGIK_IT_JWT_SECRET="$secret" \
-SUPER_GONGIK_IT_USERS="$users" \
-SUPER_GONGIK_IT_CLIENT=native \
-  pnpm --filter @super-gongik/web exec vitest run tests/supabase-transport.integration.test.ts
+run_suite native

@@ -115,10 +115,16 @@ public actor CoreRuntime {
         }
     }
 
+    /// Facade arguments are strings or null (JSON travels as text), which
+    /// keeps every call Sendable across the actor boundary.
+    private static func jsArguments(_ arguments: [String?]) -> [Any] {
+        arguments.map { $0.map { $0 as Any } ?? NSNull() }
+    }
+
     /// Calls a synchronous facade method that returns JSON text.
-    public func callJSON(_ method: String, _ arguments: [Any] = []) throws -> Data {
+    public func callJSON(_ method: String, _ arguments: [String?] = []) throws -> Data {
         installExceptionHandler()
-        let result = core.invokeMethod(method, withArguments: arguments)
+        let result = core.invokeMethod(method, withArguments: Self.jsArguments(arguments))
         if let lastException { throw CoreError.javaScript(lastException) }
         guard let result, result.isString, let text = result.toString() else {
             throw CoreError.notJSON(method)
@@ -132,9 +138,9 @@ public actor CoreRuntime {
     /// microtask drain that follows the call, before `invokeMethod` returns;
     /// the continuation also covers genuinely asynchronous work (network
     /// transport) that resolves later on this queue.
-    public func callJSONAsync(_ method: String, _ arguments: [Any] = []) async throws -> Data {
+    public func callJSONAsync(_ method: String, _ arguments: [String?] = []) async throws -> Data {
         installExceptionHandler()
-        guard let promise = core.invokeMethod(method, withArguments: arguments) else {
+        guard let promise = core.invokeMethod(method, withArguments: Self.jsArguments(arguments)) else {
             throw CoreError.notJSON(method)
         }
         if let lastException { throw CoreError.javaScript(lastException) }
