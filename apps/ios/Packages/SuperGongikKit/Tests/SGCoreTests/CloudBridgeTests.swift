@@ -83,6 +83,8 @@ struct CloudBridgeTests {
         let started = try await runtime.cloud("cloudStart")
         #expect(started["phase"]?.stringValue == "GUEST", "guests make no request")
         #expect(fake.paths.isEmpty)
+        let guestView = try await runtime.cloudSync("cloudView")
+        #expect(guestView["label"]?["text"]?.stringValue == "로컬 전용", "\(guestView)")
 
         #expect(try await runtime.cloud("cloudSendCode", ["x@example.com"]).boolValue == true)
         #expect(try await runtime.cloud("cloudVerifyCode", ["000000"]).boolValue == false)

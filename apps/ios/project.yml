@@ -28,8 +28,14 @@ targets:
     sources:
       - path: SuperGongik
       - path: Shared
+    # XcodeGen writes the .entitlements file from these properties.
     entitlements:
       path: SuperGongik/SuperGongik.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.app.supergongik.shared
+        com.apple.developer.applesignin:
+          - Default
     dependencies:
       - target: SuperGongikWidgets
       - package: SuperGongikKit
@@ -40,6 +46,8 @@ targets:
         product: SGPersistence
       - package: SuperGongikKit
         product: SGDesignSystem
+      - package: SuperGongikKit
+        product: SGSync
     info:
       path: SuperGongik/Info.plist
       properties:
@@ -91,6 +99,9 @@ targets:
       - path: SuperGongik/Resources/Assets.xcassets
     entitlements:
       path: SuperGongikWidgets/SuperGongikWidgets.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.app.supergongik.shared
     dependencies:
       - package: SuperGongikKit
         product: SGFoundation

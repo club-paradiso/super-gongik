@@ -8,6 +8,16 @@ struct MoreView: View {
     @Environment(AppModel.self) private var model
     @Environment(PrivacyLock.self) private var lock
     @State private var showingProfile = false
+    @State private var showingCloud = Self.debugOpenCloud
+
+    /// DEBUG-only screenshot hook: `-SGOpenCloud YES`.
+    private static var debugOpenCloud: Bool {
+        #if DEBUG
+        UserDefaults.standard.bool(forKey: "SGOpenCloud")
+        #else
+        false
+        #endif
+    }
 
     var body: some View {
         NavigationStack {
@@ -46,14 +56,19 @@ struct MoreView: View {
 
                 Section {
                     LabeledContent("저장 위치", value: "이 기기")
-                    if model.config.isCloudConfigured {
-                        Label("클라우드 동기화는 다음 단계에서 열려요.", systemImage: "icloud.slash")
-                            .foregroundStyle(.sg(SGColor.textSecondary))
+                    if model.cloud.isConfigured {
+                        NavigationLink {
+                            CloudSyncView()
+                        } label: {
+                            LabeledContent("클라우드 동기화", value: model.cloud.view?.label.text ?? "로컬 전용")
+                        }
                     }
                 } header: {
                     Text("저장")
                 } footer: {
-                    Text("모든 기록은 이 기기에만 저장돼요. 로그인하지 않으면 네트워크를 쓰지 않아요. 기기를 바꿀 때는 백업 파일로 옮겨 주세요.")
+                    Text(model.cloud.isConfigured
+                         ? "기록은 이 기기에 먼저 저장돼요. 로그인하고 동기화를 켜야만 클라우드에 올라가요. 로그인하지 않으면 네트워크를 쓰지 않아요."
+                         : "모든 기록은 이 기기에만 저장돼요. 기기를 바꿀 때는 백업 파일로 옮겨 주세요.")
                 }
 
                 Section {
@@ -115,6 +130,7 @@ struct MoreView: View {
                 }
             }
             .navigationTitle("더보기")
+            .navigationDestination(isPresented: $showingCloud) { CloudSyncView() }
             .sheet(isPresented: $showingProfile) {
                 NavigationStack { ProfileEditView() }
             }

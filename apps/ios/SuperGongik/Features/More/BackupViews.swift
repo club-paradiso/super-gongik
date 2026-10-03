@@ -86,6 +86,8 @@ struct BackupExportView: View {
 /// before the final button, and REPLACE keeps a pre-restore copy.
 struct BackupRestoreView: View {
     var onboarding = false
+    /// A backup already in hand (a cloud backup); skips the file picker.
+    var initialText: String?
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @State private var importing = false
@@ -128,6 +130,13 @@ struct BackupRestoreView: View {
         }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.json, .plainText]) { result in
             Task { await load(result) }
+        }
+        .task {
+            if let initialText, text == nil {
+                text = initialText
+                mode = (model.document?.hasAnyRecord ?? false) ? "MERGE" : "REPLACE"
+                await refresh()
+            }
         }
         .onChange(of: mode) { Task { await refresh() } }
         .onChange(of: restoreLocallyDeleted) { Task { await refresh() } }
@@ -282,7 +291,8 @@ struct BackupRestoreView: View {
             if result["ok"]?.boolValue == true {
                 outcome = (.success, "복원했어요.", mode == "REPLACE" ? "복원 전 데이터는 기기에 따로 보관했어요." : nil)
                 await model.reloadAfterExternalWrite()
-                if onboarding { dismiss() }
+                await model.cloud.afterRestore(mode)
+                if onboarding || initialText != nil { dismiss() }
                 self.text = nil
                 preview = nil
             } else {

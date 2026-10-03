@@ -13724,6 +13724,137 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 
 //#endregion
+//#region ../../apps/web/src/lib/sync-copy.ts
+/** One short label for the header chip and the settings panel. */
+	function syncLabel(state) {
+		switch (state.phase) {
+			case "UNCONFIGURED":
+			case "GUEST":
+			case "CODE_SENT": return {
+				text: "로컬 전용",
+				tone: "neutral"
+			};
+			case "LOADING": return {
+				text: "계정 확인 중",
+				tone: "busy"
+			};
+		}
+		const sync = state.sync;
+		if (!sync || sync.phase === "DISABLED") return {
+			text: "동기화 꺼짐",
+			tone: "neutral"
+		};
+		switch (sync.phase) {
+			case "SYNCING": return {
+				text: "동기화 중",
+				tone: "busy"
+			};
+			case "OFFLINE": return {
+				text: "오프라인 · 변경사항 저장됨",
+				tone: "neutral"
+			};
+			case "ERROR": return {
+				text: "동기화 대기 · 다시 시도 예정",
+				tone: "neutral"
+			};
+			case "BLOCKED": return sync.block?.reason === "AUTH" ? {
+				text: "다시 로그인 필요",
+				tone: "attention"
+			} : {
+				text: "동기화 확인 필요",
+				tone: "attention"
+			};
+			default:
+				if (sync.conflicts.length > 0) return {
+					text: "충돌 확인 필요",
+					tone: "attention"
+				};
+				if (sync.held.length > 0) return {
+					text: "동기화 확인 필요",
+					tone: "attention"
+				};
+				if (sync.dirty) return {
+					text: "동기화 대기",
+					tone: "neutral"
+				};
+				return {
+					text: "동기화됨",
+					tone: "ok"
+				};
+		}
+	}
+	const AUTH_ERROR_COPY = {
+		INVALID_EMAIL: "이메일 주소를 다시 확인해 주세요.",
+		INVALID_CODE: "코드가 맞지 않거나 만료됐어요. 새 코드를 받아 주세요.",
+		RATE_LIMITED: "요청이 너무 잦아요. 잠시 후 다시 시도해 주세요.",
+		NETWORK: "인터넷에 연결되지 않았어요. 연결을 확인해 주세요.",
+		UNKNOWN: "로그인하지 못했어요. 잠시 후 다시 시도해 주세요."
+	};
+	function formatTime(value) {
+		if (!value) return "아직 없음";
+		const time = Date.parse(value);
+		return Number.isNaN(time) ? "알 수 없음" : new Date(time).toLocaleString("ko-KR");
+	}
+	function describePreview(preview) {
+		switch (preview.case) {
+			case "NOTHING": return "이 기기와 클라우드 모두 아직 기록이 없어요.";
+			case "UPLOAD": return `클라우드가 비어 있어요. 이 기기의 기록 ${preview.uploads}건을 올려요.`;
+			case "DOWNLOAD": return `클라우드의 기록 ${preview.downloads}건을 이 기기로 가져와요.`;
+			case "MERGE": return `양쪽 기록을 합쳐요. 가져올 기록 ${preview.downloads}건, 올릴 기록 ${preview.uploads}건${preview.conflicts ? `, 직접 골라야 할 충돌 ${preview.conflicts}건` : ""}. 어느 쪽도 통째로 덮어쓰지 않아요.`;
+		}
+	}
+	/**
+	* Human context for a record in a conflict: dates and kinds, never raw JSON.
+	* Shown to the account owner only; never logged.
+	*/
+	function describeRecord(collection, record) {
+		if (!record) return "기록 없음";
+		const deleted = "deletedAt" in record && record.deletedAt !== null ? " · 삭제됨" : "";
+		switch (collection) {
+			case "events": {
+				const event = record;
+				const range = event.endDate === event.startDate ? event.startDate : `${event.startDate}~${event.endDate}`;
+				const note = event.note?.trim() ? ` · 메모 "${truncate(event.note.trim(), 30)}"` : "";
+				return `${range} ${SERVICE_EVENT_TYPE_LABELS[event.eventType]}${note}${deleted}`;
+			}
+			case "leaveAdjustments": {
+				const item = record;
+				const kind = item.kind === "GRANT_CONFIRMATION" ? "연가 부여 확인" : "연가 보정";
+				return `${item.effectiveDate} ${kind} · 반일 ${item.amountHalfDays} · ${item.amountMinutes}분${deleted}`;
+			}
+			case "attendanceMonths": {
+				const item = record;
+				return `${item.month} 근무일 확인 · 비근무일 ${item.nonWorkingDates.length}일${deleted}`;
+			}
+			case "compensationSnapshots": return `${record.month} 보수 계산 기록${deleted}`;
+			case "leaveSnapshots": return `${record.asOfDate ?? "날짜 없음"} 기관 잔액 기록${deleted}`;
+			case "imports": {
+				const item = record;
+				return `가져오기 "${truncate(item.fileName, 30)}" · ${item.status === "ACTIVE" ? "적용 중" : "취소됨"}`;
+			}
+			case "profile": {
+				const item = record;
+				return `소집일 ${item.callUpDate} · 소집해제 예정 ${item.expectedDischargeDate}`;
+			}
+		}
+	}
+	function truncate(text, length) {
+		return text.length > length ? `${text.slice(0, length)}…` : text;
+	}
+	function conflictSides(conflict) {
+		return {
+			local: describeRecord(conflict.collection, conflict.localRecord),
+			cloud: describeRecord(conflict.collection, conflict.cloudRecord)
+		};
+	}
+	const HELD_REASON_COPY = {
+		LEAVE_OVERLAP: "이 기기의 다른 휴가와 날짜·시간이 겹쳐요.",
+		CREDIT_ALREADY_CONFIRMED: "이 기기에 같은 연가 부여 확인값이 이미 있어요.",
+		MONTH_ALREADY_CONFIRMED: "이 기기에 같은 달 근무일 확인이 이미 있어요.",
+		BATCH_RECORDS_UNAVAILABLE: "함께 가져온 기록이 이 기기에 없어요."
+	};
+
+//#endregion
 //#region ../../apps/web/src/lib/sync/cloud-controller.ts
 	const ACCOUNT_CHANGED = { kind: "ACCOUNT_CHANGED" };
 	var CloudAuthError = class extends Error {
@@ -15444,6 +15575,32 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				return json(controller.getState());
 			},
 			cloudState: () => json(requireCloud().controller.getState()),
+			/** State plus the web sync panel's wording for it (sync-copy.ts). */
+			cloudView() {
+				const state = requireCloud().controller.getState();
+				const sync = state.sync;
+				return json({
+					state,
+					label: syncLabel(state),
+					authError: state.authError ? AUTH_ERROR_COPY[state.authError] : null,
+					lastSynced: formatTime(sync?.lastSyncedAt ?? null),
+					resetAt: sync?.block?.reason === "GENERATION_MISMATCH" ? formatTime(sync.block.account.resetAt) : null,
+					conflicts: (sync?.conflicts ?? []).map((conflict) => ({
+						key: conflict.key,
+						collection: conflict.collection,
+						...conflictSides(conflict)
+					})),
+					held: (sync?.held ?? []).map((item) => ({
+						key: item.key,
+						reason: item.reason ? HELD_REASON_COPY[item.reason] : null
+					}))
+				});
+			},
+			/** The web's sentence for an enable preview. */
+			cloudDescribePreview(previewJson) {
+				const preview = JSON.parse(previewJson);
+				return json(preview.kind === "READY" ? describePreview(preview) : null);
+			},
 			async cloudSendCode(email) {
 				return json(await requireCloud().controller.sendCode(email));
 			},

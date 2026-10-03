@@ -34,6 +34,7 @@ final class AppModel {
     @ObservationIgnored private var midnightTask: Task<Void, Never>?
     @ObservationIgnored let config = AppConfig.current
     let reminders = ReminderScheduler()
+    let cloud = CloudModel(config: AppConfig.current)
 
     var document: UserDocument? { snapshot?.data }
     var profile: ServiceProfile? { document?.profile }
@@ -46,9 +47,10 @@ final class AppModel {
         guard runtime == nil else { return }
         do {
             // JavaScriptCore and file I/O start off the main thread.
+            let services = cloud.services
             let (runtime, storage) = try await Task.detached(priority: .userInitiated) {
                 let storage = try FileKeyValueStore.applicationStore()
-                return (try CoreRuntime(storage: storage), storage)
+                return (try CoreRuntime(storage: storage, cloud: services), storage)
             }.value
             self.runtime = runtime
             self.storage = storage
@@ -57,6 +59,7 @@ final class AppModel {
             await publish(snapshot)
             phase = .ready
             scheduleMidnightRefresh()
+            await cloud.attach(runtime)
         } catch {
             AppLog.error("core start failed: \(error)")
             phase = .failed(ErrorCopy.startup)
@@ -66,6 +69,7 @@ final class AppModel {
     /// Re-evaluates "today" (Asia/Seoul) when the app returns to the
     /// foreground; a day may have passed.
     func sceneBecameActive() async {
+        await cloud.foreground()
         let now = SeoulClock.today(at: .now)
         if now != today {
             today = now
@@ -162,6 +166,7 @@ final class AppModel {
             let outcome = try await runtime.wipeAll()
             await publish(try await runtime.snapshot())
             WidgetSnapshotWriter.clear()
+            await cloud.afterLocalWipe()
             return outcome.ok
         } catch {
             AppLog.error("wipe failed: \(error)")

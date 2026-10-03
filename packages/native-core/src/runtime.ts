@@ -52,6 +52,15 @@ import {
 } from "@/lib/import-model";
 import { buildLedgerForProfile } from "@/lib/projections";
 
+import {
+  AUTH_ERROR_COPY,
+  HELD_REASON_COPY,
+  conflictSides,
+  describePreview,
+  formatTime,
+  syncLabel,
+} from "@/lib/sync-copy";
+
 import { createNativeCloud, type NativeCloud } from "./cloud";
 import { createNativeStorage, host } from "./host";
 import { buildNativeProjection } from "./projection";
@@ -289,6 +298,37 @@ export function createNativeRuntime() {
       return json(controller.getState());
     },
     cloudState: (): string => json(requireCloud().controller.getState()),
+
+    /** State plus the web sync panel's wording for it (sync-copy.ts). */
+    cloudView(): string {
+      const state = requireCloud().controller.getState();
+      const sync = state.sync;
+      return json({
+        state,
+        label: syncLabel(state),
+        authError: state.authError ? AUTH_ERROR_COPY[state.authError] : null,
+        lastSynced: formatTime(sync?.lastSyncedAt ?? null),
+        resetAt:
+          sync?.block?.reason === "GENERATION_MISMATCH"
+            ? formatTime(sync.block.account.resetAt)
+            : null,
+        conflicts: (sync?.conflicts ?? []).map((conflict) => ({
+          key: conflict.key,
+          collection: conflict.collection,
+          ...conflictSides(conflict),
+        })),
+        held: (sync?.held ?? []).map((item) => ({
+          key: item.key,
+          reason: item.reason ? HELD_REASON_COPY[item.reason] : null,
+        })),
+      });
+    },
+
+    /** The web's sentence for an enable preview. */
+    cloudDescribePreview(previewJson: string): string {
+      const preview = JSON.parse(previewJson);
+      return json(preview.kind === "READY" ? describePreview(preview) : null);
+    },
     async cloudSendCode(email: string): Promise<string> {
       return json(await requireCloud().controller.sendCode(email));
     },
