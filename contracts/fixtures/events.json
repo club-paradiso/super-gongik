@@ -1934,6 +1934,404 @@
       }
     },
     {
+      "id": "event taxonomy",
+      "kind": "call",
+      "fn": "eventTaxonomy",
+      "args": [],
+      "expected": {
+        "ok": true,
+        "value": {
+          "typeLabels": {
+            "ANNUAL_LEAVE": "연가",
+            "SICK_LEAVE": "병가",
+            "OFFICIAL_LEAVE": "공가",
+            "SPECIAL_LEAVE": "특별휴가",
+            "COMPASSIONATE_LEAVE": "청원휴가",
+            "OUTING": "허가외출",
+            "LATE_ARRIVAL": "허가지각",
+            "EARLY_LEAVE": "허가조퇴",
+            "EDUCATION": "교육",
+            "TRAINING": "훈련",
+            "SERVICE_SUSPENSION": "복무중단",
+            "SERVICE_ABSENCE": "복무이탈",
+            "EXCESS_ANNUAL_ABSENCE": "연가초과 결근",
+            "USER_NOTE": "메모"
+          },
+          "categoryOfType": {
+            "ANNUAL_LEAVE": "leave",
+            "OFFICIAL_LEAVE": "leave",
+            "SPECIAL_LEAVE": "leave",
+            "COMPASSIONATE_LEAVE": "leave",
+            "SICK_LEAVE": "sick",
+            "OUTING": "attendance",
+            "LATE_ARRIVAL": "attendance",
+            "EARLY_LEAVE": "attendance",
+            "EDUCATION": "duty",
+            "TRAINING": "duty",
+            "SERVICE_SUSPENSION": "nonpayable",
+            "SERVICE_ABSENCE": "nonpayable",
+            "EXCESS_ANNUAL_ABSENCE": "nonpayable",
+            "USER_NOTE": "note"
+          },
+          "categoryLabels": {
+            "leave": "휴가",
+            "sick": "병가",
+            "attendance": "근태",
+            "duty": "교육·훈련",
+            "nonpayable": "보수 미지급",
+            "note": "메모"
+          },
+          "typeGroups": [
+            {
+              "label": "휴가",
+              "types": [
+                "ANNUAL_LEAVE",
+                "SICK_LEAVE",
+                "OFFICIAL_LEAVE",
+                "SPECIAL_LEAVE",
+                "COMPASSIONATE_LEAVE"
+              ]
+            },
+            {
+              "label": "근태",
+              "types": [
+                "OUTING",
+                "LATE_ARRIVAL",
+                "EARLY_LEAVE"
+              ]
+            },
+            {
+              "label": "교육·훈련",
+              "types": [
+                "EDUCATION",
+                "TRAINING"
+              ]
+            },
+            {
+              "label": "보수 미지급 사유",
+              "types": [
+                "SERVICE_SUSPENSION",
+                "SERVICE_ABSENCE",
+                "EXCESS_ANNUAL_ABSENCE"
+              ]
+            },
+            {
+              "label": "기타",
+              "types": [
+                "USER_NOTE"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "describe stored events",
+      "kind": "call",
+      "fn": "describeEvents",
+      "args": [
+        [
+          {
+            "eventType": "LATE_ARRIVAL",
+            "startDate": "2026-06-01",
+            "endDate": "2026-06-01",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 120,
+              "startTime": null,
+              "endTime": null
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "EARLY_LEAVE",
+            "startDate": "2026-06-02",
+            "endDate": "2026-06-02",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 180,
+              "startTime": null,
+              "endTime": null
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-2",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "OUTING",
+            "startDate": "2026-06-03",
+            "endDate": "2026-06-03",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 90,
+              "startTime": null,
+              "endTime": null
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-3",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "OUTING",
+            "startDate": "2026-06-04",
+            "endDate": "2026-06-04",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 90,
+              "startTime": null,
+              "endTime": null
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-4",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "OUTING",
+            "startDate": "2026-06-05",
+            "endDate": "2026-06-05",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 45,
+              "startTime": null,
+              "endTime": null
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-5",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-06-08",
+            "endDate": "2026-06-08",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "AM"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-6",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-06-08",
+            "endDate": "2026-06-08",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "PM"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-7",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-06-10",
+            "endDate": "2026-06-12",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 3
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-8",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "LATE_ARRIVAL",
+            "startDate": "2026-06-15",
+            "endDate": "2026-06-15",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": null,
+              "startTime": null,
+              "endTime": null
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-9",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "SICK_LEAVE",
+            "startDate": "2026-06-16",
+            "endDate": "2026-06-16",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-10",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          }
+        ]
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "id": "ev-1",
+            "category": "attendance",
+            "label": "허가지각",
+            "timing": "2시간"
+          },
+          {
+            "id": "ev-2",
+            "category": "attendance",
+            "label": "허가조퇴",
+            "timing": "3시간"
+          },
+          {
+            "id": "ev-3",
+            "category": "attendance",
+            "label": "허가외출",
+            "timing": "1시간 30분"
+          },
+          {
+            "id": "ev-4",
+            "category": "attendance",
+            "label": "허가외출",
+            "timing": "1시간 30분"
+          },
+          {
+            "id": "ev-5",
+            "category": "attendance",
+            "label": "허가외출",
+            "timing": "45분"
+          },
+          {
+            "id": "ev-6",
+            "category": "leave",
+            "label": "연가",
+            "timing": "오전 반일"
+          },
+          {
+            "id": "ev-7",
+            "category": "leave",
+            "label": "연가",
+            "timing": "오후 반일"
+          },
+          {
+            "id": "ev-8",
+            "category": "leave",
+            "label": "연가",
+            "timing": "06.10–06.12 · 3일"
+          },
+          {
+            "id": "ev-9",
+            "category": "attendance",
+            "label": "허가지각",
+            "timing": "시간 확인 필요"
+          },
+          {
+            "id": "ev-10",
+            "category": "sick",
+            "label": "병가",
+            "timing": "종일"
+          }
+        ]
+      }
+    },
+    {
       "id": "month grid 2026-02",
       "kind": "call",
       "fn": "buildMonthGrid",

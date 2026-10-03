@@ -404,6 +404,10 @@ function ledgerCall(id: string, data: UserData, today: string): FixtureCase {
   return call(id, "buildLedgerForProfile", data, data.profile, today);
 }
 
+function minuteAccumulationEvents() {
+  return minuteAccumulation.events;
+}
+
 const leave: FixtureSuite = {
   suite: "leave",
   description:
@@ -579,9 +583,159 @@ const events: FixtureSuite = {
       workdayStartTime: null,
       workdayEndTime: null,
     }),
+    call("event taxonomy", "eventTaxonomy"),
+    call(
+      "describe stored events",
+      "describeEvents",
+      minuteAccumulationEvents(),
+    ),
     call("month grid 2026-02", "buildMonthGrid", "2026-02"),
     call("month grid 2028-02", "buildMonthGrid", "2028-02"),
     call("weekdays in range", "countWeekdays", "2026-10-01", "2026-10-31"),
+  ],
+};
+
+// ── event editor form model ────────────────────────────────────────────────
+
+const blankForm = {
+  eventType: "ANNUAL_LEAVE",
+  mode: "ALL_DAY",
+  startDate: "2026-07-13",
+  endDate: "2026-07-13",
+  dayCount: "1",
+  dayCountTouched: false,
+  half: "AM",
+  startTime: "",
+  endTime: "",
+  hours: "",
+  minutes: "",
+  durationTouched: false,
+  sickLeaveCategory: "",
+  title: "",
+  note: "",
+};
+
+const eventForm: FixtureSuite = {
+  suite: "event-form",
+  description:
+    "Event editor form model shared with the web editor: initial state, edit coercions, draft building with automatic classification.",
+  engines: ["jsc"],
+  cases: [
+    call("initial for new event", "eventFormInitial", null, "2026-07-13"),
+    call(
+      "initial for existing half day",
+      "eventFormInitial",
+      existing[1],
+      "2026-07-13",
+    ),
+    call(
+      "initial for existing outing",
+      "eventFormInitial",
+      existing[2],
+      "2026-07-13",
+    ),
+    call("range derives weekday count", "eventFormPatch", blankForm, {
+      endDate: "2026-07-19",
+    }),
+    call(
+      "touched day count is kept",
+      "eventFormPatch",
+      { ...blankForm, dayCountTouched: true, dayCount: "2" },
+      { endDate: "2026-07-19" },
+    ),
+    call("non-payable counts calendar days", "eventFormPatch", blankForm, {
+      eventType: "SERVICE_ABSENCE",
+      endDate: "2026-07-19",
+    }),
+    call(
+      "non-payable forces all day",
+      "eventFormPatch",
+      { ...blankForm, mode: "PARTIAL" },
+      { eventType: "SERVICE_SUSPENSION" },
+    ),
+    call(
+      "half day only for annual leave",
+      "eventFormPatch",
+      { ...blankForm, mode: "HALF_DAY" },
+      { eventType: "SICK_LEAVE" },
+    ),
+    call(
+      "times derive duration",
+      "eventFormPatch",
+      { ...blankForm, mode: "PARTIAL", eventType: "OUTING" },
+      { startTime: "13:00", endTime: "15:30" },
+    ),
+    call(
+      "touched duration is kept",
+      "eventFormPatch",
+      {
+        ...blankForm,
+        mode: "PARTIAL",
+        eventType: "OUTING",
+        durationTouched: true,
+        hours: "1",
+        minutes: "0",
+      },
+      { startTime: "13:00", endTime: "15:30" },
+    ),
+    call(
+      "evaluate morning lateness becomes half day",
+      "eventFormEvaluate",
+      {
+        ...blankForm,
+        eventType: "LATE_ARRIVAL",
+        mode: "PARTIAL",
+        startTime: "09:00",
+        endTime: "14:00",
+        hours: "5",
+        minutes: "0",
+      },
+      workday.profile,
+      existing,
+      null,
+    ),
+    call(
+      "evaluate full-day outing becomes all day",
+      "eventFormEvaluate",
+      {
+        ...blankForm,
+        eventType: "OUTING",
+        mode: "PARTIAL",
+        startTime: "09:00",
+        endTime: "18:00",
+        hours: "9",
+        minutes: "0",
+      },
+      workday.profile,
+      existing,
+      null,
+    ),
+    call(
+      "evaluate overlap with existing leave",
+      "eventFormEvaluate",
+      { ...blankForm, startDate: "2026-07-01", endDate: "2026-07-01" },
+      workday.profile,
+      existing,
+      null,
+    ),
+    call(
+      "evaluate sick leave defaults category",
+      "eventFormEvaluate",
+      { ...blankForm, eventType: "SICK_LEAVE" },
+      workday.profile,
+      existing,
+      null,
+    ),
+    call(
+      "expected discharge from call-up",
+      "calculateExpectedDischargeDate",
+      "2026-05-04",
+    ),
+    call(
+      "expected discharge leap",
+      "calculateExpectedDischargeDate",
+      "2026-05-31",
+    ),
   ],
 };
 
@@ -979,6 +1133,7 @@ export const SUITES: FixtureSuite[] = [
   milestones,
   leave,
   events,
+  eventForm,
   commands,
   compensation,
   backup,

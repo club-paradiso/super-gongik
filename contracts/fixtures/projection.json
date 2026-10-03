@@ -1083,6 +1083,83 @@
             ],
             "completed": false
           },
+          "leaveText": {
+            "balance": {
+              "granted": "0일",
+              "upcomingCredits": "28일",
+              "corrections": "0일",
+              "used": "0일",
+              "scheduled": "2일 4시간",
+              "available": "0일",
+              "remainingAfterScheduled": "-2일 4시간"
+            },
+            "entries": [
+              {
+                "delta": "-1일",
+                "running": "-1일"
+              },
+              {
+                "delta": "-1일",
+                "running": "-2일"
+              },
+              {
+                "delta": "-0일 4시간",
+                "running": "-2일 4시간"
+              },
+              {
+                "delta": "-0일 4시간",
+                "running": "-3일"
+              }
+            ],
+            "byType": [
+              "2.5일",
+              "2시간",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일"
+            ],
+            "attendanceTotal": "0일",
+            "reconciliation": {
+              "institutionRemaining": "14일",
+              "appRemaining": "14일",
+              "difference": "0일"
+            }
+          },
+          "eventDisplay": {
+            "fx-7": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "종일"
+            },
+            "fx-1": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "종일"
+            },
+            "fx-2": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "오전 반일"
+            },
+            "fx-3": {
+              "category": "sick",
+              "categoryLabel": "병가",
+              "label": "병가",
+              "timing": "2시간"
+            }
+          },
           "credits": [
             {
               "key": "YEAR_1",
@@ -2176,6 +2253,87 @@
             ],
             "completed": false
           },
+          "leaveText": {
+            "balance": {
+              "granted": "15일",
+              "upcomingCredits": "13일",
+              "corrections": "0일",
+              "used": "2일 4시간",
+              "scheduled": "0일",
+              "available": "12일 4시간",
+              "remainingAfterScheduled": "12일 4시간"
+            },
+            "entries": [
+              {
+                "delta": "15일",
+                "running": "15일"
+              },
+              {
+                "delta": "-1일",
+                "running": "14일"
+              },
+              {
+                "delta": "-1일",
+                "running": "13일"
+              },
+              {
+                "delta": "-0일 4시간",
+                "running": "12일 4시간"
+              },
+              {
+                "delta": "-0일 4시간",
+                "running": "12일"
+              }
+            ],
+            "byType": [
+              "2.5일",
+              "2시간",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일"
+            ],
+            "attendanceTotal": "0일",
+            "reconciliation": {
+              "institutionRemaining": "14일",
+              "appRemaining": "14일",
+              "difference": "0일"
+            }
+          },
+          "eventDisplay": {
+            "fx-7": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "종일"
+            },
+            "fx-1": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "종일"
+            },
+            "fx-2": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "오전 반일"
+            },
+            "fx-3": {
+              "category": "sick",
+              "categoryLabel": "병가",
+              "label": "병가",
+              "timing": "2시간"
+            }
+          },
           "credits": [
             {
               "key": "YEAR_1",
@@ -3165,6 +3323,87 @@
             "upcoming": [],
             "completed": false
           },
+          "leaveText": {
+            "balance": {
+              "granted": "15일",
+              "upcomingCredits": "13일",
+              "corrections": "-0일 4시간",
+              "used": "2일 4시간",
+              "scheduled": "0일",
+              "available": "12일",
+              "remainingAfterScheduled": "12일"
+            },
+            "entries": [
+              {
+                "delta": "15일",
+                "running": "15일"
+              },
+              {
+                "delta": "-1일",
+                "running": "14일"
+              },
+              {
+                "delta": "-1일",
+                "running": "13일"
+              },
+              {
+                "delta": "-0일 4시간",
+                "running": "12일 4시간"
+              },
+              {
+                "delta": "-0일 4시간",
+                "running": "12일"
+              }
+            ],
+            "byType": [
+              "2.5일",
+              "2시간",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일"
+            ],
+            "attendanceTotal": "0일",
+            "reconciliation": {
+              "institutionRemaining": "14일",
+              "appRemaining": "14일",
+              "difference": "0일"
+            }
+          },
+          "eventDisplay": {
+            "fx-7": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "종일"
+            },
+            "fx-1": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "종일"
+            },
+            "fx-2": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "오전 반일"
+            },
+            "fx-3": {
+              "category": "sick",
+              "categoryLabel": "병가",
+              "label": "병가",
+              "timing": "2시간"
+            }
+          },
           "credits": [
             {
               "key": "YEAR_1",
@@ -4084,6 +4323,91 @@
             "upcoming": [],
             "completed": false
           },
+          "leaveText": {
+            "balance": {
+              "granted": "28일",
+              "upcomingCredits": "0일",
+              "corrections": "-0일 4시간",
+              "used": "2일 4시간",
+              "scheduled": "0일",
+              "available": "25일",
+              "remainingAfterScheduled": "25일"
+            },
+            "entries": [
+              {
+                "delta": "15일",
+                "running": "15일"
+              },
+              {
+                "delta": "-1일",
+                "running": "14일"
+              },
+              {
+                "delta": "-1일",
+                "running": "13일"
+              },
+              {
+                "delta": "-0일 4시간",
+                "running": "12일 4시간"
+              },
+              {
+                "delta": "-0일 4시간",
+                "running": "12일"
+              },
+              {
+                "delta": "13일",
+                "running": "25일"
+              }
+            ],
+            "byType": [
+              "2.5일",
+              "2시간",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일"
+            ],
+            "attendanceTotal": "0일",
+            "reconciliation": {
+              "institutionRemaining": "14일",
+              "appRemaining": "14일",
+              "difference": "0일"
+            }
+          },
+          "eventDisplay": {
+            "fx-7": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "종일"
+            },
+            "fx-1": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "종일"
+            },
+            "fx-2": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "오전 반일"
+            },
+            "fx-3": {
+              "category": "sick",
+              "categoryLabel": "병가",
+              "label": "병가",
+              "timing": "2시간"
+            }
+          },
           "credits": [
             {
               "key": "YEAR_1",
@@ -4996,6 +5320,91 @@
             "upcoming": [],
             "completed": true
           },
+          "leaveText": {
+            "balance": {
+              "granted": "28일",
+              "upcomingCredits": "0일",
+              "corrections": "-0일 4시간",
+              "used": "2일 4시간",
+              "scheduled": "0일",
+              "available": "25일",
+              "remainingAfterScheduled": "25일"
+            },
+            "entries": [
+              {
+                "delta": "15일",
+                "running": "15일"
+              },
+              {
+                "delta": "-1일",
+                "running": "14일"
+              },
+              {
+                "delta": "-1일",
+                "running": "13일"
+              },
+              {
+                "delta": "-0일 4시간",
+                "running": "12일 4시간"
+              },
+              {
+                "delta": "-0일 4시간",
+                "running": "12일"
+              },
+              {
+                "delta": "13일",
+                "running": "25일"
+              }
+            ],
+            "byType": [
+              "2.5일",
+              "2시간",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일"
+            ],
+            "attendanceTotal": "0일",
+            "reconciliation": {
+              "institutionRemaining": "14일",
+              "appRemaining": "14일",
+              "difference": "0일"
+            }
+          },
+          "eventDisplay": {
+            "fx-7": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "종일"
+            },
+            "fx-1": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "종일"
+            },
+            "fx-2": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "오전 반일"
+            },
+            "fx-3": {
+              "category": "sick",
+              "categoryLabel": "병가",
+              "label": "병가",
+              "timing": "2시간"
+            }
+          },
           "credits": [
             {
               "key": "YEAR_1",
@@ -5907,6 +6316,91 @@
             "today": [],
             "upcoming": [],
             "completed": true
+          },
+          "leaveText": {
+            "balance": {
+              "granted": "28일",
+              "upcomingCredits": "0일",
+              "corrections": "-0일 4시간",
+              "used": "2일 4시간",
+              "scheduled": "0일",
+              "available": "25일",
+              "remainingAfterScheduled": "25일"
+            },
+            "entries": [
+              {
+                "delta": "15일",
+                "running": "15일"
+              },
+              {
+                "delta": "-1일",
+                "running": "14일"
+              },
+              {
+                "delta": "-1일",
+                "running": "13일"
+              },
+              {
+                "delta": "-0일 4시간",
+                "running": "12일 4시간"
+              },
+              {
+                "delta": "-0일 4시간",
+                "running": "12일"
+              },
+              {
+                "delta": "13일",
+                "running": "25일"
+              }
+            ],
+            "byType": [
+              "2.5일",
+              "2시간",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일"
+            ],
+            "attendanceTotal": "0일",
+            "reconciliation": {
+              "institutionRemaining": "14일",
+              "appRemaining": "14일",
+              "difference": "0일"
+            }
+          },
+          "eventDisplay": {
+            "fx-7": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "종일"
+            },
+            "fx-1": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "종일"
+            },
+            "fx-2": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "오전 반일"
+            },
+            "fx-3": {
+              "category": "sick",
+              "categoryLabel": "병가",
+              "label": "병가",
+              "timing": "2시간"
+            }
           },
           "credits": [
             {
@@ -6996,6 +7490,135 @@
             "today": [],
             "upcoming": [],
             "completed": false
+          },
+          "leaveText": {
+            "balance": {
+              "granted": "15일",
+              "upcomingCredits": "13일",
+              "corrections": "0일",
+              "used": "5일 45분",
+              "scheduled": "0일",
+              "available": "9일 7시간 15분",
+              "remainingAfterScheduled": "9일 7시간 15분"
+            },
+            "entries": [
+              {
+                "delta": "15일",
+                "running": "15일"
+              },
+              {
+                "delta": "-0일 2시간",
+                "running": "14일 6시간"
+              },
+              {
+                "delta": "-0일 3시간",
+                "running": "14일 3시간"
+              },
+              {
+                "delta": "-0일 1시간 30분",
+                "running": "14일 1시간 30분"
+              },
+              {
+                "delta": "-0일 1시간 30분",
+                "running": "14일"
+              },
+              {
+                "delta": "-0일 45분",
+                "running": "13일 7시간 15분"
+              },
+              {
+                "delta": "-0일 4시간",
+                "running": "13일 3시간 15분"
+              },
+              {
+                "delta": "-0일 4시간",
+                "running": "12일 7시간 15분"
+              },
+              {
+                "delta": "-3일",
+                "running": "9일 7시간 15분"
+              }
+            ],
+            "byType": [
+              "4일",
+              "1일",
+              "0일",
+              "0일",
+              "0일",
+              "3시간 45분",
+              "2시간",
+              "3시간",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일",
+              "0일"
+            ],
+            "attendanceTotal": "1일 45분",
+            "reconciliation": null
+          },
+          "eventDisplay": {
+            "ev-1": {
+              "category": "attendance",
+              "categoryLabel": "근태",
+              "label": "허가지각",
+              "timing": "2시간"
+            },
+            "ev-2": {
+              "category": "attendance",
+              "categoryLabel": "근태",
+              "label": "허가조퇴",
+              "timing": "3시간"
+            },
+            "ev-3": {
+              "category": "attendance",
+              "categoryLabel": "근태",
+              "label": "허가외출",
+              "timing": "1시간 30분"
+            },
+            "ev-4": {
+              "category": "attendance",
+              "categoryLabel": "근태",
+              "label": "허가외출",
+              "timing": "1시간 30분"
+            },
+            "ev-5": {
+              "category": "attendance",
+              "categoryLabel": "근태",
+              "label": "허가외출",
+              "timing": "45분"
+            },
+            "ev-6": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "오전 반일"
+            },
+            "ev-7": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "오후 반일"
+            },
+            "ev-8": {
+              "category": "leave",
+              "categoryLabel": "휴가",
+              "label": "연가",
+              "timing": "06.10–06.12 · 3일"
+            },
+            "ev-9": {
+              "category": "attendance",
+              "categoryLabel": "근태",
+              "label": "허가지각",
+              "timing": "시간 확인 필요"
+            },
+            "ev-10": {
+              "category": "sick",
+              "categoryLabel": "병가",
+              "label": "병가",
+              "timing": "종일"
+            }
           },
           "credits": [
             {

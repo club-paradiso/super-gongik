@@ -1,0 +1,1153 @@
+{
+  "formatVersion": 1,
+  "suite": "event-form",
+  "description": "Event editor form model shared with the web editor: initial state, edit coercions, draft building with automatic classification.",
+  "engines": [
+    "jsc"
+  ],
+  "generatedBy": "packages/native-core/tests/conformance.test.ts",
+  "cases": [
+    {
+      "id": "initial for new event",
+      "kind": "call",
+      "fn": "eventFormInitial",
+      "args": [
+        null,
+        "2026-07-13"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "eventType": "ANNUAL_LEAVE",
+          "mode": "ALL_DAY",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        }
+      }
+    },
+    {
+      "id": "initial for existing half day",
+      "kind": "call",
+      "fn": "eventFormInitial",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-07-08",
+          "endDate": "2026-07-08",
+          "timing": {
+            "kind": "HALF_DAY",
+            "half": "AM"
+          },
+          "title": null,
+          "note": null,
+          "id": "ev-2",
+          "serviceProfileId": "profile-1",
+          "status": "CONFIRMED",
+          "source": {
+            "kind": "MANUAL"
+          },
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "updatedAt": "2026-09-01T00:00:00.000Z",
+          "deletedAt": null,
+          "revision": 1,
+          "deviceId": "device-fixture"
+        },
+        "2026-07-13"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "eventType": "ANNUAL_LEAVE",
+          "mode": "HALF_DAY",
+          "startDate": "2026-07-08",
+          "endDate": "2026-07-08",
+          "dayCount": "1",
+          "dayCountTouched": true,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": true,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        }
+      }
+    },
+    {
+      "id": "initial for existing outing",
+      "kind": "call",
+      "fn": "eventFormInitial",
+      "args": [
+        {
+          "eventType": "OUTING",
+          "startDate": "2026-07-09",
+          "endDate": "2026-07-09",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": 60,
+            "startTime": "13:00",
+            "endTime": "14:00"
+          },
+          "title": null,
+          "note": null,
+          "id": "ev-3",
+          "serviceProfileId": "profile-1",
+          "status": "CONFIRMED",
+          "source": {
+            "kind": "MANUAL"
+          },
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "updatedAt": "2026-09-01T00:00:00.000Z",
+          "deletedAt": null,
+          "revision": 1,
+          "deviceId": "device-fixture"
+        },
+        "2026-07-13"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "eventType": "OUTING",
+          "mode": "PARTIAL",
+          "startDate": "2026-07-09",
+          "endDate": "2026-07-09",
+          "dayCount": "1",
+          "dayCountTouched": true,
+          "half": "AM",
+          "startTime": "13:00",
+          "endTime": "14:00",
+          "hours": "1",
+          "minutes": "0",
+          "durationTouched": true,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        }
+      }
+    },
+    {
+      "id": "range derives weekday count",
+      "kind": "call",
+      "fn": "eventFormPatch",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "mode": "ALL_DAY",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        },
+        {
+          "endDate": "2026-07-19"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "eventType": "ANNUAL_LEAVE",
+          "mode": "ALL_DAY",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-19",
+          "dayCount": "5",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        }
+      }
+    },
+    {
+      "id": "touched day count is kept",
+      "kind": "call",
+      "fn": "eventFormPatch",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "mode": "ALL_DAY",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "2",
+          "dayCountTouched": true,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        },
+        {
+          "endDate": "2026-07-19"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "eventType": "ANNUAL_LEAVE",
+          "mode": "ALL_DAY",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-19",
+          "dayCount": "2",
+          "dayCountTouched": true,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        }
+      }
+    },
+    {
+      "id": "non-payable counts calendar days",
+      "kind": "call",
+      "fn": "eventFormPatch",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "mode": "ALL_DAY",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        },
+        {
+          "eventType": "SERVICE_ABSENCE",
+          "endDate": "2026-07-19"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "eventType": "SERVICE_ABSENCE",
+          "mode": "ALL_DAY",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-19",
+          "dayCount": "7",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        }
+      }
+    },
+    {
+      "id": "non-payable forces all day",
+      "kind": "call",
+      "fn": "eventFormPatch",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "mode": "PARTIAL",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        },
+        {
+          "eventType": "SERVICE_SUSPENSION"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "eventType": "SERVICE_SUSPENSION",
+          "mode": "ALL_DAY",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        }
+      }
+    },
+    {
+      "id": "half day only for annual leave",
+      "kind": "call",
+      "fn": "eventFormPatch",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "mode": "HALF_DAY",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        },
+        {
+          "eventType": "SICK_LEAVE"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "eventType": "SICK_LEAVE",
+          "mode": "PARTIAL",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        }
+      }
+    },
+    {
+      "id": "times derive duration",
+      "kind": "call",
+      "fn": "eventFormPatch",
+      "args": [
+        {
+          "eventType": "OUTING",
+          "mode": "PARTIAL",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        },
+        {
+          "startTime": "13:00",
+          "endTime": "15:30"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "eventType": "OUTING",
+          "mode": "PARTIAL",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "13:00",
+          "endTime": "15:30",
+          "hours": "2",
+          "minutes": "30",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        }
+      }
+    },
+    {
+      "id": "touched duration is kept",
+      "kind": "call",
+      "fn": "eventFormPatch",
+      "args": [
+        {
+          "eventType": "OUTING",
+          "mode": "PARTIAL",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "1",
+          "minutes": "0",
+          "durationTouched": true,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        },
+        {
+          "startTime": "13:00",
+          "endTime": "15:30"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "eventType": "OUTING",
+          "mode": "PARTIAL",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "13:00",
+          "endTime": "15:30",
+          "hours": "1",
+          "minutes": "0",
+          "durationTouched": true,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        }
+      }
+    },
+    {
+      "id": "evaluate morning lateness becomes half day",
+      "kind": "call",
+      "fn": "eventFormEvaluate",
+      "args": [
+        {
+          "eventType": "LATE_ARRIVAL",
+          "mode": "PARTIAL",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "09:00",
+          "endTime": "14:00",
+          "hours": "5",
+          "minutes": "0",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        },
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": 480,
+          "workdayStartTime": "09:00",
+          "workdayEndTime": "18:00",
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        [
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-08",
+            "endDate": "2026-07-08",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "AM"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-2",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "OUTING",
+            "startDate": "2026-07-09",
+            "endDate": "2026-07-09",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 60,
+              "startTime": "13:00",
+              "endTime": "14:00"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-3",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          }
+        ],
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-13",
+            "endDate": "2026-07-13",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "AM"
+            },
+            "title": null,
+            "note": null,
+            "sickLeaveCategory": null
+          },
+          "validation": {
+            "errors": [],
+            "warnings": [],
+            "draft": {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-13",
+              "endDate": "2026-07-13",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "sickLeaveCategory": null
+            }
+          },
+          "classification": {
+            "kind": "HALF_DAY",
+            "label": "오전 반가",
+            "eventType": "ANNUAL_LEAVE",
+            "automatic": true,
+            "halfDayPart": "AM",
+            "reason": "근무 시작부터 14:00까지라 복무관리 규정의 오전 반일 경계와 정확히 맞아요."
+          },
+          "isLeave": false,
+          "isAnnualCharge": true,
+          "isNonPayable": false
+        }
+      }
+    },
+    {
+      "id": "evaluate full-day outing becomes all day",
+      "kind": "call",
+      "fn": "eventFormEvaluate",
+      "args": [
+        {
+          "eventType": "OUTING",
+          "mode": "PARTIAL",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "09:00",
+          "endTime": "18:00",
+          "hours": "9",
+          "minutes": "0",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        },
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": 480,
+          "workdayStartTime": "09:00",
+          "workdayEndTime": "18:00",
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        [
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-08",
+            "endDate": "2026-07-08",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "AM"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-2",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "OUTING",
+            "startDate": "2026-07-09",
+            "endDate": "2026-07-09",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 60,
+              "startTime": "13:00",
+              "endTime": "14:00"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-3",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          }
+        ],
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-13",
+            "endDate": "2026-07-13",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "sickLeaveCategory": null
+          },
+          "validation": {
+            "errors": [],
+            "warnings": [],
+            "draft": {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-13",
+              "endDate": "2026-07-13",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "sickLeaveCategory": null
+            }
+          },
+          "classification": {
+            "kind": "FULL_DAY",
+            "label": "종일 연가",
+            "eventType": "ANNUAL_LEAVE",
+            "automatic": true,
+            "halfDayPart": null,
+            "reason": "09:00–18:00 근무시간 전체를 덮어 종일 연가로 봐요."
+          },
+          "isLeave": false,
+          "isAnnualCharge": true,
+          "isNonPayable": false
+        }
+      }
+    },
+    {
+      "id": "evaluate overlap with existing leave",
+      "kind": "call",
+      "fn": "eventFormEvaluate",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "mode": "ALL_DAY",
+          "startDate": "2026-07-01",
+          "endDate": "2026-07-01",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        },
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": 480,
+          "workdayStartTime": "09:00",
+          "workdayEndTime": "18:00",
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        [
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-08",
+            "endDate": "2026-07-08",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "AM"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-2",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "OUTING",
+            "startDate": "2026-07-09",
+            "endDate": "2026-07-09",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 60,
+              "startTime": "13:00",
+              "endTime": "14:00"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-3",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          }
+        ],
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "sickLeaveCategory": null
+          },
+          "validation": {
+            "errors": [
+              {
+                "code": "LEAVE_OVERLAP",
+                "message": "2026-07-01에 이미 연가 기록이 있어 같은 시간을 두 번 차감하게 돼요. 기존 기록을 수정해 주세요.",
+                "field": "startDate"
+              }
+            ],
+            "warnings": [],
+            "draft": {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "sickLeaveCategory": null
+            }
+          },
+          "classification": {
+            "kind": "FULL_DAY",
+            "label": "종일 연가",
+            "eventType": "ANNUAL_LEAVE",
+            "automatic": true,
+            "halfDayPart": null,
+            "reason": "하루 단위 연가로 기록해요."
+          },
+          "isLeave": true,
+          "isAnnualCharge": true,
+          "isNonPayable": false
+        }
+      }
+    },
+    {
+      "id": "evaluate sick leave defaults category",
+      "kind": "call",
+      "fn": "eventFormEvaluate",
+      "args": [
+        {
+          "eventType": "SICK_LEAVE",
+          "mode": "ALL_DAY",
+          "startDate": "2026-07-13",
+          "endDate": "2026-07-13",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        },
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": 480,
+          "workdayStartTime": "09:00",
+          "workdayEndTime": "18:00",
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        [
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-08",
+            "endDate": "2026-07-08",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "AM"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-2",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "OUTING",
+            "startDate": "2026-07-09",
+            "endDate": "2026-07-09",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 60,
+              "startTime": "13:00",
+              "endTime": "14:00"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-3",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          }
+        ],
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "draft": {
+            "eventType": "SICK_LEAVE",
+            "startDate": "2026-07-13",
+            "endDate": "2026-07-13",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "sickLeaveCategory": "UNKNOWN"
+          },
+          "validation": {
+            "errors": [],
+            "warnings": [],
+            "draft": {
+              "eventType": "SICK_LEAVE",
+              "startDate": "2026-07-13",
+              "endDate": "2026-07-13",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "sickLeaveCategory": "UNKNOWN"
+            }
+          },
+          "classification": null,
+          "isLeave": true,
+          "isAnnualCharge": false,
+          "isNonPayable": false
+        }
+      }
+    },
+    {
+      "id": "expected discharge from call-up",
+      "kind": "call",
+      "fn": "calculateExpectedDischargeDate",
+      "args": [
+        "2026-05-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2028-02-03"
+      }
+    },
+    {
+      "id": "expected discharge leap",
+      "kind": "call",
+      "fn": "calculateExpectedDischargeDate",
+      "args": [
+        "2026-05-31"
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2028-02-28"
+      }
+    }
+  ]
+}

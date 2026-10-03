@@ -11,6 +11,21 @@ import {
   formatLiveCompletionPercentage,
   formatLiveCountdown,
 } from "@/lib/live-service-progress";
+import {
+  CATEGORY_LABELS,
+  EVENT_CATEGORY,
+  EVENT_TYPE_GROUPS,
+  describeTiming,
+  eventLabel,
+} from "@/lib/event-display";
+import {
+  applyFormPatch,
+  buildDraft,
+  initialState,
+  timingFromForm,
+  type FormState,
+} from "@/lib/event-form";
+import { evaluateMoneyMonth } from "@/lib/money-model";
 import { buildLedgerForProfile } from "@/lib/projections";
 
 /**
@@ -91,6 +106,59 @@ const PURE = {
       countdown: formatLiveCountdown(progress),
     };
   },
+  /** Category, label and timing text for each event (web event-display). */
+  describeEvents: (events: domain.ServiceEvent[]) =>
+    events.map((event) => ({
+      id: event.id,
+      category: EVENT_CATEGORY[event.eventType],
+      label: eventLabel(event),
+      timing: describeTiming(event),
+    })),
+  /** Event taxonomy shared with the web calendar and editor. */
+  eventTaxonomy: () => ({
+    typeLabels: domain.SERVICE_EVENT_TYPE_LABELS,
+    categoryOfType: EVENT_CATEGORY,
+    categoryLabels: CATEGORY_LABELS,
+    typeGroups: EVENT_TYPE_GROUPS,
+  }),
+  // event editor form model (web lib/event-form.ts)
+  eventFormInitial: initialState,
+  eventFormPatch: applyFormPatch,
+  /** Everything the editor shows for a form: the draft it would save, the
+   * shared validation and the automatic usage classification. */
+  eventFormEvaluate: (
+    form: FormState,
+    profile: domain.ServiceProfile,
+    events: domain.ServiceEvent[],
+    editingId: string | null,
+  ) => {
+    const draft = buildDraft(form, profile);
+    return {
+      draft,
+      validation: domain.validateServiceEventDraft(draft, {
+        existingEvents: events,
+        editingId,
+        servicePeriod: {
+          callUpDate: profile.callUpDate,
+          expectedDischargeDate: profile.expectedDischargeDate,
+        },
+      }),
+      classification: domain.classifyAnnualLeaveUsage({
+        eventType: form.eventType,
+        timing: timingFromForm(form) as domain.ServiceEvent["timing"],
+        workdayStartTime: profile.workdayStartTime ?? null,
+        workdayEndTime: profile.workdayEndTime ?? null,
+      }),
+      isLeave: domain.isLeaveEventType(form.eventType),
+      isAnnualCharge:
+        form.eventType === "ANNUAL_LEAVE" ||
+        domain.isAnnualLeaveAttendanceType(form.eventType),
+      isNonPayable: domain.isCompensationNonPayableEventType(form.eventType),
+    };
+  },
+  calculateExpectedDischargeDate: domain.calculateExpectedDischargeDate,
+  // money screen month evaluation (web lib/money-model.ts)
+  evaluateMoneyMonth,
   floorPercent,
   formatDdayNumber,
   relativeDays,
