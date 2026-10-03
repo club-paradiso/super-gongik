@@ -1,0 +1,2246 @@
+{
+  "formatVersion": 1,
+  "suite": "events",
+  "description": "Draft validation, leave overlap detection (conflict vs unresolved), annual-leave usage classification.",
+  "engines": [
+    "jsc"
+  ],
+  "generatedBy": "packages/native-core/tests/conformance.test.ts",
+  "cases": [
+    {
+      "id": "valid all-day",
+      "kind": "call",
+      "fn": "validateServiceEventDraft",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-07-02",
+          "endDate": "2026-07-02",
+          "timing": {
+            "kind": "ALL_DAY",
+            "dayCount": 1
+          },
+          "title": null,
+          "note": null
+        },
+        {
+          "existingEvents": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-07-09",
+              "endDate": "2026-07-09",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 60,
+                "startTime": "13:00",
+                "endTime": "14:00"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "editingId": null,
+          "servicePeriod": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "errors": [],
+          "warnings": [],
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-02",
+            "endDate": "2026-07-02",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null
+          }
+        }
+      }
+    },
+    {
+      "id": "full day over existing full day",
+      "kind": "call",
+      "fn": "validateServiceEventDraft",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-07-01",
+          "endDate": "2026-07-01",
+          "timing": {
+            "kind": "ALL_DAY",
+            "dayCount": 1
+          },
+          "title": null,
+          "note": null
+        },
+        {
+          "existingEvents": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-07-09",
+              "endDate": "2026-07-09",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 60,
+                "startTime": "13:00",
+                "endTime": "14:00"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "editingId": null,
+          "servicePeriod": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "errors": [
+            {
+              "code": "LEAVE_OVERLAP",
+              "message": "2026-07-01에 이미 연가 기록이 있어 같은 시간을 두 번 차감하게 돼요. 기존 기록을 수정해 주세요.",
+              "field": "startDate"
+            }
+          ],
+          "warnings": [],
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null
+          }
+        }
+      }
+    },
+    {
+      "id": "same half day",
+      "kind": "call",
+      "fn": "validateServiceEventDraft",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-07-08",
+          "endDate": "2026-07-08",
+          "timing": {
+            "kind": "HALF_DAY",
+            "half": "AM"
+          },
+          "title": null,
+          "note": null
+        },
+        {
+          "existingEvents": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-07-09",
+              "endDate": "2026-07-09",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 60,
+                "startTime": "13:00",
+                "endTime": "14:00"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "editingId": null,
+          "servicePeriod": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "errors": [
+            {
+              "code": "LEAVE_OVERLAP",
+              "message": "2026-07-08에 이미 연가 기록이 있어 같은 시간을 두 번 차감하게 돼요. 기존 기록을 수정해 주세요.",
+              "field": "startDate"
+            }
+          ],
+          "warnings": [],
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-08",
+            "endDate": "2026-07-08",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "AM"
+            },
+            "title": null,
+            "note": null
+          }
+        }
+      }
+    },
+    {
+      "id": "other half day",
+      "kind": "call",
+      "fn": "validateServiceEventDraft",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-07-08",
+          "endDate": "2026-07-08",
+          "timing": {
+            "kind": "HALF_DAY",
+            "half": "PM"
+          },
+          "title": null,
+          "note": null
+        },
+        {
+          "existingEvents": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-07-09",
+              "endDate": "2026-07-09",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 60,
+                "startTime": "13:00",
+                "endTime": "14:00"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "editingId": null,
+          "servicePeriod": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "errors": [],
+          "warnings": [],
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-08",
+            "endDate": "2026-07-08",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "PM"
+            },
+            "title": null,
+            "note": null
+          }
+        }
+      }
+    },
+    {
+      "id": "half day vs minutes unresolved",
+      "kind": "call",
+      "fn": "validateServiceEventDraft",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-07-09",
+          "endDate": "2026-07-09",
+          "timing": {
+            "kind": "HALF_DAY",
+            "half": "PM"
+          },
+          "title": null,
+          "note": null
+        },
+        {
+          "existingEvents": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-07-09",
+              "endDate": "2026-07-09",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 60,
+                "startTime": "13:00",
+                "endTime": "14:00"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "editingId": null,
+          "servicePeriod": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "errors": [],
+          "warnings": [
+            {
+              "code": "LEAVE_OVERLAP_UNRESOLVED",
+              "message": "2026-07-09의 허가외출 기록과 시간이 겹치는지 알 수 없어요. 두 기록이 서로 다른 시간이 맞는지 확인해 주세요. 시작·종료 시각을 넣으면 정확히 확인할 수 있어요.",
+              "field": "startDate"
+            }
+          ],
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-09",
+            "endDate": "2026-07-09",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "PM"
+            },
+            "title": null,
+            "note": null
+          }
+        }
+      }
+    },
+    {
+      "id": "intersecting explicit times",
+      "kind": "call",
+      "fn": "validateServiceEventDraft",
+      "args": [
+        {
+          "eventType": "LATE_ARRIVAL",
+          "startDate": "2026-07-09",
+          "endDate": "2026-07-09",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": 60,
+            "startTime": "13:30",
+            "endTime": "14:30"
+          },
+          "title": null,
+          "note": null
+        },
+        {
+          "existingEvents": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-07-09",
+              "endDate": "2026-07-09",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 60,
+                "startTime": "13:00",
+                "endTime": "14:00"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "editingId": null,
+          "servicePeriod": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "errors": [
+            {
+              "code": "LEAVE_OVERLAP",
+              "message": "2026-07-09에 이미 허가외출 기록이 있어 같은 시간을 두 번 차감하게 돼요. 기존 기록을 수정해 주세요.",
+              "field": "startDate"
+            }
+          ],
+          "warnings": [],
+          "draft": {
+            "eventType": "LATE_ARRIVAL",
+            "startDate": "2026-07-09",
+            "endDate": "2026-07-09",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 60,
+              "startTime": "13:30",
+              "endTime": "14:30"
+            },
+            "title": null,
+            "note": null
+          }
+        }
+      }
+    },
+    {
+      "id": "editing itself is not an overlap",
+      "kind": "call",
+      "fn": "validateServiceEventDraft",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-07-01",
+          "endDate": "2026-07-01",
+          "timing": {
+            "kind": "ALL_DAY",
+            "dayCount": 1
+          },
+          "title": null,
+          "note": null
+        },
+        {
+          "existingEvents": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-07-09",
+              "endDate": "2026-07-09",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 60,
+                "startTime": "13:00",
+                "endTime": "14:00"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "editingId": "ev-1",
+          "servicePeriod": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "errors": [],
+          "warnings": [],
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null
+          }
+        }
+      }
+    },
+    {
+      "id": "before call-up",
+      "kind": "call",
+      "fn": "validateServiceEventDraft",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-05-01",
+          "endDate": "2026-05-01",
+          "timing": {
+            "kind": "ALL_DAY",
+            "dayCount": 1
+          },
+          "title": null,
+          "note": null
+        },
+        {
+          "existingEvents": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-07-09",
+              "endDate": "2026-07-09",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 60,
+                "startTime": "13:00",
+                "endTime": "14:00"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "editingId": null,
+          "servicePeriod": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "errors": [],
+          "warnings": [
+            {
+              "code": "OUTSIDE_SERVICE_PERIOD",
+              "message": "복무 기간(소집일~소집해제 예정일) 밖의 날짜가 포함되어 있어요.",
+              "field": "startDate"
+            }
+          ],
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-05-01",
+            "endDate": "2026-05-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null
+          }
+        }
+      }
+    },
+    {
+      "id": "end before start",
+      "kind": "call",
+      "fn": "validateServiceEventDraft",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-07-05",
+          "endDate": "2026-07-03",
+          "timing": {
+            "kind": "ALL_DAY",
+            "dayCount": 1
+          },
+          "title": null,
+          "note": null
+        },
+        {
+          "existingEvents": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-07-09",
+              "endDate": "2026-07-09",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 60,
+                "startTime": "13:00",
+                "endTime": "14:00"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "editingId": null,
+          "servicePeriod": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "errors": [
+            {
+              "code": "END_BEFORE_START",
+              "message": "종료일이 시작일보다 빠를 수 없어요.",
+              "field": "endDate"
+            }
+          ],
+          "warnings": [],
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-05",
+            "endDate": "2026-07-03",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null
+          }
+        }
+      }
+    },
+    {
+      "id": "half day only for annual leave",
+      "kind": "call",
+      "fn": "validateServiceEventDraft",
+      "args": [
+        {
+          "eventType": "SICK_LEAVE",
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "timing": {
+            "kind": "HALF_DAY",
+            "half": "AM"
+          },
+          "title": null,
+          "note": null
+        },
+        {
+          "existingEvents": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-07-09",
+              "endDate": "2026-07-09",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 60,
+                "startTime": "13:00",
+                "endTime": "14:00"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "editingId": null,
+          "servicePeriod": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "errors": [
+            {
+              "code": "HALF_DAY_NOT_ANNUAL_LEAVE",
+              "message": "반일 단위는 연가(반가)에만 쓸 수 있어요. 시간 단위로 입력해 주세요.",
+              "field": "timing"
+            }
+          ],
+          "warnings": [],
+          "draft": {
+            "eventType": "SICK_LEAVE",
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "AM"
+            },
+            "title": null,
+            "note": null
+          }
+        }
+      }
+    },
+    {
+      "id": "multi-day partial",
+      "kind": "call",
+      "fn": "validateServiceEventDraft",
+      "args": [
+        {
+          "eventType": "OUTING",
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-21",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": 30,
+            "startTime": null,
+            "endTime": null
+          },
+          "title": null,
+          "note": null
+        },
+        {
+          "existingEvents": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-07-09",
+              "endDate": "2026-07-09",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 60,
+                "startTime": "13:00",
+                "endTime": "14:00"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "editingId": null,
+          "servicePeriod": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "errors": [
+            {
+              "code": "MULTI_DAY_PARTIAL",
+              "message": "반일·시간 단위 기록은 하루 안에서만 입력할 수 있어요.",
+              "field": "endDate"
+            }
+          ],
+          "warnings": [],
+          "draft": {
+            "eventType": "OUTING",
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-21",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 30,
+              "startTime": null,
+              "endTime": null
+            },
+            "title": null,
+            "note": null
+          }
+        }
+      }
+    },
+    {
+      "id": "non-payable must be all day",
+      "kind": "call",
+      "fn": "validateServiceEventDraft",
+      "args": [
+        {
+          "eventType": "SERVICE_ABSENCE",
+          "startDate": "2026-07-22",
+          "endDate": "2026-07-22",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": 60,
+            "startTime": null,
+            "endTime": null
+          },
+          "title": null,
+          "note": null
+        },
+        {
+          "existingEvents": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-07-09",
+              "endDate": "2026-07-09",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 60,
+                "startTime": "13:00",
+                "endTime": "14:00"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "editingId": null,
+          "servicePeriod": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "errors": [
+            {
+              "code": "COMPENSATION_ABSENCE_MUST_BE_ALL_DAY",
+              "message": "복무중단·복무이탈·연가초과 결근은 기본 보수 미지급일을 확정할 수 있도록 하루 단위로 기록해 주세요.",
+              "field": "timing"
+            }
+          ],
+          "warnings": [],
+          "draft": {
+            "eventType": "SERVICE_ABSENCE",
+            "startDate": "2026-07-22",
+            "endDate": "2026-07-22",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 60,
+              "startTime": null,
+              "endTime": null
+            },
+            "title": null,
+            "note": null
+          }
+        }
+      }
+    },
+    {
+      "id": "day count exceeds range",
+      "kind": "call",
+      "fn": "validateServiceEventDraft",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-21",
+          "timing": {
+            "kind": "ALL_DAY",
+            "dayCount": 3
+          },
+          "title": null,
+          "note": null
+        },
+        {
+          "existingEvents": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-07-09",
+              "endDate": "2026-07-09",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 60,
+                "startTime": "13:00",
+                "endTime": "14:00"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "editingId": null,
+          "servicePeriod": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "errors": [
+            {
+              "code": "DAY_COUNT_EXCEEDS_RANGE",
+              "message": "차감 일수가 선택한 기간의 날짜 수보다 많아요.",
+              "field": "dayCount"
+            }
+          ],
+          "warnings": [],
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-21",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 3
+            },
+            "title": null,
+            "note": null
+          }
+        }
+      }
+    },
+    {
+      "id": "garbage input",
+      "kind": "call",
+      "fn": "validateServiceEventDraft",
+      "args": [
+        {
+          "eventType": "PARTY",
+          "startDate": "x"
+        },
+        {
+          "existingEvents": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-07-09",
+              "endDate": "2026-07-09",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 60,
+                "startTime": "13:00",
+                "endTime": "14:00"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "editingId": null,
+          "servicePeriod": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "errors": [
+            {
+              "code": "INVALID_FIELD",
+              "message": "Invalid option: expected one of \"ANNUAL_LEAVE\"|\"SICK_LEAVE\"|\"OFFICIAL_LEAVE\"|\"SPECIAL_LEAVE\"|\"COMPASSIONATE_LEAVE\"|\"OUTING\"|\"LATE_ARRIVAL\"|\"EARLY_LEAVE\"|\"EDUCATION\"|\"TRAINING\"|\"SERVICE_SUSPENSION\"|\"SERVICE_ABSENCE\"|\"EXCESS_ANNUAL_ABSENCE\"|\"USER_NOTE\"",
+              "field": "eventType"
+            },
+            {
+              "code": "INVALID_FIELD",
+              "message": "유효한 날짜가 아니에요.",
+              "field": "startDate"
+            },
+            {
+              "code": "INVALID_FIELD",
+              "message": "Invalid input: expected string, received undefined",
+              "field": "endDate"
+            },
+            {
+              "code": "INVALID_FIELD",
+              "message": "Invalid input: expected object, received undefined",
+              "field": "timing"
+            },
+            {
+              "code": "INVALID_FIELD",
+              "message": "Invalid input: expected string, received undefined",
+              "field": "title"
+            },
+            {
+              "code": "INVALID_FIELD",
+              "message": "Invalid input: expected string, received undefined",
+              "field": "note"
+            }
+          ],
+          "warnings": [],
+          "draft": null
+        }
+      }
+    },
+    {
+      "id": "overlaps of stored events",
+      "kind": "call",
+      "fn": "findLeaveOverlaps",
+      "args": [
+        [
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-08",
+            "endDate": "2026-07-08",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "AM"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-2",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "OUTING",
+            "startDate": "2026-07-09",
+            "endDate": "2026-07-09",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 60,
+              "startTime": "13:00",
+              "endTime": "14:00"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-3",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          }
+        ]
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "conflicts": [],
+          "unresolved": []
+        }
+      }
+    },
+    {
+      "id": "classify LATE_ARRIVAL 09:00-13:00",
+      "kind": "call",
+      "fn": "classifyAnnualLeaveUsage",
+      "args": [
+        {
+          "eventType": "LATE_ARRIVAL",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": null,
+            "startTime": "09:00",
+            "endTime": "13:00"
+          },
+          "workdayStartTime": "09:00",
+          "workdayEndTime": "18:00"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "LATE_ARRIVAL",
+          "label": "허가지각",
+          "eventType": "LATE_ARRIVAL",
+          "automatic": true,
+          "halfDayPart": null,
+          "reason": "근무 시작 09:00부터 쉬고 13:00에 복귀하므로 허가지각으로 기록해요."
+        }
+      }
+    },
+    {
+      "id": "classify EARLY_LEAVE 14:00-18:00",
+      "kind": "call",
+      "fn": "classifyAnnualLeaveUsage",
+      "args": [
+        {
+          "eventType": "EARLY_LEAVE",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": null,
+            "startTime": "14:00",
+            "endTime": "18:00"
+          },
+          "workdayStartTime": "09:00",
+          "workdayEndTime": "18:00"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "HALF_DAY",
+          "label": "오후 반가",
+          "eventType": "ANNUAL_LEAVE",
+          "automatic": true,
+          "halfDayPart": "PM",
+          "reason": "14:00부터 근무 종료까지라 복무관리 규정의 오후 반일 경계와 정확히 맞아요."
+        }
+      }
+    },
+    {
+      "id": "classify OUTING 09:00-18:00",
+      "kind": "call",
+      "fn": "classifyAnnualLeaveUsage",
+      "args": [
+        {
+          "eventType": "OUTING",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": null,
+            "startTime": "09:00",
+            "endTime": "18:00"
+          },
+          "workdayStartTime": "09:00",
+          "workdayEndTime": "18:00"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "FULL_DAY",
+          "label": "종일 연가",
+          "eventType": "ANNUAL_LEAVE",
+          "automatic": true,
+          "halfDayPart": null,
+          "reason": "09:00–18:00 근무시간 전체를 덮어 종일 연가로 봐요."
+        }
+      }
+    },
+    {
+      "id": "classify OUTING 11:00-12:30",
+      "kind": "call",
+      "fn": "classifyAnnualLeaveUsage",
+      "args": [
+        {
+          "eventType": "OUTING",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": null,
+            "startTime": "11:00",
+            "endTime": "12:30"
+          },
+          "workdayStartTime": "09:00",
+          "workdayEndTime": "18:00"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "OUTING",
+          "label": "허가외출",
+          "eventType": "OUTING",
+          "automatic": true,
+          "halfDayPart": null,
+          "reason": "근무시간 중간 구간만 비우므로 허가외출로 기록해요."
+        }
+      }
+    },
+    {
+      "id": "classify LATE_ARRIVAL 09:00-10:00",
+      "kind": "call",
+      "fn": "classifyAnnualLeaveUsage",
+      "args": [
+        {
+          "eventType": "LATE_ARRIVAL",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": null,
+            "startTime": "09:00",
+            "endTime": "10:00"
+          },
+          "workdayStartTime": "09:00",
+          "workdayEndTime": "18:00"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "LATE_ARRIVAL",
+          "label": "허가지각",
+          "eventType": "LATE_ARRIVAL",
+          "automatic": true,
+          "halfDayPart": null,
+          "reason": "근무 시작 09:00부터 쉬고 10:00에 복귀하므로 허가지각으로 기록해요."
+        }
+      }
+    },
+    {
+      "id": "classify without schedule",
+      "kind": "call",
+      "fn": "classifyAnnualLeaveUsage",
+      "args": [
+        {
+          "eventType": "OUTING",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": 60,
+            "startTime": "10:00",
+            "endTime": "11:00"
+          },
+          "workdayStartTime": null,
+          "workdayEndTime": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "PARTIAL",
+          "label": "시간 연가",
+          "eventType": "OUTING",
+          "automatic": false,
+          "halfDayPart": null,
+          "reason": "근무 시작·종료 시각을 먼저 확인하면 지각·조퇴·외출을 자동 구분할 수 있어요."
+        }
+      }
+    },
+    {
+      "id": "month grid 2026-02",
+      "kind": "call",
+      "fn": "buildMonthGrid",
+      "args": [
+        "2026-02"
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          [
+            {
+              "date": "2026-02-01",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-02",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-03",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-04",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-05",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-06",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-07",
+              "inMonth": true
+            }
+          ],
+          [
+            {
+              "date": "2026-02-08",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-09",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-10",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-11",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-12",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-13",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-14",
+              "inMonth": true
+            }
+          ],
+          [
+            {
+              "date": "2026-02-15",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-16",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-17",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-18",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-19",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-20",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-21",
+              "inMonth": true
+            }
+          ],
+          [
+            {
+              "date": "2026-02-22",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-23",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-24",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-25",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-26",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-27",
+              "inMonth": true
+            },
+            {
+              "date": "2026-02-28",
+              "inMonth": true
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "month grid 2028-02",
+      "kind": "call",
+      "fn": "buildMonthGrid",
+      "args": [
+        "2028-02"
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          [
+            {
+              "date": "2028-01-30",
+              "inMonth": false
+            },
+            {
+              "date": "2028-01-31",
+              "inMonth": false
+            },
+            {
+              "date": "2028-02-01",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-02",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-03",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-04",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-05",
+              "inMonth": true
+            }
+          ],
+          [
+            {
+              "date": "2028-02-06",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-07",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-08",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-09",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-10",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-11",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-12",
+              "inMonth": true
+            }
+          ],
+          [
+            {
+              "date": "2028-02-13",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-14",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-15",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-16",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-17",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-18",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-19",
+              "inMonth": true
+            }
+          ],
+          [
+            {
+              "date": "2028-02-20",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-21",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-22",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-23",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-24",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-25",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-26",
+              "inMonth": true
+            }
+          ],
+          [
+            {
+              "date": "2028-02-27",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-28",
+              "inMonth": true
+            },
+            {
+              "date": "2028-02-29",
+              "inMonth": true
+            },
+            {
+              "date": "2028-03-01",
+              "inMonth": false
+            },
+            {
+              "date": "2028-03-02",
+              "inMonth": false
+            },
+            {
+              "date": "2028-03-03",
+              "inMonth": false
+            },
+            {
+              "date": "2028-03-04",
+              "inMonth": false
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "weekdays in range",
+      "kind": "call",
+      "fn": "countWeekdays",
+      "args": [
+        "2026-10-01",
+        "2026-10-31"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 22
+      }
+    }
+  ]
+}

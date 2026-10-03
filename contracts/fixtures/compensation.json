@@ -1,0 +1,3803 @@
+{
+  "formatVersion": 1,
+  "suite": "compensation",
+  "description": "Monthly compensation with safety gates (no total when a component is unknown), pay band schedule and pay step.",
+  "engines": [
+    "jsc"
+  ],
+  "generatedBy": "packages/native-core/tests/conformance.test.ts",
+  "cases": [
+    {
+      "id": "compensation unanswered @ 2026-05-20",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-05-20",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "PARTIAL",
+          "month": "2026-05",
+          "asOfDate": "2026-05-20",
+          "serviceMonthOrdinal": null,
+          "equivalentRank": null,
+          "components": [
+            {
+              "key": "BASE_PAY",
+              "label": "기본 보수",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "병역법 시행령 제62조①·②, 공무원보수규정 별표 13, 사회복무요원 복무관리 규정 제41조①·⑤·⑥, 국고금 관리법 제47조(해당 지급기관에 적용되는 경우), 병무청 2026년도 사회복무요원 보수 등 지급 기준",
+              "explanation": "이전 복무 경력(병역법 시행령 제62조제2항) 여부를 알려 주셔야 보수 등급을 정할 수 있어요."
+            },
+            {
+              "key": "MEAL",
+              "label": "중식비",
+              "basis": "사회복무요원 복무관리 규정 제41조④ 중식비 실비 지급; 병무청 2026년도 보수 등 지급 기준 '1일 중식비 9,000원(최소기준)'",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": 9000,
+              "rateSource": "OFFICIAL_MINIMUM",
+              "eligibleDays": null,
+              "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+            },
+            {
+              "key": "TRANSPORT",
+              "label": "교통비",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "사회복무요원 복무관리 규정 제41조④ 교통비 실비 지급, 도보 등 출퇴근도 대중교통 이용요금 기준; 병무청 2026년도 보수 등 지급 기준 '1일 교통비: 대중교통(시내버스) 왕복이용요금(현금기준), 환승·지하철 장거리 등 추가비용 시 교통카드 금액 기준 실비'",
+              "explanation": "1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+            }
+          ],
+          "total": null,
+          "serviceDays": {
+            "month": "2026-05",
+            "days": [],
+            "undecidedDates": [],
+            "mealEligibleDays": null,
+            "transportEligibleDays": null,
+            "status": "NEEDS_INPUT",
+            "missing": [
+              "WORK_PATTERN",
+              "WORK_WEEKDAYS"
+            ],
+            "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+          },
+          "basePayAdjustment": null,
+          "rule": {
+            "id": "kr.mma.social-service.compensation",
+            "version": "2026",
+            "effectiveFrom": "2026-01-01",
+            "effectiveUntil": "2026-12-31",
+            "verifiedAt": "2026-09-24",
+            "sources": [
+              {
+                "title": "병역법 시행령 제62조(사회복무요원의 보수 등)",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/병역법시행령/제62조",
+                "sha256": "a19526da003adcc323883cce607e069f6e6bb56df0552ae7824dedb1a530d39d"
+              },
+              {
+                "title": "공무원보수규정 제4조제6호·제22조 및 별표 13 군인의 봉급표",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/공무원보수규정",
+                "sha256": "0db174584b43a3123fff619fbb93cfcb992f7d8cc35e1e99920baa2196f6802c"
+              },
+              {
+                "title": "사회복무요원 복무관리 규정 제18조·제41조",
+                "authority": "병무청",
+                "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000284594",
+                "sha256": "1081cae347c4f805a5b652949a02c6d30eeed254248a42133df8d43b11ca7be2"
+              },
+              {
+                "title": "국고금 관리법 제47조(국고금의 끝수 계산)",
+                "authority": "대한민국 (법률)",
+                "url": "https://www.law.go.kr/법령/국고금관리법/제47조",
+                "sha256": "f337545db7c74f1243afce6f599b718c06900588432747c0a9e6e7deb92c3115"
+              },
+              {
+                "title": "2026년도 사회복무요원 보수 등 지급 기준",
+                "authority": "병무청 사회복무국",
+                "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
+                "sha256": "f4bff691605807f8b20ac2c7034b0dbb052f899a2417236424cdf0faf1bfb158"
+              }
+            ]
+          },
+          "headline": "확인된 항목만 금액을 보여요. 나머지는 아래 조건이 채워져야 계산해요.",
+          "unresolved": [
+            "이전 복무 경력(병역법 시행령 제62조제2항) 여부를 알려 주셔야 보수 등급을 정할 수 있어요.",
+            "중식비·교통비: 복무형태와 근무 요일을 먼저 확인해 주세요. (필요: 복무형태(주간 출퇴근 여부), 근무 요일)",
+            "교통비: 1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands unanswered @ 2026-05-20",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-05-20"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "NEEDS_INPUT",
+          "reason": "이전 복무 경력 여부를 알려 주시면 급여 단계를 보여 드려요."
+        }
+      }
+    },
+    {
+      "id": "compensation unanswered @ 2026-10-03",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-10-03",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "PARTIAL",
+          "month": "2026-10",
+          "asOfDate": "2026-10-03",
+          "serviceMonthOrdinal": null,
+          "equivalentRank": null,
+          "components": [
+            {
+              "key": "BASE_PAY",
+              "label": "기본 보수",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "병역법 시행령 제62조①·②, 공무원보수규정 별표 13, 사회복무요원 복무관리 규정 제41조①·⑤·⑥, 국고금 관리법 제47조(해당 지급기관에 적용되는 경우), 병무청 2026년도 사회복무요원 보수 등 지급 기준",
+              "explanation": "이전 복무 경력(병역법 시행령 제62조제2항) 여부를 알려 주셔야 보수 등급을 정할 수 있어요."
+            },
+            {
+              "key": "MEAL",
+              "label": "중식비",
+              "basis": "사회복무요원 복무관리 규정 제41조④ 중식비 실비 지급; 병무청 2026년도 보수 등 지급 기준 '1일 중식비 9,000원(최소기준)'",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": 9000,
+              "rateSource": "OFFICIAL_MINIMUM",
+              "eligibleDays": null,
+              "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+            },
+            {
+              "key": "TRANSPORT",
+              "label": "교통비",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "사회복무요원 복무관리 규정 제41조④ 교통비 실비 지급, 도보 등 출퇴근도 대중교통 이용요금 기준; 병무청 2026년도 보수 등 지급 기준 '1일 교통비: 대중교통(시내버스) 왕복이용요금(현금기준), 환승·지하철 장거리 등 추가비용 시 교통카드 금액 기준 실비'",
+              "explanation": "1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+            }
+          ],
+          "total": null,
+          "serviceDays": {
+            "month": "2026-10",
+            "days": [],
+            "undecidedDates": [],
+            "mealEligibleDays": null,
+            "transportEligibleDays": null,
+            "status": "NEEDS_INPUT",
+            "missing": [
+              "WORK_PATTERN",
+              "WORK_WEEKDAYS"
+            ],
+            "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+          },
+          "basePayAdjustment": null,
+          "rule": {
+            "id": "kr.mma.social-service.compensation",
+            "version": "2026",
+            "effectiveFrom": "2026-01-01",
+            "effectiveUntil": "2026-12-31",
+            "verifiedAt": "2026-09-24",
+            "sources": [
+              {
+                "title": "병역법 시행령 제62조(사회복무요원의 보수 등)",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/병역법시행령/제62조",
+                "sha256": "a19526da003adcc323883cce607e069f6e6bb56df0552ae7824dedb1a530d39d"
+              },
+              {
+                "title": "공무원보수규정 제4조제6호·제22조 및 별표 13 군인의 봉급표",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/공무원보수규정",
+                "sha256": "0db174584b43a3123fff619fbb93cfcb992f7d8cc35e1e99920baa2196f6802c"
+              },
+              {
+                "title": "사회복무요원 복무관리 규정 제18조·제41조",
+                "authority": "병무청",
+                "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000284594",
+                "sha256": "1081cae347c4f805a5b652949a02c6d30eeed254248a42133df8d43b11ca7be2"
+              },
+              {
+                "title": "국고금 관리법 제47조(국고금의 끝수 계산)",
+                "authority": "대한민국 (법률)",
+                "url": "https://www.law.go.kr/법령/국고금관리법/제47조",
+                "sha256": "f337545db7c74f1243afce6f599b718c06900588432747c0a9e6e7deb92c3115"
+              },
+              {
+                "title": "2026년도 사회복무요원 보수 등 지급 기준",
+                "authority": "병무청 사회복무국",
+                "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
+                "sha256": "f4bff691605807f8b20ac2c7034b0dbb052f899a2417236424cdf0faf1bfb158"
+              }
+            ]
+          },
+          "headline": "확인된 항목만 금액을 보여요. 나머지는 아래 조건이 채워져야 계산해요.",
+          "unresolved": [
+            "이전 복무 경력(병역법 시행령 제62조제2항) 여부를 알려 주셔야 보수 등급을 정할 수 있어요.",
+            "중식비·교통비: 복무형태와 근무 요일을 먼저 확인해 주세요. (필요: 복무형태(주간 출퇴근 여부), 근무 요일)",
+            "교통비: 1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands unanswered @ 2026-10-03",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-10-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "NEEDS_INPUT",
+          "reason": "이전 복무 경력 여부를 알려 주시면 급여 단계를 보여 드려요."
+        }
+      }
+    },
+    {
+      "id": "compensation unanswered @ 2027-03-15",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2027-03-15",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "month": "2027-03",
+          "asOfDate": "2027-03-15",
+          "serviceMonthOrdinal": null,
+          "equivalentRank": null,
+          "components": [],
+          "total": null,
+          "serviceDays": null,
+          "basePayAdjustment": null,
+          "rule": null,
+          "headline": "2027-03-15에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요.",
+          "unresolved": [
+            "2027-03-15에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands unanswered @ 2027-03-15",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2027-03-15"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "NEEDS_INPUT",
+          "reason": "이전 복무 경력 여부를 알려 주시면 급여 단계를 보여 드려요."
+        }
+      }
+    },
+    {
+      "id": "compensation unanswered @ 2028-02-01",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2028-02-01",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "month": "2028-02",
+          "asOfDate": "2028-02-01",
+          "serviceMonthOrdinal": null,
+          "equivalentRank": null,
+          "components": [],
+          "total": null,
+          "serviceDays": null,
+          "basePayAdjustment": null,
+          "rule": null,
+          "headline": "2028-02-01에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요.",
+          "unresolved": [
+            "2028-02-01에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands unanswered @ 2028-02-01",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2028-02-01"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "NEEDS_INPUT",
+          "reason": "이전 복무 경력 여부를 알려 주시면 급여 단계를 보여 드려요."
+        }
+      }
+    },
+    {
+      "id": "compensation noPrior @ 2026-05-20",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-05-20",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "PARTIAL",
+          "month": "2026-05",
+          "asOfDate": "2026-05-20",
+          "serviceMonthOrdinal": 1,
+          "equivalentRank": "이병 상당",
+          "components": [
+            {
+              "key": "BASE_PAY",
+              "label": "기본 보수",
+              "status": "GATED",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "병역법 시행령 제62조①·②, 공무원보수규정 별표 13, 사회복무요원 복무관리 규정 제41조①·⑤·⑥, 국고금 관리법 제47조(해당 지급기관에 적용되는 경우), 병무청 2026년도 사회복무요원 보수 등 지급 기준",
+              "explanation": "월 보수 ÷ 그 달 일수(31일) × 지급대상 달력일수(휴일도 포함) 구조까지는 확인됐어요. 소집·소집해제 달 또는 미지급일이 있는 달은 지급기관의 끝수 처리 기준도 확인해야 하므로, 국고금 관리법 제47조 적용 또는 기관의 10원 미만 절사 적용이 명시적으로 확인된 경우에만 자동 계산해요."
+            },
+            {
+              "key": "MEAL",
+              "label": "중식비",
+              "basis": "사회복무요원 복무관리 규정 제41조④ 중식비 실비 지급; 병무청 2026년도 보수 등 지급 기준 '1일 중식비 9,000원(최소기준)'",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": 9000,
+              "rateSource": "OFFICIAL_MINIMUM",
+              "eligibleDays": null,
+              "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+            },
+            {
+              "key": "TRANSPORT",
+              "label": "교통비",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "사회복무요원 복무관리 규정 제41조④ 교통비 실비 지급, 도보 등 출퇴근도 대중교통 이용요금 기준; 병무청 2026년도 보수 등 지급 기준 '1일 교통비: 대중교통(시내버스) 왕복이용요금(현금기준), 환승·지하철 장거리 등 추가비용 시 교통카드 금액 기준 실비'",
+              "explanation": "1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+            }
+          ],
+          "total": null,
+          "serviceDays": {
+            "month": "2026-05",
+            "days": [],
+            "undecidedDates": [],
+            "mealEligibleDays": null,
+            "transportEligibleDays": null,
+            "status": "NEEDS_INPUT",
+            "missing": [
+              "WORK_PATTERN",
+              "WORK_WEEKDAYS"
+            ],
+            "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+          },
+          "basePayAdjustment": {
+            "roundingPolicy": null,
+            "nonPayableDates": [],
+            "manualNonPayableDates": [],
+            "derivedNonPayableDates": [],
+            "derivationUnresolved": [],
+            "nonPayableDatesConfirmed": false,
+            "calendarDaysInMonth": 31,
+            "serviceCalendarDays": 28,
+            "payableCalendarDays": 28,
+            "rawProratedAmount": null,
+            "roundedAmount": null
+          },
+          "rule": {
+            "id": "kr.mma.social-service.compensation",
+            "version": "2026",
+            "effectiveFrom": "2026-01-01",
+            "effectiveUntil": "2026-12-31",
+            "verifiedAt": "2026-09-24",
+            "sources": [
+              {
+                "title": "병역법 시행령 제62조(사회복무요원의 보수 등)",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/병역법시행령/제62조",
+                "sha256": "a19526da003adcc323883cce607e069f6e6bb56df0552ae7824dedb1a530d39d"
+              },
+              {
+                "title": "공무원보수규정 제4조제6호·제22조 및 별표 13 군인의 봉급표",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/공무원보수규정",
+                "sha256": "0db174584b43a3123fff619fbb93cfcb992f7d8cc35e1e99920baa2196f6802c"
+              },
+              {
+                "title": "사회복무요원 복무관리 규정 제18조·제41조",
+                "authority": "병무청",
+                "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000284594",
+                "sha256": "1081cae347c4f805a5b652949a02c6d30eeed254248a42133df8d43b11ca7be2"
+              },
+              {
+                "title": "국고금 관리법 제47조(국고금의 끝수 계산)",
+                "authority": "대한민국 (법률)",
+                "url": "https://www.law.go.kr/법령/국고금관리법/제47조",
+                "sha256": "f337545db7c74f1243afce6f599b718c06900588432747c0a9e6e7deb92c3115"
+              },
+              {
+                "title": "2026년도 사회복무요원 보수 등 지급 기준",
+                "authority": "병무청 사회복무국",
+                "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
+                "sha256": "f4bff691605807f8b20ac2c7034b0dbb052f899a2417236424cdf0faf1bfb158"
+              }
+            ]
+          },
+          "headline": "확인된 항목만 금액을 보여요. 나머지는 아래 조건이 채워져야 계산해요.",
+          "unresolved": [
+            "월 보수 ÷ 그 달 일수(31일) × 지급대상 달력일수(휴일도 포함) 구조까지는 확인됐어요. 소집·소집해제 달 또는 미지급일이 있는 달은 지급기관의 끝수 처리 기준도 확인해야 하므로, 국고금 관리법 제47조 적용 또는 기관의 10원 미만 절사 적용이 명시적으로 확인된 경우에만 자동 계산해요.",
+            "중식비·교통비: 복무형태와 근무 요일을 먼저 확인해 주세요. (필요: 복무형태(주간 출퇴근 여부), 근무 요일)",
+            "교통비: 1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands noPrior @ 2026-05-20",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-05-20"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "READY",
+          "ruleVersion": "2026",
+          "creditedMonths": 0,
+          "current": {
+            "equivalentRank": "PRIVATE_SECOND_CLASS",
+            "label": "이병 상당",
+            "fromServiceMonthOrdinal": 1,
+            "startDate": "2026-05-04",
+            "monthlyAmount": 750000,
+            "amountRuleVersion": "2026"
+          },
+          "next": {
+            "equivalentRank": "PRIVATE_FIRST_CLASS",
+            "label": "일병 상당",
+            "fromServiceMonthOrdinal": 3,
+            "startDate": "2026-07-01",
+            "monthlyAmount": 900000,
+            "amountRuleVersion": "2026"
+          },
+          "steps": [
+            {
+              "equivalentRank": "PRIVATE_SECOND_CLASS",
+              "label": "이병 상당",
+              "fromServiceMonthOrdinal": 1,
+              "startDate": "2026-05-04",
+              "monthlyAmount": 750000,
+              "amountRuleVersion": "2026"
+            },
+            {
+              "equivalentRank": "PRIVATE_FIRST_CLASS",
+              "label": "일병 상당",
+              "fromServiceMonthOrdinal": 3,
+              "startDate": "2026-07-01",
+              "monthlyAmount": 900000,
+              "amountRuleVersion": "2026"
+            },
+            {
+              "equivalentRank": "CORPORAL",
+              "label": "상병 상당",
+              "fromServiceMonthOrdinal": 9,
+              "startDate": "2027-01-01",
+              "monthlyAmount": null,
+              "amountRuleVersion": null
+            },
+            {
+              "equivalentRank": "SERGEANT",
+              "label": "병장 상당",
+              "fromServiceMonthOrdinal": 15,
+              "startDate": "2027-07-01",
+              "monthlyAmount": null,
+              "amountRuleVersion": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "compensation noPrior @ 2026-10-03",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-10-03",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "PARTIAL",
+          "month": "2026-10",
+          "asOfDate": "2026-10-03",
+          "serviceMonthOrdinal": 6,
+          "equivalentRank": "일병 상당",
+          "components": [
+            {
+              "key": "BASE_PAY",
+              "label": "기본 보수",
+              "status": "CALCULATED",
+              "monthlyAmount": 900000,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "병역법 시행령 제62조①·②, 공무원보수규정 별표 13, 사회복무요원 복무관리 규정 제41조①·⑤·⑥, 국고금 관리법 제47조(해당 지급기관에 적용되는 경우), 병무청 2026년도 사회복무요원 보수 등 지급 기준",
+              "explanation": "소집월을 1개월 차로 세어 복무 6개월 차 = 6개월 차(일병 상당), 2026년 군인 봉급표 금액이에요."
+            },
+            {
+              "key": "MEAL",
+              "label": "중식비",
+              "basis": "사회복무요원 복무관리 규정 제41조④ 중식비 실비 지급; 병무청 2026년도 보수 등 지급 기준 '1일 중식비 9,000원(최소기준)'",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": 9000,
+              "rateSource": "OFFICIAL_MINIMUM",
+              "eligibleDays": null,
+              "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+            },
+            {
+              "key": "TRANSPORT",
+              "label": "교통비",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "사회복무요원 복무관리 규정 제41조④ 교통비 실비 지급, 도보 등 출퇴근도 대중교통 이용요금 기준; 병무청 2026년도 보수 등 지급 기준 '1일 교통비: 대중교통(시내버스) 왕복이용요금(현금기준), 환승·지하철 장거리 등 추가비용 시 교통카드 금액 기준 실비'",
+              "explanation": "1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+            }
+          ],
+          "total": null,
+          "serviceDays": {
+            "month": "2026-10",
+            "days": [],
+            "undecidedDates": [],
+            "mealEligibleDays": null,
+            "transportEligibleDays": null,
+            "status": "NEEDS_INPUT",
+            "missing": [
+              "WORK_PATTERN",
+              "WORK_WEEKDAYS"
+            ],
+            "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+          },
+          "basePayAdjustment": {
+            "roundingPolicy": null,
+            "nonPayableDates": [],
+            "manualNonPayableDates": [],
+            "derivedNonPayableDates": [],
+            "derivationUnresolved": [],
+            "nonPayableDatesConfirmed": false,
+            "calendarDaysInMonth": 31,
+            "serviceCalendarDays": 31,
+            "payableCalendarDays": 31,
+            "rawProratedAmount": null,
+            "roundedAmount": null
+          },
+          "rule": {
+            "id": "kr.mma.social-service.compensation",
+            "version": "2026",
+            "effectiveFrom": "2026-01-01",
+            "effectiveUntil": "2026-12-31",
+            "verifiedAt": "2026-09-24",
+            "sources": [
+              {
+                "title": "병역법 시행령 제62조(사회복무요원의 보수 등)",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/병역법시행령/제62조",
+                "sha256": "a19526da003adcc323883cce607e069f6e6bb56df0552ae7824dedb1a530d39d"
+              },
+              {
+                "title": "공무원보수규정 제4조제6호·제22조 및 별표 13 군인의 봉급표",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/공무원보수규정",
+                "sha256": "0db174584b43a3123fff619fbb93cfcb992f7d8cc35e1e99920baa2196f6802c"
+              },
+              {
+                "title": "사회복무요원 복무관리 규정 제18조·제41조",
+                "authority": "병무청",
+                "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000284594",
+                "sha256": "1081cae347c4f805a5b652949a02c6d30eeed254248a42133df8d43b11ca7be2"
+              },
+              {
+                "title": "국고금 관리법 제47조(국고금의 끝수 계산)",
+                "authority": "대한민국 (법률)",
+                "url": "https://www.law.go.kr/법령/국고금관리법/제47조",
+                "sha256": "f337545db7c74f1243afce6f599b718c06900588432747c0a9e6e7deb92c3115"
+              },
+              {
+                "title": "2026년도 사회복무요원 보수 등 지급 기준",
+                "authority": "병무청 사회복무국",
+                "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
+                "sha256": "f4bff691605807f8b20ac2c7034b0dbb052f899a2417236424cdf0faf1bfb158"
+              }
+            ]
+          },
+          "headline": "확인된 항목만 금액을 보여요. 나머지는 아래 조건이 채워져야 계산해요.",
+          "unresolved": [
+            "중식비·교통비: 복무형태와 근무 요일을 먼저 확인해 주세요. (필요: 복무형태(주간 출퇴근 여부), 근무 요일)",
+            "교통비: 1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+          ],
+          "assumptions": [
+            "복무중단·복무이탈·연가 초과 결근이 없는 달로 보고 기본 보수를 계산했어요."
+          ],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands noPrior @ 2026-10-03",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-10-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "READY",
+          "ruleVersion": "2026",
+          "creditedMonths": 0,
+          "current": {
+            "equivalentRank": "PRIVATE_FIRST_CLASS",
+            "label": "일병 상당",
+            "fromServiceMonthOrdinal": 3,
+            "startDate": "2026-07-01",
+            "monthlyAmount": 900000,
+            "amountRuleVersion": "2026"
+          },
+          "next": {
+            "equivalentRank": "CORPORAL",
+            "label": "상병 상당",
+            "fromServiceMonthOrdinal": 9,
+            "startDate": "2027-01-01",
+            "monthlyAmount": null,
+            "amountRuleVersion": null
+          },
+          "steps": [
+            {
+              "equivalentRank": "PRIVATE_SECOND_CLASS",
+              "label": "이병 상당",
+              "fromServiceMonthOrdinal": 1,
+              "startDate": "2026-05-04",
+              "monthlyAmount": 750000,
+              "amountRuleVersion": "2026"
+            },
+            {
+              "equivalentRank": "PRIVATE_FIRST_CLASS",
+              "label": "일병 상당",
+              "fromServiceMonthOrdinal": 3,
+              "startDate": "2026-07-01",
+              "monthlyAmount": 900000,
+              "amountRuleVersion": "2026"
+            },
+            {
+              "equivalentRank": "CORPORAL",
+              "label": "상병 상당",
+              "fromServiceMonthOrdinal": 9,
+              "startDate": "2027-01-01",
+              "monthlyAmount": null,
+              "amountRuleVersion": null
+            },
+            {
+              "equivalentRank": "SERGEANT",
+              "label": "병장 상당",
+              "fromServiceMonthOrdinal": 15,
+              "startDate": "2027-07-01",
+              "monthlyAmount": null,
+              "amountRuleVersion": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "compensation noPrior @ 2027-03-15",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2027-03-15",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "month": "2027-03",
+          "asOfDate": "2027-03-15",
+          "serviceMonthOrdinal": null,
+          "equivalentRank": null,
+          "components": [],
+          "total": null,
+          "serviceDays": null,
+          "basePayAdjustment": null,
+          "rule": null,
+          "headline": "2027-03-15에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요.",
+          "unresolved": [
+            "2027-03-15에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands noPrior @ 2027-03-15",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2027-03-15"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "reason": "오늘 적용되는 검증된 보수 규칙이 없어요."
+        }
+      }
+    },
+    {
+      "id": "compensation noPrior @ 2028-02-01",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2028-02-01",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "month": "2028-02",
+          "asOfDate": "2028-02-01",
+          "serviceMonthOrdinal": null,
+          "equivalentRank": null,
+          "components": [],
+          "total": null,
+          "serviceDays": null,
+          "basePayAdjustment": null,
+          "rule": null,
+          "headline": "2028-02-01에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요.",
+          "unresolved": [
+            "2028-02-01에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands noPrior @ 2028-02-01",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2028-02-01"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "reason": "오늘 적용되는 검증된 보수 규칙이 없어요."
+        }
+      }
+    },
+    {
+      "id": "compensation withMealAndCommute @ 2026-05-20",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": 3000,
+          "defaultMealAllowanceOverride": 9000,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": "WEEKDAY_DAYTIME",
+          "workWeekdays": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-05-20",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "PARTIAL",
+          "month": "2026-05",
+          "asOfDate": "2026-05-20",
+          "serviceMonthOrdinal": 1,
+          "equivalentRank": "이병 상당",
+          "components": [
+            {
+              "key": "BASE_PAY",
+              "label": "기본 보수",
+              "status": "GATED",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "병역법 시행령 제62조①·②, 공무원보수규정 별표 13, 사회복무요원 복무관리 규정 제41조①·⑤·⑥, 국고금 관리법 제47조(해당 지급기관에 적용되는 경우), 병무청 2026년도 사회복무요원 보수 등 지급 기준",
+              "explanation": "월 보수 ÷ 그 달 일수(31일) × 지급대상 달력일수(휴일도 포함) 구조까지는 확인됐어요. 소집·소집해제 달 또는 미지급일이 있는 달은 지급기관의 끝수 처리 기준도 확인해야 하므로, 국고금 관리법 제47조 적용 또는 기관의 10원 미만 절사 적용이 명시적으로 확인된 경우에만 자동 계산해요."
+            },
+            {
+              "key": "MEAL",
+              "label": "중식비",
+              "basis": "사회복무요원 복무관리 규정 제41조④ 중식비 실비 지급; 병무청 2026년도 보수 등 지급 기준 '1일 중식비 9,000원(최소기준)'",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": 9000,
+              "rateSource": "USER_INPUT",
+              "eligibleDays": null,
+              "explanation": "이 달의 공휴일·기관 휴무일을 확인해야 근무일 수를 셀 수 있어요."
+            },
+            {
+              "key": "TRANSPORT",
+              "label": "교통비",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": 3000,
+              "eligibleDays": null,
+              "rateSource": "USER_INPUT",
+              "basis": "사회복무요원 복무관리 규정 제41조④ 교통비 실비 지급, 도보 등 출퇴근도 대중교통 이용요금 기준; 병무청 2026년도 보수 등 지급 기준 '1일 교통비: 대중교통(시내버스) 왕복이용요금(현금기준), 환승·지하철 장거리 등 추가비용 시 교통카드 금액 기준 실비'",
+              "explanation": "이 달의 공휴일·기관 휴무일을 확인해야 근무일 수를 셀 수 있어요."
+            }
+          ],
+          "total": null,
+          "serviceDays": {
+            "month": "2026-05",
+            "days": [
+              {
+                "date": "2026-05-01",
+                "kind": "OUTSIDE_SERVICE",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-02",
+                "kind": "OUTSIDE_SERVICE",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-03",
+                "kind": "OUTSIDE_SERVICE",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-04",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-05",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-06",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-07",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-08",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-09",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-10",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-11",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-12",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-13",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-14",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-15",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-16",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-17",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-18",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-19",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-20",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-21",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-22",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-23",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-24",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-25",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-26",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-27",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-28",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-29",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-30",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-05-31",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              }
+            ],
+            "undecidedDates": [],
+            "mealEligibleDays": null,
+            "transportEligibleDays": null,
+            "status": "NEEDS_INPUT",
+            "missing": [
+              "MONTH_CONFIRMATION"
+            ],
+            "explanation": "이 달의 공휴일·기관 휴무일을 확인해야 근무일 수를 셀 수 있어요."
+          },
+          "basePayAdjustment": {
+            "roundingPolicy": null,
+            "nonPayableDates": [],
+            "manualNonPayableDates": [],
+            "derivedNonPayableDates": [],
+            "derivationUnresolved": [],
+            "nonPayableDatesConfirmed": false,
+            "calendarDaysInMonth": 31,
+            "serviceCalendarDays": 28,
+            "payableCalendarDays": 28,
+            "rawProratedAmount": null,
+            "roundedAmount": null
+          },
+          "rule": {
+            "id": "kr.mma.social-service.compensation",
+            "version": "2026",
+            "effectiveFrom": "2026-01-01",
+            "effectiveUntil": "2026-12-31",
+            "verifiedAt": "2026-09-24",
+            "sources": [
+              {
+                "title": "병역법 시행령 제62조(사회복무요원의 보수 등)",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/병역법시행령/제62조",
+                "sha256": "a19526da003adcc323883cce607e069f6e6bb56df0552ae7824dedb1a530d39d"
+              },
+              {
+                "title": "공무원보수규정 제4조제6호·제22조 및 별표 13 군인의 봉급표",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/공무원보수규정",
+                "sha256": "0db174584b43a3123fff619fbb93cfcb992f7d8cc35e1e99920baa2196f6802c"
+              },
+              {
+                "title": "사회복무요원 복무관리 규정 제18조·제41조",
+                "authority": "병무청",
+                "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000284594",
+                "sha256": "1081cae347c4f805a5b652949a02c6d30eeed254248a42133df8d43b11ca7be2"
+              },
+              {
+                "title": "국고금 관리법 제47조(국고금의 끝수 계산)",
+                "authority": "대한민국 (법률)",
+                "url": "https://www.law.go.kr/법령/국고금관리법/제47조",
+                "sha256": "f337545db7c74f1243afce6f599b718c06900588432747c0a9e6e7deb92c3115"
+              },
+              {
+                "title": "2026년도 사회복무요원 보수 등 지급 기준",
+                "authority": "병무청 사회복무국",
+                "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
+                "sha256": "f4bff691605807f8b20ac2c7034b0dbb052f899a2417236424cdf0faf1bfb158"
+              }
+            ]
+          },
+          "headline": "확인된 항목만 금액을 보여요. 나머지는 아래 조건이 채워져야 계산해요.",
+          "unresolved": [
+            "월 보수 ÷ 그 달 일수(31일) × 지급대상 달력일수(휴일도 포함) 구조까지는 확인됐어요. 소집·소집해제 달 또는 미지급일이 있는 달은 지급기관의 끝수 처리 기준도 확인해야 하므로, 국고금 관리법 제47조 적용 또는 기관의 10원 미만 절사 적용이 명시적으로 확인된 경우에만 자동 계산해요.",
+            "중식비·교통비: 이 달의 공휴일·기관 휴무일을 확인해야 근무일 수를 셀 수 있어요. (필요: 이 달 공휴일·휴무일 확인)"
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands withMealAndCommute @ 2026-05-20",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": 3000,
+          "defaultMealAllowanceOverride": 9000,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": "WEEKDAY_DAYTIME",
+          "workWeekdays": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-05-20"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "READY",
+          "ruleVersion": "2026",
+          "creditedMonths": 0,
+          "current": {
+            "equivalentRank": "PRIVATE_SECOND_CLASS",
+            "label": "이병 상당",
+            "fromServiceMonthOrdinal": 1,
+            "startDate": "2026-05-04",
+            "monthlyAmount": 750000,
+            "amountRuleVersion": "2026"
+          },
+          "next": {
+            "equivalentRank": "PRIVATE_FIRST_CLASS",
+            "label": "일병 상당",
+            "fromServiceMonthOrdinal": 3,
+            "startDate": "2026-07-01",
+            "monthlyAmount": 900000,
+            "amountRuleVersion": "2026"
+          },
+          "steps": [
+            {
+              "equivalentRank": "PRIVATE_SECOND_CLASS",
+              "label": "이병 상당",
+              "fromServiceMonthOrdinal": 1,
+              "startDate": "2026-05-04",
+              "monthlyAmount": 750000,
+              "amountRuleVersion": "2026"
+            },
+            {
+              "equivalentRank": "PRIVATE_FIRST_CLASS",
+              "label": "일병 상당",
+              "fromServiceMonthOrdinal": 3,
+              "startDate": "2026-07-01",
+              "monthlyAmount": 900000,
+              "amountRuleVersion": "2026"
+            },
+            {
+              "equivalentRank": "CORPORAL",
+              "label": "상병 상당",
+              "fromServiceMonthOrdinal": 9,
+              "startDate": "2027-01-01",
+              "monthlyAmount": null,
+              "amountRuleVersion": null
+            },
+            {
+              "equivalentRank": "SERGEANT",
+              "label": "병장 상당",
+              "fromServiceMonthOrdinal": 15,
+              "startDate": "2027-07-01",
+              "monthlyAmount": null,
+              "amountRuleVersion": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "compensation withMealAndCommute @ 2026-10-03",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": 3000,
+          "defaultMealAllowanceOverride": 9000,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": "WEEKDAY_DAYTIME",
+          "workWeekdays": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-10-03",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "PARTIAL",
+          "month": "2026-10",
+          "asOfDate": "2026-10-03",
+          "serviceMonthOrdinal": 6,
+          "equivalentRank": "일병 상당",
+          "components": [
+            {
+              "key": "BASE_PAY",
+              "label": "기본 보수",
+              "status": "CALCULATED",
+              "monthlyAmount": 900000,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "병역법 시행령 제62조①·②, 공무원보수규정 별표 13, 사회복무요원 복무관리 규정 제41조①·⑤·⑥, 국고금 관리법 제47조(해당 지급기관에 적용되는 경우), 병무청 2026년도 사회복무요원 보수 등 지급 기준",
+              "explanation": "소집월을 1개월 차로 세어 복무 6개월 차 = 6개월 차(일병 상당), 2026년 군인 봉급표 금액이에요."
+            },
+            {
+              "key": "MEAL",
+              "label": "중식비",
+              "basis": "사회복무요원 복무관리 규정 제41조④ 중식비 실비 지급; 병무청 2026년도 보수 등 지급 기준 '1일 중식비 9,000원(최소기준)'",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": 9000,
+              "rateSource": "USER_INPUT",
+              "eligibleDays": null,
+              "explanation": "이 달의 공휴일·기관 휴무일을 확인해야 근무일 수를 셀 수 있어요."
+            },
+            {
+              "key": "TRANSPORT",
+              "label": "교통비",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": 3000,
+              "eligibleDays": null,
+              "rateSource": "USER_INPUT",
+              "basis": "사회복무요원 복무관리 규정 제41조④ 교통비 실비 지급, 도보 등 출퇴근도 대중교통 이용요금 기준; 병무청 2026년도 보수 등 지급 기준 '1일 교통비: 대중교통(시내버스) 왕복이용요금(현금기준), 환승·지하철 장거리 등 추가비용 시 교통카드 금액 기준 실비'",
+              "explanation": "이 달의 공휴일·기관 휴무일을 확인해야 근무일 수를 셀 수 있어요."
+            }
+          ],
+          "total": null,
+          "serviceDays": {
+            "month": "2026-10",
+            "days": [
+              {
+                "date": "2026-10-01",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-02",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-03",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-04",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-05",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-06",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-07",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-08",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-09",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-10",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-11",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-12",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-13",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-14",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-15",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-16",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-17",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-18",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-19",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-20",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-21",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-22",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-23",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-24",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-25",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-26",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-27",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-28",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-29",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-30",
+                "kind": "WORKED",
+                "eventIds": [],
+                "mealEligible": true,
+                "transportEligible": true,
+                "requiresDecision": false,
+                "decidedByUser": false
+              },
+              {
+                "date": "2026-10-31",
+                "kind": "NOT_SCHEDULED",
+                "eventIds": [],
+                "mealEligible": false,
+                "transportEligible": false,
+                "requiresDecision": false,
+                "decidedByUser": false
+              }
+            ],
+            "undecidedDates": [],
+            "mealEligibleDays": null,
+            "transportEligibleDays": null,
+            "status": "NEEDS_INPUT",
+            "missing": [
+              "MONTH_CONFIRMATION"
+            ],
+            "explanation": "이 달의 공휴일·기관 휴무일을 확인해야 근무일 수를 셀 수 있어요."
+          },
+          "basePayAdjustment": {
+            "roundingPolicy": null,
+            "nonPayableDates": [],
+            "manualNonPayableDates": [],
+            "derivedNonPayableDates": [],
+            "derivationUnresolved": [],
+            "nonPayableDatesConfirmed": false,
+            "calendarDaysInMonth": 31,
+            "serviceCalendarDays": 31,
+            "payableCalendarDays": 31,
+            "rawProratedAmount": null,
+            "roundedAmount": null
+          },
+          "rule": {
+            "id": "kr.mma.social-service.compensation",
+            "version": "2026",
+            "effectiveFrom": "2026-01-01",
+            "effectiveUntil": "2026-12-31",
+            "verifiedAt": "2026-09-24",
+            "sources": [
+              {
+                "title": "병역법 시행령 제62조(사회복무요원의 보수 등)",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/병역법시행령/제62조",
+                "sha256": "a19526da003adcc323883cce607e069f6e6bb56df0552ae7824dedb1a530d39d"
+              },
+              {
+                "title": "공무원보수규정 제4조제6호·제22조 및 별표 13 군인의 봉급표",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/공무원보수규정",
+                "sha256": "0db174584b43a3123fff619fbb93cfcb992f7d8cc35e1e99920baa2196f6802c"
+              },
+              {
+                "title": "사회복무요원 복무관리 규정 제18조·제41조",
+                "authority": "병무청",
+                "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000284594",
+                "sha256": "1081cae347c4f805a5b652949a02c6d30eeed254248a42133df8d43b11ca7be2"
+              },
+              {
+                "title": "국고금 관리법 제47조(국고금의 끝수 계산)",
+                "authority": "대한민국 (법률)",
+                "url": "https://www.law.go.kr/법령/국고금관리법/제47조",
+                "sha256": "f337545db7c74f1243afce6f599b718c06900588432747c0a9e6e7deb92c3115"
+              },
+              {
+                "title": "2026년도 사회복무요원 보수 등 지급 기준",
+                "authority": "병무청 사회복무국",
+                "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
+                "sha256": "f4bff691605807f8b20ac2c7034b0dbb052f899a2417236424cdf0faf1bfb158"
+              }
+            ]
+          },
+          "headline": "확인된 항목만 금액을 보여요. 나머지는 아래 조건이 채워져야 계산해요.",
+          "unresolved": [
+            "중식비·교통비: 이 달의 공휴일·기관 휴무일을 확인해야 근무일 수를 셀 수 있어요. (필요: 이 달 공휴일·휴무일 확인)"
+          ],
+          "assumptions": [
+            "복무중단·복무이탈·연가 초과 결근이 없는 달로 보고 기본 보수를 계산했어요."
+          ],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands withMealAndCommute @ 2026-10-03",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": 3000,
+          "defaultMealAllowanceOverride": 9000,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": "WEEKDAY_DAYTIME",
+          "workWeekdays": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-10-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "READY",
+          "ruleVersion": "2026",
+          "creditedMonths": 0,
+          "current": {
+            "equivalentRank": "PRIVATE_FIRST_CLASS",
+            "label": "일병 상당",
+            "fromServiceMonthOrdinal": 3,
+            "startDate": "2026-07-01",
+            "monthlyAmount": 900000,
+            "amountRuleVersion": "2026"
+          },
+          "next": {
+            "equivalentRank": "CORPORAL",
+            "label": "상병 상당",
+            "fromServiceMonthOrdinal": 9,
+            "startDate": "2027-01-01",
+            "monthlyAmount": null,
+            "amountRuleVersion": null
+          },
+          "steps": [
+            {
+              "equivalentRank": "PRIVATE_SECOND_CLASS",
+              "label": "이병 상당",
+              "fromServiceMonthOrdinal": 1,
+              "startDate": "2026-05-04",
+              "monthlyAmount": 750000,
+              "amountRuleVersion": "2026"
+            },
+            {
+              "equivalentRank": "PRIVATE_FIRST_CLASS",
+              "label": "일병 상당",
+              "fromServiceMonthOrdinal": 3,
+              "startDate": "2026-07-01",
+              "monthlyAmount": 900000,
+              "amountRuleVersion": "2026"
+            },
+            {
+              "equivalentRank": "CORPORAL",
+              "label": "상병 상당",
+              "fromServiceMonthOrdinal": 9,
+              "startDate": "2027-01-01",
+              "monthlyAmount": null,
+              "amountRuleVersion": null
+            },
+            {
+              "equivalentRank": "SERGEANT",
+              "label": "병장 상당",
+              "fromServiceMonthOrdinal": 15,
+              "startDate": "2027-07-01",
+              "monthlyAmount": null,
+              "amountRuleVersion": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "compensation withMealAndCommute @ 2027-03-15",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": 3000,
+          "defaultMealAllowanceOverride": 9000,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": "WEEKDAY_DAYTIME",
+          "workWeekdays": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2027-03-15",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "month": "2027-03",
+          "asOfDate": "2027-03-15",
+          "serviceMonthOrdinal": null,
+          "equivalentRank": null,
+          "components": [],
+          "total": null,
+          "serviceDays": null,
+          "basePayAdjustment": null,
+          "rule": null,
+          "headline": "2027-03-15에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요.",
+          "unresolved": [
+            "2027-03-15에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands withMealAndCommute @ 2027-03-15",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": 3000,
+          "defaultMealAllowanceOverride": 9000,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": "WEEKDAY_DAYTIME",
+          "workWeekdays": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2027-03-15"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "reason": "오늘 적용되는 검증된 보수 규칙이 없어요."
+        }
+      }
+    },
+    {
+      "id": "compensation withMealAndCommute @ 2028-02-01",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": 3000,
+          "defaultMealAllowanceOverride": 9000,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": "WEEKDAY_DAYTIME",
+          "workWeekdays": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2028-02-01",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "month": "2028-02",
+          "asOfDate": "2028-02-01",
+          "serviceMonthOrdinal": null,
+          "equivalentRank": null,
+          "components": [],
+          "total": null,
+          "serviceDays": null,
+          "basePayAdjustment": null,
+          "rule": null,
+          "headline": "2028-02-01에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요.",
+          "unresolved": [
+            "2028-02-01에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands withMealAndCommute @ 2028-02-01",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": 3000,
+          "defaultMealAllowanceOverride": 9000,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": "WEEKDAY_DAYTIME",
+          "workWeekdays": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2028-02-01"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "reason": "오늘 적용되는 검증된 보수 규칙이 없어요."
+        }
+      }
+    },
+    {
+      "id": "compensation priorCredit @ 2026-05-20",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-05-20",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "PARTIAL",
+          "month": "2026-05",
+          "asOfDate": "2026-05-20",
+          "serviceMonthOrdinal": 8,
+          "equivalentRank": "일병 상당",
+          "components": [
+            {
+              "key": "BASE_PAY",
+              "label": "기본 보수",
+              "status": "GATED",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "병역법 시행령 제62조①·②, 공무원보수규정 별표 13, 사회복무요원 복무관리 규정 제41조①·⑤·⑥, 국고금 관리법 제47조(해당 지급기관에 적용되는 경우), 병무청 2026년도 사회복무요원 보수 등 지급 기준",
+              "explanation": "월 보수 ÷ 그 달 일수(31일) × 지급대상 달력일수(휴일도 포함) 구조까지는 확인됐어요. 소집·소집해제 달 또는 미지급일이 있는 달은 지급기관의 끝수 처리 기준도 확인해야 하므로, 국고금 관리법 제47조 적용 또는 기관의 10원 미만 절사 적용이 명시적으로 확인된 경우에만 자동 계산해요."
+            },
+            {
+              "key": "MEAL",
+              "label": "중식비",
+              "basis": "사회복무요원 복무관리 규정 제41조④ 중식비 실비 지급; 병무청 2026년도 보수 등 지급 기준 '1일 중식비 9,000원(최소기준)'",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": 9000,
+              "rateSource": "OFFICIAL_MINIMUM",
+              "eligibleDays": null,
+              "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+            },
+            {
+              "key": "TRANSPORT",
+              "label": "교통비",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "사회복무요원 복무관리 규정 제41조④ 교통비 실비 지급, 도보 등 출퇴근도 대중교통 이용요금 기준; 병무청 2026년도 보수 등 지급 기준 '1일 교통비: 대중교통(시내버스) 왕복이용요금(현금기준), 환승·지하철 장거리 등 추가비용 시 교통카드 금액 기준 실비'",
+              "explanation": "1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+            }
+          ],
+          "total": null,
+          "serviceDays": {
+            "month": "2026-05",
+            "days": [],
+            "undecidedDates": [],
+            "mealEligibleDays": null,
+            "transportEligibleDays": null,
+            "status": "NEEDS_INPUT",
+            "missing": [
+              "WORK_PATTERN",
+              "WORK_WEEKDAYS"
+            ],
+            "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+          },
+          "basePayAdjustment": {
+            "roundingPolicy": null,
+            "nonPayableDates": [],
+            "manualNonPayableDates": [],
+            "derivedNonPayableDates": [],
+            "derivationUnresolved": [],
+            "nonPayableDatesConfirmed": false,
+            "calendarDaysInMonth": 31,
+            "serviceCalendarDays": 28,
+            "payableCalendarDays": 28,
+            "rawProratedAmount": null,
+            "roundedAmount": null
+          },
+          "rule": {
+            "id": "kr.mma.social-service.compensation",
+            "version": "2026",
+            "effectiveFrom": "2026-01-01",
+            "effectiveUntil": "2026-12-31",
+            "verifiedAt": "2026-09-24",
+            "sources": [
+              {
+                "title": "병역법 시행령 제62조(사회복무요원의 보수 등)",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/병역법시행령/제62조",
+                "sha256": "a19526da003adcc323883cce607e069f6e6bb56df0552ae7824dedb1a530d39d"
+              },
+              {
+                "title": "공무원보수규정 제4조제6호·제22조 및 별표 13 군인의 봉급표",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/공무원보수규정",
+                "sha256": "0db174584b43a3123fff619fbb93cfcb992f7d8cc35e1e99920baa2196f6802c"
+              },
+              {
+                "title": "사회복무요원 복무관리 규정 제18조·제41조",
+                "authority": "병무청",
+                "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000284594",
+                "sha256": "1081cae347c4f805a5b652949a02c6d30eeed254248a42133df8d43b11ca7be2"
+              },
+              {
+                "title": "국고금 관리법 제47조(국고금의 끝수 계산)",
+                "authority": "대한민국 (법률)",
+                "url": "https://www.law.go.kr/법령/국고금관리법/제47조",
+                "sha256": "f337545db7c74f1243afce6f599b718c06900588432747c0a9e6e7deb92c3115"
+              },
+              {
+                "title": "2026년도 사회복무요원 보수 등 지급 기준",
+                "authority": "병무청 사회복무국",
+                "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
+                "sha256": "f4bff691605807f8b20ac2c7034b0dbb052f899a2417236424cdf0faf1bfb158"
+              }
+            ]
+          },
+          "headline": "확인된 항목만 금액을 보여요. 나머지는 아래 조건이 채워져야 계산해요.",
+          "unresolved": [
+            "월 보수 ÷ 그 달 일수(31일) × 지급대상 달력일수(휴일도 포함) 구조까지는 확인됐어요. 소집·소집해제 달 또는 미지급일이 있는 달은 지급기관의 끝수 처리 기준도 확인해야 하므로, 국고금 관리법 제47조 적용 또는 기관의 10원 미만 절사 적용이 명시적으로 확인된 경우에만 자동 계산해요.",
+            "중식비·교통비: 복무형태와 근무 요일을 먼저 확인해 주세요. (필요: 복무형태(주간 출퇴근 여부), 근무 요일)",
+            "교통비: 1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+          ],
+          "assumptions": [
+            "이전 복무 인정 기간 7개월은 입력한 기관 확인 값이에요."
+          ],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands priorCredit @ 2026-05-20",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-05-20"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "READY",
+          "ruleVersion": "2026",
+          "creditedMonths": 7,
+          "current": {
+            "equivalentRank": "PRIVATE_FIRST_CLASS",
+            "label": "일병 상당",
+            "fromServiceMonthOrdinal": 3,
+            "startDate": "2026-05-04",
+            "monthlyAmount": 900000,
+            "amountRuleVersion": "2026"
+          },
+          "next": {
+            "equivalentRank": "CORPORAL",
+            "label": "상병 상당",
+            "fromServiceMonthOrdinal": 9,
+            "startDate": "2026-06-01",
+            "monthlyAmount": 1200000,
+            "amountRuleVersion": "2026"
+          },
+          "steps": [
+            {
+              "equivalentRank": "PRIVATE_FIRST_CLASS",
+              "label": "일병 상당",
+              "fromServiceMonthOrdinal": 3,
+              "startDate": "2026-05-04",
+              "monthlyAmount": 900000,
+              "amountRuleVersion": "2026"
+            },
+            {
+              "equivalentRank": "CORPORAL",
+              "label": "상병 상당",
+              "fromServiceMonthOrdinal": 9,
+              "startDate": "2026-06-01",
+              "monthlyAmount": 1200000,
+              "amountRuleVersion": "2026"
+            },
+            {
+              "equivalentRank": "SERGEANT",
+              "label": "병장 상당",
+              "fromServiceMonthOrdinal": 15,
+              "startDate": "2026-12-01",
+              "monthlyAmount": 1500000,
+              "amountRuleVersion": "2026"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "compensation priorCredit @ 2026-10-03",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-10-03",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "PARTIAL",
+          "month": "2026-10",
+          "asOfDate": "2026-10-03",
+          "serviceMonthOrdinal": 13,
+          "equivalentRank": "상병 상당",
+          "components": [
+            {
+              "key": "BASE_PAY",
+              "label": "기본 보수",
+              "status": "CALCULATED",
+              "monthlyAmount": 1200000,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "병역법 시행령 제62조①·②, 공무원보수규정 별표 13, 사회복무요원 복무관리 규정 제41조①·⑤·⑥, 국고금 관리법 제47조(해당 지급기관에 적용되는 경우), 병무청 2026년도 사회복무요원 보수 등 지급 기준",
+              "explanation": "소집월을 1개월 차로 세어 복무 6개월 차 + 인정 기간 7개월 = 13개월 차(상병 상당), 2026년 군인 봉급표 금액이에요."
+            },
+            {
+              "key": "MEAL",
+              "label": "중식비",
+              "basis": "사회복무요원 복무관리 규정 제41조④ 중식비 실비 지급; 병무청 2026년도 보수 등 지급 기준 '1일 중식비 9,000원(최소기준)'",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": 9000,
+              "rateSource": "OFFICIAL_MINIMUM",
+              "eligibleDays": null,
+              "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+            },
+            {
+              "key": "TRANSPORT",
+              "label": "교통비",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "사회복무요원 복무관리 규정 제41조④ 교통비 실비 지급, 도보 등 출퇴근도 대중교통 이용요금 기준; 병무청 2026년도 보수 등 지급 기준 '1일 교통비: 대중교통(시내버스) 왕복이용요금(현금기준), 환승·지하철 장거리 등 추가비용 시 교통카드 금액 기준 실비'",
+              "explanation": "1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+            }
+          ],
+          "total": null,
+          "serviceDays": {
+            "month": "2026-10",
+            "days": [],
+            "undecidedDates": [],
+            "mealEligibleDays": null,
+            "transportEligibleDays": null,
+            "status": "NEEDS_INPUT",
+            "missing": [
+              "WORK_PATTERN",
+              "WORK_WEEKDAYS"
+            ],
+            "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+          },
+          "basePayAdjustment": {
+            "roundingPolicy": null,
+            "nonPayableDates": [],
+            "manualNonPayableDates": [],
+            "derivedNonPayableDates": [],
+            "derivationUnresolved": [],
+            "nonPayableDatesConfirmed": false,
+            "calendarDaysInMonth": 31,
+            "serviceCalendarDays": 31,
+            "payableCalendarDays": 31,
+            "rawProratedAmount": null,
+            "roundedAmount": null
+          },
+          "rule": {
+            "id": "kr.mma.social-service.compensation",
+            "version": "2026",
+            "effectiveFrom": "2026-01-01",
+            "effectiveUntil": "2026-12-31",
+            "verifiedAt": "2026-09-24",
+            "sources": [
+              {
+                "title": "병역법 시행령 제62조(사회복무요원의 보수 등)",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/병역법시행령/제62조",
+                "sha256": "a19526da003adcc323883cce607e069f6e6bb56df0552ae7824dedb1a530d39d"
+              },
+              {
+                "title": "공무원보수규정 제4조제6호·제22조 및 별표 13 군인의 봉급표",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/공무원보수규정",
+                "sha256": "0db174584b43a3123fff619fbb93cfcb992f7d8cc35e1e99920baa2196f6802c"
+              },
+              {
+                "title": "사회복무요원 복무관리 규정 제18조·제41조",
+                "authority": "병무청",
+                "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000284594",
+                "sha256": "1081cae347c4f805a5b652949a02c6d30eeed254248a42133df8d43b11ca7be2"
+              },
+              {
+                "title": "국고금 관리법 제47조(국고금의 끝수 계산)",
+                "authority": "대한민국 (법률)",
+                "url": "https://www.law.go.kr/법령/국고금관리법/제47조",
+                "sha256": "f337545db7c74f1243afce6f599b718c06900588432747c0a9e6e7deb92c3115"
+              },
+              {
+                "title": "2026년도 사회복무요원 보수 등 지급 기준",
+                "authority": "병무청 사회복무국",
+                "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
+                "sha256": "f4bff691605807f8b20ac2c7034b0dbb052f899a2417236424cdf0faf1bfb158"
+              }
+            ]
+          },
+          "headline": "확인된 항목만 금액을 보여요. 나머지는 아래 조건이 채워져야 계산해요.",
+          "unresolved": [
+            "중식비·교통비: 복무형태와 근무 요일을 먼저 확인해 주세요. (필요: 복무형태(주간 출퇴근 여부), 근무 요일)",
+            "교통비: 1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+          ],
+          "assumptions": [
+            "복무중단·복무이탈·연가 초과 결근이 없는 달로 보고 기본 보수를 계산했어요.",
+            "이전 복무 인정 기간 7개월은 입력한 기관 확인 값이에요."
+          ],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands priorCredit @ 2026-10-03",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-10-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "READY",
+          "ruleVersion": "2026",
+          "creditedMonths": 7,
+          "current": {
+            "equivalentRank": "CORPORAL",
+            "label": "상병 상당",
+            "fromServiceMonthOrdinal": 9,
+            "startDate": "2026-06-01",
+            "monthlyAmount": 1200000,
+            "amountRuleVersion": "2026"
+          },
+          "next": {
+            "equivalentRank": "SERGEANT",
+            "label": "병장 상당",
+            "fromServiceMonthOrdinal": 15,
+            "startDate": "2026-12-01",
+            "monthlyAmount": 1500000,
+            "amountRuleVersion": "2026"
+          },
+          "steps": [
+            {
+              "equivalentRank": "PRIVATE_FIRST_CLASS",
+              "label": "일병 상당",
+              "fromServiceMonthOrdinal": 3,
+              "startDate": "2026-05-04",
+              "monthlyAmount": 900000,
+              "amountRuleVersion": "2026"
+            },
+            {
+              "equivalentRank": "CORPORAL",
+              "label": "상병 상당",
+              "fromServiceMonthOrdinal": 9,
+              "startDate": "2026-06-01",
+              "monthlyAmount": 1200000,
+              "amountRuleVersion": "2026"
+            },
+            {
+              "equivalentRank": "SERGEANT",
+              "label": "병장 상당",
+              "fromServiceMonthOrdinal": 15,
+              "startDate": "2026-12-01",
+              "monthlyAmount": 1500000,
+              "amountRuleVersion": "2026"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "compensation priorCredit @ 2027-03-15",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2027-03-15",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "month": "2027-03",
+          "asOfDate": "2027-03-15",
+          "serviceMonthOrdinal": null,
+          "equivalentRank": null,
+          "components": [],
+          "total": null,
+          "serviceDays": null,
+          "basePayAdjustment": null,
+          "rule": null,
+          "headline": "2027-03-15에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요.",
+          "unresolved": [
+            "2027-03-15에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands priorCredit @ 2027-03-15",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2027-03-15"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "reason": "오늘 적용되는 검증된 보수 규칙이 없어요."
+        }
+      }
+    },
+    {
+      "id": "compensation priorCredit @ 2028-02-01",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2028-02-01",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "month": "2028-02",
+          "asOfDate": "2028-02-01",
+          "serviceMonthOrdinal": null,
+          "equivalentRank": null,
+          "components": [],
+          "total": null,
+          "serviceDays": null,
+          "basePayAdjustment": null,
+          "rule": null,
+          "headline": "2028-02-01에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요.",
+          "unresolved": [
+            "2028-02-01에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands priorCredit @ 2028-02-01",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2028-02-01"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "reason": "오늘 적용되는 검증된 보수 규칙이 없어요."
+        }
+      }
+    },
+    {
+      "id": "compensation priorPartial @ 2026-05-20",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": true,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-05-20",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "PARTIAL",
+          "month": "2026-05",
+          "asOfDate": "2026-05-20",
+          "serviceMonthOrdinal": null,
+          "equivalentRank": null,
+          "components": [
+            {
+              "key": "BASE_PAY",
+              "label": "기본 보수",
+              "status": "GATED",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "병역법 시행령 제62조①·②, 공무원보수규정 별표 13, 사회복무요원 복무관리 규정 제41조①·⑤·⑥, 국고금 관리법 제47조(해당 지급기관에 적용되는 경우), 병무청 2026년도 사회복무요원 보수 등 지급 기준",
+              "explanation": "인정 기간이 개월 단위로 떨어지지 않으면 보수 구간 합산 방법이 원문에 없어 계산하지 않아요."
+            },
+            {
+              "key": "MEAL",
+              "label": "중식비",
+              "basis": "사회복무요원 복무관리 규정 제41조④ 중식비 실비 지급; 병무청 2026년도 보수 등 지급 기준 '1일 중식비 9,000원(최소기준)'",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": 9000,
+              "rateSource": "OFFICIAL_MINIMUM",
+              "eligibleDays": null,
+              "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+            },
+            {
+              "key": "TRANSPORT",
+              "label": "교통비",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "사회복무요원 복무관리 규정 제41조④ 교통비 실비 지급, 도보 등 출퇴근도 대중교통 이용요금 기준; 병무청 2026년도 보수 등 지급 기준 '1일 교통비: 대중교통(시내버스) 왕복이용요금(현금기준), 환승·지하철 장거리 등 추가비용 시 교통카드 금액 기준 실비'",
+              "explanation": "1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+            }
+          ],
+          "total": null,
+          "serviceDays": {
+            "month": "2026-05",
+            "days": [],
+            "undecidedDates": [],
+            "mealEligibleDays": null,
+            "transportEligibleDays": null,
+            "status": "NEEDS_INPUT",
+            "missing": [
+              "WORK_PATTERN",
+              "WORK_WEEKDAYS"
+            ],
+            "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+          },
+          "basePayAdjustment": null,
+          "rule": {
+            "id": "kr.mma.social-service.compensation",
+            "version": "2026",
+            "effectiveFrom": "2026-01-01",
+            "effectiveUntil": "2026-12-31",
+            "verifiedAt": "2026-09-24",
+            "sources": [
+              {
+                "title": "병역법 시행령 제62조(사회복무요원의 보수 등)",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/병역법시행령/제62조",
+                "sha256": "a19526da003adcc323883cce607e069f6e6bb56df0552ae7824dedb1a530d39d"
+              },
+              {
+                "title": "공무원보수규정 제4조제6호·제22조 및 별표 13 군인의 봉급표",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/공무원보수규정",
+                "sha256": "0db174584b43a3123fff619fbb93cfcb992f7d8cc35e1e99920baa2196f6802c"
+              },
+              {
+                "title": "사회복무요원 복무관리 규정 제18조·제41조",
+                "authority": "병무청",
+                "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000284594",
+                "sha256": "1081cae347c4f805a5b652949a02c6d30eeed254248a42133df8d43b11ca7be2"
+              },
+              {
+                "title": "국고금 관리법 제47조(국고금의 끝수 계산)",
+                "authority": "대한민국 (법률)",
+                "url": "https://www.law.go.kr/법령/국고금관리법/제47조",
+                "sha256": "f337545db7c74f1243afce6f599b718c06900588432747c0a9e6e7deb92c3115"
+              },
+              {
+                "title": "2026년도 사회복무요원 보수 등 지급 기준",
+                "authority": "병무청 사회복무국",
+                "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
+                "sha256": "f4bff691605807f8b20ac2c7034b0dbb052f899a2417236424cdf0faf1bfb158"
+              }
+            ]
+          },
+          "headline": "확인된 항목만 금액을 보여요. 나머지는 아래 조건이 채워져야 계산해요.",
+          "unresolved": [
+            "인정 기간이 개월 단위로 떨어지지 않으면 보수 구간 합산 방법이 원문에 없어 계산하지 않아요.",
+            "중식비·교통비: 복무형태와 근무 요일을 먼저 확인해 주세요. (필요: 복무형태(주간 출퇴근 여부), 근무 요일)",
+            "교통비: 1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands priorPartial @ 2026-05-20",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": true,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-05-20"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "NEEDS_INPUT",
+          "reason": "복무기관이 확인한 인정 개월 수가 있어야 급여 단계를 정할 수 있어요."
+        }
+      }
+    },
+    {
+      "id": "compensation priorPartial @ 2026-10-03",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": true,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-10-03",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "PARTIAL",
+          "month": "2026-10",
+          "asOfDate": "2026-10-03",
+          "serviceMonthOrdinal": null,
+          "equivalentRank": null,
+          "components": [
+            {
+              "key": "BASE_PAY",
+              "label": "기본 보수",
+              "status": "GATED",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "병역법 시행령 제62조①·②, 공무원보수규정 별표 13, 사회복무요원 복무관리 규정 제41조①·⑤·⑥, 국고금 관리법 제47조(해당 지급기관에 적용되는 경우), 병무청 2026년도 사회복무요원 보수 등 지급 기준",
+              "explanation": "인정 기간이 개월 단위로 떨어지지 않으면 보수 구간 합산 방법이 원문에 없어 계산하지 않아요."
+            },
+            {
+              "key": "MEAL",
+              "label": "중식비",
+              "basis": "사회복무요원 복무관리 규정 제41조④ 중식비 실비 지급; 병무청 2026년도 보수 등 지급 기준 '1일 중식비 9,000원(최소기준)'",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": 9000,
+              "rateSource": "OFFICIAL_MINIMUM",
+              "eligibleDays": null,
+              "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+            },
+            {
+              "key": "TRANSPORT",
+              "label": "교통비",
+              "status": "NEEDS_INPUT",
+              "monthlyAmount": null,
+              "dailyRate": null,
+              "eligibleDays": null,
+              "rateSource": null,
+              "basis": "사회복무요원 복무관리 규정 제41조④ 교통비 실비 지급, 도보 등 출퇴근도 대중교통 이용요금 기준; 병무청 2026년도 보수 등 지급 기준 '1일 교통비: 대중교통(시내버스) 왕복이용요금(현금기준), 환승·지하철 장거리 등 추가비용 시 교통카드 금액 기준 실비'",
+              "explanation": "1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+            }
+          ],
+          "total": null,
+          "serviceDays": {
+            "month": "2026-10",
+            "days": [],
+            "undecidedDates": [],
+            "mealEligibleDays": null,
+            "transportEligibleDays": null,
+            "status": "NEEDS_INPUT",
+            "missing": [
+              "WORK_PATTERN",
+              "WORK_WEEKDAYS"
+            ],
+            "explanation": "복무형태와 근무 요일을 먼저 확인해 주세요."
+          },
+          "basePayAdjustment": null,
+          "rule": {
+            "id": "kr.mma.social-service.compensation",
+            "version": "2026",
+            "effectiveFrom": "2026-01-01",
+            "effectiveUntil": "2026-12-31",
+            "verifiedAt": "2026-09-24",
+            "sources": [
+              {
+                "title": "병역법 시행령 제62조(사회복무요원의 보수 등)",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/병역법시행령/제62조",
+                "sha256": "a19526da003adcc323883cce607e069f6e6bb56df0552ae7824dedb1a530d39d"
+              },
+              {
+                "title": "공무원보수규정 제4조제6호·제22조 및 별표 13 군인의 봉급표",
+                "authority": "대한민국 (대통령령)",
+                "url": "https://www.law.go.kr/법령/공무원보수규정",
+                "sha256": "0db174584b43a3123fff619fbb93cfcb992f7d8cc35e1e99920baa2196f6802c"
+              },
+              {
+                "title": "사회복무요원 복무관리 규정 제18조·제41조",
+                "authority": "병무청",
+                "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000284594",
+                "sha256": "1081cae347c4f805a5b652949a02c6d30eeed254248a42133df8d43b11ca7be2"
+              },
+              {
+                "title": "국고금 관리법 제47조(국고금의 끝수 계산)",
+                "authority": "대한민국 (법률)",
+                "url": "https://www.law.go.kr/법령/국고금관리법/제47조",
+                "sha256": "f337545db7c74f1243afce6f599b718c06900588432747c0a9e6e7deb92c3115"
+              },
+              {
+                "title": "2026년도 사회복무요원 보수 등 지급 기준",
+                "authority": "병무청 사회복무국",
+                "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
+                "sha256": "f4bff691605807f8b20ac2c7034b0dbb052f899a2417236424cdf0faf1bfb158"
+              }
+            ]
+          },
+          "headline": "확인된 항목만 금액을 보여요. 나머지는 아래 조건이 채워져야 계산해요.",
+          "unresolved": [
+            "인정 기간이 개월 단위로 떨어지지 않으면 보수 구간 합산 방법이 원문에 없어 계산하지 않아요.",
+            "중식비·교통비: 복무형태와 근무 요일을 먼저 확인해 주세요. (필요: 복무형태(주간 출퇴근 여부), 근무 요일)",
+            "교통비: 1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands priorPartial @ 2026-10-03",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": true,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-10-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "NEEDS_INPUT",
+          "reason": "복무기관이 확인한 인정 개월 수가 있어야 급여 단계를 정할 수 있어요."
+        }
+      }
+    },
+    {
+      "id": "compensation priorPartial @ 2027-03-15",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": true,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2027-03-15",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "month": "2027-03",
+          "asOfDate": "2027-03-15",
+          "serviceMonthOrdinal": null,
+          "equivalentRank": null,
+          "components": [],
+          "total": null,
+          "serviceDays": null,
+          "basePayAdjustment": null,
+          "rule": null,
+          "headline": "2027-03-15에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요.",
+          "unresolved": [
+            "2027-03-15에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands priorPartial @ 2027-03-15",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": true,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2027-03-15"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "NEEDS_INPUT",
+          "reason": "복무기관이 확인한 인정 개월 수가 있어야 급여 단계를 정할 수 있어요."
+        }
+      }
+    },
+    {
+      "id": "compensation priorPartial @ 2028-02-01",
+      "kind": "call",
+      "fn": "evaluateMonthlyCompensation",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": true,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2028-02-01",
+        {
+          "events": [],
+          "attendance": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "UNSUPPORTED",
+          "month": "2028-02",
+          "asOfDate": "2028-02-01",
+          "serviceMonthOrdinal": null,
+          "equivalentRank": null,
+          "components": [],
+          "total": null,
+          "serviceDays": null,
+          "basePayAdjustment": null,
+          "rule": null,
+          "headline": "2028-02-01에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요.",
+          "unresolved": [
+            "2028-02-01에 적용되는 검증된 보수 규칙이 없어 계산하지 않아요."
+          ],
+          "assumptions": [],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "pay bands priorPartial @ 2028-02-01",
+      "kind": "call",
+      "fn": "derivePayBandSchedule",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": "HAS_PRIOR_SERVICE",
+          "priorServiceBasis": "ARTICLE_62_2_7_ALTERNATIVE_SERVICE",
+          "priorServiceCreditedMonths": 7,
+          "priorServiceCreditHasPartialMonth": true,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2028-02-01"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "status": "NEEDS_INPUT",
+          "reason": "복무기관이 확인한 인정 개월 수가 있어야 급여 단계를 정할 수 있어요."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,2879 @@
+{
+  "formatVersion": 1,
+  "suite": "leave",
+  "description": "Effective-dated annual-leave credits, half-day and minute charging, 8-hour accumulation, reconciliation and the full ledger.",
+  "engines": [
+    "jsc"
+  ],
+  "generatedBy": "packages/native-core/tests/conformance.test.ts",
+  "cases": [
+    {
+      "id": "credits call-up 2025-11-03 as of 2026-10-03",
+      "kind": "call",
+      "fn": "deriveAnnualLeaveCredits",
+      "args": [
+        {
+          "callUpDate": "2025-11-03",
+          "referenceDate": "2026-10-03"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "key": "YEAR_1",
+            "label": "1년차 연가",
+            "grantDate": "2025-11-03",
+            "status": "PENDING_CONFIRMATION",
+            "days": null,
+            "referenceDays": 15,
+            "ruleId": null,
+            "ruleVersion": null,
+            "explanation": "2025-11-03에 적용되는 검증된 연가 규칙이 없어요. 현재 규칙을 과거 날짜에 대신 쓰지 않으니 기관에서 받은 일수를 확인해 주세요."
+          },
+          {
+            "key": "YEAR_2",
+            "label": "2년차 연가",
+            "grantDate": "2026-11-03",
+            "status": "RULE_VERIFIED",
+            "days": 13,
+            "referenceDays": 13,
+            "ruleId": "kr.mma.social-service.leave",
+            "ruleVersion": "2026-08-28",
+            "explanation": "2026-08-28 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+          }
+        ]
+      }
+    },
+    {
+      "id": "credits call-up 2026-04-22 as of 2026-10-03",
+      "kind": "call",
+      "fn": "deriveAnnualLeaveCredits",
+      "args": [
+        {
+          "callUpDate": "2026-04-22",
+          "referenceDate": "2026-10-03"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "key": "YEAR_1",
+            "label": "1년차 연가",
+            "grantDate": "2026-04-22",
+            "status": "PENDING_CONFIRMATION",
+            "days": null,
+            "referenceDays": 15,
+            "ruleId": null,
+            "ruleVersion": null,
+            "explanation": "2026-04-22에 적용되는 검증된 연가 규칙이 없어요. 현재 규칙을 과거 날짜에 대신 쓰지 않으니 기관에서 받은 일수를 확인해 주세요."
+          },
+          {
+            "key": "YEAR_2",
+            "label": "2년차 연가",
+            "grantDate": "2027-04-22",
+            "status": "RULE_VERIFIED",
+            "days": 13,
+            "referenceDays": 13,
+            "ruleId": "kr.mma.social-service.leave",
+            "ruleVersion": "2026-08-28",
+            "explanation": "2026-08-28 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+          }
+        ]
+      }
+    },
+    {
+      "id": "credits call-up 2026-04-23 as of 2026-10-03",
+      "kind": "call",
+      "fn": "deriveAnnualLeaveCredits",
+      "args": [
+        {
+          "callUpDate": "2026-04-23",
+          "referenceDate": "2026-10-03"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "key": "YEAR_1",
+            "label": "1년차 연가",
+            "grantDate": "2026-04-23",
+            "status": "RULE_VERIFIED",
+            "days": 15,
+            "referenceDays": 15,
+            "ruleId": "kr.mma.social-service.leave",
+            "ruleVersion": "2026-04-23",
+            "explanation": "2026-04-23 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+          },
+          {
+            "key": "YEAR_2",
+            "label": "2년차 연가",
+            "grantDate": "2027-04-23",
+            "status": "RULE_VERIFIED",
+            "days": 13,
+            "referenceDays": 13,
+            "ruleId": "kr.mma.social-service.leave",
+            "ruleVersion": "2026-08-28",
+            "explanation": "2026-08-28 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+          }
+        ]
+      }
+    },
+    {
+      "id": "credits call-up 2026-05-04 as of 2026-05-03",
+      "kind": "call",
+      "fn": "deriveAnnualLeaveCredits",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "referenceDate": "2026-05-03"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "key": "YEAR_1",
+            "label": "1년차 연가",
+            "grantDate": "2026-05-04",
+            "status": "RULE_VERIFIED",
+            "days": 15,
+            "referenceDays": 15,
+            "ruleId": "kr.mma.social-service.leave",
+            "ruleVersion": "2026-04-23",
+            "explanation": "2026-04-23 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+          },
+          {
+            "key": "YEAR_2",
+            "label": "2년차 연가",
+            "grantDate": "2027-05-04",
+            "status": "RULE_VERIFIED",
+            "days": 13,
+            "referenceDays": 13,
+            "ruleId": "kr.mma.social-service.leave",
+            "ruleVersion": "2026-08-28",
+            "explanation": "2026-08-28 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+          }
+        ]
+      }
+    },
+    {
+      "id": "credits call-up 2026-05-04 as of 2027-05-04",
+      "kind": "call",
+      "fn": "deriveAnnualLeaveCredits",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "referenceDate": "2027-05-04"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "key": "YEAR_1",
+            "label": "1년차 연가",
+            "grantDate": "2026-05-04",
+            "status": "RULE_VERIFIED",
+            "days": 15,
+            "referenceDays": 15,
+            "ruleId": "kr.mma.social-service.leave",
+            "ruleVersion": "2026-04-23",
+            "explanation": "2026-04-23 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+          },
+          {
+            "key": "YEAR_2",
+            "label": "2년차 연가",
+            "grantDate": "2027-05-04",
+            "status": "RULE_VERIFIED",
+            "days": 13,
+            "referenceDays": 13,
+            "ruleId": "kr.mma.social-service.leave",
+            "ruleVersion": "2026-08-28",
+            "explanation": "2026-08-28 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+          }
+        ]
+      }
+    },
+    {
+      "id": "credits call-up 2026-08-28 as of 2028-01-01",
+      "kind": "call",
+      "fn": "deriveAnnualLeaveCredits",
+      "args": [
+        {
+          "callUpDate": "2026-08-28",
+          "referenceDate": "2028-01-01"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "key": "YEAR_1",
+            "label": "1년차 연가",
+            "grantDate": "2026-08-28",
+            "status": "RULE_VERIFIED",
+            "days": 15,
+            "referenceDays": 15,
+            "ruleId": "kr.mma.social-service.leave",
+            "ruleVersion": "2026-08-28",
+            "explanation": "2026-08-28 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+          },
+          {
+            "key": "YEAR_2",
+            "label": "2년차 연가",
+            "grantDate": "2027-08-28",
+            "status": "RULE_VERIFIED",
+            "days": 13,
+            "referenceDays": 13,
+            "ruleId": "kr.mma.social-service.leave",
+            "ruleVersion": "2026-08-28",
+            "explanation": "2026-08-28 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+          }
+        ]
+      }
+    },
+    {
+      "id": "credits call-up 2026-09-01 as of 2026-10-03",
+      "kind": "call",
+      "fn": "deriveAnnualLeaveCredits",
+      "args": [
+        {
+          "callUpDate": "2026-09-01",
+          "referenceDate": "2026-10-03"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "key": "YEAR_1",
+            "label": "1년차 연가",
+            "grantDate": "2026-09-01",
+            "status": "RULE_VERIFIED",
+            "days": 15,
+            "referenceDays": 15,
+            "ruleId": "kr.mma.social-service.leave",
+            "ruleVersion": "2026-08-28",
+            "explanation": "2026-08-28 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+          },
+          {
+            "key": "YEAR_2",
+            "label": "2년차 연가",
+            "grantDate": "2027-09-01",
+            "status": "RULE_VERIFIED",
+            "days": 13,
+            "referenceDays": 13,
+            "ruleId": "kr.mma.social-service.leave",
+            "ruleVersion": "2026-08-28",
+            "explanation": "2026-08-28 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요."
+          }
+        ]
+      }
+    },
+    {
+      "id": "quantity ev-1 LATE_ARRIVAL",
+      "kind": "call",
+      "fn": "eventLeaveQuantity",
+      "args": [
+        {
+          "eventType": "LATE_ARRIVAL",
+          "startDate": "2026-06-01",
+          "endDate": "2026-06-01",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": 120,
+            "startTime": null,
+            "endTime": null
+          },
+          "title": null,
+          "note": null,
+          "id": "ev-1",
+          "serviceProfileId": "profile-1",
+          "status": "CONFIRMED",
+          "source": {
+            "kind": "MANUAL"
+          },
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "updatedAt": "2026-09-01T00:00:00.000Z",
+          "deletedAt": null,
+          "revision": 1,
+          "deviceId": "device-fixture"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "halfDays": 0,
+          "minutes": 120
+        }
+      }
+    },
+    {
+      "id": "quantity ev-2 EARLY_LEAVE",
+      "kind": "call",
+      "fn": "eventLeaveQuantity",
+      "args": [
+        {
+          "eventType": "EARLY_LEAVE",
+          "startDate": "2026-06-02",
+          "endDate": "2026-06-02",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": 180,
+            "startTime": null,
+            "endTime": null
+          },
+          "title": null,
+          "note": null,
+          "id": "ev-2",
+          "serviceProfileId": "profile-1",
+          "status": "CONFIRMED",
+          "source": {
+            "kind": "MANUAL"
+          },
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "updatedAt": "2026-09-01T00:00:00.000Z",
+          "deletedAt": null,
+          "revision": 1,
+          "deviceId": "device-fixture"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "halfDays": 0,
+          "minutes": 180
+        }
+      }
+    },
+    {
+      "id": "quantity ev-3 OUTING",
+      "kind": "call",
+      "fn": "eventLeaveQuantity",
+      "args": [
+        {
+          "eventType": "OUTING",
+          "startDate": "2026-06-03",
+          "endDate": "2026-06-03",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": 90,
+            "startTime": null,
+            "endTime": null
+          },
+          "title": null,
+          "note": null,
+          "id": "ev-3",
+          "serviceProfileId": "profile-1",
+          "status": "CONFIRMED",
+          "source": {
+            "kind": "MANUAL"
+          },
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "updatedAt": "2026-09-01T00:00:00.000Z",
+          "deletedAt": null,
+          "revision": 1,
+          "deviceId": "device-fixture"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "halfDays": 0,
+          "minutes": 90
+        }
+      }
+    },
+    {
+      "id": "quantity ev-4 OUTING",
+      "kind": "call",
+      "fn": "eventLeaveQuantity",
+      "args": [
+        {
+          "eventType": "OUTING",
+          "startDate": "2026-06-04",
+          "endDate": "2026-06-04",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": 90,
+            "startTime": null,
+            "endTime": null
+          },
+          "title": null,
+          "note": null,
+          "id": "ev-4",
+          "serviceProfileId": "profile-1",
+          "status": "CONFIRMED",
+          "source": {
+            "kind": "MANUAL"
+          },
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "updatedAt": "2026-09-01T00:00:00.000Z",
+          "deletedAt": null,
+          "revision": 1,
+          "deviceId": "device-fixture"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "halfDays": 0,
+          "minutes": 90
+        }
+      }
+    },
+    {
+      "id": "quantity ev-5 OUTING",
+      "kind": "call",
+      "fn": "eventLeaveQuantity",
+      "args": [
+        {
+          "eventType": "OUTING",
+          "startDate": "2026-06-05",
+          "endDate": "2026-06-05",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": 45,
+            "startTime": null,
+            "endTime": null
+          },
+          "title": null,
+          "note": null,
+          "id": "ev-5",
+          "serviceProfileId": "profile-1",
+          "status": "CONFIRMED",
+          "source": {
+            "kind": "MANUAL"
+          },
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "updatedAt": "2026-09-01T00:00:00.000Z",
+          "deletedAt": null,
+          "revision": 1,
+          "deviceId": "device-fixture"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "halfDays": 0,
+          "minutes": 45
+        }
+      }
+    },
+    {
+      "id": "quantity ev-6 ANNUAL_LEAVE",
+      "kind": "call",
+      "fn": "eventLeaveQuantity",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-06-08",
+          "endDate": "2026-06-08",
+          "timing": {
+            "kind": "HALF_DAY",
+            "half": "AM"
+          },
+          "title": null,
+          "note": null,
+          "id": "ev-6",
+          "serviceProfileId": "profile-1",
+          "status": "CONFIRMED",
+          "source": {
+            "kind": "MANUAL"
+          },
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "updatedAt": "2026-09-01T00:00:00.000Z",
+          "deletedAt": null,
+          "revision": 1,
+          "deviceId": "device-fixture"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "halfDays": 1,
+          "minutes": 0
+        }
+      }
+    },
+    {
+      "id": "quantity ev-7 ANNUAL_LEAVE",
+      "kind": "call",
+      "fn": "eventLeaveQuantity",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-06-08",
+          "endDate": "2026-06-08",
+          "timing": {
+            "kind": "HALF_DAY",
+            "half": "PM"
+          },
+          "title": null,
+          "note": null,
+          "id": "ev-7",
+          "serviceProfileId": "profile-1",
+          "status": "CONFIRMED",
+          "source": {
+            "kind": "MANUAL"
+          },
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "updatedAt": "2026-09-01T00:00:00.000Z",
+          "deletedAt": null,
+          "revision": 1,
+          "deviceId": "device-fixture"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "halfDays": 1,
+          "minutes": 0
+        }
+      }
+    },
+    {
+      "id": "quantity ev-8 ANNUAL_LEAVE",
+      "kind": "call",
+      "fn": "eventLeaveQuantity",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-06-10",
+          "endDate": "2026-06-12",
+          "timing": {
+            "kind": "ALL_DAY",
+            "dayCount": 3
+          },
+          "title": null,
+          "note": null,
+          "id": "ev-8",
+          "serviceProfileId": "profile-1",
+          "status": "CONFIRMED",
+          "source": {
+            "kind": "MANUAL"
+          },
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "updatedAt": "2026-09-01T00:00:00.000Z",
+          "deletedAt": null,
+          "revision": 1,
+          "deviceId": "device-fixture"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "halfDays": 6,
+          "minutes": 0
+        }
+      }
+    },
+    {
+      "id": "quantity ev-9 LATE_ARRIVAL",
+      "kind": "call",
+      "fn": "eventLeaveQuantity",
+      "args": [
+        {
+          "eventType": "LATE_ARRIVAL",
+          "startDate": "2026-06-15",
+          "endDate": "2026-06-15",
+          "timing": {
+            "kind": "PARTIAL",
+            "durationMinutes": null,
+            "startTime": null,
+            "endTime": null
+          },
+          "title": null,
+          "note": null,
+          "id": "ev-9",
+          "serviceProfileId": "profile-1",
+          "status": "CONFIRMED",
+          "source": {
+            "kind": "MANUAL"
+          },
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "updatedAt": "2026-09-01T00:00:00.000Z",
+          "deletedAt": null,
+          "revision": 1,
+          "deviceId": "device-fixture"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "id": "quantity ev-10 SICK_LEAVE",
+      "kind": "call",
+      "fn": "eventLeaveQuantity",
+      "args": [
+        {
+          "eventType": "SICK_LEAVE",
+          "startDate": "2026-06-16",
+          "endDate": "2026-06-16",
+          "timing": {
+            "kind": "ALL_DAY",
+            "dayCount": 1
+          },
+          "title": null,
+          "note": null,
+          "id": "ev-10",
+          "serviceProfileId": "profile-1",
+          "status": "CONFIRMED",
+          "source": {
+            "kind": "MANUAL"
+          },
+          "createdAt": "2026-09-01T00:00:00.000Z",
+          "updatedAt": "2026-09-01T00:00:00.000Z",
+          "deletedAt": null,
+          "revision": 1,
+          "deviceId": "device-fixture"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "halfDays": 2,
+          "minutes": 0
+        }
+      }
+    },
+    {
+      "id": "ledger minute accumulation",
+      "kind": "call",
+      "fn": "buildLedgerForProfile",
+      "args": [
+        {
+          "schemaVersion": 3,
+          "documentRevision": 0,
+          "savedAt": null,
+          "deviceId": "device-test",
+          "profile": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03",
+            "serviceCategory": null,
+            "workplaceType": null,
+            "residenceRegion": null,
+            "defaultCommuteCost": null,
+            "defaultMealAllowanceOverride": null,
+            "timezone": "Asia/Seoul",
+            "liveProgressEnabled": false,
+            "workdayMinutes": 480,
+            "workdayStartTime": "09:00",
+            "workdayEndTime": "18:00",
+            "priorServiceCredit": null,
+            "priorServiceBasis": null,
+            "priorServiceCreditedMonths": null,
+            "priorServiceCreditHasPartialMonth": false,
+            "workPattern": null,
+            "workWeekdays": null,
+            "id": "profile-1",
+            "ownerId": null,
+            "localProfileId": "profile-1",
+            "createdAt": "2026-05-04T00:00:00.000Z",
+            "updatedAt": "2026-05-04T00:00:00.000Z"
+          },
+          "events": [
+            {
+              "eventType": "LATE_ARRIVAL",
+              "startDate": "2026-06-01",
+              "endDate": "2026-06-01",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 120,
+                "startTime": null,
+                "endTime": null
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-1",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "EARLY_LEAVE",
+              "startDate": "2026-06-02",
+              "endDate": "2026-06-02",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 180,
+                "startTime": null,
+                "endTime": null
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-2",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-06-03",
+              "endDate": "2026-06-03",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 90,
+                "startTime": null,
+                "endTime": null
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-3",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-06-04",
+              "endDate": "2026-06-04",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 90,
+                "startTime": null,
+                "endTime": null
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-4",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "OUTING",
+              "startDate": "2026-06-05",
+              "endDate": "2026-06-05",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 45,
+                "startTime": null,
+                "endTime": null
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-5",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-06-08",
+              "endDate": "2026-06-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-6",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-06-08",
+              "endDate": "2026-06-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "PM"
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-7",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-06-10",
+              "endDate": "2026-06-12",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 3
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-8",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "LATE_ARRIVAL",
+              "startDate": "2026-06-15",
+              "endDate": "2026-06-15",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": null,
+                "startTime": null,
+                "endTime": null
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-9",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            },
+            {
+              "eventType": "SICK_LEAVE",
+              "startDate": "2026-06-16",
+              "endDate": "2026-06-16",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "ev-10",
+              "serviceProfileId": "profile-1",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              },
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "updatedAt": "2026-09-01T00:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture"
+            }
+          ],
+          "leaveAdjustments": [],
+          "leaveSnapshots": [],
+          "imports": [],
+          "attendanceMonths": [],
+          "compensationSnapshots": []
+        },
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": 480,
+          "workdayStartTime": "09:00",
+          "workdayEndTime": "18:00",
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-10-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "credits": [
+            {
+              "key": "YEAR_1",
+              "label": "1년차 연가",
+              "grantDate": "2026-05-04",
+              "status": "RULE_VERIFIED",
+              "days": 15,
+              "referenceDays": 15,
+              "ruleId": "kr.mma.social-service.leave",
+              "ruleVersion": "2026-04-23",
+              "explanation": "2026-04-23 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요.",
+              "countedHalfDays": 30,
+              "confirmation": null,
+              "granted": true,
+              "state": "COUNTED"
+            },
+            {
+              "key": "YEAR_2",
+              "label": "2년차 연가",
+              "grantDate": "2027-05-04",
+              "status": "RULE_VERIFIED",
+              "days": 13,
+              "referenceDays": 13,
+              "ruleId": "kr.mma.social-service.leave",
+              "ruleVersion": "2026-08-28",
+              "explanation": "2026-08-28 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요.",
+              "countedHalfDays": 26,
+              "confirmation": null,
+              "granted": false,
+              "state": "UPCOMING"
+            }
+          ],
+          "balance": {
+            "asOf": "2026-10-03",
+            "granted": {
+              "halfDays": 30,
+              "minutes": 0
+            },
+            "upcomingCredits": {
+              "halfDays": 26,
+              "minutes": 0
+            },
+            "corrections": {
+              "halfDays": 0,
+              "minutes": 0
+            },
+            "used": {
+              "halfDays": 10,
+              "minutes": 45
+            },
+            "scheduled": {
+              "halfDays": 0,
+              "minutes": 0
+            },
+            "available": {
+              "halfDays": 20,
+              "minutes": -45
+            },
+            "remainingAfterScheduled": {
+              "halfDays": 20,
+              "minutes": -45
+            },
+            "unresolvedEventIds": [
+              "ev-9"
+            ],
+            "pendingCreditKeys": [],
+            "status": "RESOLVED"
+          },
+          "entries": [
+            {
+              "date": "2026-05-04",
+              "kind": "CREDIT",
+              "label": "1년차 연가",
+              "delta": {
+                "halfDays": 30,
+                "minutes": 0
+              },
+              "referenceId": "YEAR_1",
+              "scheduled": false,
+              "running": {
+                "halfDays": 30,
+                "minutes": 0
+              }
+            },
+            {
+              "date": "2026-06-01",
+              "kind": "USAGE",
+              "label": "허가지각 (연가 누계)",
+              "delta": {
+                "halfDays": 0,
+                "minutes": -120
+              },
+              "referenceId": "ev-1",
+              "scheduled": false,
+              "running": {
+                "halfDays": 30,
+                "minutes": -120
+              }
+            },
+            {
+              "date": "2026-06-02",
+              "kind": "USAGE",
+              "label": "허가조퇴 (연가 누계)",
+              "delta": {
+                "halfDays": 0,
+                "minutes": -180
+              },
+              "referenceId": "ev-2",
+              "scheduled": false,
+              "running": {
+                "halfDays": 30,
+                "minutes": -300
+              }
+            },
+            {
+              "date": "2026-06-03",
+              "kind": "USAGE",
+              "label": "허가외출 (연가 누계)",
+              "delta": {
+                "halfDays": 0,
+                "minutes": -90
+              },
+              "referenceId": "ev-3",
+              "scheduled": false,
+              "running": {
+                "halfDays": 30,
+                "minutes": -390
+              }
+            },
+            {
+              "date": "2026-06-04",
+              "kind": "USAGE",
+              "label": "허가외출 (연가 누계)",
+              "delta": {
+                "halfDays": 0,
+                "minutes": -90
+              },
+              "referenceId": "ev-4",
+              "scheduled": false,
+              "running": {
+                "halfDays": 28,
+                "minutes": 0
+              }
+            },
+            {
+              "date": "2026-06-05",
+              "kind": "USAGE",
+              "label": "허가외출 (연가 누계)",
+              "delta": {
+                "halfDays": 0,
+                "minutes": -45
+              },
+              "referenceId": "ev-5",
+              "scheduled": false,
+              "running": {
+                "halfDays": 28,
+                "minutes": -45
+              }
+            },
+            {
+              "date": "2026-06-08",
+              "kind": "USAGE",
+              "label": "반가",
+              "delta": {
+                "halfDays": -1,
+                "minutes": 0
+              },
+              "referenceId": "ev-6",
+              "scheduled": false,
+              "running": {
+                "halfDays": 27,
+                "minutes": -45
+              }
+            },
+            {
+              "date": "2026-06-08",
+              "kind": "USAGE",
+              "label": "반가",
+              "delta": {
+                "halfDays": -1,
+                "minutes": 0
+              },
+              "referenceId": "ev-7",
+              "scheduled": false,
+              "running": {
+                "halfDays": 26,
+                "minutes": -45
+              }
+            },
+            {
+              "date": "2026-06-10",
+              "kind": "USAGE",
+              "label": "연가",
+              "delta": {
+                "halfDays": -6,
+                "minutes": 0
+              },
+              "referenceId": "ev-8",
+              "scheduled": false,
+              "running": {
+                "halfDays": 20,
+                "minutes": -45
+              }
+            }
+          ],
+          "byType": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "label": "연가",
+              "count": 3,
+              "total": {
+                "halfDays": 8,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "SICK_LEAVE",
+              "label": "병가",
+              "count": 1,
+              "total": {
+                "halfDays": 2,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "OFFICIAL_LEAVE",
+              "label": "공가",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "SPECIAL_LEAVE",
+              "label": "특별휴가",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "COMPASSIONATE_LEAVE",
+              "label": "청원휴가",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "OUTING",
+              "label": "허가외출",
+              "count": 3,
+              "total": {
+                "halfDays": 0,
+                "minutes": 225
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "LATE_ARRIVAL",
+              "label": "허가지각",
+              "count": 2,
+              "total": {
+                "halfDays": 0,
+                "minutes": 120
+              },
+              "unresolvedCount": 1
+            },
+            {
+              "eventType": "EARLY_LEAVE",
+              "label": "허가조퇴",
+              "count": 1,
+              "total": {
+                "halfDays": 0,
+                "minutes": 180
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "EDUCATION",
+              "label": "교육",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "TRAINING",
+              "label": "훈련",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "SERVICE_SUSPENSION",
+              "label": "복무중단",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "SERVICE_ABSENCE",
+              "label": "복무이탈",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "EXCESS_ANNUAL_ABSENCE",
+              "label": "연가초과 결근",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "USER_NOTE",
+              "label": "메모",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            }
+          ],
+          "attendanceMinutes": {
+            "OUTING": 225,
+            "LATE_ARRIVAL": 120,
+            "EARLY_LEAVE": 180
+          },
+          "reconciliation": {
+            "status": "NO_SNAPSHOT"
+          },
+          "workdayMinutes": 480,
+          "assumptions": [
+            "연가 사용량은 캘린더 기록에서만 계산해요. 따로 입력한 사용량은 없어요.",
+            "1년차 미사용 연가가 2년차로 이어진다고 보고 누적 잔여를 보여줘요. 이월 기준은 기관에 확인하세요.",
+            "반가는 반일(0.5일) 승인 단위이며, 단순히 4시간이라고 반가로 바꾸지 않아요.",
+            "질병·부상 외 지각·조퇴·외출은 구분 없이 누계 8시간을 연가 1일로 공제해요."
+          ],
+          "warnings": [
+            "사용 시간이 확인되지 않은 연가 기록 1건은 잔여 계산에서 뺐어요."
+          ]
+        }
+      }
+    },
+    {
+      "id": "ledger full document",
+      "kind": "call",
+      "fn": "buildLedgerForProfile",
+      "args": [
+        {
+          "schemaVersion": 3,
+          "documentRevision": 41,
+          "savedAt": "2026-09-20T00:59:00.000Z",
+          "deviceId": "device-fixture",
+          "profile": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03",
+            "serviceCategory": null,
+            "workplaceType": null,
+            "residenceRegion": null,
+            "defaultCommuteCost": 2800,
+            "defaultMealAllowanceOverride": null,
+            "timezone": "Asia/Seoul",
+            "liveProgressEnabled": false,
+            "workdayMinutes": null,
+            "workdayStartTime": null,
+            "workdayEndTime": null,
+            "priorServiceCredit": null,
+            "priorServiceBasis": null,
+            "priorServiceCreditedMonths": null,
+            "priorServiceCreditHasPartialMonth": false,
+            "workPattern": null,
+            "workWeekdays": null,
+            "id": "profile-1",
+            "ownerId": null,
+            "localProfileId": "profile-1",
+            "createdAt": "2026-05-04T00:00:00.000Z",
+            "updatedAt": "2026-05-04T00:00:00.000Z"
+          },
+          "events": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": "연가",
+              "note": "여름 휴가",
+              "id": "fx-1",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              }
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "fx-2",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              }
+            },
+            {
+              "eventType": "SICK_LEAVE",
+              "startDate": "2026-07-15",
+              "endDate": "2026-07-15",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 120,
+                "startTime": null,
+                "endTime": null
+              },
+              "title": null,
+              "note": null,
+              "sickLeaveCategory": "ORDINARY",
+              "id": "fx-3",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              }
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-20",
+              "endDate": "2026-07-20",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "fx-4",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": "2026-09-20T01:00:00.000Z",
+              "revision": 2,
+              "deviceId": "device-fixture",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              }
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-06-12",
+              "endDate": "2026-06-12",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "fx-7",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "IMPORT",
+                "batchId": "batch-active",
+                "format": "CSV",
+                "fileName": "batch-active.csv",
+                "fingerprint": "fp-batch-active",
+                "confidence": 1,
+                "sourceRowIndex": 2
+              }
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-06-19",
+              "endDate": "2026-06-19",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "fx-9",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": "2026-09-20T01:00:00.000Z",
+              "revision": 2,
+              "deviceId": "device-fixture",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "IMPORT",
+                "batchId": "batch-rolled-back",
+                "format": "CSV",
+                "fileName": "batch-rolled-back.csv",
+                "fingerprint": "fp-batch-rolled-back",
+                "confidence": 1,
+                "sourceRowIndex": 2
+              }
+            }
+          ],
+          "leaveAdjustments": [
+            {
+              "id": "fx-5",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "leaveType": "ANNUAL_LEAVE",
+              "kind": "GRANT_CONFIRMATION",
+              "creditKey": "YEAR_1",
+              "effectiveDate": "2026-05-04",
+              "amountHalfDays": 30,
+              "amountMinutes": 0,
+              "reason": "기관 확인"
+            },
+            {
+              "id": "fx-6",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "leaveType": "ANNUAL_LEAVE",
+              "kind": "CORRECTION",
+              "creditKey": null,
+              "effectiveDate": "2026-09-01",
+              "amountHalfDays": -1,
+              "amountMinutes": 0,
+              "reason": "기관 기록 반영"
+            }
+          ],
+          "leaveSnapshots": [
+            {
+              "id": "fx-8",
+              "serviceProfileId": "profile-1",
+              "importBatchId": "batch-active",
+              "leaveType": "ANNUAL_LEAVE",
+              "asOfDate": "2026-06-30",
+              "grantedDays": 15,
+              "grantedMinutes": null,
+              "usedDays": 1,
+              "usedMinutes": null,
+              "remainingDays": 14,
+              "remainingMinutes": 0,
+              "confidence": 1,
+              "sourceRowIndex": 3,
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null
+            },
+            {
+              "id": "fx-10",
+              "serviceProfileId": "profile-1",
+              "importBatchId": "batch-rolled-back",
+              "leaveType": "ANNUAL_LEAVE",
+              "asOfDate": "2026-06-30",
+              "grantedDays": 15,
+              "grantedMinutes": null,
+              "usedDays": 1,
+              "usedMinutes": null,
+              "remainingDays": 14,
+              "remainingMinutes": 0,
+              "confidence": 1,
+              "sourceRowIndex": 3,
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": "2026-09-20T01:00:00.000Z"
+            }
+          ],
+          "imports": [
+            {
+              "id": "batch-rolled-back",
+              "serviceProfileId": "profile-1",
+              "fileName": "batch-rolled-back.csv",
+              "sourceFormat": "CSV",
+              "fileSha256": null,
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "eventCount": 1,
+              "snapshotCount": 1,
+              "skippedDuplicateCount": 0,
+              "status": "ROLLED_BACK",
+              "rolledBackAt": "2026-09-20T01:00:00.000Z"
+            },
+            {
+              "id": "batch-active",
+              "serviceProfileId": "profile-1",
+              "fileName": "batch-active.csv",
+              "sourceFormat": "CSV",
+              "fileSha256": null,
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "eventCount": 1,
+              "snapshotCount": 1,
+              "skippedDuplicateCount": 0,
+              "status": "ACTIVE",
+              "rolledBackAt": null
+            }
+          ],
+          "attendanceMonths": [
+            {
+              "id": "fx-11",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "month": "2026-07",
+              "nonWorkingDates": [
+                "2026-07-17"
+              ],
+              "dayOverrides": [],
+              "hadNonPayableAbsence": false,
+              "nonPayableDates": [],
+              "nonPayableDatesConfirmed": false,
+              "roundingPolicy": null,
+              "basisFingerprint": "[\"2026-05-04\",\"2028-02-03\",null,null,[[\"ANNUAL_LEAVE|2026-07-01|2026-07-01|D1\",null],[\"ANNUAL_LEAVE|2026-07-08|2026-07-08|HAM\",null],[\"SICK_LEAVE|2026-07-15|2026-07-15|P120@-\",\"ORDINARY\"]]]"
+            }
+          ],
+          "compensationSnapshots": [
+            {
+              "id": "fx-12",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "month": "2026-07",
+              "generatedAt": "2026-09-20T01:00:00.000Z",
+              "ruleId": "compensation-2026",
+              "ruleVersion": "2026.1",
+              "total": 812345,
+              "evaluation": {
+                "lines": [
+                  {
+                    "code": "MEAL",
+                    "amount": 1.5
+                  }
+                ],
+                "note": null
+              }
+            }
+          ]
+        },
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": 2800,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-10-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "credits": [
+            {
+              "key": "YEAR_1",
+              "label": "1년차 연가",
+              "grantDate": "2026-05-04",
+              "status": "RULE_VERIFIED",
+              "days": 15,
+              "referenceDays": 15,
+              "ruleId": "kr.mma.social-service.leave",
+              "ruleVersion": "2026-04-23",
+              "explanation": "2026-04-23 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요.",
+              "countedHalfDays": 30,
+              "confirmation": {
+                "id": "fx-5",
+                "serviceProfileId": "profile-1",
+                "createdAt": "2026-09-20T01:00:00.000Z",
+                "updatedAt": "2026-09-20T01:00:00.000Z",
+                "deletedAt": null,
+                "revision": 1,
+                "deviceId": "device-fixture",
+                "leaveType": "ANNUAL_LEAVE",
+                "kind": "GRANT_CONFIRMATION",
+                "creditKey": "YEAR_1",
+                "effectiveDate": "2026-05-04",
+                "amountHalfDays": 30,
+                "amountMinutes": 0,
+                "reason": "기관 확인"
+              },
+              "granted": true,
+              "state": "CONFIRMED_BY_USER"
+            },
+            {
+              "key": "YEAR_2",
+              "label": "2년차 연가",
+              "grantDate": "2027-05-04",
+              "status": "RULE_VERIFIED",
+              "days": 13,
+              "referenceDays": 13,
+              "ruleId": "kr.mma.social-service.leave",
+              "ruleVersion": "2026-08-28",
+              "explanation": "2026-08-28 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요.",
+              "countedHalfDays": 26,
+              "confirmation": null,
+              "granted": false,
+              "state": "UPCOMING"
+            }
+          ],
+          "balance": {
+            "asOf": "2026-10-03",
+            "granted": {
+              "halfDays": 30,
+              "minutes": 0
+            },
+            "upcomingCredits": {
+              "halfDays": 26,
+              "minutes": 0
+            },
+            "corrections": {
+              "halfDays": -1,
+              "minutes": 0
+            },
+            "used": {
+              "halfDays": 5,
+              "minutes": 0
+            },
+            "scheduled": {
+              "halfDays": 0,
+              "minutes": 0
+            },
+            "available": {
+              "halfDays": 24,
+              "minutes": 0
+            },
+            "remainingAfterScheduled": {
+              "halfDays": 24,
+              "minutes": 0
+            },
+            "unresolvedEventIds": [],
+            "pendingCreditKeys": [],
+            "status": "RESOLVED"
+          },
+          "entries": [
+            {
+              "date": "2026-05-04",
+              "kind": "CREDIT",
+              "label": "1년차 연가 (직접 확인)",
+              "delta": {
+                "halfDays": 30,
+                "minutes": 0
+              },
+              "referenceId": "YEAR_1",
+              "scheduled": false,
+              "running": {
+                "halfDays": 30,
+                "minutes": 0
+              }
+            },
+            {
+              "date": "2026-06-12",
+              "kind": "USAGE",
+              "label": "연가",
+              "delta": {
+                "halfDays": -2,
+                "minutes": 0
+              },
+              "referenceId": "fx-7",
+              "scheduled": false,
+              "running": {
+                "halfDays": 28,
+                "minutes": 0
+              }
+            },
+            {
+              "date": "2026-07-01",
+              "kind": "USAGE",
+              "label": "연가",
+              "delta": {
+                "halfDays": -2,
+                "minutes": 0
+              },
+              "referenceId": "fx-1",
+              "scheduled": false,
+              "running": {
+                "halfDays": 26,
+                "minutes": 0
+              }
+            },
+            {
+              "date": "2026-07-08",
+              "kind": "USAGE",
+              "label": "반가",
+              "delta": {
+                "halfDays": -1,
+                "minutes": 0
+              },
+              "referenceId": "fx-2",
+              "scheduled": false,
+              "running": {
+                "halfDays": 25,
+                "minutes": 0
+              }
+            },
+            {
+              "date": "2026-09-01",
+              "kind": "CORRECTION",
+              "label": "보정: 기관 기록 반영",
+              "delta": {
+                "halfDays": -1,
+                "minutes": 0
+              },
+              "referenceId": "fx-6",
+              "scheduled": false,
+              "running": {
+                "halfDays": 24,
+                "minutes": 0
+              }
+            }
+          ],
+          "byType": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "label": "연가",
+              "count": 3,
+              "total": {
+                "halfDays": 5,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "SICK_LEAVE",
+              "label": "병가",
+              "count": 1,
+              "total": {
+                "halfDays": 0,
+                "minutes": 120
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "OFFICIAL_LEAVE",
+              "label": "공가",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "SPECIAL_LEAVE",
+              "label": "특별휴가",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "COMPASSIONATE_LEAVE",
+              "label": "청원휴가",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "OUTING",
+              "label": "허가외출",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "LATE_ARRIVAL",
+              "label": "허가지각",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "EARLY_LEAVE",
+              "label": "허가조퇴",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "EDUCATION",
+              "label": "교육",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "TRAINING",
+              "label": "훈련",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "SERVICE_SUSPENSION",
+              "label": "복무중단",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "SERVICE_ABSENCE",
+              "label": "복무이탈",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "EXCESS_ANNUAL_ABSENCE",
+              "label": "연가초과 결근",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "USER_NOTE",
+              "label": "메모",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            }
+          ],
+          "attendanceMinutes": {
+            "OUTING": 0,
+            "LATE_ARRIVAL": 0,
+            "EARLY_LEAVE": 0
+          },
+          "reconciliation": {
+            "status": "MATCH",
+            "snapshot": {
+              "id": "fx-8",
+              "serviceProfileId": "profile-1",
+              "importBatchId": "batch-active",
+              "leaveType": "ANNUAL_LEAVE",
+              "asOfDate": "2026-06-30",
+              "grantedDays": 15,
+              "grantedMinutes": null,
+              "usedDays": 1,
+              "usedMinutes": null,
+              "remainingDays": 14,
+              "remainingMinutes": 0,
+              "confidence": 1,
+              "sourceRowIndex": 3,
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null
+            },
+            "comparedAt": "2026-06-30",
+            "institutionRemaining": {
+              "halfDays": 28,
+              "minutes": 0
+            },
+            "appRemaining": {
+              "halfDays": 28,
+              "minutes": 0
+            },
+            "difference": {
+              "halfDays": 0,
+              "minutes": 0
+            },
+            "assumptions": []
+          },
+          "workdayMinutes": null,
+          "assumptions": [
+            "연가 사용량은 캘린더 기록에서만 계산해요. 따로 입력한 사용량은 없어요.",
+            "1년차 미사용 연가가 2년차로 이어진다고 보고 누적 잔여를 보여줘요. 이월 기준은 기관에 확인하세요.",
+            "반가는 반일(0.5일) 승인 단위이며, 단순히 4시간이라고 반가로 바꾸지 않아요.",
+            "질병·부상 외 지각·조퇴·외출은 구분 없이 누계 8시간을 연가 1일로 공제해요."
+          ],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "ledger full document before grant",
+      "kind": "call",
+      "fn": "buildLedgerForProfile",
+      "args": [
+        {
+          "schemaVersion": 3,
+          "documentRevision": 41,
+          "savedAt": "2026-09-20T00:59:00.000Z",
+          "deviceId": "device-fixture",
+          "profile": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03",
+            "serviceCategory": null,
+            "workplaceType": null,
+            "residenceRegion": null,
+            "defaultCommuteCost": 2800,
+            "defaultMealAllowanceOverride": null,
+            "timezone": "Asia/Seoul",
+            "liveProgressEnabled": false,
+            "workdayMinutes": null,
+            "workdayStartTime": null,
+            "workdayEndTime": null,
+            "priorServiceCredit": null,
+            "priorServiceBasis": null,
+            "priorServiceCreditedMonths": null,
+            "priorServiceCreditHasPartialMonth": false,
+            "workPattern": null,
+            "workWeekdays": null,
+            "id": "profile-1",
+            "ownerId": null,
+            "localProfileId": "profile-1",
+            "createdAt": "2026-05-04T00:00:00.000Z",
+            "updatedAt": "2026-05-04T00:00:00.000Z"
+          },
+          "events": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-01",
+              "endDate": "2026-07-01",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": "연가",
+              "note": "여름 휴가",
+              "id": "fx-1",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              }
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-08",
+              "endDate": "2026-07-08",
+              "timing": {
+                "kind": "HALF_DAY",
+                "half": "AM"
+              },
+              "title": null,
+              "note": null,
+              "id": "fx-2",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              }
+            },
+            {
+              "eventType": "SICK_LEAVE",
+              "startDate": "2026-07-15",
+              "endDate": "2026-07-15",
+              "timing": {
+                "kind": "PARTIAL",
+                "durationMinutes": 120,
+                "startTime": null,
+                "endTime": null
+              },
+              "title": null,
+              "note": null,
+              "sickLeaveCategory": "ORDINARY",
+              "id": "fx-3",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              }
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-07-20",
+              "endDate": "2026-07-20",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "fx-4",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": "2026-09-20T01:00:00.000Z",
+              "revision": 2,
+              "deviceId": "device-fixture",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "MANUAL"
+              }
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-06-12",
+              "endDate": "2026-06-12",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "fx-7",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "IMPORT",
+                "batchId": "batch-active",
+                "format": "CSV",
+                "fileName": "batch-active.csv",
+                "fingerprint": "fp-batch-active",
+                "confidence": 1,
+                "sourceRowIndex": 2
+              }
+            },
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-06-19",
+              "endDate": "2026-06-19",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "id": "fx-9",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": "2026-09-20T01:00:00.000Z",
+              "revision": 2,
+              "deviceId": "device-fixture",
+              "status": "CONFIRMED",
+              "source": {
+                "kind": "IMPORT",
+                "batchId": "batch-rolled-back",
+                "format": "CSV",
+                "fileName": "batch-rolled-back.csv",
+                "fingerprint": "fp-batch-rolled-back",
+                "confidence": 1,
+                "sourceRowIndex": 2
+              }
+            }
+          ],
+          "leaveAdjustments": [
+            {
+              "id": "fx-5",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "leaveType": "ANNUAL_LEAVE",
+              "kind": "GRANT_CONFIRMATION",
+              "creditKey": "YEAR_1",
+              "effectiveDate": "2026-05-04",
+              "amountHalfDays": 30,
+              "amountMinutes": 0,
+              "reason": "기관 확인"
+            },
+            {
+              "id": "fx-6",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "leaveType": "ANNUAL_LEAVE",
+              "kind": "CORRECTION",
+              "creditKey": null,
+              "effectiveDate": "2026-09-01",
+              "amountHalfDays": -1,
+              "amountMinutes": 0,
+              "reason": "기관 기록 반영"
+            }
+          ],
+          "leaveSnapshots": [
+            {
+              "id": "fx-8",
+              "serviceProfileId": "profile-1",
+              "importBatchId": "batch-active",
+              "leaveType": "ANNUAL_LEAVE",
+              "asOfDate": "2026-06-30",
+              "grantedDays": 15,
+              "grantedMinutes": null,
+              "usedDays": 1,
+              "usedMinutes": null,
+              "remainingDays": 14,
+              "remainingMinutes": 0,
+              "confidence": 1,
+              "sourceRowIndex": 3,
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null
+            },
+            {
+              "id": "fx-10",
+              "serviceProfileId": "profile-1",
+              "importBatchId": "batch-rolled-back",
+              "leaveType": "ANNUAL_LEAVE",
+              "asOfDate": "2026-06-30",
+              "grantedDays": 15,
+              "grantedMinutes": null,
+              "usedDays": 1,
+              "usedMinutes": null,
+              "remainingDays": 14,
+              "remainingMinutes": 0,
+              "confidence": 1,
+              "sourceRowIndex": 3,
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": "2026-09-20T01:00:00.000Z"
+            }
+          ],
+          "imports": [
+            {
+              "id": "batch-rolled-back",
+              "serviceProfileId": "profile-1",
+              "fileName": "batch-rolled-back.csv",
+              "sourceFormat": "CSV",
+              "fileSha256": null,
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "eventCount": 1,
+              "snapshotCount": 1,
+              "skippedDuplicateCount": 0,
+              "status": "ROLLED_BACK",
+              "rolledBackAt": "2026-09-20T01:00:00.000Z"
+            },
+            {
+              "id": "batch-active",
+              "serviceProfileId": "profile-1",
+              "fileName": "batch-active.csv",
+              "sourceFormat": "CSV",
+              "fileSha256": null,
+              "createdAt": "2026-09-01T00:00:00.000Z",
+              "eventCount": 1,
+              "snapshotCount": 1,
+              "skippedDuplicateCount": 0,
+              "status": "ACTIVE",
+              "rolledBackAt": null
+            }
+          ],
+          "attendanceMonths": [
+            {
+              "id": "fx-11",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "month": "2026-07",
+              "nonWorkingDates": [
+                "2026-07-17"
+              ],
+              "dayOverrides": [],
+              "hadNonPayableAbsence": false,
+              "nonPayableDates": [],
+              "nonPayableDatesConfirmed": false,
+              "roundingPolicy": null,
+              "basisFingerprint": "[\"2026-05-04\",\"2028-02-03\",null,null,[[\"ANNUAL_LEAVE|2026-07-01|2026-07-01|D1\",null],[\"ANNUAL_LEAVE|2026-07-08|2026-07-08|HAM\",null],[\"SICK_LEAVE|2026-07-15|2026-07-15|P120@-\",\"ORDINARY\"]]]"
+            }
+          ],
+          "compensationSnapshots": [
+            {
+              "id": "fx-12",
+              "serviceProfileId": "profile-1",
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "updatedAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null,
+              "revision": 1,
+              "deviceId": "device-fixture",
+              "month": "2026-07",
+              "generatedAt": "2026-09-20T01:00:00.000Z",
+              "ruleId": "compensation-2026",
+              "ruleVersion": "2026.1",
+              "total": 812345,
+              "evaluation": {
+                "lines": [
+                  {
+                    "code": "MEAL",
+                    "amount": 1.5
+                  }
+                ],
+                "note": null
+              }
+            }
+          ]
+        },
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": 2800,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "2026-05-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "credits": [
+            {
+              "key": "YEAR_1",
+              "label": "1년차 연가",
+              "grantDate": "2026-05-04",
+              "status": "RULE_VERIFIED",
+              "days": 15,
+              "referenceDays": 15,
+              "ruleId": "kr.mma.social-service.leave",
+              "ruleVersion": "2026-04-23",
+              "explanation": "2026-04-23 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요.",
+              "countedHalfDays": 30,
+              "confirmation": {
+                "id": "fx-5",
+                "serviceProfileId": "profile-1",
+                "createdAt": "2026-09-20T01:00:00.000Z",
+                "updatedAt": "2026-09-20T01:00:00.000Z",
+                "deletedAt": null,
+                "revision": 1,
+                "deviceId": "device-fixture",
+                "leaveType": "ANNUAL_LEAVE",
+                "kind": "GRANT_CONFIRMATION",
+                "creditKey": "YEAR_1",
+                "effectiveDate": "2026-05-04",
+                "amountHalfDays": 30,
+                "amountMinutes": 0,
+                "reason": "기관 확인"
+              },
+              "granted": false,
+              "state": "UPCOMING"
+            },
+            {
+              "key": "YEAR_2",
+              "label": "2년차 연가",
+              "grantDate": "2027-05-04",
+              "status": "RULE_VERIFIED",
+              "days": 13,
+              "referenceDays": 13,
+              "ruleId": "kr.mma.social-service.leave",
+              "ruleVersion": "2026-08-28",
+              "explanation": "2026-08-28 시행 연가 규칙(병역법 시행규칙 별표 1의2) 기준이에요.",
+              "countedHalfDays": 26,
+              "confirmation": null,
+              "granted": false,
+              "state": "UPCOMING"
+            }
+          ],
+          "balance": {
+            "asOf": "2026-05-03",
+            "granted": {
+              "halfDays": 0,
+              "minutes": 0
+            },
+            "upcomingCredits": {
+              "halfDays": 56,
+              "minutes": 0
+            },
+            "corrections": {
+              "halfDays": 0,
+              "minutes": 0
+            },
+            "used": {
+              "halfDays": 0,
+              "minutes": 0
+            },
+            "scheduled": {
+              "halfDays": 5,
+              "minutes": 0
+            },
+            "available": {
+              "halfDays": 0,
+              "minutes": 0
+            },
+            "remainingAfterScheduled": {
+              "halfDays": -5,
+              "minutes": 0
+            },
+            "unresolvedEventIds": [],
+            "pendingCreditKeys": [],
+            "status": "RESOLVED"
+          },
+          "entries": [
+            {
+              "date": "2026-06-12",
+              "kind": "USAGE",
+              "label": "연가",
+              "delta": {
+                "halfDays": -2,
+                "minutes": 0
+              },
+              "referenceId": "fx-7",
+              "scheduled": true,
+              "running": {
+                "halfDays": -2,
+                "minutes": 0
+              }
+            },
+            {
+              "date": "2026-07-01",
+              "kind": "USAGE",
+              "label": "연가",
+              "delta": {
+                "halfDays": -2,
+                "minutes": 0
+              },
+              "referenceId": "fx-1",
+              "scheduled": true,
+              "running": {
+                "halfDays": -4,
+                "minutes": 0
+              }
+            },
+            {
+              "date": "2026-07-08",
+              "kind": "USAGE",
+              "label": "반가",
+              "delta": {
+                "halfDays": -1,
+                "minutes": 0
+              },
+              "referenceId": "fx-2",
+              "scheduled": true,
+              "running": {
+                "halfDays": -5,
+                "minutes": 0
+              }
+            },
+            {
+              "date": "2026-09-01",
+              "kind": "CORRECTION",
+              "label": "보정: 기관 기록 반영",
+              "delta": {
+                "halfDays": -1,
+                "minutes": 0
+              },
+              "referenceId": "fx-6",
+              "scheduled": true,
+              "running": {
+                "halfDays": -6,
+                "minutes": 0
+              }
+            }
+          ],
+          "byType": [
+            {
+              "eventType": "ANNUAL_LEAVE",
+              "label": "연가",
+              "count": 3,
+              "total": {
+                "halfDays": 5,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "SICK_LEAVE",
+              "label": "병가",
+              "count": 1,
+              "total": {
+                "halfDays": 0,
+                "minutes": 120
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "OFFICIAL_LEAVE",
+              "label": "공가",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "SPECIAL_LEAVE",
+              "label": "특별휴가",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "COMPASSIONATE_LEAVE",
+              "label": "청원휴가",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "OUTING",
+              "label": "허가외출",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "LATE_ARRIVAL",
+              "label": "허가지각",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "EARLY_LEAVE",
+              "label": "허가조퇴",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "EDUCATION",
+              "label": "교육",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "TRAINING",
+              "label": "훈련",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "SERVICE_SUSPENSION",
+              "label": "복무중단",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "SERVICE_ABSENCE",
+              "label": "복무이탈",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "EXCESS_ANNUAL_ABSENCE",
+              "label": "연가초과 결근",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            },
+            {
+              "eventType": "USER_NOTE",
+              "label": "메모",
+              "count": 0,
+              "total": {
+                "halfDays": 0,
+                "minutes": 0
+              },
+              "unresolvedCount": 0
+            }
+          ],
+          "attendanceMinutes": {
+            "OUTING": 0,
+            "LATE_ARRIVAL": 0,
+            "EARLY_LEAVE": 0
+          },
+          "reconciliation": {
+            "status": "MATCH",
+            "snapshot": {
+              "id": "fx-8",
+              "serviceProfileId": "profile-1",
+              "importBatchId": "batch-active",
+              "leaveType": "ANNUAL_LEAVE",
+              "asOfDate": "2026-06-30",
+              "grantedDays": 15,
+              "grantedMinutes": null,
+              "usedDays": 1,
+              "usedMinutes": null,
+              "remainingDays": 14,
+              "remainingMinutes": 0,
+              "confidence": 1,
+              "sourceRowIndex": 3,
+              "createdAt": "2026-09-20T01:00:00.000Z",
+              "deletedAt": null
+            },
+            "comparedAt": "2026-06-30",
+            "institutionRemaining": {
+              "halfDays": 28,
+              "minutes": 0
+            },
+            "appRemaining": {
+              "halfDays": 28,
+              "minutes": 0
+            },
+            "difference": {
+              "halfDays": 0,
+              "minutes": 0
+            },
+            "assumptions": []
+          },
+          "workdayMinutes": null,
+          "assumptions": [
+            "연가 사용량은 캘린더 기록에서만 계산해요. 따로 입력한 사용량은 없어요.",
+            "1년차 미사용 연가가 2년차로 이어진다고 보고 누적 잔여를 보여줘요. 이월 기준은 기관에 확인하세요.",
+            "반가는 반일(0.5일) 승인 단위이며, 단순히 4시간이라고 반가로 바꾸지 않아요.",
+            "질병·부상 외 지각·조퇴·외출은 구분 없이 누계 8시간을 연가 1일로 공제해요."
+          ],
+          "warnings": []
+        }
+      }
+    },
+    {
+      "id": "format quantity 0",
+      "kind": "call",
+      "fn": "formatLeaveQuantity",
+      "args": [
+        {
+          "days": 1,
+          "halfDays": 0,
+          "minutes": 0
+        },
+        480
+      ],
+      "expected": {
+        "ok": true,
+        "value": "0일"
+      }
+    },
+    {
+      "id": "format quantity 1",
+      "kind": "call",
+      "fn": "formatLeaveQuantity",
+      "args": [
+        {
+          "days": 0,
+          "halfDays": 1,
+          "minutes": 0
+        },
+        480
+      ],
+      "expected": {
+        "ok": true,
+        "value": "0일 4시간"
+      }
+    },
+    {
+      "id": "format quantity 2",
+      "kind": "call",
+      "fn": "formatLeaveQuantity",
+      "args": [
+        {
+          "days": 2,
+          "halfDays": 1,
+          "minutes": 90
+        },
+        480
+      ],
+      "expected": {
+        "ok": true,
+        "value": "0일 5시간 30분"
+      }
+    },
+    {
+      "id": "format quantity 3",
+      "kind": "call",
+      "fn": "formatLeaveQuantity",
+      "args": [
+        {
+          "days": 0,
+          "halfDays": 0,
+          "minutes": 480
+        },
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": "8시간"
+      }
+    },
+    {
+      "id": "format quantity 4",
+      "kind": "call",
+      "fn": "formatLeaveQuantity",
+      "args": [
+        {
+          "days": -1,
+          "halfDays": 0,
+          "minutes": -30
+        },
+        480
+      ],
+      "expected": {
+        "ok": true,
+        "value": "-0일 30분"
+      }
+    },
+    {
+      "id": "format minutes 0",
+      "kind": "call",
+      "fn": "formatDurationMinutes",
+      "args": [
+        0
+      ],
+      "expected": {
+        "ok": true,
+        "value": "0분"
+      }
+    },
+    {
+      "id": "format minutes 59",
+      "kind": "call",
+      "fn": "formatDurationMinutes",
+      "args": [
+        59
+      ],
+      "expected": {
+        "ok": true,
+        "value": "59분"
+      }
+    },
+    {
+      "id": "format minutes 60",
+      "kind": "call",
+      "fn": "formatDurationMinutes",
+      "args": [
+        60
+      ],
+      "expected": {
+        "ok": true,
+        "value": "1시간"
+      }
+    },
+    {
+      "id": "format minutes 61",
+      "kind": "call",
+      "fn": "formatDurationMinutes",
+      "args": [
+        61
+      ],
+      "expected": {
+        "ok": true,
+        "value": "1시간 1분"
+      }
+    },
+    {
+      "id": "format minutes 480",
+      "kind": "call",
+      "fn": "formatDurationMinutes",
+      "args": [
+        480
+      ],
+      "expected": {
+        "ok": true,
+        "value": "8시간"
+      }
+    },
+    {
+      "id": "format minutes 1441",
+      "kind": "call",
+      "fn": "formatDurationMinutes",
+      "args": [
+        1441
+      ],
+      "expected": {
+        "ok": true,
+        "value": "24시간 1분"
+      }
+    }
+  ]
+}

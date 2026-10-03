@@ -1,0 +1,26 @@
+{
+  "name": "@super-gongik/native-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "JSON facade over domain/rules/importer, bundled for JavaScriptCore in the native iOS client.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint src tests --config ../../eslint.config.mjs --max-warnings=0",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "build:ios": "node scripts/build-ios.mjs",
+    "fixtures": "UPDATE_FIXTURES=1 vitest run tests/conformance.test.ts"
+  },
+  "dependencies": {
+    "@super-gongik/domain": "workspace:*",
+    "@super-gongik/importer": "workspace:*",
+    "@super-gongik/rules": "workspace:*",
+    "zod": "^4.5.2"
+  },
+  "devDependencies": {
+    "rolldown": "1.2.6"
+  }
+}

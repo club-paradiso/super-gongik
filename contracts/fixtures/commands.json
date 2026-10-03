@@ -1,0 +1,1997 @@
+{
+  "formatVersion": 1,
+  "suite": "commands",
+  "description": "Store commands as pure functions with a fixed clock, device id and id sequence.",
+  "engines": [
+    "jsc"
+  ],
+  "generatedBy": "packages/native-core/tests/conformance.test.ts",
+  "cases": [
+    {
+      "id": "create profile",
+      "kind": "command",
+      "command": "createProfile",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "device-fixture",
+        "profile": null,
+        "events": [],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul"
+        }
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "createProfile-1",
+          "createProfile-2",
+          "createProfile-3",
+          "createProfile-4",
+          "createProfile-5",
+          "createProfile-6",
+          "createProfile-7",
+          "createProfile-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "data": {
+            "schemaVersion": 3,
+            "documentRevision": 0,
+            "savedAt": null,
+            "deviceId": "device-fixture",
+            "profile": {
+              "callUpDate": "2026-05-04",
+              "expectedDischargeDate": "2028-02-03",
+              "serviceCategory": null,
+              "workplaceType": null,
+              "residenceRegion": null,
+              "defaultCommuteCost": null,
+              "defaultMealAllowanceOverride": null,
+              "timezone": "Asia/Seoul",
+              "liveProgressEnabled": false,
+              "workdayMinutes": null,
+              "workdayStartTime": null,
+              "workdayEndTime": null,
+              "priorServiceCredit": null,
+              "priorServiceBasis": null,
+              "priorServiceCreditedMonths": null,
+              "priorServiceCreditHasPartialMonth": false,
+              "workPattern": null,
+              "workWeekdays": null,
+              "id": "createProfile-1",
+              "ownerId": null,
+              "localProfileId": "createProfile-1",
+              "createdAt": "2026-10-01T03:00:00.000Z",
+              "updatedAt": "2026-10-01T03:00:00.000Z"
+            },
+            "events": [],
+            "leaveAdjustments": [],
+            "leaveSnapshots": [],
+            "imports": [],
+            "attendanceMonths": [],
+            "compensationSnapshots": []
+          },
+          "value": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03",
+            "serviceCategory": null,
+            "workplaceType": null,
+            "residenceRegion": null,
+            "defaultCommuteCost": null,
+            "defaultMealAllowanceOverride": null,
+            "timezone": "Asia/Seoul",
+            "liveProgressEnabled": false,
+            "workdayMinutes": null,
+            "workdayStartTime": null,
+            "workdayEndTime": null,
+            "priorServiceCredit": null,
+            "priorServiceBasis": null,
+            "priorServiceCreditedMonths": null,
+            "priorServiceCreditHasPartialMonth": false,
+            "workPattern": null,
+            "workWeekdays": null,
+            "id": "createProfile-1",
+            "ownerId": null,
+            "localProfileId": "createProfile-1",
+            "createdAt": "2026-10-01T03:00:00.000Z",
+            "updatedAt": "2026-10-01T03:00:00.000Z"
+          }
+        }
+      }
+    },
+    {
+      "id": "create profile twice fails",
+      "kind": "command",
+      "command": "createProfile",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "device-fixture",
+        "profile": {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "events": [],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        }
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "createProfile-1",
+          "createProfile-2",
+          "createProfile-3",
+          "createProfile-4",
+          "createProfile-5",
+          "createProfile-6",
+          "createProfile-7",
+          "createProfile-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "errors": [
+            {
+              "code": "INVALID_FIELD",
+              "message": "이미 복무 프로필이 있어요."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "create profile invalid dates",
+      "kind": "command",
+      "command": "createProfile",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "d",
+        "profile": null,
+        "events": [],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        {
+          "callUpDate": "2028-05-04",
+          "expectedDischargeDate": "2026-02-03"
+        }
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "createProfile-1",
+          "createProfile-2",
+          "createProfile-3",
+          "createProfile-4",
+          "createProfile-5",
+          "createProfile-6",
+          "createProfile-7",
+          "createProfile-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "errors": [
+            {
+              "code": "INVALID_FIELD",
+              "message": "소집일과 소집해제 예정일을 다시 확인해 주세요."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "edit profile",
+      "kind": "command",
+      "command": "editProfile",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "device-fixture",
+        "profile": {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "events": [],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": 480,
+          "workdayStartTime": "09:00",
+          "workdayEndTime": "18:00",
+          "priorServiceCredit": "NONE",
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        }
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "editProfile-1",
+          "editProfile-2",
+          "editProfile-3",
+          "editProfile-4",
+          "editProfile-5",
+          "editProfile-6",
+          "editProfile-7",
+          "editProfile-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "data": {
+            "schemaVersion": 3,
+            "documentRevision": 0,
+            "savedAt": null,
+            "deviceId": "device-fixture",
+            "profile": {
+              "callUpDate": "2026-05-04",
+              "expectedDischargeDate": "2028-02-03",
+              "serviceCategory": null,
+              "workplaceType": null,
+              "residenceRegion": null,
+              "defaultCommuteCost": null,
+              "defaultMealAllowanceOverride": null,
+              "timezone": "Asia/Seoul",
+              "liveProgressEnabled": false,
+              "workdayMinutes": 480,
+              "workdayStartTime": "09:00",
+              "workdayEndTime": "18:00",
+              "priorServiceCredit": "NONE",
+              "priorServiceBasis": null,
+              "priorServiceCreditedMonths": null,
+              "priorServiceCreditHasPartialMonth": false,
+              "workPattern": null,
+              "workWeekdays": null,
+              "id": "profile-1",
+              "ownerId": null,
+              "localProfileId": "profile-1",
+              "createdAt": "2026-05-04T00:00:00.000Z",
+              "updatedAt": "2026-10-01T03:00:00.000Z",
+              "supersedes": [
+                "a3de675a621a19fc"
+              ]
+            },
+            "events": [],
+            "leaveAdjustments": [],
+            "leaveSnapshots": [],
+            "imports": [],
+            "attendanceMonths": [],
+            "compensationSnapshots": []
+          },
+          "value": {
+            "callUpDate": "2026-05-04",
+            "expectedDischargeDate": "2028-02-03",
+            "serviceCategory": null,
+            "workplaceType": null,
+            "residenceRegion": null,
+            "defaultCommuteCost": null,
+            "defaultMealAllowanceOverride": null,
+            "timezone": "Asia/Seoul",
+            "liveProgressEnabled": false,
+            "workdayMinutes": 480,
+            "workdayStartTime": "09:00",
+            "workdayEndTime": "18:00",
+            "priorServiceCredit": "NONE",
+            "priorServiceBasis": null,
+            "priorServiceCreditedMonths": null,
+            "priorServiceCreditHasPartialMonth": false,
+            "workPattern": null,
+            "workWeekdays": null,
+            "id": "profile-1",
+            "ownerId": null,
+            "localProfileId": "profile-1",
+            "createdAt": "2026-05-04T00:00:00.000Z",
+            "updatedAt": "2026-10-01T03:00:00.000Z",
+            "supersedes": [
+              "a3de675a621a19fc"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "create event",
+      "kind": "command",
+      "command": "createServiceEvent",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "device-fixture",
+        "profile": {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "events": [],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-07-01",
+          "endDate": "2026-07-01",
+          "timing": {
+            "kind": "ALL_DAY",
+            "dayCount": 1
+          },
+          "title": null,
+          "note": "  여름 휴가  "
+        }
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "createServiceEvent-1",
+          "createServiceEvent-2",
+          "createServiceEvent-3",
+          "createServiceEvent-4",
+          "createServiceEvent-5",
+          "createServiceEvent-6",
+          "createServiceEvent-7",
+          "createServiceEvent-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "data": {
+            "schemaVersion": 3,
+            "documentRevision": 0,
+            "savedAt": null,
+            "deviceId": "device-fixture",
+            "profile": {
+              "callUpDate": "2026-05-04",
+              "expectedDischargeDate": "2028-02-03",
+              "serviceCategory": null,
+              "workplaceType": null,
+              "residenceRegion": null,
+              "defaultCommuteCost": null,
+              "defaultMealAllowanceOverride": null,
+              "timezone": "Asia/Seoul",
+              "liveProgressEnabled": false,
+              "workdayMinutes": null,
+              "workdayStartTime": null,
+              "workdayEndTime": null,
+              "priorServiceCredit": null,
+              "priorServiceBasis": null,
+              "priorServiceCreditedMonths": null,
+              "priorServiceCreditHasPartialMonth": false,
+              "workPattern": null,
+              "workWeekdays": null,
+              "id": "profile-1",
+              "ownerId": null,
+              "localProfileId": "profile-1",
+              "createdAt": "2026-05-04T00:00:00.000Z",
+              "updatedAt": "2026-05-04T00:00:00.000Z"
+            },
+            "events": [
+              {
+                "eventType": "ANNUAL_LEAVE",
+                "startDate": "2026-07-01",
+                "endDate": "2026-07-01",
+                "timing": {
+                  "kind": "ALL_DAY",
+                  "dayCount": 1
+                },
+                "title": null,
+                "note": "여름 휴가",
+                "id": "createServiceEvent-1",
+                "serviceProfileId": "profile-1",
+                "createdAt": "2026-10-01T03:00:00.000Z",
+                "updatedAt": "2026-10-01T03:00:00.000Z",
+                "deletedAt": null,
+                "revision": 1,
+                "deviceId": "device-fixture",
+                "status": "CONFIRMED",
+                "source": {
+                  "kind": "MANUAL"
+                }
+              }
+            ],
+            "leaveAdjustments": [],
+            "leaveSnapshots": [],
+            "imports": [],
+            "attendanceMonths": [],
+            "compensationSnapshots": []
+          },
+          "value": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": "여름 휴가",
+            "id": "createServiceEvent-1",
+            "serviceProfileId": "profile-1",
+            "createdAt": "2026-10-01T03:00:00.000Z",
+            "updatedAt": "2026-10-01T03:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "create overlapping event fails",
+      "kind": "command",
+      "command": "createServiceEvent",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "device-fixture",
+        "profile": {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "events": [
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          }
+        ],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-07-01",
+          "endDate": "2026-07-01",
+          "timing": {
+            "kind": "ALL_DAY",
+            "dayCount": 1
+          },
+          "title": null,
+          "note": null
+        }
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "createServiceEvent-1",
+          "createServiceEvent-2",
+          "createServiceEvent-3",
+          "createServiceEvent-4",
+          "createServiceEvent-5",
+          "createServiceEvent-6",
+          "createServiceEvent-7",
+          "createServiceEvent-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "errors": [
+            {
+              "code": "LEAVE_OVERLAP",
+              "message": "2026-07-01에 이미 연가 기록이 있어 같은 시간을 두 번 차감하게 돼요. 기존 기록을 수정해 주세요.",
+              "field": "startDate"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "create half day",
+      "kind": "command",
+      "command": "createServiceEvent",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "device-fixture",
+        "profile": {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "events": [
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          }
+        ],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-07-02",
+          "endDate": "2026-07-02",
+          "timing": {
+            "kind": "HALF_DAY",
+            "half": "PM"
+          },
+          "title": null,
+          "note": null
+        }
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "createServiceEvent-1",
+          "createServiceEvent-2",
+          "createServiceEvent-3",
+          "createServiceEvent-4",
+          "createServiceEvent-5",
+          "createServiceEvent-6",
+          "createServiceEvent-7",
+          "createServiceEvent-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "data": {
+            "schemaVersion": 3,
+            "documentRevision": 0,
+            "savedAt": null,
+            "deviceId": "device-fixture",
+            "profile": {
+              "callUpDate": "2026-05-04",
+              "expectedDischargeDate": "2028-02-03",
+              "serviceCategory": null,
+              "workplaceType": null,
+              "residenceRegion": null,
+              "defaultCommuteCost": null,
+              "defaultMealAllowanceOverride": null,
+              "timezone": "Asia/Seoul",
+              "liveProgressEnabled": false,
+              "workdayMinutes": null,
+              "workdayStartTime": null,
+              "workdayEndTime": null,
+              "priorServiceCredit": null,
+              "priorServiceBasis": null,
+              "priorServiceCreditedMonths": null,
+              "priorServiceCreditHasPartialMonth": false,
+              "workPattern": null,
+              "workWeekdays": null,
+              "id": "profile-1",
+              "ownerId": null,
+              "localProfileId": "profile-1",
+              "createdAt": "2026-05-04T00:00:00.000Z",
+              "updatedAt": "2026-05-04T00:00:00.000Z"
+            },
+            "events": [
+              {
+                "eventType": "ANNUAL_LEAVE",
+                "startDate": "2026-07-01",
+                "endDate": "2026-07-01",
+                "timing": {
+                  "kind": "ALL_DAY",
+                  "dayCount": 1
+                },
+                "title": null,
+                "note": null,
+                "id": "ev-1",
+                "serviceProfileId": "profile-1",
+                "status": "CONFIRMED",
+                "source": {
+                  "kind": "MANUAL"
+                },
+                "createdAt": "2026-09-01T00:00:00.000Z",
+                "updatedAt": "2026-09-01T00:00:00.000Z",
+                "deletedAt": null,
+                "revision": 1,
+                "deviceId": "device-fixture"
+              },
+              {
+                "eventType": "ANNUAL_LEAVE",
+                "startDate": "2026-07-02",
+                "endDate": "2026-07-02",
+                "timing": {
+                  "kind": "HALF_DAY",
+                  "half": "PM"
+                },
+                "title": null,
+                "note": null,
+                "id": "createServiceEvent-1",
+                "serviceProfileId": "profile-1",
+                "createdAt": "2026-10-01T03:00:00.000Z",
+                "updatedAt": "2026-10-01T03:00:00.000Z",
+                "deletedAt": null,
+                "revision": 1,
+                "deviceId": "device-fixture",
+                "status": "CONFIRMED",
+                "source": {
+                  "kind": "MANUAL"
+                }
+              }
+            ],
+            "leaveAdjustments": [],
+            "leaveSnapshots": [],
+            "imports": [],
+            "attendanceMonths": [],
+            "compensationSnapshots": []
+          },
+          "value": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-02",
+            "endDate": "2026-07-02",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "PM"
+            },
+            "title": null,
+            "note": null,
+            "id": "createServiceEvent-1",
+            "serviceProfileId": "profile-1",
+            "createdAt": "2026-10-01T03:00:00.000Z",
+            "updatedAt": "2026-10-01T03:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "update event",
+      "kind": "command",
+      "command": "updateServiceEvent",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "device-fixture",
+        "profile": {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "events": [
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          }
+        ],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        "ev-1",
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-07-03",
+          "endDate": "2026-07-03",
+          "timing": {
+            "kind": "ALL_DAY",
+            "dayCount": 1
+          },
+          "title": null,
+          "note": null
+        }
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "updateServiceEvent-1",
+          "updateServiceEvent-2",
+          "updateServiceEvent-3",
+          "updateServiceEvent-4",
+          "updateServiceEvent-5",
+          "updateServiceEvent-6",
+          "updateServiceEvent-7",
+          "updateServiceEvent-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "data": {
+            "schemaVersion": 3,
+            "documentRevision": 0,
+            "savedAt": null,
+            "deviceId": "device-fixture",
+            "profile": {
+              "callUpDate": "2026-05-04",
+              "expectedDischargeDate": "2028-02-03",
+              "serviceCategory": null,
+              "workplaceType": null,
+              "residenceRegion": null,
+              "defaultCommuteCost": null,
+              "defaultMealAllowanceOverride": null,
+              "timezone": "Asia/Seoul",
+              "liveProgressEnabled": false,
+              "workdayMinutes": null,
+              "workdayStartTime": null,
+              "workdayEndTime": null,
+              "priorServiceCredit": null,
+              "priorServiceBasis": null,
+              "priorServiceCreditedMonths": null,
+              "priorServiceCreditHasPartialMonth": false,
+              "workPattern": null,
+              "workWeekdays": null,
+              "id": "profile-1",
+              "ownerId": null,
+              "localProfileId": "profile-1",
+              "createdAt": "2026-05-04T00:00:00.000Z",
+              "updatedAt": "2026-05-04T00:00:00.000Z"
+            },
+            "events": [
+              {
+                "eventType": "ANNUAL_LEAVE",
+                "startDate": "2026-07-03",
+                "endDate": "2026-07-03",
+                "timing": {
+                  "kind": "ALL_DAY",
+                  "dayCount": 1
+                },
+                "title": null,
+                "note": null,
+                "id": "ev-1",
+                "serviceProfileId": "profile-1",
+                "createdAt": "2026-09-01T00:00:00.000Z",
+                "updatedAt": "2026-10-01T03:00:00.000Z",
+                "deletedAt": null,
+                "revision": 2,
+                "deviceId": "device-fixture",
+                "status": "CONFIRMED",
+                "source": {
+                  "kind": "MANUAL"
+                }
+              }
+            ],
+            "leaveAdjustments": [],
+            "leaveSnapshots": [],
+            "imports": [],
+            "attendanceMonths": [],
+            "compensationSnapshots": []
+          },
+          "value": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-03",
+            "endDate": "2026-07-03",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-10-01T03:00:00.000Z",
+            "deletedAt": null,
+            "revision": 2,
+            "deviceId": "device-fixture",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "update missing event",
+      "kind": "command",
+      "command": "updateServiceEvent",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "device-fixture",
+        "profile": {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "events": [
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          }
+        ],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        "nope",
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "startDate": "2026-07-03",
+          "endDate": "2026-07-03",
+          "timing": {
+            "kind": "ALL_DAY",
+            "dayCount": 1
+          },
+          "title": null,
+          "note": null
+        }
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "updateServiceEvent-1",
+          "updateServiceEvent-2",
+          "updateServiceEvent-3",
+          "updateServiceEvent-4",
+          "updateServiceEvent-5",
+          "updateServiceEvent-6",
+          "updateServiceEvent-7",
+          "updateServiceEvent-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "errors": [
+            {
+              "code": "INVALID_FIELD",
+              "message": "수정할 기록을 찾지 못했어요."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "delete event",
+      "kind": "command",
+      "command": "deleteServiceEvent",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "device-fixture",
+        "profile": {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "events": [
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          }
+        ],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        "ev-1"
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "deleteServiceEvent-1",
+          "deleteServiceEvent-2",
+          "deleteServiceEvent-3",
+          "deleteServiceEvent-4",
+          "deleteServiceEvent-5",
+          "deleteServiceEvent-6",
+          "deleteServiceEvent-7",
+          "deleteServiceEvent-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "data": {
+            "schemaVersion": 3,
+            "documentRevision": 0,
+            "savedAt": null,
+            "deviceId": "device-fixture",
+            "profile": {
+              "callUpDate": "2026-05-04",
+              "expectedDischargeDate": "2028-02-03",
+              "serviceCategory": null,
+              "workplaceType": null,
+              "residenceRegion": null,
+              "defaultCommuteCost": null,
+              "defaultMealAllowanceOverride": null,
+              "timezone": "Asia/Seoul",
+              "liveProgressEnabled": false,
+              "workdayMinutes": null,
+              "workdayStartTime": null,
+              "workdayEndTime": null,
+              "priorServiceCredit": null,
+              "priorServiceBasis": null,
+              "priorServiceCreditedMonths": null,
+              "priorServiceCreditHasPartialMonth": false,
+              "workPattern": null,
+              "workWeekdays": null,
+              "id": "profile-1",
+              "ownerId": null,
+              "localProfileId": "profile-1",
+              "createdAt": "2026-05-04T00:00:00.000Z",
+              "updatedAt": "2026-05-04T00:00:00.000Z"
+            },
+            "events": [
+              {
+                "eventType": "ANNUAL_LEAVE",
+                "startDate": "2026-07-01",
+                "endDate": "2026-07-01",
+                "timing": {
+                  "kind": "ALL_DAY",
+                  "dayCount": 1
+                },
+                "title": null,
+                "note": null,
+                "id": "ev-1",
+                "serviceProfileId": "profile-1",
+                "status": "CONFIRMED",
+                "source": {
+                  "kind": "MANUAL"
+                },
+                "createdAt": "2026-09-01T00:00:00.000Z",
+                "updatedAt": "2026-10-01T03:00:00.000Z",
+                "deletedAt": "2026-10-01T03:00:00.000Z",
+                "revision": 2,
+                "deviceId": "device-fixture"
+              }
+            ],
+            "leaveAdjustments": [],
+            "leaveSnapshots": [],
+            "imports": [],
+            "attendanceMonths": [],
+            "compensationSnapshots": []
+          },
+          "value": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-10-01T03:00:00.000Z",
+            "deletedAt": "2026-10-01T03:00:00.000Z",
+            "revision": 2,
+            "deviceId": "device-fixture"
+          }
+        }
+      }
+    },
+    {
+      "id": "restore event",
+      "kind": "command",
+      "command": "restoreServiceEvent",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "device-fixture",
+        "profile": {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "events": [
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-02T00:00:00.000Z",
+            "deletedAt": "2026-09-02T00:00:00.000Z",
+            "revision": 2,
+            "deviceId": "device-fixture"
+          }
+        ],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        "ev-1"
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "restoreServiceEvent-1",
+          "restoreServiceEvent-2",
+          "restoreServiceEvent-3",
+          "restoreServiceEvent-4",
+          "restoreServiceEvent-5",
+          "restoreServiceEvent-6",
+          "restoreServiceEvent-7",
+          "restoreServiceEvent-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "data": {
+            "schemaVersion": 3,
+            "documentRevision": 0,
+            "savedAt": null,
+            "deviceId": "device-fixture",
+            "profile": {
+              "callUpDate": "2026-05-04",
+              "expectedDischargeDate": "2028-02-03",
+              "serviceCategory": null,
+              "workplaceType": null,
+              "residenceRegion": null,
+              "defaultCommuteCost": null,
+              "defaultMealAllowanceOverride": null,
+              "timezone": "Asia/Seoul",
+              "liveProgressEnabled": false,
+              "workdayMinutes": null,
+              "workdayStartTime": null,
+              "workdayEndTime": null,
+              "priorServiceCredit": null,
+              "priorServiceBasis": null,
+              "priorServiceCreditedMonths": null,
+              "priorServiceCreditHasPartialMonth": false,
+              "workPattern": null,
+              "workWeekdays": null,
+              "id": "profile-1",
+              "ownerId": null,
+              "localProfileId": "profile-1",
+              "createdAt": "2026-05-04T00:00:00.000Z",
+              "updatedAt": "2026-05-04T00:00:00.000Z"
+            },
+            "events": [
+              {
+                "eventType": "ANNUAL_LEAVE",
+                "startDate": "2026-07-01",
+                "endDate": "2026-07-01",
+                "timing": {
+                  "kind": "ALL_DAY",
+                  "dayCount": 1
+                },
+                "title": null,
+                "note": null,
+                "id": "ev-1",
+                "serviceProfileId": "profile-1",
+                "status": "CONFIRMED",
+                "source": {
+                  "kind": "MANUAL"
+                },
+                "createdAt": "2026-09-01T00:00:00.000Z",
+                "updatedAt": "2026-10-01T03:00:00.000Z",
+                "deletedAt": null,
+                "revision": 3,
+                "deviceId": "device-fixture"
+              }
+            ],
+            "leaveAdjustments": [],
+            "leaveSnapshots": [],
+            "imports": [],
+            "attendanceMonths": [],
+            "compensationSnapshots": []
+          },
+          "value": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-10-01T03:00:00.000Z",
+            "deletedAt": null,
+            "revision": 3,
+            "deviceId": "device-fixture"
+          }
+        }
+      }
+    },
+    {
+      "id": "confirm credit",
+      "kind": "command",
+      "command": "confirmLeaveCredit",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "device-fixture",
+        "profile": {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "events": [],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        {
+          "creditKey": "YEAR_1",
+          "grantDate": "2026-05-04",
+          "days": 15,
+          "reason": "기관 확인"
+        }
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "confirmLeaveCredit-1",
+          "confirmLeaveCredit-2",
+          "confirmLeaveCredit-3",
+          "confirmLeaveCredit-4",
+          "confirmLeaveCredit-5",
+          "confirmLeaveCredit-6",
+          "confirmLeaveCredit-7",
+          "confirmLeaveCredit-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "data": {
+            "schemaVersion": 3,
+            "documentRevision": 0,
+            "savedAt": null,
+            "deviceId": "device-fixture",
+            "profile": {
+              "callUpDate": "2026-05-04",
+              "expectedDischargeDate": "2028-02-03",
+              "serviceCategory": null,
+              "workplaceType": null,
+              "residenceRegion": null,
+              "defaultCommuteCost": null,
+              "defaultMealAllowanceOverride": null,
+              "timezone": "Asia/Seoul",
+              "liveProgressEnabled": false,
+              "workdayMinutes": null,
+              "workdayStartTime": null,
+              "workdayEndTime": null,
+              "priorServiceCredit": null,
+              "priorServiceBasis": null,
+              "priorServiceCreditedMonths": null,
+              "priorServiceCreditHasPartialMonth": false,
+              "workPattern": null,
+              "workWeekdays": null,
+              "id": "profile-1",
+              "ownerId": null,
+              "localProfileId": "profile-1",
+              "createdAt": "2026-05-04T00:00:00.000Z",
+              "updatedAt": "2026-05-04T00:00:00.000Z"
+            },
+            "events": [],
+            "leaveAdjustments": [
+              {
+                "id": "confirmLeaveCredit-1",
+                "serviceProfileId": "profile-1",
+                "createdAt": "2026-10-01T03:00:00.000Z",
+                "updatedAt": "2026-10-01T03:00:00.000Z",
+                "deletedAt": null,
+                "revision": 1,
+                "deviceId": "device-fixture",
+                "leaveType": "ANNUAL_LEAVE",
+                "kind": "GRANT_CONFIRMATION",
+                "creditKey": "YEAR_1",
+                "effectiveDate": "2026-05-04",
+                "amountHalfDays": 30,
+                "amountMinutes": 0,
+                "reason": "기관 확인"
+              }
+            ],
+            "leaveSnapshots": [],
+            "imports": [],
+            "attendanceMonths": [],
+            "compensationSnapshots": []
+          },
+          "value": {
+            "id": "confirmLeaveCredit-1",
+            "serviceProfileId": "profile-1",
+            "createdAt": "2026-10-01T03:00:00.000Z",
+            "updatedAt": "2026-10-01T03:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture",
+            "leaveType": "ANNUAL_LEAVE",
+            "kind": "GRANT_CONFIRMATION",
+            "creditKey": "YEAR_1",
+            "effectiveDate": "2026-05-04",
+            "amountHalfDays": 30,
+            "amountMinutes": 0,
+            "reason": "기관 확인"
+          }
+        }
+      }
+    },
+    {
+      "id": "confirm credit out of range",
+      "kind": "command",
+      "command": "confirmLeaveCredit",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "device-fixture",
+        "profile": {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "events": [],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        {
+          "creditKey": "YEAR_1",
+          "grantDate": "2026-05-04",
+          "days": 61,
+          "reason": "x"
+        }
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "confirmLeaveCredit-1",
+          "confirmLeaveCredit-2",
+          "confirmLeaveCredit-3",
+          "confirmLeaveCredit-4",
+          "confirmLeaveCredit-5",
+          "confirmLeaveCredit-6",
+          "confirmLeaveCredit-7",
+          "confirmLeaveCredit-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "errors": [
+            {
+              "code": "INVALID_FIELD",
+              "message": "부여 일수는 0~60일, 반일 단위로 입력해 주세요."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "add correction",
+      "kind": "command",
+      "command": "addLeaveCorrection",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "device-fixture",
+        "profile": {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "events": [],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        {
+          "effectiveDate": "2026-09-01",
+          "halfDays": -1,
+          "minutes": 30,
+          "reason": "기관 기록 반영"
+        }
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "addLeaveCorrection-1",
+          "addLeaveCorrection-2",
+          "addLeaveCorrection-3",
+          "addLeaveCorrection-4",
+          "addLeaveCorrection-5",
+          "addLeaveCorrection-6",
+          "addLeaveCorrection-7",
+          "addLeaveCorrection-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "data": {
+            "schemaVersion": 3,
+            "documentRevision": 0,
+            "savedAt": null,
+            "deviceId": "device-fixture",
+            "profile": {
+              "callUpDate": "2026-05-04",
+              "expectedDischargeDate": "2028-02-03",
+              "serviceCategory": null,
+              "workplaceType": null,
+              "residenceRegion": null,
+              "defaultCommuteCost": null,
+              "defaultMealAllowanceOverride": null,
+              "timezone": "Asia/Seoul",
+              "liveProgressEnabled": false,
+              "workdayMinutes": null,
+              "workdayStartTime": null,
+              "workdayEndTime": null,
+              "priorServiceCredit": null,
+              "priorServiceBasis": null,
+              "priorServiceCreditedMonths": null,
+              "priorServiceCreditHasPartialMonth": false,
+              "workPattern": null,
+              "workWeekdays": null,
+              "id": "profile-1",
+              "ownerId": null,
+              "localProfileId": "profile-1",
+              "createdAt": "2026-05-04T00:00:00.000Z",
+              "updatedAt": "2026-05-04T00:00:00.000Z"
+            },
+            "events": [],
+            "leaveAdjustments": [
+              {
+                "id": "addLeaveCorrection-1",
+                "serviceProfileId": "profile-1",
+                "createdAt": "2026-10-01T03:00:00.000Z",
+                "updatedAt": "2026-10-01T03:00:00.000Z",
+                "deletedAt": null,
+                "revision": 1,
+                "deviceId": "device-fixture",
+                "leaveType": "ANNUAL_LEAVE",
+                "kind": "CORRECTION",
+                "creditKey": null,
+                "effectiveDate": "2026-09-01",
+                "amountHalfDays": -1,
+                "amountMinutes": 30,
+                "reason": "기관 기록 반영"
+              }
+            ],
+            "leaveSnapshots": [],
+            "imports": [],
+            "attendanceMonths": [],
+            "compensationSnapshots": []
+          },
+          "value": {
+            "id": "addLeaveCorrection-1",
+            "serviceProfileId": "profile-1",
+            "createdAt": "2026-10-01T03:00:00.000Z",
+            "updatedAt": "2026-10-01T03:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture",
+            "leaveType": "ANNUAL_LEAVE",
+            "kind": "CORRECTION",
+            "creditKey": null,
+            "effectiveDate": "2026-09-01",
+            "amountHalfDays": -1,
+            "amountMinutes": 30,
+            "reason": "기관 기록 반영"
+          }
+        }
+      }
+    },
+    {
+      "id": "save attendance month",
+      "kind": "command",
+      "command": "saveAttendanceMonth",
+      "data": {
+        "schemaVersion": 3,
+        "documentRevision": 0,
+        "savedAt": null,
+        "deviceId": "device-fixture",
+        "profile": {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": null,
+          "workdayStartTime": null,
+          "workdayEndTime": null,
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        "events": [],
+        "leaveAdjustments": [],
+        "leaveSnapshots": [],
+        "imports": [],
+        "attendanceMonths": [],
+        "compensationSnapshots": []
+      },
+      "args": [
+        {
+          "month": "2026-07",
+          "nonWorkingDates": [
+            "2026-07-17"
+          ],
+          "dayOverrides": [],
+          "hadNonPayableAbsence": false
+        }
+      ],
+      "context": {
+        "now": "2026-10-01T03:00:00.000Z",
+        "deviceId": "device-fixture",
+        "ids": [
+          "saveAttendanceMonth-1",
+          "saveAttendanceMonth-2",
+          "saveAttendanceMonth-3",
+          "saveAttendanceMonth-4",
+          "saveAttendanceMonth-5",
+          "saveAttendanceMonth-6",
+          "saveAttendanceMonth-7",
+          "saveAttendanceMonth-8"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "data": {
+            "schemaVersion": 3,
+            "documentRevision": 0,
+            "savedAt": null,
+            "deviceId": "device-fixture",
+            "profile": {
+              "callUpDate": "2026-05-04",
+              "expectedDischargeDate": "2028-02-03",
+              "serviceCategory": null,
+              "workplaceType": null,
+              "residenceRegion": null,
+              "defaultCommuteCost": null,
+              "defaultMealAllowanceOverride": null,
+              "timezone": "Asia/Seoul",
+              "liveProgressEnabled": false,
+              "workdayMinutes": null,
+              "workdayStartTime": null,
+              "workdayEndTime": null,
+              "priorServiceCredit": null,
+              "priorServiceBasis": null,
+              "priorServiceCreditedMonths": null,
+              "priorServiceCreditHasPartialMonth": false,
+              "workPattern": null,
+              "workWeekdays": null,
+              "id": "profile-1",
+              "ownerId": null,
+              "localProfileId": "profile-1",
+              "createdAt": "2026-05-04T00:00:00.000Z",
+              "updatedAt": "2026-05-04T00:00:00.000Z"
+            },
+            "events": [],
+            "leaveAdjustments": [],
+            "leaveSnapshots": [],
+            "imports": [],
+            "attendanceMonths": [
+              {
+                "id": "saveAttendanceMonth-1",
+                "serviceProfileId": "profile-1",
+                "createdAt": "2026-10-01T03:00:00.000Z",
+                "updatedAt": "2026-10-01T03:00:00.000Z",
+                "deletedAt": null,
+                "revision": 1,
+                "deviceId": "device-fixture",
+                "month": "2026-07",
+                "nonWorkingDates": [
+                  "2026-07-17"
+                ],
+                "dayOverrides": [],
+                "hadNonPayableAbsence": false,
+                "nonPayableDates": [],
+                "nonPayableDatesConfirmed": false,
+                "roundingPolicy": null,
+                "basisFingerprint": "[\"2026-05-04\",\"2028-02-03\",null,null,[]]"
+              }
+            ],
+            "compensationSnapshots": []
+          },
+          "value": {
+            "id": "saveAttendanceMonth-1",
+            "serviceProfileId": "profile-1",
+            "createdAt": "2026-10-01T03:00:00.000Z",
+            "updatedAt": "2026-10-01T03:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture",
+            "month": "2026-07",
+            "nonWorkingDates": [
+              "2026-07-17"
+            ],
+            "dayOverrides": [],
+            "hadNonPayableAbsence": false,
+            "nonPayableDates": [],
+            "nonPayableDatesConfirmed": false,
+            "roundingPolicy": null,
+            "basisFingerprint": "[\"2026-05-04\",\"2028-02-03\",null,null,[]]"
+          }
+        }
+      }
+    }
+  ]
+}

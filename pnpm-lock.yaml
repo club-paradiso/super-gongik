@@ -124,6 +124,25 @@ importers:
         specifier: workspace:*
         version: link:../domain
 
+  packages/native-core:
+    dependencies:
+      '@super-gongik/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@super-gongik/importer':
+        specifier: workspace:*
+        version: link:../importer
+      '@super-gongik/rules':
+        specifier: workspace:*
+        version: link:../rules
+      zod:
+        specifier: ^4.5.2
+        version: 4.5.4
+    devDependencies:
+      rolldown:
+        specifier: 1.2.6
+        version: 1.2.6
+
   packages/rules:
     dependencies:
       '@super-gongik/domain':

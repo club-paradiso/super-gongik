@@ -1,0 +1,814 @@
+{
+  "formatVersion": 1,
+  "suite": "milestones",
+  "description": "Service milestones and the next/today milestone selection.",
+  "engines": [
+    "jsc"
+  ],
+  "generatedBy": "packages/native-core/tests/conformance.test.ts",
+  "cases": [
+    {
+      "id": "milestones standard",
+      "kind": "call",
+      "fn": "listServiceMilestones",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "kind": "CALL_UP",
+            "date": "2026-05-04",
+            "value": 0,
+            "label": "소집일"
+          },
+          {
+            "kind": "SERVICE_DAY",
+            "date": "2026-08-11",
+            "value": 100,
+            "label": "복무 100일째"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2026-09-21",
+            "value": 500,
+            "label": "D-500"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2026-10-11",
+            "value": 25,
+            "label": "복무 25%"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2027-03-20",
+            "value": 50,
+            "label": "복무 50%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2027-04-09",
+            "value": 300,
+            "label": "D-300"
+          },
+          {
+            "kind": "SERVICE_YEAR",
+            "date": "2027-05-04",
+            "value": 1,
+            "label": "복무 1년"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2027-07-18",
+            "value": 200,
+            "label": "D-200"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2027-08-27",
+            "value": 75,
+            "label": "복무 75%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2027-10-26",
+            "value": 100,
+            "label": "D-100"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2027-12-01",
+            "value": 90,
+            "label": "복무 90%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2027-12-15",
+            "value": 50,
+            "label": "D-50"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2028-01-02",
+            "value": 95,
+            "label": "복무 95%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2028-01-04",
+            "value": 30,
+            "label": "D-30"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2028-01-27",
+            "value": 7,
+            "label": "D-7"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2028-01-28",
+            "value": 99,
+            "label": "복무 99%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2028-02-02",
+            "value": 1,
+            "label": "D-1"
+          },
+          {
+            "kind": "DISCHARGE",
+            "date": "2028-02-03",
+            "value": 100,
+            "label": "소집해제"
+          }
+        ]
+      }
+    },
+    {
+      "id": "milestones leapSpan",
+      "kind": "call",
+      "fn": "listServiceMilestones",
+      "args": [
+        {
+          "callUpDate": "2027-06-15",
+          "expectedDischargeDate": "2029-03-14"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "kind": "CALL_UP",
+            "date": "2027-06-15",
+            "value": 0,
+            "label": "소집일"
+          },
+          {
+            "kind": "SERVICE_DAY",
+            "date": "2027-09-22",
+            "value": 100,
+            "label": "복무 100일째"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2027-10-31",
+            "value": 500,
+            "label": "D-500"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2027-11-22",
+            "value": 25,
+            "label": "복무 25%"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2028-04-29",
+            "value": 50,
+            "label": "복무 50%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2028-05-18",
+            "value": 300,
+            "label": "D-300"
+          },
+          {
+            "kind": "SERVICE_YEAR",
+            "date": "2028-06-15",
+            "value": 1,
+            "label": "복무 1년"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2028-08-26",
+            "value": 200,
+            "label": "D-200"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2028-10-06",
+            "value": 75,
+            "label": "복무 75%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2028-12-04",
+            "value": 100,
+            "label": "D-100"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2029-01-10",
+            "value": 90,
+            "label": "복무 90%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2029-01-23",
+            "value": 50,
+            "label": "D-50"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2029-02-11",
+            "value": 95,
+            "label": "복무 95%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2029-02-12",
+            "value": 30,
+            "label": "D-30"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2029-03-07",
+            "value": 7,
+            "label": "D-7"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2029-03-08",
+            "value": 99,
+            "label": "복무 99%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2029-03-13",
+            "value": 1,
+            "label": "D-1"
+          },
+          {
+            "kind": "DISCHARGE",
+            "date": "2029-03-14",
+            "value": 100,
+            "label": "소집해제"
+          }
+        ]
+      }
+    },
+    {
+      "id": "milestones fourHundredDays",
+      "kind": "call",
+      "fn": "listServiceMilestones",
+      "args": [
+        {
+          "callUpDate": "2026-01-01",
+          "expectedDischargeDate": "2027-02-05"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "kind": "CALL_UP",
+            "date": "2026-01-01",
+            "value": 0,
+            "label": "소집일"
+          },
+          {
+            "kind": "SERVICE_DAY",
+            "date": "2026-04-10",
+            "value": 100,
+            "label": "복무 100일째"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2026-04-11",
+            "value": 25,
+            "label": "복무 25%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2026-04-11",
+            "value": 300,
+            "label": "D-300"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2026-07-20",
+            "value": 50,
+            "label": "복무 50%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2026-07-20",
+            "value": 200,
+            "label": "D-200"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2026-10-28",
+            "value": 75,
+            "label": "복무 75%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2026-10-28",
+            "value": 100,
+            "label": "D-100"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2026-12-17",
+            "value": 50,
+            "label": "D-50"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2026-12-27",
+            "value": 90,
+            "label": "복무 90%"
+          },
+          {
+            "kind": "SERVICE_YEAR",
+            "date": "2027-01-01",
+            "value": 1,
+            "label": "복무 1년"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2027-01-06",
+            "value": 30,
+            "label": "D-30"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2027-01-16",
+            "value": 95,
+            "label": "복무 95%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2027-01-29",
+            "value": 7,
+            "label": "D-7"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2027-02-01",
+            "value": 99,
+            "label": "복무 99%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2027-02-04",
+            "value": 1,
+            "label": "D-1"
+          },
+          {
+            "kind": "DISCHARGE",
+            "date": "2027-02-05",
+            "value": 100,
+            "label": "소집해제"
+          }
+        ]
+      }
+    },
+    {
+      "id": "milestones sameDay",
+      "kind": "call",
+      "fn": "listServiceMilestones",
+      "args": [
+        {
+          "callUpDate": "2026-10-03",
+          "expectedDischargeDate": "2026-10-03"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "kind": "DISCHARGE",
+            "date": "2026-10-03",
+            "value": 100,
+            "label": "소집해제"
+          },
+          {
+            "kind": "CALL_UP",
+            "date": "2026-10-03",
+            "value": 0,
+            "label": "소집일"
+          }
+        ]
+      }
+    },
+    {
+      "id": "milestones yearEnd",
+      "kind": "call",
+      "fn": "listServiceMilestones",
+      "args": [
+        {
+          "callUpDate": "2025-12-31",
+          "expectedDischargeDate": "2027-09-30"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "kind": "CALL_UP",
+            "date": "2025-12-31",
+            "value": 0,
+            "label": "소집일"
+          },
+          {
+            "kind": "SERVICE_DAY",
+            "date": "2026-04-09",
+            "value": 100,
+            "label": "복무 100일째"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2026-05-18",
+            "value": 500,
+            "label": "D-500"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2026-06-09",
+            "value": 25,
+            "label": "복무 25%"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2026-11-15",
+            "value": 50,
+            "label": "복무 50%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2026-12-04",
+            "value": 300,
+            "label": "D-300"
+          },
+          {
+            "kind": "SERVICE_YEAR",
+            "date": "2026-12-31",
+            "value": 1,
+            "label": "복무 1년"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2027-03-14",
+            "value": 200,
+            "label": "D-200"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2027-04-24",
+            "value": 75,
+            "label": "복무 75%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2027-06-22",
+            "value": 100,
+            "label": "D-100"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2027-07-29",
+            "value": 90,
+            "label": "복무 90%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2027-08-11",
+            "value": 50,
+            "label": "D-50"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2027-08-30",
+            "value": 95,
+            "label": "복무 95%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2027-08-31",
+            "value": 30,
+            "label": "D-30"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2027-09-23",
+            "value": 7,
+            "label": "D-7"
+          },
+          {
+            "kind": "PERCENT",
+            "date": "2027-09-24",
+            "value": 99,
+            "label": "복무 99%"
+          },
+          {
+            "kind": "DAYS_REMAINING",
+            "date": "2027-09-29",
+            "value": 1,
+            "label": "D-1"
+          },
+          {
+            "kind": "DISCHARGE",
+            "date": "2027-09-30",
+            "value": 100,
+            "label": "소집해제"
+          }
+        ]
+      }
+    },
+    {
+      "id": "next milestone @ 2026-05-04",
+      "kind": "call",
+      "fn": "nextServiceMilestone",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2026-05-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "SERVICE_DAY",
+          "date": "2026-08-11",
+          "value": 100,
+          "label": "복무 100일째"
+        }
+      }
+    },
+    {
+      "id": "milestone on 2026-05-04",
+      "kind": "call",
+      "fn": "serviceMilestoneOn",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2026-05-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "CALL_UP",
+          "date": "2026-05-04",
+          "value": 0,
+          "label": "소집일"
+        }
+      }
+    },
+    {
+      "id": "days since discharge @ 2026-05-04",
+      "kind": "call",
+      "fn": "daysSinceDischarge",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2026-05-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "id": "next milestone @ 2026-08-11",
+      "kind": "call",
+      "fn": "nextServiceMilestone",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2026-08-11"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "DAYS_REMAINING",
+          "date": "2026-09-21",
+          "value": 500,
+          "label": "D-500"
+        }
+      }
+    },
+    {
+      "id": "milestone on 2026-08-11",
+      "kind": "call",
+      "fn": "serviceMilestoneOn",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2026-08-11"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "SERVICE_DAY",
+          "date": "2026-08-11",
+          "value": 100,
+          "label": "복무 100일째"
+        }
+      }
+    },
+    {
+      "id": "days since discharge @ 2026-08-11",
+      "kind": "call",
+      "fn": "daysSinceDischarge",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2026-08-11"
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "id": "next milestone @ 2027-05-04",
+      "kind": "call",
+      "fn": "nextServiceMilestone",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2027-05-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "DAYS_REMAINING",
+          "date": "2027-07-18",
+          "value": 200,
+          "label": "D-200"
+        }
+      }
+    },
+    {
+      "id": "milestone on 2027-05-04",
+      "kind": "call",
+      "fn": "serviceMilestoneOn",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2027-05-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "SERVICE_YEAR",
+          "date": "2027-05-04",
+          "value": 1,
+          "label": "복무 1년"
+        }
+      }
+    },
+    {
+      "id": "days since discharge @ 2027-05-04",
+      "kind": "call",
+      "fn": "daysSinceDischarge",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2027-05-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "id": "next milestone @ 2028-02-02",
+      "kind": "call",
+      "fn": "nextServiceMilestone",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2028-02-02"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "DISCHARGE",
+          "date": "2028-02-03",
+          "value": 100,
+          "label": "소집해제"
+        }
+      }
+    },
+    {
+      "id": "milestone on 2028-02-02",
+      "kind": "call",
+      "fn": "serviceMilestoneOn",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2028-02-02"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "DAYS_REMAINING",
+          "date": "2028-02-02",
+          "value": 1,
+          "label": "D-1"
+        }
+      }
+    },
+    {
+      "id": "days since discharge @ 2028-02-02",
+      "kind": "call",
+      "fn": "daysSinceDischarge",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2028-02-02"
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "id": "next milestone @ 2028-02-03",
+      "kind": "call",
+      "fn": "nextServiceMilestone",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2028-02-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "id": "milestone on 2028-02-03",
+      "kind": "call",
+      "fn": "serviceMilestoneOn",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2028-02-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "kind": "DISCHARGE",
+          "date": "2028-02-03",
+          "value": 100,
+          "label": "소집해제"
+        }
+      }
+    },
+    {
+      "id": "days since discharge @ 2028-02-03",
+      "kind": "call",
+      "fn": "daysSinceDischarge",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2028-02-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0
+      }
+    }
+  ]
+}

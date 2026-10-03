@@ -14,3 +14,11 @@ coverage/
 .DS_Store
 playwright-report/
 test-results/
+# iOS
+apps/ios/**/.build/
+apps/ios/**/.swiftpm/
+apps/ios/build/
+apps/ios/DerivedData/
+apps/ios/*.xcodeproj/
+xcuserdata/
+*.xcuserstate
