@@ -69,6 +69,18 @@ struct SupabaseAuthTests {
         #expect(await offline.currentSession()?.accessToken == "old")
     }
 
+    @Test("account deletion calls the Edge Function with the user's token, then forgets the session")
+    func deleteAccount() async {
+        let store = MemorySessionStore()
+        store.value = StoredSession(accessToken: "a1", refreshToken: "r1", expiresAt: 9_999_999_999, userId: "u1", email: nil)
+        let http = ScriptedHTTP([(200, #"{"deleted":true}"#)])
+        let auth = SupabaseAuth(config: config, http: http, store: store)
+        #expect(await auth.deleteAccount())
+        #expect(http.requests.first?.url?.path == "/functions/v1/delete-account")
+        #expect(http.requests.first?.value(forHTTPHeaderField: "Authorization") == "Bearer a1")
+        #expect(store.value == nil)
+    }
+
     @Test("PKCE authorize URL uses S256 and the web's Kakao scopes")
     func pkce() {
         let auth = SupabaseAuth(config: config, http: ScriptedHTTP([]), store: MemorySessionStore())

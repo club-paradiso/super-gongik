@@ -36,6 +36,11 @@ jobs:
         run: pnpm test
       - name: Build web app
         run: pnpm build
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Edge Function tests (account deletion)
+        run: deno test --no-remote supabase/functions/delete-account/handler_test.ts
       - name: Native core bundle matches its source
         # sg-core.js is committed so the iOS build never needs Node. Rebuild
         # it and fail if the committed copy differs from what source produces.

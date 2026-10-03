@@ -17,6 +17,7 @@ struct CloudSyncView: View {
     @State private var backups: [JSONValue] = []
     @State private var restoreText: IdentifiedText?
     @State private var confirmDelete = false
+    @State private var confirmAccountDeletion = false
     @State private var typed = ""
     @State private var note: String?
 
@@ -234,8 +235,14 @@ struct CloudSyncView: View {
         Section {
             Button("로그아웃") { Task { await cloud.signOut() } }
             Button("클라우드 데이터 삭제", role: .destructive) { confirmDelete = true }
+            Button("계정 삭제", role: .destructive) { confirmAccountDeletion = true }
         } footer: {
-            Text("로그아웃해도 이 기기의 기록은 그대로예요. 클라우드 데이터 삭제는 이 계정의 동기화 기록과 클라우드 백업을 지우고, 어느 기기의 기록도 지우지 않아요. 계정 자체의 삭제는 아직 앱에서 할 수 없어요.")
+            Text("로그아웃해도 이 기기의 기록은 그대로예요. 클라우드 데이터 삭제는 이 계정의 동기화 기록과 클라우드 백업을 지우고, 어느 기기의 기록도 지우지 않아요. 계정 삭제는 계정과 모든 클라우드 데이터를 지워요.")
+        }
+        .confirmationDialog("계정을 삭제할까요?", isPresented: $confirmAccountDeletion, titleVisibility: .visible) {
+            Button("계정과 클라우드 데이터 삭제", role: .destructive) { Task { _ = await cloud.deleteAccount() } }
+        } message: {
+            Text("이 계정과 클라우드에 있는 기록·백업이 모두 지워지고 되돌릴 수 없어요. 이 기기에 저장된 기록은 그대로 남아요.")
         }
         .alert("클라우드 데이터를 삭제할까요?", isPresented: $confirmDelete) {
             TextField("‘삭제’를 입력하세요", text: $typed)

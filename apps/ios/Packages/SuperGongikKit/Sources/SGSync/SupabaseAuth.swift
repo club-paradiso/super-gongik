@@ -213,6 +213,18 @@ public actor SupabaseAuth {
         store.delete()
     }
 
+    /// In-app account deletion through the `delete-account` Edge Function
+    /// (supabase/functions). On success the local session is removed; local
+    /// records stay on the device.
+    public func deleteAccount() async -> Bool {
+        guard let session = await currentSession() else { return false }
+        let (status, _) = await http.perform(request("functions/v1/delete-account", body: [:], bearer: session.accessToken))
+        guard status == 200 else { return false }
+        cached = nil
+        store.delete()
+        return true
+    }
+
     // MARK: OAuth (PKCE) and Sign in with Apple
 
     public struct PKCE: Sendable {

@@ -131,6 +131,23 @@ final class CloudModel {
 
     func signOut() async { _ = await perform { try await runtime?.cloud("cloudSignOut") } }
 
+    /// Deletes the account and all of its cloud data on the server; this
+    /// device's records stay. Then the controller sees the session end.
+    func deleteAccount() async -> Bool {
+        guard let auth else { return false }
+        busy = true
+        defer { busy = false }
+        guard await auth.deleteAccount() else {
+            message = "계정을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요."
+            return false
+        }
+        try? await runtime?.cloudSessionChanged(nil)
+        _ = try? await runtime?.cloud("cloudSignOut")
+        await refresh()
+        message = "계정과 클라우드 데이터를 삭제했어요. 이 기기의 기록은 그대로예요."
+        return true
+    }
+
     // MARK: Social sign-in (PKCE through ASWebAuthenticationSession)
 
     static let callbackScheme = "app.supergongik.ios"
