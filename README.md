@@ -6,6 +6,8 @@
 
 ```text
 apps/web             Next.js App Router PWA (화면, 파일 파서, localStorage 어댑터)
+apps/ios             SwiftUI 네이티브 앱 (공용 TypeScript 코어를 JavaScriptCore로 실행)
+packages/native-core 네이티브 앱용 JSON 파사드와 JavaScriptCore 번들
 packages/domain      날짜·복무 프로필·복무 기록(ServiceEvent)·연가 사용 내역·저장소 계약·백업
 packages/rules       시행일별 정책 번들, 연가 부여 도출, 보수 계산 안전 게이트
 packages/importer    기관 복무기록 파일을 canonical 기록 초안으로 정규화
@@ -22,6 +24,8 @@ supabase             선택형 클라우드 동기화 마이그레이션(RLS 포
 - 백업: 전체 JSON 백업, 복무기록·연가 사용 내역 CSV, 검증 후 합치기/덮어쓰기 복원, 기기 데이터 전체 삭제
 - 저장: 버전이 있는 단일 문서, 이전 버전 자동 이전, 손상 시 원본 격리·직전본 복구
 - 선택형 클라우드 동기화(Supabase 설정 시): 이메일 코드 또는 Google·카카오·NAVER 로그인, 여러 기기 동기화, 충돌은 직접 선택, 클라우드 백업, 클라우드 데이터 삭제. 로그인하지 않으면 네트워크를 쓰지 않아요. 소셜 로그인은 각 provider 자격증명을 Supabase에 설정한 뒤 활성화됩니다. [docs/CLOUD_SYNC.md](docs/CLOUD_SYNC.md)
+
+네이티브 iOS 앱은 [docs/ios/ARCHITECTURE.md](docs/ios/ARCHITECTURE.md), 웹과 같은 계산 결과를 보장하는 공용 테스트는 [docs/ios/DOMAIN-CONFORMANCE.md](docs/ios/DOMAIN-CONFORMANCE.md)를 보세요.
 
 구조 결정은 [docs/adr/0001-portable-core-and-local-persistence.md](docs/adr/0001-portable-core-and-local-persistence.md), 진행 상황은 [docs/ROADMAP.md](docs/ROADMAP.md)를 보세요.
 

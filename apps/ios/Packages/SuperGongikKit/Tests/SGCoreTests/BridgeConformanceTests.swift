@@ -47,3 +47,24 @@ struct BridgeConformanceTests {
         }
     }
 }
+
+@Suite("CoreRuntime serialization")
+struct CoreRuntimeConcurrencyTests {
+    /// Many concurrent callers; every call must run on the core queue (the
+    /// precondition in CoreRuntime traps otherwise) and return its own result.
+    @Test("concurrent calls are serialized and return their own results")
+    func stress() async throws {
+        let runtime = try CoreRuntime(storage: nil)
+        try await withThrowingTaskGroup(of: (Int, String).self) { group in
+            for offset in 0..<400 {
+                group.addTask {
+                    let data = try await runtime.callPure("addDays", argumentsJSON: "[\"2026-01-01\",\(offset)]")
+                    return (offset, try JSONValue(data: data)["value"]?.stringValue ?? "")
+                }
+            }
+            for try await (offset, value) in group {
+                #expect(value == CivilDate("2026-01-01")!.adding(days: offset).description)
+            }
+        }
+    }
+}

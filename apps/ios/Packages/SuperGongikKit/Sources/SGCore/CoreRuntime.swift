@@ -92,6 +92,9 @@ public actor CoreRuntime {
     // MARK: Calling the facade
 
     private func installExceptionHandler() {
+        // JavaScriptCore must only ever run on the core queue. The actor's
+        // custom executor guarantees it; this checks it in every build.
+        dispatchPrecondition(condition: .onQueue(queue))
         lastException = nil
         context.exceptionHandler = { [weak self] _, exception in
             let message = exception?.toString() ?? "unknown exception"
