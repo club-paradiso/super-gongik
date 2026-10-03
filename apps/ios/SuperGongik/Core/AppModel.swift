@@ -33,6 +33,7 @@ final class AppModel {
     @ObservationIgnored private var storage: FileKeyValueStore?
     @ObservationIgnored private var midnightTask: Task<Void, Never>?
     @ObservationIgnored let config = AppConfig.current
+    let reminders = ReminderScheduler()
 
     var document: UserDocument? { snapshot?.data }
     var profile: ServiceProfile? { document?.profile }
@@ -105,6 +106,7 @@ final class AppModel {
             projection = nil
         }
         WidgetSnapshotWriter.write(projection: projection, today: today)
+        await reminders.reschedule(projection: projection)
     }
 
     /// Runs a store command. Returns the validation issues the core reported

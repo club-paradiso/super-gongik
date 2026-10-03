@@ -48,7 +48,10 @@ struct BackupExportView: View {
             .fileExporter(isPresented: $exporting, document: document, contentType: .json,
                           defaultFilename: BackupDocument.fileName(at: .now)) { result in
                 switch result {
-                case .success: message = "백업 파일을 저장했어요."
+                case .success:
+                    message = "백업 파일을 저장했어요."
+                    ReminderScheduler.noteBackupSaved()
+                    Task { await model.reproject() }
                 case .failure(let error):
                     if (error as NSError).code != NSUserCancelledError {
                         message = "백업 파일을 저장하지 못했어요. 다시 시도해 주세요."

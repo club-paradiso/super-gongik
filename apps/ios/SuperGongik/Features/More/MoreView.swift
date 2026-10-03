@@ -6,6 +6,7 @@ import SwiftUI
 /// 더보기: settings, data, privacy and sources. Native grouped list.
 struct MoreView: View {
     @Environment(AppModel.self) private var model
+    @Environment(PrivacyLock.self) private var lock
     @State private var showingProfile = false
 
     var body: some View {
@@ -50,6 +51,50 @@ struct MoreView: View {
                     Text("저장")
                 } footer: {
                     Text("모든 기록은 이 기기에만 저장돼요. 로그인하지 않으면 네트워크를 쓰지 않아요. 기기를 바꿀 때는 백업 파일로 옮겨 주세요.")
+                }
+
+                Section {
+                    ForEach(ReminderScheduler.Category.allCases) { category in
+                        Toggle(isOn: Binding(
+                            get: { model.reminders.isEnabled(category) },
+                            set: { value in Task {
+                                await model.reminders.setEnabled(category, value)
+                                await model.reproject()
+                            } })) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(category.title)
+                                Text(category.detail).font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+                            }
+                        }
+                    }
+                    if model.reminders.authorizationDenied {
+                        Text("알림이 꺼져 있어요. 설정 앱 > 슈퍼공익 > 알림에서 켤 수 있어요.")
+                            .font(SGTypography.caption).foregroundStyle(.sg(SGColor.warning))
+                    }
+                } header: {
+                    Text("알림")
+                } footer: {
+                    Text("잠금 화면에는 ‘휴가’·‘근태’ 같은 분류만 보여요. 메모나 병가 여부는 알림에 넣지 않아요.")
+                }
+
+                Section {
+                    Toggle("\(lock.methodName)로 앱 잠금", isOn: Binding(
+                        get: { lock.lockEnabled },
+                        set: { value in Task { await lock.setLockEnabled(value) } }))
+                    .disabled(!lock.isAvailable && !lock.lockEnabled)
+                    Toggle("앱 전환 화면에서 내용 가리기", isOn: Binding(
+                        get: { lock.coverEnabled || lock.lockEnabled },
+                        set: { lock.coverEnabled = $0 }))
+                    .disabled(lock.lockEnabled)
+                    if let error = lock.lastError {
+                        Text(error).font(SGTypography.caption).foregroundStyle(.sg(SGColor.warning))
+                    }
+                } header: {
+                    Text("개인정보 보호")
+                } footer: {
+                    Text(lock.isAvailable
+                         ? "잠금을 켜면 앱을 다시 열 때 \(lock.methodName)로 확인해요. 인식이 안 되면 기기 암호로 열 수 있어요."
+                         : "기기 암호를 설정하면 앱 잠금을 쓸 수 있어요.")
                 }
 
                 Section("데이터") {

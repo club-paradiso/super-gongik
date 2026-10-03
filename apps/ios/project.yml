@@ -44,6 +44,7 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         ITSAppUsesNonExemptEncryption: false
+        NSFaceIDUsageDescription: 앱 잠금을 켜면 Face ID로 슈퍼공익 기록을 열어요.
         LSRequiresIPhoneOS: true
         UIApplicationSupportsIndirectInputEvents: true
         UIAppFonts:

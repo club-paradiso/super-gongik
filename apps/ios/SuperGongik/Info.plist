@@ -24,6 +24,8 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>앱 잠금을 켜면 Face ID로 슈퍼공익 기록을 열어요.</string>
 	<key>SGSupabaseAnonKey</key>
 	<string>$(SG_SUPABASE_ANON_KEY)</string>
 	<key>SGSupabaseURL</key>
