@@ -37,8 +37,11 @@ struct MoreView: View {
 
                 BackupExportView()
 
+                CSVExportSection()
+
                 Section {
                     NavigationLink("백업에서 복원") { BackupRestoreView() }
+                    NavigationLink("기관 기록 가져오기") { RecordImportView() }
                 }
 
                 Section {

@@ -9,6 +9,7 @@ import UniformTypeIdentifiers
 /// `serializeBackup`), byte-compatible with the web.
 struct BackupDocument: FileDocument {
     static let readableContentTypes: [UTType] = [.json]
+    static let writableContentTypes: [UTType] = [.json, .commaSeparatedText]
     var text: String
 
     init(text: String) { self.text = text }

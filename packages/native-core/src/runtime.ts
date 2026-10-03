@@ -34,7 +34,23 @@ import {
   evaluateMoneyMonth,
   type AttendanceDraft,
 } from "@/lib/money-model";
+import {
+  buildImportPreview,
+  createImportBatchDescriptor,
+  parseDelimitedText,
+  type ImportPreview,
+} from "@super-gongik/importer";
 import { findAttendanceMonth } from "@super-gongik/rules";
+import {
+  DECISION_LABELS,
+  buildImportCommit,
+  defaultAcceptedRows,
+  defaultAcceptedSnapshots,
+  describeImportSummary,
+  rowStatuses,
+  type EventOverride,
+} from "@/lib/import-model";
+import { buildLedgerForProfile } from "@/lib/projections";
 
 import { createNativeStorage, host } from "./host";
 import { buildNativeProjection } from "./projection";
@@ -254,6 +270,85 @@ export function createNativeRuntime() {
         );
       });
       return json(result);
+    },
+
+    // ── Institution record import (CSV/TSV text) ───────────────────────────
+
+    /**
+     * Parse delimited text and preview it exactly as the web import panel:
+     * candidate rows, statuses against stored records and default selection.
+     * Nothing is written.
+     */
+    async importPreview(
+      text: string,
+      fileName: string,
+      fileSha256: string | null,
+    ): Promise<string> {
+      const tabular = parseDelimitedText(text);
+      const batch = createImportBatchDescriptor({
+        fileName,
+        sourceFormat: tabular.format,
+        fileSha256,
+      });
+      const preview = await buildImportPreview(tabular, batch);
+      const statuses = rowStatuses(readyData(), preview);
+      return json({
+        preview,
+        statuses: Object.fromEntries(statuses),
+        acceptedRows: [...defaultAcceptedRows(preview, statuses)],
+        acceptedSnapshots: [...defaultAcceptedSnapshots(preview)],
+        decisionLabels: DECISION_LABELS,
+        alreadyImported: readyData().imports.some(
+          (record) =>
+            record.status === "ACTIVE" &&
+            fileSha256 !== null &&
+            record.fileSha256 === fileSha256,
+        ),
+      });
+    },
+
+    /** Commit accepted rows and snapshots of a preview (web import panel). */
+    async importCommit(
+      previewJson: string,
+      overridesJson: string,
+      acceptedRowsJson: string,
+      acceptedSnapshotsJson: string,
+    ): Promise<string> {
+      const preview = JSON.parse(previewJson) as ImportPreview;
+      const { input, rejected } = await buildImportCommit(
+        preview,
+        JSON.parse(overridesJson) as Record<number, EventOverride>,
+        new Set(JSON.parse(acceptedRowsJson) as number[]),
+        new Set(JSON.parse(acceptedSnapshotsJson) as number[]),
+      );
+      const result = await requireStore().run((data, context) =>
+        domain.commitImport(data, input, context),
+      );
+      return json(
+        result.ok
+          ? {
+              ok: true,
+              message: describeImportSummary(result.value, rejected.length),
+            }
+          : {
+              ok: false,
+              errors: result.errors,
+              rejected,
+            },
+      );
+    },
+
+    /** CSV exports offered by the web backup panel. */
+    exportCsv(kind: "events" | "leave", today: string): string {
+      const data = readyData();
+      if (kind === "events")
+        return json(domain.serviceEventsToCsv(data.events));
+      if (!data.profile) throw new Error("No profile.");
+      return json(
+        domain.leaveLedgerToCsv(
+          buildLedgerForProfile(data, data.profile, today as never).entries,
+        ),
+      );
     },
 
     /** Editor initial state for a stored event (or a new one on `date`). */

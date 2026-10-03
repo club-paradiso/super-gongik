@@ -9396,6 +9396,107 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 
 //#endregion
+//#region ../domain/src/store/csv.ts
+/**
+	* Cells starting with these characters are interpreted as formulas by
+	* spreadsheet apps (CSV injection). Prefix them with an apostrophe.
+	*/
+	const FORMULA_PREFIX = /^[=+\-@\t\r]/;
+	function csvCell(value) {
+		if (value === null || value === void 0) return "";
+		let text = String(value);
+		if (typeof value === "string" && FORMULA_PREFIX.test(text)) text = `'${text}`;
+		return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, "\"\"")}"` : text;
+	}
+	function toCsv(rows) {
+		return `\uFEFF${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;
+	}
+	function timingColumns(event) {
+		const timing = event.timing;
+		if (timing.kind === "ALL_DAY") return [
+			"종일",
+			timing.dayCount,
+			"",
+			"",
+			"",
+			""
+		];
+		if (timing.kind === "HALF_DAY") return [
+			"반일",
+			"",
+			timing.half === "AM" ? "오전" : timing.half === "PM" ? "오후" : "미상",
+			"",
+			"",
+			""
+		];
+		return [
+			"시간",
+			"",
+			"",
+			timing.durationMinutes ?? "확인 필요",
+			timing.startTime ?? "",
+			timing.endTime ?? ""
+		];
+	}
+	function serviceEventsToCsv(events) {
+		return toCsv([[
+			"시작일",
+			"종료일",
+			"종류",
+			"단위",
+			"차감일수",
+			"반일구분",
+			"사용분",
+			"시작시각",
+			"종료시각",
+			"제목",
+			"메모",
+			"출처",
+			"원본파일",
+			"기록ID",
+			"수정시각"
+		], ...events.filter(isLive).slice().sort((a, b) => a.startDate.localeCompare(b.startDate)).map((event) => [
+			event.startDate,
+			event.endDate,
+			SERVICE_EVENT_TYPE_LABELS[event.eventType],
+			...timingColumns(event),
+			event.title,
+			event.note,
+			event.source.kind === "IMPORT" ? "파일 가져오기" : "직접 입력",
+			event.source.kind === "IMPORT" ? event.source.fileName : "",
+			event.id,
+			event.updatedAt
+		])]);
+	}
+	function leaveLedgerToCsv(entries) {
+		const header = [
+			"날짜",
+			"구분",
+			"내용",
+			"변동(일)",
+			"변동(분)",
+			"누적 잔여(일)",
+			"누적 잔여(분)",
+			"예정"
+		];
+		const kindLabel = {
+			CREDIT: "부여",
+			USAGE: "사용",
+			CORRECTION: "보정"
+		};
+		return toCsv([header, ...entries.map((entry) => [
+			entry.date,
+			kindLabel[entry.kind],
+			entry.label,
+			entry.delta.halfDays / 2,
+			entry.delta.minutes,
+			entry.running.halfDays / 2,
+			entry.running.minutes,
+			entry.scheduled ? "예정" : ""
+		])]);
+	}
+
+//#endregion
 //#region ../domain/src/sync/remote.ts
 	const syncRecordKey = (collection, id) => conflictKey(collection, id);
 	const RECORD_SCHEMAS = {
@@ -11682,468 +11783,6 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 
 //#endregion
-//#region src/host.ts
-	function host() {
-		const value = globalThis.__sgHost;
-		if (!value) throw new Error("Native host is not installed.");
-		return value;
-	}
-	var NativeStorageError = class extends Error {
-		constructor(operation, detail) {
-			super(`${operation} failed: ${detail}`);
-			this.name = "NativeStorageError";
-		}
-	};
-	/**
-	* `KeyValueStorage` over the host's file store. Provider obligations from
-	* `repository.ts` (atomic replace, throw on failure, exact round trip) are
-	* met natively and covered by `SGPersistenceTests`.
-	*/
-	function createNativeStorage(native = host()) {
-		return {
-			async getItem(key) {
-				return native.kvGet(key);
-			},
-			async setItem(key, value) {
-				const error = native.kvSet(key, value);
-				if (error !== null) throw new NativeStorageError("setItem", error);
-			},
-			async removeItem(key) {
-				const error = native.kvRemove(key);
-				if (error !== null) throw new NativeStorageError("removeItem", error);
-			},
-			async keys() {
-				return native.kvKeys();
-			},
-			async compareAndSet(key, expected, value) {
-				const result = native.kvCompareAndSet(key, expected, value);
-				if (typeof result === "string") throw new NativeStorageError("compareAndSet", result);
-				return result;
-			}
-		};
-	}
-
-//#endregion
-//#region ../../apps/web/src/lib/home-model.ts
-/** D-30 and under reads as the last stretch. */
-	const FINAL_STRETCH_DAYS = 30;
-	const WEEKDAYS = [
-		"일",
-		"월",
-		"화",
-		"수",
-		"목",
-		"금",
-		"토"
-	];
-	function formatLongDate(date) {
-		const weekday = (/* @__PURE__ */ new Date(`${date}T00:00:00Z`)).getUTCDay();
-		return `${date.slice(0, 4)}년 ${Number(date.slice(5, 7))}월 ${Number(date.slice(8, 10))}일 (${WEEKDAYS[weekday]})`;
-	}
-	/** "오늘", "내일", "3일 후" — relative wording for a future date. */
-	function relativeDays(days) {
-		if (days === 0) return "오늘";
-		if (days === 1) return "내일";
-		if (days === 2) return "모레";
-		return `${days.toLocaleString("ko-KR")}일 후`;
-	}
-	function formatDdayNumber(days) {
-		return days === 0 ? "D-Day" : `D-${days.toLocaleString("ko-KR")}`;
-	}
-	/** Floors so the display reaches 100.0 only when service is complete. */
-	function floorPercent(elapsed, total) {
-		if (total <= 0) return 100;
-		return Math.floor(elapsed / total * 1e3) / 10;
-	}
-	const won = new Intl.NumberFormat("ko-KR");
-	function formatWon(amount) {
-		return `${won.format(amount)}원`;
-	}
-	function payBandMilestone(schedule, today) {
-		if (schedule.status !== "READY" || !schedule.next) return null;
-		const next = schedule.next;
-		return {
-			label: `${next.label} 급여 단계`,
-			date: next.startDate,
-			daysUntil: differenceInCalendarDays(next.startDate, today),
-			detail: next.monthlyAmount !== null ? `월 기본 보수 ${formatWon(next.monthlyAmount)} (${next.amountRuleVersion}년 기준)` : `${next.startDate.slice(0, 4)}년 보수 기준이 확인되면 금액을 보여 드려요`,
-			source: "PAY_BAND"
-		};
-	}
-	function milestoneDetail(kind, value) {
-		switch (kind) {
-			case "DAYS_REMAINING": return value === 1 ? "내일이 소집해제일" : `남은 복무 ${value}일`;
-			case "PERCENT": return value === 50 ? "복무 반환점" : `전체 복무의 ${value}% 지점`;
-			case "SERVICE_DAY": return "소집일을 1일째로 세어요";
-			case "SERVICE_YEAR": return "소집 1주년";
-			case "DISCHARGE": return "복무 마지막 날";
-			default: return null;
-		}
-	}
-	function buildHero(profile, projection, schedule, today) {
-		const { progress } = projection;
-		const discharge = profile.expectedDischargeDate;
-		const percent = progress.state === "COMPLETED" ? 100 : floorPercent(progress.elapsedDays, progress.totalServiceDays);
-		const base = {
-			percent,
-			percentLabel: `${percent.toFixed(1)}%`,
-			elapsedDays: progress.elapsedDays,
-			remainingDays: progress.remainingDays,
-			totalServiceDays: progress.totalServiceDays
-		};
-		const serviceNext = nextServiceMilestone(profile, today);
-		const bandNext = payBandMilestone(schedule, today);
-		const serviceCandidate = serviceNext ? {
-			label: serviceNext.label,
-			date: serviceNext.date,
-			daysUntil: differenceInCalendarDays(serviceNext.date, today),
-			detail: milestoneDetail(serviceNext.kind, serviceNext.value),
-			source: "SERVICE"
-		} : null;
-		const next = serviceCandidate && bandNext ? compareDateOnly(bandNext.date, serviceCandidate.date) < 0 ? bandNext : serviceCandidate : serviceCandidate ?? bandNext;
-		const reached = serviceMilestoneOn(profile, today);
-		const bandToday = schedule.status === "READY" && schedule.current && schedule.current.startDate === today && schedule.current.startDate !== profile.callUpDate ? `오늘부터 ${schedule.current.label} 급여 단계` : null;
-		const reachedToday = reached && reached.kind !== "CALL_UP" && reached.kind !== "DISCHARGE" ? `오늘 ${reached.label} 달성` : bandToday;
-		if (progress.state === "NOT_STARTED") {
-			const untilCallUp = differenceInCalendarDays(profile.callUpDate, today);
-			return {
-				...base,
-				phase: "PRE_SERVICE",
-				eyebrow: "소집까지",
-				headline: formatDdayNumber(untilCallUp),
-				headlineSpoken: `소집까지 ${untilCallUp}일`,
-				dateLine: `${formatLongDate(profile.callUpDate)} 소집`,
-				stateLabel: "소집 전",
-				live: false,
-				next: {
-					label: `${formatLongDate(discharge)} 소집해제`,
-					date: discharge,
-					daysUntil: progress.dDay,
-					detail: `복무 기간 ${progress.totalServiceDays.toLocaleString("ko-KR")}일`,
-					source: "SERVICE"
-				},
-				reachedToday: null
-			};
-		}
-		if (progress.state === "COMPLETED") {
-			const since = daysSinceDischarge(profile, today) ?? 0;
-			if (since === 0) return {
-				...base,
-				phase: "DISCHARGE_DAY",
-				eyebrow: "오늘 소집해제",
-				headline: "D-Day",
-				headlineSpoken: "오늘 소집해제일이에요",
-				dateLine: `${formatLongDate(discharge)} 소집해제`,
-				stateLabel: "소집해제일",
-				live: false,
-				next: null,
-				reachedToday: "복무를 마쳤어요. 수고 많으셨어요."
-			};
-			return {
-				...base,
-				phase: "COMPLETED",
-				eyebrow: "수고 많으셨어요",
-				headline: "복무 완료",
-				headlineSpoken: `복무 완료, 소집해제 후 ${since}일 지났어요`,
-				dateLine: `${formatLongDate(discharge)} 소집해제 · 오늘로 ${since.toLocaleString("ko-KR")}일째`,
-				stateLabel: "복무 완료",
-				live: false,
-				next: null,
-				reachedToday: null
-			};
-		}
-		const finalStretch = progress.dDay <= 30;
-		return {
-			...base,
-			phase: finalStretch ? "FINAL_STRETCH" : "IN_SERVICE",
-			eyebrow: "소집해제까지",
-			headline: formatDdayNumber(progress.dDay),
-			headlineSpoken: `소집해제까지 ${progress.dDay}일`,
-			dateLine: `${formatLongDate(discharge)} 소집해제`,
-			stateLabel: progress.dDay <= 7 ? "마지막 주" : finalStretch ? "마지막 한 달" : "복무 중",
-			live: true,
-			next,
-			reachedToday
-		};
-	}
-	function isNonZero(value) {
-		return value.halfDays !== 0 || value.minutes !== 0;
-	}
-	function buildLeave(projection) {
-		const { ledger, progress } = projection;
-		if (progress.state === "NOT_STARTED") return {
-			kind: "BEFORE_SERVICE",
-			caption: "소집일에 1년차 연가가 부여돼요"
-		};
-		const balance = ledger.balance;
-		if (balance.status === "NEEDS_CREDIT_CONFIRMATION") return {
-			kind: "NEEDS_CONFIRMATION",
-			caption: "기관에서 받은 부여 일수를 확인해 주세요"
-		};
-		const attendanceTotal = ledger.attendanceMinutes.OUTING + ledger.attendanceMinutes.LATE_ARRIVAL + ledger.attendanceMinutes.EARLY_LEAVE;
-		const scheduled = isNonZero(balance.scheduled) ? `예정 ${formatLeaveQuantity(balance.scheduled, 480)} 반영` : `사용 ${formatLeaveQuantity(balance.used, 480)}`;
-		return {
-			kind: "READY",
-			remaining: formatLeaveQuantity(balance.remainingAfterScheduled, 480),
-			caption: scheduled,
-			attendance: attendanceTotal > 0 ? `근태 누계 ${formatLeaveQuantity({
-				halfDays: 0,
-				minutes: attendanceTotal
-			}, null)}` : null
-		};
-	}
-	function buildPay(projection, schedule) {
-		const { compensation, progress } = projection;
-		const bandLabel = schedule.status === "READY" && schedule.current ? schedule.current.label : compensation.equivalentRank;
-		const payStep = currentPayStepOrdinal(schedule, compensation.serviceMonthOrdinal);
-		const band = bandLabel && payStep ? `${bandLabel} ${payStep}호봉` : bandLabel;
-		if (progress.state === "COMPLETED") return {
-			kind: "NONE",
-			caption: "소집해제 후 달은 계산하지 않아요"
-		};
-		if (progress.state === "NOT_STARTED") return {
-			kind: "NONE",
-			caption: "소집 후 첫 달부터 계산해요"
-		};
-		if (compensation.total !== null) return {
-			kind: "TOTAL",
-			amount: compensation.total,
-			caption: "기본 보수 + 중식비 + 교통비",
-			band
-		};
-		const base = compensation.components.find((item) => item.key === "BASE_PAY");
-		if (base?.status === "CALCULATED" && base.monthlyAmount !== null) return {
-			kind: "BASE_ONLY",
-			amount: base.monthlyAmount,
-			caption: "기본 보수 · 식비·교통비는 확인 후 더해요",
-			band
-		};
-		return {
-			kind: "PENDING",
-			caption: base?.status === "NEEDS_INPUT" ? "내 정보에서 몇 가지만 알려 주세요" : "계산 조건을 확인해 주세요",
-			band
-		};
-	}
-	function agendaItem(event, today) {
-		const days = differenceInCalendarDays(event.startDate, today);
-		return {
-			event,
-			daysUntil: Math.max(0, days),
-			isToday: days <= 0
-		};
-	}
-	function buildHomeModel(profile, projection, today, options = {}) {
-		const schedule = derivePayBandSchedule(profile, today);
-		const limit = options.upcomingLimit ?? 3;
-		const horizon = addDays(today, 1);
-		return {
-			hero: buildHero(profile, projection, schedule, today),
-			leave: buildLeave(projection),
-			pay: buildPay(projection, schedule),
-			today: projection.todayEvents.map((event) => agendaItem(event, today)),
-			upcoming: projection.liveEvents.filter((event) => compareDateOnly(event.startDate, horizon) >= 0).slice(0, limit).map((event) => agendaItem(event, today)),
-			completed: projection.progress.state === "COMPLETED"
-		};
-	}
-
-//#endregion
-//#region ../../apps/web/src/lib/projections.ts
-/**
-	* Thin application glue: combine domain records with rule-supplied inputs.
-	* No policy lives here; every number comes from `@super-gongik/domain` or
-	* `@super-gongik/rules`.
-	*/
-	function buildLedgerForProfile(data, profile, today) {
-		return buildLeaveLedger({
-			credits: deriveAnnualLeaveCredits({
-				callUpDate: profile.callUpDate,
-				referenceDate: today
-			}),
-			events: data.events,
-			adjustments: data.leaveAdjustments,
-			snapshots: data.leaveSnapshots,
-			workdayMinutes: profile.workdayMinutes,
-			today
-		});
-	}
-	function buildAppProjection(data, profile, today) {
-		const liveEvents = data.events.filter(isLive).sort((a, b) => a.startDate.localeCompare(b.startDate));
-		const todayEvents = liveEvents.filter((event) => compareDateOnly(event.startDate, today) <= 0 && compareDateOnly(today, event.endDate) <= 0);
-		return {
-			progress: calculateServiceProgress(profile, today),
-			ledger: buildLedgerForProfile(data, profile, today),
-			compensation: evaluateMonthlyCompensation(profile, today, {
-				events: data.events,
-				attendance: findAttendanceMonth(data.attendanceMonths, yearMonthOf(today))
-			}),
-			liveEvents,
-			nextEvent: liveEvents.find((event) => compareDateOnly(event.startDate, today) > 0) ?? null,
-			todayEvents
-		};
-	}
-
-//#endregion
-//#region ../../apps/web/src/lib/event-display.ts
-	const EVENT_CATEGORY = {
-		ANNUAL_LEAVE: "leave",
-		OFFICIAL_LEAVE: "leave",
-		SPECIAL_LEAVE: "leave",
-		COMPASSIONATE_LEAVE: "leave",
-		SICK_LEAVE: "sick",
-		OUTING: "attendance",
-		LATE_ARRIVAL: "attendance",
-		EARLY_LEAVE: "attendance",
-		EDUCATION: "duty",
-		TRAINING: "duty",
-		SERVICE_SUSPENSION: "nonpayable",
-		SERVICE_ABSENCE: "nonpayable",
-		EXCESS_ANNUAL_ABSENCE: "nonpayable",
-		USER_NOTE: "note"
-	};
-	const CATEGORY_LABELS = {
-		leave: "휴가",
-		sick: "병가",
-		attendance: "근태",
-		duty: "교육·훈련",
-		nonpayable: "보수 미지급",
-		note: "메모"
-	};
-	const EVENT_TYPE_GROUPS = [
-		{
-			label: "휴가",
-			types: [
-				"ANNUAL_LEAVE",
-				"SICK_LEAVE",
-				"OFFICIAL_LEAVE",
-				"SPECIAL_LEAVE",
-				"COMPASSIONATE_LEAVE"
-			]
-		},
-		{
-			label: "근태",
-			types: [
-				"OUTING",
-				"LATE_ARRIVAL",
-				"EARLY_LEAVE"
-			]
-		},
-		{
-			label: "교육·훈련",
-			types: ["EDUCATION", "TRAINING"]
-		},
-		{
-			label: "보수 미지급 사유",
-			types: [
-				"SERVICE_SUSPENSION",
-				"SERVICE_ABSENCE",
-				"EXCESS_ANNUAL_ABSENCE"
-			]
-		},
-		{
-			label: "기타",
-			types: ["USER_NOTE"]
-		}
-	];
-	function eventLabel(event) {
-		return event.title || SERVICE_EVENT_TYPE_LABELS[event.eventType];
-	}
-	function shortDate(date) {
-		return `${date.slice(5, 7)}.${date.slice(8, 10)}`;
-	}
-	function describeTiming(event) {
-		const timing = event.timing;
-		if (timing.kind === "ALL_DAY") {
-			if (event.startDate === event.endDate) return timing.dayCount === 1 ? "종일" : `종일 · ${timing.dayCount}일`;
-			return `${shortDate(event.startDate)}–${shortDate(event.endDate)} · ${timing.dayCount}일`;
-		}
-		if (timing.kind === "HALF_DAY") return timing.half === "AM" ? "오전 반일" : timing.half === "PM" ? "오후 반일" : "반일";
-		if (timing.durationMinutes === null) return "시간 확인 필요";
-		const range = timing.startTime && timing.endTime ? ` (${timing.startTime}–${timing.endTime})` : "";
-		return `${formatDurationMinutes(timing.durationMinutes)}${range}`;
-	}
-
-//#endregion
-//#region src/projection.ts
-/**
-	* Display strings for the leave screen, formatted exactly as the web ledger
-	* panel formats them: balances and entries with the 8-hour cumulative day
-	* (`ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY`), per-type totals without a
-	* workday assumption.
-	*/
-	function presentLedger(ledger) {
-		const format = (value) => formatLeaveQuantity(value, 480);
-		const balance = ledger.balance;
-		const koreanDates = (text) => text.replace(/\b\d{4}-\d{2}-\d{2}\b/g, (date) => isDateOnly(date) ? formatKoreanDate(date) : date);
-		return {
-			credits: ledger.credits.map((credit) => ({
-				amount: credit.countedHalfDays !== null ? formatLeaveQuantity({
-					halfDays: credit.countedHalfDays,
-					minutes: 0
-				}, null) : "미확인",
-				explanation: koreanDates(credit.explanation)
-			})),
-			balance: {
-				granted: format(balance.granted),
-				upcomingCredits: format(balance.upcomingCredits),
-				corrections: format(balance.corrections),
-				used: format(balance.used),
-				scheduled: format(balance.scheduled),
-				available: format(balance.available),
-				remainingAfterScheduled: format(balance.remainingAfterScheduled)
-			},
-			entries: ledger.entries.map((entry) => ({
-				delta: format(entry.delta),
-				running: format(entry.running)
-			})),
-			byType: ledger.byType.map((item) => formatLeaveQuantity(item.total, null)),
-			attendanceTotal: format({
-				halfDays: 0,
-				minutes: ledger.attendanceMinutes.OUTING + ledger.attendanceMinutes.LATE_ARRIVAL + ledger.attendanceMinutes.EARLY_LEAVE
-			}),
-			reconciliation: ledger.reconciliation.status === "MATCH" || ledger.reconciliation.status === "DIFFERENT" ? {
-				institutionRemaining: format(ledger.reconciliation.institutionRemaining),
-				appRemaining: format(ledger.reconciliation.appRemaining),
-				difference: format(ledger.reconciliation.difference)
-			} : null
-		};
-	}
-	/**
-	* What every native screen renders for one Seoul civil date: the web's
-	* `buildAppProjection` and `buildHomeModel`, plus the credit list and pay
-	* band schedule the money and leave screens read directly.
-	*/
-	function buildNativeProjection(data, today) {
-		if (!isDateOnly(today)) throw new RangeError(`Invalid date: ${today}`);
-		const date = today;
-		const profile = data.profile;
-		if (!profile) return {
-			today: date,
-			profile: null
-		};
-		const projection = buildAppProjection(data, profile, date);
-		const payBands = derivePayBandSchedule(profile, date);
-		return {
-			today: date,
-			profile,
-			...projection,
-			home: buildHomeModel(profile, projection, date),
-			leaveText: presentLedger(projection.ledger),
-			eventDisplay: Object.fromEntries(projection.liveEvents.map((event) => [event.id, {
-				category: EVENT_CATEGORY[event.eventType],
-				categoryLabel: CATEGORY_LABELS[EVENT_CATEGORY[event.eventType]],
-				label: eventLabel(event),
-				timing: describeTiming(event)
-			}])),
-			credits: deriveAnnualLeaveCredits({
-				callUpDate: profile.callUpDate,
-				referenceDate: date
-			}),
-			payBands,
-			payStepOrdinal: currentPayStepOrdinal(payBands, projection.compensation.serviceMonthOrdinal)
-		};
-	}
-
-//#endregion
 //#region ../importer/src/classify.ts
 	const EVENT_TYPE_SYNONYMS = [
 		{
@@ -12309,6 +11948,151 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			}],
 			halfDayHint: false,
 			halfDayPart: null
+		};
+	}
+
+//#endregion
+//#region ../importer/src/commit.ts
+	function minutesBetween(start, end) {
+		const [startHours, startMinutes] = start.split(":").map(Number);
+		const [endHours, endMinutes] = end.split(":").map(Number);
+		const difference = endHours * 60 + endMinutes - (startHours * 60 + startMinutes);
+		return difference > 0 ? difference : null;
+	}
+	function timingFor(candidate) {
+		if (candidate.warnings.some((warning) => warning.code === "MIXED_DAY_AND_TIME")) return { error: "일과 시간이 섞여 있어 나눠서 입력해야 해요." };
+		if (candidate.halfDay) return {
+			timing: {
+				kind: "HALF_DAY",
+				half: candidate.halfDayPart
+			},
+			endDateFromDays: null
+		};
+		if (candidate.durationDays !== null) {
+			if (Number.isInteger(candidate.durationDays) && candidate.durationDays >= 1) return {
+				timing: {
+					kind: "ALL_DAY",
+					dayCount: candidate.durationDays
+				},
+				endDateFromDays: candidate.durationDays
+			};
+			return { error: `${candidate.durationDays}일은 분 단위 확인이 필요해요.` };
+		}
+		const start = candidate.startTime;
+		const end = candidate.endTime;
+		const orderedTimes = start && end && minutesBetween(start, end) !== null ? {
+			startTime: start,
+			endTime: end
+		} : {
+			startTime: null,
+			endTime: null
+		};
+		if (candidate.durationMinutes !== null) {
+			if (candidate.durationMinutes <= 0 || candidate.durationMinutes >= 1440) return { error: `${candidate.durationMinutes}분은 하루 안의 사용 시간이 아니에요.` };
+			return {
+				timing: {
+					kind: "PARTIAL",
+					durationMinutes: candidate.durationMinutes,
+					...orderedTimes
+				},
+				endDateFromDays: null
+			};
+		}
+		if (orderedTimes.startTime && orderedTimes.endTime) return {
+			timing: {
+				kind: "PARTIAL",
+				durationMinutes: minutesBetween(orderedTimes.startTime, orderedTimes.endTime),
+				...orderedTimes
+			},
+			endDateFromDays: null
+		};
+		if (start || end || !candidate.allDay) return {
+			timing: {
+				kind: "PARTIAL",
+				durationMinutes: null,
+				startTime: null,
+				endTime: null
+			},
+			endDateFromDays: null
+		};
+		return {
+			timing: {
+				kind: "ALL_DAY",
+				dayCount: 1
+			},
+			endDateFromDays: null
+		};
+	}
+	/**
+	* Convert a previewed row into a canonical event draft. The only inference
+	* made is the end date of a multi-day row that states just a start date and a
+	* charged day count; that inference is returned as a note for the preview.
+	*/
+	function candidateToImportDraft(candidate, batch) {
+		if (!candidate.date || !isDateOnly(candidate.date)) return {
+			ok: false,
+			reason: "날짜를 확인해 주세요."
+		};
+		if (!candidate.eventType) return {
+			ok: false,
+			reason: "종류를 선택해 주세요."
+		};
+		if (!candidate.fingerprint) return {
+			ok: false,
+			reason: "행 식별값을 만들지 못했어요."
+		};
+		const resolved = timingFor(candidate);
+		if ("error" in resolved) return {
+			ok: false,
+			reason: resolved.error
+		};
+		const startDate = candidate.date;
+		const notes = [];
+		let endDate = startDate;
+		if (resolved.endDateFromDays && resolved.endDateFromDays > 1) {
+			endDate = endDateForChargedDays(startDate, resolved.endDateFromDays);
+			notes.push(`종료일은 주말을 빼고 ${endDate}로 추정했어요.`);
+		}
+		if (resolved.timing.kind === "PARTIAL" && resolved.timing.durationMinutes === null) notes.push("사용 시간이 없어 '시간 확인 필요'로 저장돼요. 연가 잔여 계산에서는 빠져요.");
+		return {
+			ok: true,
+			notes,
+			draft: {
+				draft: {
+					eventType: candidate.eventType,
+					startDate,
+					endDate,
+					timing: resolved.timing,
+					title: null,
+					note: candidate.note?.slice(0, 500) ?? null
+				},
+				source: {
+					kind: "IMPORT",
+					batchId: batch.id,
+					format: batch.sourceFormat,
+					fileName: batch.fileName,
+					fingerprint: candidate.fingerprint,
+					confidence: Math.min(1, Math.max(0, candidate.confidence)),
+					sourceRowIndex: candidate.sourceRowIndex
+				}
+			}
+		};
+	}
+	function buildImportDrafts(preview, acceptedRowIndexes) {
+		const drafts = [];
+		const rejected = [];
+		for (const candidate of preview.events) {
+			if (!acceptedRowIndexes.has(candidate.sourceRowIndex)) continue;
+			const conversion = candidateToImportDraft(candidate, preview.batch);
+			if (conversion.ok) drafts.push(conversion.draft);
+			else rejected.push({
+				sourceRowIndex: candidate.sourceRowIndex,
+				reason: conversion.reason
+			});
+		}
+		return {
+			drafts,
+			rejected
 		};
 	}
 
@@ -12613,6 +12397,28 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 
 //#endregion
+//#region ../importer/src/fingerprint.ts
+	function toHex(buffer) {
+		return Array.from(new Uint8Array(buffer)).map((value) => value.toString(16).padStart(2, "0")).join("");
+	}
+	async function sha256(value) {
+		const input = typeof value === "string" ? new TextEncoder().encode(value) : new Uint8Array(value);
+		return toHex(await crypto.subtle.digest("SHA-256", input));
+	}
+	async function fingerprintEventCandidate(candidate) {
+		return sha256(JSON.stringify({
+			date: candidate.date,
+			eventType: candidate.eventType,
+			allDay: candidate.allDay,
+			durationDays: candidate.durationDays,
+			durationMinutes: candidate.durationMinutes,
+			startTime: candidate.startTime,
+			endTime: candidate.endTime,
+			note: candidate.note?.trim() || null
+		}));
+	}
+
+//#endregion
 //#region ../importer/src/normalize.ts
 	function cellToString(value) {
 		if (value === null || value === void 0) return "";
@@ -12801,6 +12607,657 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			warnings,
 			fingerprint: null,
 			raw: row
+		};
+	}
+
+//#endregion
+//#region ../importer/src/preview.ts
+/** Rows carrying these warnings are never pre-selected for commit. */
+	const BLOCKING_WARNING_CODES = [
+		"AMBIGUOUS_HALF_DAY",
+		"AMBIGUOUS_DAY_FRACTION",
+		"AMBIGUOUS_NUMERIC_DURATION",
+		"AMBIGUOUS_SNAPSHOT_QUANTITY",
+		"EMPTY_SNAPSHOT",
+		"MIXED_DAY_AND_TIME"
+	];
+	function createImportBatchDescriptor(input) {
+		return {
+			id: input.id ?? createId(),
+			fileName: input.fileName,
+			sourceFormat: input.sourceFormat,
+			fileSha256: input.fileSha256 ?? null,
+			createdAt: input.createdAt ?? (/* @__PURE__ */ new Date()).toISOString()
+		};
+	}
+	function getValue(row, mappings, target) {
+		const header = findMappedHeader(mappings, target);
+		return header ? row[header] : null;
+	}
+	function normalizeSnapshotRow(row, sourceRowIndex, mappings) {
+		const classification = classifyEventType(getValue(row, mappings, "eventType"));
+		const quantity = (target) => parseQuantity(getValue(row, mappings, target), findMappedHeader(mappings, target));
+		const granted = quantity("granted");
+		const used = quantity("used");
+		const remaining = quantity("remaining");
+		const warnings = [...classification.warnings];
+		if (granted.ambiguousNumber || used.ambiguousNumber || remaining.ambiguousNumber) warnings.push({
+			code: "AMBIGUOUS_SNAPSHOT_QUANTITY",
+			message: "기관 잔액 값에 일·시간·분 단위가 없어 자동 저장하지 않습니다. 원문 단위를 확인해 주세요."
+		});
+		if (![
+			granted.days,
+			granted.minutes,
+			used.days,
+			used.minutes,
+			remaining.days,
+			remaining.minutes
+		].some((value) => value !== null)) warnings.push({
+			code: "EMPTY_SNAPSHOT",
+			message: "부여·사용·잔여 중 해석 가능한 값이 없어 기관 잔액으로 저장하지 않습니다."
+		});
+		return {
+			sourceRowIndex,
+			leaveType: classification.eventType,
+			asOfDate: parseDateCell(getValue(row, mappings, "asOfDate")) ?? parseDateCell(getValue(row, mappings, "date")),
+			grantedDays: granted.days,
+			grantedMinutes: granted.minutes,
+			usedDays: used.days,
+			usedMinutes: used.minutes,
+			remainingDays: remaining.days,
+			remainingMinutes: remaining.minutes,
+			confidence: classification.confidence,
+			warnings,
+			raw: row
+		};
+	}
+	async function buildImportPreview(tabular, batch, mappingOverride) {
+		const mappings = mappingOverride ?? mapColumns(tabular.headers);
+		const shape = assessColumnMappings(mappings);
+		const events = [];
+		const snapshots = [];
+		const unresolvedRowIndexes = [];
+		for (let index = 0; index < tabular.rows.length; index += 1) {
+			const row = tabular.rows[index];
+			const sourceRowIndex = tabular.rowSourceIndexes?.[index] ?? index + 2;
+			if (shape.kind === "SNAPSHOT") {
+				const snapshot = normalizeSnapshotRow(row, sourceRowIndex, mappings);
+				snapshots.push(snapshot);
+				if (!snapshot.leaveType || snapshot.confidence < .7 || snapshot.warnings.some((warning) => BLOCKING_WARNING_CODES.includes(warning.code))) unresolvedRowIndexes.push(sourceRowIndex);
+				continue;
+			}
+			const candidate = normalizeEventRow(row, sourceRowIndex, mappings);
+			if (candidate.date && candidate.eventType) candidate.fingerprint = await fingerprintEventCandidate(candidate);
+			events.push(candidate);
+			if (!candidate.date || !candidate.eventType || candidate.confidence < .7 || candidate.warnings.some((warning) => BLOCKING_WARNING_CODES.includes(warning.code))) unresolvedRowIndexes.push(sourceRowIndex);
+		}
+		return {
+			batch,
+			mappings,
+			events,
+			snapshots,
+			unresolvedRowIndexes
+		};
+	}
+
+//#endregion
+//#region ../../apps/web/src/lib/import-model.ts
+/**
+	* The import panel's decisions, kept free of React so the native client
+	* imports exactly the same way: each row's status against current records,
+	* which rows and balance snapshots are pre-selected, how a user's edits to a
+	* row are applied, and what is committed.
+	*/
+	const DECISION_LABELS = {
+		NEW: "",
+		DUPLICATE_IMPORT: "이미 가져온 기록",
+		DUPLICATE_CONTENT: "같은 기록이 이미 있음",
+		CONFLICT: "기존 휴가와 겹침"
+	};
+	/** Status of every candidate row against the records already stored. */
+	function rowStatuses(data, preview) {
+		const all = new Set(preview.events.map((event) => event.sourceRowIndex));
+		const { drafts, rejected } = buildImportDrafts(preview, all);
+		const statuses = /* @__PURE__ */ new Map();
+		for (const item of rejected) statuses.set(item.sourceRowIndex, {
+			decision: "UNRESOLVED",
+			message: item.reason
+		});
+		for (const decision of planImportRows(data, drafts)) statuses.set(decision.draft.source.sourceRowIndex, {
+			decision: decision.status,
+			message: decision.status === "CONFLICT" ? decision.errors[0]?.message ?? null : decision.status === "NEW" ? decision.warnings.find((warning) => warning.code === "LEAVE_OVERLAP_UNRESOLVED")?.message ?? null : DECISION_LABELS[decision.status] || null
+		});
+		return statuses;
+	}
+	/**
+	* Rows selected by default: new, fully understood, with no undecidable
+	* overlap and no blocking warning. Anything else needs an explicit opt-in.
+	*/
+	function defaultAcceptedRows(preview, statuses) {
+		return new Set(preview.events.filter((event) => event.date && event.eventType && statuses.get(event.sourceRowIndex)?.decision === "NEW" && !statuses.get(event.sourceRowIndex)?.message && !event.warnings.some((warning) => BLOCKING_WARNING_CODES.includes(warning.code))).map((event) => event.sourceRowIndex));
+	}
+	/** Institution balance rows selected by default (confidence ≥ 0.7). */
+	function defaultAcceptedSnapshots(preview) {
+		return new Set(preview.snapshots.filter((snapshot) => snapshot.leaveType && snapshot.confidence >= .7 && !snapshot.warnings.some((warning) => BLOCKING_WARNING_CODES.includes(warning.code))).map((snapshot) => snapshot.sourceRowIndex));
+	}
+	/** Apply a user's edits to one candidate row and re-derive its fingerprint. */
+	async function adjustCandidate(candidate, override) {
+		const durationInput = override?.durationMinutes?.trim();
+		const hasDurationOverride = Boolean(durationInput);
+		const durationMinutes = hasDurationOverride ? Number(durationInput) : candidate.durationMinutes;
+		const validDurationMinutes = durationMinutes !== null && durationMinutes !== void 0 && Number.isFinite(durationMinutes) && durationMinutes >= 0 ? durationMinutes : null;
+		const adjusted = {
+			...candidate,
+			date: override?.date ?? candidate.date,
+			eventType: override?.eventType === "" ? null : override?.eventType ?? candidate.eventType,
+			durationDays: hasDurationOverride ? null : candidate.durationDays,
+			durationMinutes: validDurationMinutes,
+			halfDay: hasDurationOverride ? false : candidate.halfDay,
+			warnings: hasDurationOverride ? candidate.warnings.filter((warning) => !BLOCKING_WARNING_CODES.includes(warning.code)) : candidate.warnings
+		};
+		if (adjusted.eventType !== "ANNUAL_LEAVE") adjusted.halfDay = false;
+		adjusted.allDay = !adjusted.halfDay && (adjusted.durationDays !== null && Number.isInteger(adjusted.durationDays) || adjusted.durationMinutes === null && !adjusted.startTime && !adjusted.endTime);
+		adjusted.fingerprint = adjusted.date && adjusted.eventType ? await fingerprintEventCandidate(adjusted) : null;
+		return adjusted;
+	}
+	/** The `commitImport` input for the accepted rows and snapshots. */
+	async function buildImportCommit(preview, overrides, acceptedRows, acceptedSnapshots) {
+		const events = await Promise.all(preview.events.map((candidate) => adjustCandidate(candidate, overrides[candidate.sourceRowIndex])));
+		const adjustedPreview = {
+			...preview,
+			events
+		};
+		const { drafts, rejected } = buildImportDrafts(adjustedPreview, acceptedRows);
+		const snapshots = adjustedPreview.snapshots.filter((snapshot) => acceptedSnapshots.has(snapshot.sourceRowIndex) && snapshot.leaveType && !snapshot.warnings.some((warning) => BLOCKING_WARNING_CODES.includes(warning.code))).map((snapshot) => ({
+			leaveType: snapshot.leaveType,
+			asOfDate: snapshot.asOfDate,
+			grantedDays: snapshot.grantedDays,
+			grantedMinutes: snapshot.grantedMinutes,
+			usedDays: snapshot.usedDays,
+			usedMinutes: snapshot.usedMinutes,
+			remainingDays: snapshot.remainingDays,
+			remainingMinutes: snapshot.remainingMinutes,
+			confidence: snapshot.confidence,
+			sourceRowIndex: snapshot.sourceRowIndex
+		}));
+		return {
+			input: {
+				batch: preview.batch,
+				drafts,
+				snapshots
+			},
+			rejected
+		};
+	}
+	/** Result sentence after a commit. */
+	function describeImportSummary(summary, rejectedBeforeCommit) {
+		const pieces = [`복무기록 ${summary.added}건`];
+		if (summary.snapshots) pieces.push(`기관 잔액 ${summary.snapshots}건`);
+		let text = `${pieces.join(", ")}을 저장했어요.`;
+		if (summary.skippedDuplicates) text += ` 중복 ${summary.skippedDuplicates}건은 건너뛰었어요.`;
+		if (summary.rejected || rejectedBeforeCommit) text += ` 확인이 필요한 ${summary.rejected + rejectedBeforeCommit}건은 저장하지 않았어요.`;
+		return text;
+	}
+
+//#endregion
+//#region ../../apps/web/src/lib/projections.ts
+/**
+	* Thin application glue: combine domain records with rule-supplied inputs.
+	* No policy lives here; every number comes from `@super-gongik/domain` or
+	* `@super-gongik/rules`.
+	*/
+	function buildLedgerForProfile(data, profile, today) {
+		return buildLeaveLedger({
+			credits: deriveAnnualLeaveCredits({
+				callUpDate: profile.callUpDate,
+				referenceDate: today
+			}),
+			events: data.events,
+			adjustments: data.leaveAdjustments,
+			snapshots: data.leaveSnapshots,
+			workdayMinutes: profile.workdayMinutes,
+			today
+		});
+	}
+	function buildAppProjection(data, profile, today) {
+		const liveEvents = data.events.filter(isLive).sort((a, b) => a.startDate.localeCompare(b.startDate));
+		const todayEvents = liveEvents.filter((event) => compareDateOnly(event.startDate, today) <= 0 && compareDateOnly(today, event.endDate) <= 0);
+		return {
+			progress: calculateServiceProgress(profile, today),
+			ledger: buildLedgerForProfile(data, profile, today),
+			compensation: evaluateMonthlyCompensation(profile, today, {
+				events: data.events,
+				attendance: findAttendanceMonth(data.attendanceMonths, yearMonthOf(today))
+			}),
+			liveEvents,
+			nextEvent: liveEvents.find((event) => compareDateOnly(event.startDate, today) > 0) ?? null,
+			todayEvents
+		};
+	}
+
+//#endregion
+//#region src/host.ts
+	function host() {
+		const value = globalThis.__sgHost;
+		if (!value) throw new Error("Native host is not installed.");
+		return value;
+	}
+	var NativeStorageError = class extends Error {
+		constructor(operation, detail) {
+			super(`${operation} failed: ${detail}`);
+			this.name = "NativeStorageError";
+		}
+	};
+	/**
+	* `KeyValueStorage` over the host's file store. Provider obligations from
+	* `repository.ts` (atomic replace, throw on failure, exact round trip) are
+	* met natively and covered by `SGPersistenceTests`.
+	*/
+	function createNativeStorage(native = host()) {
+		return {
+			async getItem(key) {
+				return native.kvGet(key);
+			},
+			async setItem(key, value) {
+				const error = native.kvSet(key, value);
+				if (error !== null) throw new NativeStorageError("setItem", error);
+			},
+			async removeItem(key) {
+				const error = native.kvRemove(key);
+				if (error !== null) throw new NativeStorageError("removeItem", error);
+			},
+			async keys() {
+				return native.kvKeys();
+			},
+			async compareAndSet(key, expected, value) {
+				const result = native.kvCompareAndSet(key, expected, value);
+				if (typeof result === "string") throw new NativeStorageError("compareAndSet", result);
+				return result;
+			}
+		};
+	}
+
+//#endregion
+//#region ../../apps/web/src/lib/home-model.ts
+/** D-30 and under reads as the last stretch. */
+	const FINAL_STRETCH_DAYS = 30;
+	const WEEKDAYS = [
+		"일",
+		"월",
+		"화",
+		"수",
+		"목",
+		"금",
+		"토"
+	];
+	function formatLongDate(date) {
+		const weekday = (/* @__PURE__ */ new Date(`${date}T00:00:00Z`)).getUTCDay();
+		return `${date.slice(0, 4)}년 ${Number(date.slice(5, 7))}월 ${Number(date.slice(8, 10))}일 (${WEEKDAYS[weekday]})`;
+	}
+	/** "오늘", "내일", "3일 후" — relative wording for a future date. */
+	function relativeDays(days) {
+		if (days === 0) return "오늘";
+		if (days === 1) return "내일";
+		if (days === 2) return "모레";
+		return `${days.toLocaleString("ko-KR")}일 후`;
+	}
+	function formatDdayNumber(days) {
+		return days === 0 ? "D-Day" : `D-${days.toLocaleString("ko-KR")}`;
+	}
+	/** Floors so the display reaches 100.0 only when service is complete. */
+	function floorPercent(elapsed, total) {
+		if (total <= 0) return 100;
+		return Math.floor(elapsed / total * 1e3) / 10;
+	}
+	const won = new Intl.NumberFormat("ko-KR");
+	function formatWon(amount) {
+		return `${won.format(amount)}원`;
+	}
+	function payBandMilestone(schedule, today) {
+		if (schedule.status !== "READY" || !schedule.next) return null;
+		const next = schedule.next;
+		return {
+			label: `${next.label} 급여 단계`,
+			date: next.startDate,
+			daysUntil: differenceInCalendarDays(next.startDate, today),
+			detail: next.monthlyAmount !== null ? `월 기본 보수 ${formatWon(next.monthlyAmount)} (${next.amountRuleVersion}년 기준)` : `${next.startDate.slice(0, 4)}년 보수 기준이 확인되면 금액을 보여 드려요`,
+			source: "PAY_BAND"
+		};
+	}
+	function milestoneDetail(kind, value) {
+		switch (kind) {
+			case "DAYS_REMAINING": return value === 1 ? "내일이 소집해제일" : `남은 복무 ${value}일`;
+			case "PERCENT": return value === 50 ? "복무 반환점" : `전체 복무의 ${value}% 지점`;
+			case "SERVICE_DAY": return "소집일을 1일째로 세어요";
+			case "SERVICE_YEAR": return "소집 1주년";
+			case "DISCHARGE": return "복무 마지막 날";
+			default: return null;
+		}
+	}
+	function buildHero(profile, projection, schedule, today) {
+		const { progress } = projection;
+		const discharge = profile.expectedDischargeDate;
+		const percent = progress.state === "COMPLETED" ? 100 : floorPercent(progress.elapsedDays, progress.totalServiceDays);
+		const base = {
+			percent,
+			percentLabel: `${percent.toFixed(1)}%`,
+			elapsedDays: progress.elapsedDays,
+			remainingDays: progress.remainingDays,
+			totalServiceDays: progress.totalServiceDays
+		};
+		const serviceNext = nextServiceMilestone(profile, today);
+		const bandNext = payBandMilestone(schedule, today);
+		const serviceCandidate = serviceNext ? {
+			label: serviceNext.label,
+			date: serviceNext.date,
+			daysUntil: differenceInCalendarDays(serviceNext.date, today),
+			detail: milestoneDetail(serviceNext.kind, serviceNext.value),
+			source: "SERVICE"
+		} : null;
+		const next = serviceCandidate && bandNext ? compareDateOnly(bandNext.date, serviceCandidate.date) < 0 ? bandNext : serviceCandidate : serviceCandidate ?? bandNext;
+		const reached = serviceMilestoneOn(profile, today);
+		const bandToday = schedule.status === "READY" && schedule.current && schedule.current.startDate === today && schedule.current.startDate !== profile.callUpDate ? `오늘부터 ${schedule.current.label} 급여 단계` : null;
+		const reachedToday = reached && reached.kind !== "CALL_UP" && reached.kind !== "DISCHARGE" ? `오늘 ${reached.label} 달성` : bandToday;
+		if (progress.state === "NOT_STARTED") {
+			const untilCallUp = differenceInCalendarDays(profile.callUpDate, today);
+			return {
+				...base,
+				phase: "PRE_SERVICE",
+				eyebrow: "소집까지",
+				headline: formatDdayNumber(untilCallUp),
+				headlineSpoken: `소집까지 ${untilCallUp}일`,
+				dateLine: `${formatLongDate(profile.callUpDate)} 소집`,
+				stateLabel: "소집 전",
+				live: false,
+				next: {
+					label: `${formatLongDate(discharge)} 소집해제`,
+					date: discharge,
+					daysUntil: progress.dDay,
+					detail: `복무 기간 ${progress.totalServiceDays.toLocaleString("ko-KR")}일`,
+					source: "SERVICE"
+				},
+				reachedToday: null
+			};
+		}
+		if (progress.state === "COMPLETED") {
+			const since = daysSinceDischarge(profile, today) ?? 0;
+			if (since === 0) return {
+				...base,
+				phase: "DISCHARGE_DAY",
+				eyebrow: "오늘 소집해제",
+				headline: "D-Day",
+				headlineSpoken: "오늘 소집해제일이에요",
+				dateLine: `${formatLongDate(discharge)} 소집해제`,
+				stateLabel: "소집해제일",
+				live: false,
+				next: null,
+				reachedToday: "복무를 마쳤어요. 수고 많으셨어요."
+			};
+			return {
+				...base,
+				phase: "COMPLETED",
+				eyebrow: "수고 많으셨어요",
+				headline: "복무 완료",
+				headlineSpoken: `복무 완료, 소집해제 후 ${since}일 지났어요`,
+				dateLine: `${formatLongDate(discharge)} 소집해제 · 오늘로 ${since.toLocaleString("ko-KR")}일째`,
+				stateLabel: "복무 완료",
+				live: false,
+				next: null,
+				reachedToday: null
+			};
+		}
+		const finalStretch = progress.dDay <= 30;
+		return {
+			...base,
+			phase: finalStretch ? "FINAL_STRETCH" : "IN_SERVICE",
+			eyebrow: "소집해제까지",
+			headline: formatDdayNumber(progress.dDay),
+			headlineSpoken: `소집해제까지 ${progress.dDay}일`,
+			dateLine: `${formatLongDate(discharge)} 소집해제`,
+			stateLabel: progress.dDay <= 7 ? "마지막 주" : finalStretch ? "마지막 한 달" : "복무 중",
+			live: true,
+			next,
+			reachedToday
+		};
+	}
+	function isNonZero(value) {
+		return value.halfDays !== 0 || value.minutes !== 0;
+	}
+	function buildLeave(projection) {
+		const { ledger, progress } = projection;
+		if (progress.state === "NOT_STARTED") return {
+			kind: "BEFORE_SERVICE",
+			caption: "소집일에 1년차 연가가 부여돼요"
+		};
+		const balance = ledger.balance;
+		if (balance.status === "NEEDS_CREDIT_CONFIRMATION") return {
+			kind: "NEEDS_CONFIRMATION",
+			caption: "기관에서 받은 부여 일수를 확인해 주세요"
+		};
+		const attendanceTotal = ledger.attendanceMinutes.OUTING + ledger.attendanceMinutes.LATE_ARRIVAL + ledger.attendanceMinutes.EARLY_LEAVE;
+		const scheduled = isNonZero(balance.scheduled) ? `예정 ${formatLeaveQuantity(balance.scheduled, 480)} 반영` : `사용 ${formatLeaveQuantity(balance.used, 480)}`;
+		return {
+			kind: "READY",
+			remaining: formatLeaveQuantity(balance.remainingAfterScheduled, 480),
+			caption: scheduled,
+			attendance: attendanceTotal > 0 ? `근태 누계 ${formatLeaveQuantity({
+				halfDays: 0,
+				minutes: attendanceTotal
+			}, null)}` : null
+		};
+	}
+	function buildPay(projection, schedule) {
+		const { compensation, progress } = projection;
+		const bandLabel = schedule.status === "READY" && schedule.current ? schedule.current.label : compensation.equivalentRank;
+		const payStep = currentPayStepOrdinal(schedule, compensation.serviceMonthOrdinal);
+		const band = bandLabel && payStep ? `${bandLabel} ${payStep}호봉` : bandLabel;
+		if (progress.state === "COMPLETED") return {
+			kind: "NONE",
+			caption: "소집해제 후 달은 계산하지 않아요"
+		};
+		if (progress.state === "NOT_STARTED") return {
+			kind: "NONE",
+			caption: "소집 후 첫 달부터 계산해요"
+		};
+		if (compensation.total !== null) return {
+			kind: "TOTAL",
+			amount: compensation.total,
+			caption: "기본 보수 + 중식비 + 교통비",
+			band
+		};
+		const base = compensation.components.find((item) => item.key === "BASE_PAY");
+		if (base?.status === "CALCULATED" && base.monthlyAmount !== null) return {
+			kind: "BASE_ONLY",
+			amount: base.monthlyAmount,
+			caption: "기본 보수 · 식비·교통비는 확인 후 더해요",
+			band
+		};
+		return {
+			kind: "PENDING",
+			caption: base?.status === "NEEDS_INPUT" ? "내 정보에서 몇 가지만 알려 주세요" : "계산 조건을 확인해 주세요",
+			band
+		};
+	}
+	function agendaItem(event, today) {
+		const days = differenceInCalendarDays(event.startDate, today);
+		return {
+			event,
+			daysUntil: Math.max(0, days),
+			isToday: days <= 0
+		};
+	}
+	function buildHomeModel(profile, projection, today, options = {}) {
+		const schedule = derivePayBandSchedule(profile, today);
+		const limit = options.upcomingLimit ?? 3;
+		const horizon = addDays(today, 1);
+		return {
+			hero: buildHero(profile, projection, schedule, today),
+			leave: buildLeave(projection),
+			pay: buildPay(projection, schedule),
+			today: projection.todayEvents.map((event) => agendaItem(event, today)),
+			upcoming: projection.liveEvents.filter((event) => compareDateOnly(event.startDate, horizon) >= 0).slice(0, limit).map((event) => agendaItem(event, today)),
+			completed: projection.progress.state === "COMPLETED"
+		};
+	}
+
+//#endregion
+//#region ../../apps/web/src/lib/event-display.ts
+	const EVENT_CATEGORY = {
+		ANNUAL_LEAVE: "leave",
+		OFFICIAL_LEAVE: "leave",
+		SPECIAL_LEAVE: "leave",
+		COMPASSIONATE_LEAVE: "leave",
+		SICK_LEAVE: "sick",
+		OUTING: "attendance",
+		LATE_ARRIVAL: "attendance",
+		EARLY_LEAVE: "attendance",
+		EDUCATION: "duty",
+		TRAINING: "duty",
+		SERVICE_SUSPENSION: "nonpayable",
+		SERVICE_ABSENCE: "nonpayable",
+		EXCESS_ANNUAL_ABSENCE: "nonpayable",
+		USER_NOTE: "note"
+	};
+	const CATEGORY_LABELS = {
+		leave: "휴가",
+		sick: "병가",
+		attendance: "근태",
+		duty: "교육·훈련",
+		nonpayable: "보수 미지급",
+		note: "메모"
+	};
+	const EVENT_TYPE_GROUPS = [
+		{
+			label: "휴가",
+			types: [
+				"ANNUAL_LEAVE",
+				"SICK_LEAVE",
+				"OFFICIAL_LEAVE",
+				"SPECIAL_LEAVE",
+				"COMPASSIONATE_LEAVE"
+			]
+		},
+		{
+			label: "근태",
+			types: [
+				"OUTING",
+				"LATE_ARRIVAL",
+				"EARLY_LEAVE"
+			]
+		},
+		{
+			label: "교육·훈련",
+			types: ["EDUCATION", "TRAINING"]
+		},
+		{
+			label: "보수 미지급 사유",
+			types: [
+				"SERVICE_SUSPENSION",
+				"SERVICE_ABSENCE",
+				"EXCESS_ANNUAL_ABSENCE"
+			]
+		},
+		{
+			label: "기타",
+			types: ["USER_NOTE"]
+		}
+	];
+	function eventLabel(event) {
+		return event.title || SERVICE_EVENT_TYPE_LABELS[event.eventType];
+	}
+	function shortDate(date) {
+		return `${date.slice(5, 7)}.${date.slice(8, 10)}`;
+	}
+	function describeTiming(event) {
+		const timing = event.timing;
+		if (timing.kind === "ALL_DAY") {
+			if (event.startDate === event.endDate) return timing.dayCount === 1 ? "종일" : `종일 · ${timing.dayCount}일`;
+			return `${shortDate(event.startDate)}–${shortDate(event.endDate)} · ${timing.dayCount}일`;
+		}
+		if (timing.kind === "HALF_DAY") return timing.half === "AM" ? "오전 반일" : timing.half === "PM" ? "오후 반일" : "반일";
+		if (timing.durationMinutes === null) return "시간 확인 필요";
+		const range = timing.startTime && timing.endTime ? ` (${timing.startTime}–${timing.endTime})` : "";
+		return `${formatDurationMinutes(timing.durationMinutes)}${range}`;
+	}
+
+//#endregion
+//#region src/projection.ts
+/**
+	* Display strings for the leave screen, formatted exactly as the web ledger
+	* panel formats them: balances and entries with the 8-hour cumulative day
+	* (`ANNUAL_LEAVE_CUMULATIVE_MINUTES_PER_DAY`), per-type totals without a
+	* workday assumption.
+	*/
+	function presentLedger(ledger) {
+		const format = (value) => formatLeaveQuantity(value, 480);
+		const balance = ledger.balance;
+		const koreanDates = (text) => text.replace(/\b\d{4}-\d{2}-\d{2}\b/g, (date) => isDateOnly(date) ? formatKoreanDate(date) : date);
+		return {
+			credits: ledger.credits.map((credit) => ({
+				amount: credit.countedHalfDays !== null ? formatLeaveQuantity({
+					halfDays: credit.countedHalfDays,
+					minutes: 0
+				}, null) : "미확인",
+				explanation: koreanDates(credit.explanation)
+			})),
+			balance: {
+				granted: format(balance.granted),
+				upcomingCredits: format(balance.upcomingCredits),
+				corrections: format(balance.corrections),
+				used: format(balance.used),
+				scheduled: format(balance.scheduled),
+				available: format(balance.available),
+				remainingAfterScheduled: format(balance.remainingAfterScheduled)
+			},
+			entries: ledger.entries.map((entry) => ({
+				delta: format(entry.delta),
+				running: format(entry.running)
+			})),
+			byType: ledger.byType.map((item) => formatLeaveQuantity(item.total, null)),
+			attendanceTotal: format({
+				halfDays: 0,
+				minutes: ledger.attendanceMinutes.OUTING + ledger.attendanceMinutes.LATE_ARRIVAL + ledger.attendanceMinutes.EARLY_LEAVE
+			}),
+			reconciliation: ledger.reconciliation.status === "MATCH" || ledger.reconciliation.status === "DIFFERENT" ? {
+				institutionRemaining: format(ledger.reconciliation.institutionRemaining),
+				appRemaining: format(ledger.reconciliation.appRemaining),
+				difference: format(ledger.reconciliation.difference)
+			} : null
+		};
+	}
+	/**
+	* What every native screen renders for one Seoul civil date: the web's
+	* `buildAppProjection` and `buildHomeModel`, plus the credit list and pay
+	* band schedule the money and leave screens read directly.
+	*/
+	function buildNativeProjection(data, today) {
+		if (!isDateOnly(today)) throw new RangeError(`Invalid date: ${today}`);
+		const date = today;
+		const profile = data.profile;
+		if (!profile) return {
+			today: date,
+			profile: null
+		};
+		const projection = buildAppProjection(data, profile, date);
+		const payBands = derivePayBandSchedule(profile, date);
+		return {
+			today: date,
+			profile,
+			...projection,
+			home: buildHomeModel(profile, projection, date),
+			leaveText: presentLedger(projection.ledger),
+			eventDisplay: Object.fromEntries(projection.liveEvents.map((event) => [event.id, {
+				category: EVENT_CATEGORY[event.eventType],
+				categoryLabel: CATEGORY_LABELS[EVENT_CATEGORY[event.eventType]],
+				label: eventLabel(event),
+				timing: describeTiming(event)
+			}])),
+			credits: deriveAnnualLeaveCredits({
+				callUpDate: profile.callUpDate,
+				referenceDate: date
+			}),
+			payBands,
+			payStepOrdinal: currentPayStepOrdinal(payBands, projection.compensation.serviceMonthOrdinal)
 		};
 	}
 
@@ -13376,6 +13833,50 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					const { compensation } = evaluateMoneyMonth(data, data.profile, draft.month, today);
 					return saveAttendanceMonth(data, attendanceMonthInput(draft, compensation), context);
 				}));
+			},
+			/**
+			* Parse delimited text and preview it exactly as the web import panel:
+			* candidate rows, statuses against stored records and default selection.
+			* Nothing is written.
+			*/
+			async importPreview(text, fileName, fileSha256) {
+				const tabular = parseDelimitedText(text);
+				const batch = createImportBatchDescriptor({
+					fileName,
+					sourceFormat: tabular.format,
+					fileSha256
+				});
+				const preview = await buildImportPreview(tabular, batch);
+				const statuses = rowStatuses(readyData(), preview);
+				return json({
+					preview,
+					statuses: Object.fromEntries(statuses),
+					acceptedRows: [...defaultAcceptedRows(preview, statuses)],
+					acceptedSnapshots: [...defaultAcceptedSnapshots(preview)],
+					decisionLabels: DECISION_LABELS,
+					alreadyImported: readyData().imports.some((record) => record.status === "ACTIVE" && fileSha256 !== null && record.fileSha256 === fileSha256)
+				});
+			},
+			/** Commit accepted rows and snapshots of a preview (web import panel). */
+			async importCommit(previewJson, overridesJson, acceptedRowsJson, acceptedSnapshotsJson) {
+				const preview = JSON.parse(previewJson);
+				const { input, rejected } = await buildImportCommit(preview, JSON.parse(overridesJson), new Set(JSON.parse(acceptedRowsJson)), new Set(JSON.parse(acceptedSnapshotsJson)));
+				const result = await requireStore().run((data, context) => commitImport(data, input, context));
+				return json(result.ok ? {
+					ok: true,
+					message: describeImportSummary(result.value, rejected.length)
+				} : {
+					ok: false,
+					errors: result.errors,
+					rejected
+				});
+			},
+			/** CSV exports offered by the web backup panel. */
+			exportCsv(kind, today) {
+				const data = readyData();
+				if (kind === "events") return json(serviceEventsToCsv(data.events));
+				if (!data.profile) throw new Error("No profile.");
+				return json(leaveLedgerToCsv(buildLedgerForProfile(data, data.profile, today).entries));
 			},
 			/** Editor initial state for a stored event (or a new one on `date`). */
 			eventFormInitial(eventId, date) {
