@@ -36,6 +36,12 @@ jobs:
         run: pnpm test
       - name: Build web app
         run: pnpm build
+      - name: Native core bundle matches its source
+        # sg-core.js is committed so the iOS build never needs Node. Rebuild
+        # it and fail if the committed copy differs from what source produces.
+        run: |
+          pnpm --filter @super-gongik/native-core build:ios
+          git diff --exit-code -- apps/ios/Packages/SuperGongikKit/Sources/SGCore/Resources
 
   database:
     name: Database policies and Supabase transport
@@ -128,3 +134,29 @@ jobs:
       - name: Show server log on failure
         if: failure()
         run: cat "$RUNNER_TEMP/super-gongik-web.log" || true
+
+  ios:
+    name: iOS · conformance, persistence and app build
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+      - name: Swift package tests (TypeScript fixtures through JavaScriptCore and the Swift slice)
+        working-directory: apps/ios/Packages/SuperGongikKit
+        run: swift test
+      - name: Generate the Xcode project
+        working-directory: apps/ios
+        run: |
+          brew install xcodegen
+          xcodegen generate
+      - name: Build the app for the iOS Simulator
+        working-directory: apps/ios
+        run: |
+          xcodebuild -project SuperGongik.xcodeproj -scheme SuperGongik \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO build
