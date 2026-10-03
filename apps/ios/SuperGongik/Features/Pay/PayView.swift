@@ -13,6 +13,7 @@ struct PayView: View {
     @State private var month: CivilDate = SeoulClock.today(at: .now)
     @State private var money: MoneyMonth?
     @State private var showingProfile = false
+    @State private var showingAttendance = false
 
     var body: some View {
         NavigationStack {
@@ -24,6 +25,13 @@ struct PayView: View {
                         if !money.compensation.unresolved.isEmpty {
                             UnresolvedCard(items: money.compensation.unresolved) { showingProfile = true }
                         }
+                        Button {
+                            showingAttendance = true
+                        } label: {
+                            Label("\(month.month)월 근무일 확인", systemImage: "calendar.badge.checkmark")
+                        }
+                        .buttonStyle(SGSecondaryButtonStyle())
+                        .disabled(model.isReadOnly)
                         ComponentsCard(components: money.compensation.components)
                         PayBandsCard(schedule: money.schedule)
                         AssumptionsCard(items: (money.compensation.assumptions ?? []) + (money.compensation.warnings ?? []),
@@ -48,6 +56,15 @@ struct PayView: View {
             }
             .sheet(isPresented: $showingProfile) {
                 NavigationStack { ProfileEditView() }
+            }
+            .onAppear {
+                #if DEBUG
+                // Screenshot hook: `-SGOpenAttendance YES` (DEBUG builds only).
+                if UserDefaults.standard.bool(forKey: "SGOpenAttendance") { showingAttendance = true }
+                #endif
+            }
+            .sheet(isPresented: $showingAttendance) {
+                NavigationStack { AttendanceEditorView(month: month) }
             }
         }
     }
@@ -151,11 +168,7 @@ private struct UnresolvedCard: View {
                 }
                 Button("복무 설정 열기", action: onOpenProfile)
                     .buttonStyle(SGSecondaryButtonStyle())
-                if items.contains(where: { $0.contains("공휴일") || $0.contains("출근 여부") }) {
-                    Text("이 달의 공휴일·기관 휴무일과 출근 여부 확인은 아직 웹 슈퍼공익에서만 할 수 있어요. 확인한 내용은 백업이나 동기화로 이 앱에도 반영돼요.")
-                        .font(SGTypography.caption)
-                        .foregroundStyle(.sg(SGColor.textTertiary))
-                }
+
             }
         }
     }

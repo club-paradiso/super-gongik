@@ -2,7 +2,12 @@ import { buildServiceProfile } from "@super-gongik/domain";
 import { describe, expect, it } from "vitest";
 
 import { applyFormPatch, buildDraft, initialState } from "@/lib/event-form";
-import { evaluateMoneyMonth, moneyAsOfDate } from "@/lib/money-model";
+import {
+  attendanceEditorDays,
+  attendanceMonthInput,
+  evaluateMoneyMonth,
+  moneyAsOfDate,
+} from "@/lib/money-model";
 
 // The editor and money-screen rules moved out of React components so the
 // native client runs the same code. These pin the behaviour that moved.
@@ -108,5 +113,53 @@ describe("money month model", () => {
     expect(result.asOfDate).toBe("2026-09-15");
     expect(result.compensation.month).toBe("2026-09");
     expect(result.schedule.status).toBe("NEEDS_INPUT");
+  });
+});
+
+describe("attendance month model", () => {
+  const days = [
+    { date: "2026-10-01", kind: "WORKED", requiresDecision: false },
+    { date: "2026-10-02", kind: "NEEDS_DECISION", requiresDecision: true },
+    { date: "2026-10-03", kind: "NOT_SCHEDULED", requiresDecision: false },
+    { date: "2026-10-05", kind: "FULL_DAY_LEAVE", requiresDecision: true },
+  ] as never[];
+
+  it("offers scheduled days and hides decisions for declared holidays", () => {
+    const open = attendanceEditorDays(days, new Set());
+    expect(open.scheduled.map((d: { date: string }) => d.date)).toEqual([
+      "2026-10-01",
+      "2026-10-02",
+      "2026-10-05",
+    ]);
+    expect(
+      attendanceEditorDays(days, new Set(["2026-10-02"])).decisionDays.map(
+        (d: { date: string }) => d.date,
+      ),
+    ).toEqual(["2026-10-05"]);
+  });
+
+  it("saves only fully answered open days and keeps derived non-payable dates", () => {
+    const input = attendanceMonthInput(
+      {
+        month: "2026-10",
+        nonWorkingDates: [],
+        decisions: [
+          { date: "2026-10-02", mealEligible: true, transportEligible: false },
+          { date: "2026-10-05", mealEligible: true },
+        ],
+        hadNonPayableAbsence: false,
+        nonPayableDates: ["2026-10-07"],
+        nonPayableDatesConfirmed: true,
+        roundingPolicy: null,
+      },
+      {
+        serviceDays: { days },
+        basePayAdjustment: { derivedNonPayableDates: ["2026-10-08"] },
+      } as never,
+    );
+    expect(input.dayOverrides).toEqual([
+      { date: "2026-10-02", mealEligible: true, transportEligible: false },
+    ]);
+    expect(input.nonPayableDates).toEqual(["2026-10-07", "2026-10-08"]);
   });
 });

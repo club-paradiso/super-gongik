@@ -27,6 +27,15 @@ import {
   restoreGate,
 } from "@/lib/restore-copy";
 
+import {
+  DAY_KIND_LABELS,
+  attendanceEditorDays,
+  attendanceMonthInput,
+  evaluateMoneyMonth,
+  type AttendanceDraft,
+} from "@/lib/money-model";
+import { findAttendanceMonth } from "@super-gongik/rules";
+
 import { createNativeStorage, host } from "./host";
 import { buildNativeProjection } from "./projection";
 import { applyCommand, callPure } from "./pure";
@@ -179,6 +188,72 @@ export function createNativeRuntime() {
       return json(
         callPure("evaluateMoneyMonth", [data, data.profile, month, today]),
       );
+    },
+
+    /**
+     * The money screen's month attendance editor (web money-tab
+     * AttendanceEditor): offered days, saved answers, records-derived
+     * non-payable dates and day-kind labels for `month`.
+     */
+    attendanceEditor(
+      month: string,
+      nonWorkingJson: string,
+      today: string,
+    ): string {
+      const data = readyData();
+      if (!data.profile) throw new Error("No profile.");
+      const { compensation } = evaluateMoneyMonth(
+        data,
+        data.profile,
+        month as never,
+        today as never,
+      );
+      const days = compensation.serviceDays?.days ?? [];
+      const nonWorking = new Set(JSON.parse(nonWorkingJson) as string[]);
+      return json({
+        existing: findAttendanceMonth(data.attendanceMonths, month as never),
+        days,
+        ...attendanceEditorDays(days, nonWorking as never),
+        derivedNonPayableDates:
+          compensation.basePayAdjustment?.derivedNonPayableDates ?? [],
+        mealEligibleDays: compensation.serviceDays?.mealEligibleDays ?? null,
+        transportEligibleDays:
+          compensation.serviceDays?.transportEligibleDays ?? null,
+        needsReconfirmation:
+          compensation.serviceDays?.missing.includes("MONTH_RECONFIRMATION") ??
+          false,
+        dayKindLabels: DAY_KIND_LABELS,
+      });
+    },
+
+    /** Save the editor state exactly as the web editor does. */
+    async saveAttendance(draftJson: string, today: string): Promise<string> {
+      const draft = JSON.parse(draftJson) as AttendanceDraft;
+      const result = await requireStore().run((data, context) => {
+        if (!data.profile) {
+          return {
+            ok: false as const,
+            errors: [
+              {
+                code: "INVALID_FIELD" as const,
+                message: "복무 프로필이 없어요.",
+              },
+            ],
+          };
+        }
+        const { compensation } = evaluateMoneyMonth(
+          data,
+          data.profile,
+          draft.month,
+          today as never,
+        );
+        return domain.saveAttendanceMonth(
+          data,
+          attendanceMonthInput(draft, compensation),
+          context,
+        );
+      });
+      return json(result);
     },
 
     /** Editor initial state for a stored event (or a new one on `date`). */

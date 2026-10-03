@@ -9741,48 +9741,6 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 
 //#endregion
-//#region src/host.ts
-	function host() {
-		const value = globalThis.__sgHost;
-		if (!value) throw new Error("Native host is not installed.");
-		return value;
-	}
-	var NativeStorageError = class extends Error {
-		constructor(operation, detail) {
-			super(`${operation} failed: ${detail}`);
-			this.name = "NativeStorageError";
-		}
-	};
-	/**
-	* `KeyValueStorage` over the host's file store. Provider obligations from
-	* `repository.ts` (atomic replace, throw on failure, exact round trip) are
-	* met natively and covered by `SGPersistenceTests`.
-	*/
-	function createNativeStorage(native = host()) {
-		return {
-			async getItem(key) {
-				return native.kvGet(key);
-			},
-			async setItem(key, value) {
-				const error = native.kvSet(key, value);
-				if (error !== null) throw new NativeStorageError("setItem", error);
-			},
-			async removeItem(key) {
-				const error = native.kvRemove(key);
-				if (error !== null) throw new NativeStorageError("removeItem", error);
-			},
-			async keys() {
-				return native.kvKeys();
-			},
-			async compareAndSet(key, expected, value) {
-				const result = native.kvCompareAndSet(key, expected, value);
-				if (typeof result === "string") throw new NativeStorageError("compareAndSet", result);
-				return result;
-			}
-		};
-	}
-
-//#endregion
 //#region ../rules/compensation/2026.json
 	var _2026_default = {
 		schemaVersion: "0.3.0",
@@ -11657,6 +11615,115 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 
 //#endregion
+//#region ../../apps/web/src/lib/money-model.ts
+/**
+	* The money screen's month evaluation, kept free of React so the native
+	* client shows the same figures. The selected month is evaluated on today
+	* for the current month, else on the 15th (any in-month date selects the
+	* same month-wide bundle).
+	*/
+	function moneyAsOfDate(month, today) {
+		return month === yearMonthOf(today) ? today : `${month}-15`;
+	}
+	function evaluateMoneyMonth(data, profile, month, today) {
+		const asOfDate = moneyAsOfDate(month, today);
+		return {
+			asOfDate,
+			compensation: evaluateMonthlyCompensation(profile, asOfDate, {
+				events: data.events,
+				attendance: findAttendanceMonth(data.attendanceMonths, month),
+				attendanceMonths: data.attendanceMonths
+			}),
+			schedule: derivePayBandSchedule(profile, asOfDate)
+		};
+	}
+	const DAY_KIND_LABELS = {
+		OUTSIDE_SERVICE: "복무 기간 밖",
+		NOT_SCHEDULED: "근무 요일 아님",
+		DECLARED_NON_WORKING: "공휴일·휴무",
+		FULL_DAY_LEAVE: "종일 휴가",
+		NEEDS_DECISION: "직접 정해야 함",
+		WORKED: "근무일"
+	};
+	/**
+	* Which days the attendance editor offers. Scheduled in-service weekdays can
+	* be marked as holidays; days the records leave open need an explicit
+	* meal/transport decision (hidden once marked as a holiday).
+	*/
+	function attendanceEditorDays(days, nonWorking) {
+		return {
+			scheduled: days.filter((day) => day.kind === "WORKED" || day.kind === "DECLARED_NON_WORKING" || day.kind === "NEEDS_DECISION" && !nonWorking.has(day.date) || day.kind === "FULL_DAY_LEAVE"),
+			decisionDays: days.filter((day) => day.requiresDecision && !nonWorking.has(day.date))
+		};
+	}
+	/**
+	* The `saveAttendanceMonth` input for an editor state: only open days with
+	* both answers are saved, and dates the records already make non-payable are
+	* always included.
+	*/
+	function attendanceMonthInput(draft, evaluation) {
+		const nonWorking = new Set(draft.nonWorkingDates);
+		const days = evaluation.serviceDays?.days ?? [];
+		const liveDecisionDates = new Set(attendanceEditorDays(days, nonWorking).decisionDays.map((day) => day.date));
+		const derived = evaluation.basePayAdjustment?.derivedNonPayableDates ?? [];
+		return {
+			month: draft.month,
+			nonWorkingDates: [...nonWorking],
+			dayOverrides: draft.decisions.flatMap((item) => item.date && liveDecisionDates.has(item.date) && typeof item.mealEligible === "boolean" && typeof item.transportEligible === "boolean" ? [{
+				date: item.date,
+				mealEligible: item.mealEligible,
+				transportEligible: item.transportEligible
+			}] : []),
+			hadNonPayableAbsence: draft.hadNonPayableAbsence,
+			nonPayableDates: [.../* @__PURE__ */ new Set([...draft.nonPayableDates, ...derived])],
+			nonPayableDatesConfirmed: draft.nonPayableDatesConfirmed,
+			roundingPolicy: draft.roundingPolicy
+		};
+	}
+
+//#endregion
+//#region src/host.ts
+	function host() {
+		const value = globalThis.__sgHost;
+		if (!value) throw new Error("Native host is not installed.");
+		return value;
+	}
+	var NativeStorageError = class extends Error {
+		constructor(operation, detail) {
+			super(`${operation} failed: ${detail}`);
+			this.name = "NativeStorageError";
+		}
+	};
+	/**
+	* `KeyValueStorage` over the host's file store. Provider obligations from
+	* `repository.ts` (atomic replace, throw on failure, exact round trip) are
+	* met natively and covered by `SGPersistenceTests`.
+	*/
+	function createNativeStorage(native = host()) {
+		return {
+			async getItem(key) {
+				return native.kvGet(key);
+			},
+			async setItem(key, value) {
+				const error = native.kvSet(key, value);
+				if (error !== null) throw new NativeStorageError("setItem", error);
+			},
+			async removeItem(key) {
+				const error = native.kvRemove(key);
+				if (error !== null) throw new NativeStorageError("removeItem", error);
+			},
+			async keys() {
+				return native.kvKeys();
+			},
+			async compareAndSet(key, expected, value) {
+				const result = native.kvCompareAndSet(key, expected, value);
+				if (typeof result === "string") throw new NativeStorageError("compareAndSet", result);
+				return result;
+			}
+		};
+	}
+
+//#endregion
 //#region ../../apps/web/src/lib/home-model.ts
 /** D-30 and under reads as the last stretch. */
 	const FINAL_STRETCH_DAYS = 30;
@@ -12894,30 +12961,6 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 
 //#endregion
-//#region ../../apps/web/src/lib/money-model.ts
-/**
-	* The money screen's month evaluation, kept free of React so the native
-	* client shows the same figures. The selected month is evaluated on today
-	* for the current month, else on the 15th (any in-month date selects the
-	* same month-wide bundle).
-	*/
-	function moneyAsOfDate(month, today) {
-		return month === yearMonthOf(today) ? today : `${month}-15`;
-	}
-	function evaluateMoneyMonth(data, profile, month, today) {
-		const asOfDate = moneyAsOfDate(month, today);
-		return {
-			asOfDate,
-			compensation: evaluateMonthlyCompensation(profile, asOfDate, {
-				events: data.events,
-				attendance: findAttendanceMonth(data.attendanceMonths, month),
-				attendanceMonths: data.attendanceMonths
-			}),
-			schedule: derivePayBandSchedule(profile, asOfDate)
-		};
-	}
-
-//#endregion
 //#region ../../apps/web/src/lib/regional-transit-fares.ts
 	const RESIDENCE_REGIONS = [
 		"서울특별시",
@@ -13296,6 +13339,43 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					month,
 					today
 				]));
+			},
+			/**
+			* The money screen's month attendance editor (web money-tab
+			* AttendanceEditor): offered days, saved answers, records-derived
+			* non-payable dates and day-kind labels for `month`.
+			*/
+			attendanceEditor(month, nonWorkingJson, today) {
+				const data = readyData();
+				if (!data.profile) throw new Error("No profile.");
+				const { compensation } = evaluateMoneyMonth(data, data.profile, month, today);
+				const days = compensation.serviceDays?.days ?? [];
+				const nonWorking = new Set(JSON.parse(nonWorkingJson));
+				return json({
+					existing: findAttendanceMonth(data.attendanceMonths, month),
+					days,
+					...attendanceEditorDays(days, nonWorking),
+					derivedNonPayableDates: compensation.basePayAdjustment?.derivedNonPayableDates ?? [],
+					mealEligibleDays: compensation.serviceDays?.mealEligibleDays ?? null,
+					transportEligibleDays: compensation.serviceDays?.transportEligibleDays ?? null,
+					needsReconfirmation: compensation.serviceDays?.missing.includes("MONTH_RECONFIRMATION") ?? false,
+					dayKindLabels: DAY_KIND_LABELS
+				});
+			},
+			/** Save the editor state exactly as the web editor does. */
+			async saveAttendance(draftJson, today) {
+				const draft = JSON.parse(draftJson);
+				return json(await requireStore().run((data, context) => {
+					if (!data.profile) return {
+						ok: false,
+						errors: [{
+							code: "INVALID_FIELD",
+							message: "복무 프로필이 없어요."
+						}]
+					};
+					const { compensation } = evaluateMoneyMonth(data, data.profile, draft.month, today);
+					return saveAttendanceMonth(data, attendanceMonthInput(draft, compensation), context);
+				}));
 			},
 			/** Editor initial state for a stored event (or a new one on `date`). */
 			eventFormInitial(eventId, date) {
