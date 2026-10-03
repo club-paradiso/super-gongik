@@ -61,3 +61,10 @@ SUPER_GONGIK_IT_REST_URL="http://127.0.0.1:$port" \
 SUPER_GONGIK_IT_JWT_SECRET="$secret" \
 SUPER_GONGIK_IT_USERS="$users" \
   pnpm --filter @super-gongik/web exec vitest run tests/supabase-transport.integration.test.ts
+
+# Same scenarios through the native iOS client's PostgREST client.
+SUPER_GONGIK_IT_REST_URL="http://127.0.0.1:$port" \
+SUPER_GONGIK_IT_JWT_SECRET="$secret" \
+SUPER_GONGIK_IT_USERS="$users" \
+SUPER_GONGIK_IT_CLIENT=native \
+  pnpm --filter @super-gongik/web exec vitest run tests/supabase-transport.integration.test.ts

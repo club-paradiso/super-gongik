@@ -76,6 +76,22 @@ public extension CoreRuntime {
         return value
     }
 
+    // MARK: Cloud (web cloud controller in the core)
+
+    func cloud(_ method: String, _ arguments: [Any] = []) async throws -> JSONValue {
+        try JSONValue(data: await callJSONAsync(method, arguments))
+    }
+
+    func cloudSync(_ method: String, _ arguments: [Any] = []) throws -> JSONValue {
+        try JSONValue(data: callJSON(method, arguments))
+    }
+
+    /// The platform signed in (OAuth, Apple) or lost the session.
+    func cloudSessionChanged(_ session: CoreSession?) throws {
+        let text = session.flatMap { try? JSONEncoder().encode($0) }.map { String(decoding: $0, as: UTF8.self) }
+        _ = try callJSON("cloudSessionChanged", [text as Any? ?? NSNull()])
+    }
+
     // MARK: Pure calls
 
     /// `SGCore.call` decoded into `Value`; a thrown domain error becomes

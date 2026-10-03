@@ -139,6 +139,9 @@ importers:
         specifier: ^4.5.2
         version: 4.5.4
     devDependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.117.1
+        version: 2.117.1
       rolldown:
         specifier: 1.2.6
         version: 1.2.6

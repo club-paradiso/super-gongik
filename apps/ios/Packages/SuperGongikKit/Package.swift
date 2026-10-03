@@ -14,6 +14,7 @@ let package = Package(
         .library(name: "SGCore", targets: ["SGCore"]),
         .library(name: "SGPersistence", targets: ["SGPersistence"]),
         .library(name: "SGDesignSystem", targets: ["SGDesignSystem"]),
+        .library(name: "SGSync", targets: ["SGSync"]),
     ],
     targets: [
         .target(name: "SGFoundation"),
@@ -27,6 +28,10 @@ let package = Package(
             resources: [.copy("Resources/sg-core.js"), .copy("Resources/sg-shims.js")]
         ),
         .target(
+            name: "SGSync",
+            dependencies: ["SGCore"]
+        ),
+        .target(
             name: "SGDesignSystem",
             dependencies: ["SGFoundation"]
         ),
@@ -35,6 +40,7 @@ let package = Package(
         .testTarget(name: "SGFoundationTests", dependencies: ["SGFoundation", "SGTestSupport"]),
         .testTarget(name: "SGPersistenceTests", dependencies: ["SGPersistence"]),
         .testTarget(name: "SGDesignSystemTests", dependencies: ["SGDesignSystem"]),
+        .testTarget(name: "SGSyncTests", dependencies: ["SGSync", "SGCore"]),
         .testTarget(
             name: "SGCoreTests",
             dependencies: ["SGCore", "SGFoundation", "SGPersistence", "SGTestSupport"]),

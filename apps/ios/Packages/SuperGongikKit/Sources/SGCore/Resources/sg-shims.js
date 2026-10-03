@@ -6,6 +6,7 @@
  * - crypto.subtle.digest("SHA-256"): importer fingerprints.
  * - TextEncoder: `store/integrity.ts` (backup digests).
  * - URL: zod's `.url()` check, used only by the bundled rule-source metadata.
+ * - AbortSignal.timeout: request timeouts in the Supabase transport.
  *
  * Each shim is minimal and covers exactly the calls the packages make; the
  * conformance suite runs the bundle in JavaScriptCore to prove the outputs
@@ -106,6 +107,17 @@
       getRandomValues: getRandomValues,
       randomUUID: randomUUID,
       subtle: { digest: digest },
+    };
+  }
+
+  // `AbortSignal.timeout(ms)` is how the Supabase transport sets its
+  // request timeout; the native PostgREST client reads `timeoutMs` and the
+  // host applies it to the URLRequest.
+  if (typeof globalThis.AbortSignal === "undefined") {
+    globalThis.AbortSignal = {
+      timeout: function (ms) {
+        return { aborted: false, timeoutMs: ms };
+      },
     };
   }
 

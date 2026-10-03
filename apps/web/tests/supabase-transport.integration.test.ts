@@ -23,6 +23,7 @@ import {
   type UserData,
 } from "@super-gongik/domain";
 
+import { createPostgrestClient } from "../../../packages/native-core/src/postgrest";
 import {
   categorize,
   createSupabaseTransport,
@@ -38,7 +39,13 @@ import {
  * `supabase/tests/run-integration.sh`, which starts the stack and sets
  *   SUPER_GONGIK_IT_REST_URL, SUPER_GONGIK_IT_JWT_SECRET,
  *   SUPER_GONGIK_IT_USERS (comma-separated auth.users ids).
+ *
+ * `SUPER_GONGIK_IT_CLIENT=native` runs every scenario with the native iOS
+ * client's PostgREST client (packages/native-core/src/postgrest.ts) instead
+ * of supabase-js, so the iOS wire behaviour is proven against the same
+ * PostgREST + RLS stack.
  */
+const NATIVE_CLIENT = process.env.SUPER_GONGIK_IT_CLIENT === "native";
 const REST_URL = process.env.SUPER_GONGIK_IT_REST_URL;
 const SECRET = process.env.SUPER_GONGIK_IT_JWT_SECRET;
 const USERS = (process.env.SUPER_GONGIK_IT_USERS ?? "").split(",");
@@ -59,8 +66,38 @@ const anonKey = () => sign({ role: "anon", exp: exp() });
 
 type FetchHook = (url: string) => "PASS" | "FAIL_BEFORE" | "LOSE_RESPONSE";
 
+/** The native iOS PostgREST client over Node fetch, with the same hooks. */
+function nativeClient(hook?: FetchHook) {
+  return createPostgrestClient({
+    url: "http://supabase.test",
+    anonKey: anonKey(),
+    http: async (request) => {
+      const target = request.url.replace(
+        "http://supabase.test/rest/v1",
+        REST_URL!,
+      );
+      const decision = hook?.(target) ?? "PASS";
+      if (decision === "FAIL_BEFORE") return { status: 0, body: "" };
+      try {
+        const response = await fetch(target, {
+          method: request.method,
+          headers: request.headers,
+          body: request.body ?? undefined,
+          signal: AbortSignal.timeout(request.timeoutMs),
+        });
+        const body = await response.text();
+        if (decision === "LOSE_RESPONSE") return { status: 0, body: "" };
+        return { status: response.status, body };
+      } catch {
+        return { status: 0, body: "" };
+      }
+    },
+  });
+}
+
 /** supabase-js client acting as `userId` (or anonymous). */
 function client(userId: string | null, hook?: FetchHook) {
+  if (NATIVE_CLIENT) return nativeClient(hook);
   return createClient("http://supabase.test", anonKey(), {
     accessToken: userId
       ? async () =>
@@ -208,267 +245,277 @@ const records = (data: UserData) =>
     attendanceMonths: data.attendanceMonths,
   });
 
-describe.skipIf(!enabled)("Supabase transport against PostgREST + RLS", () => {
-  const [userA, userB, userC, userD, userE] = USERS as [
-    string,
-    string,
-    string,
-    string,
-    string,
-  ];
+describe.skipIf(!enabled)(
+  `Supabase transport against PostgREST + RLS (${NATIVE_CLIENT ? "native iOS client" : "supabase-js"})`,
+  () => {
+    const [userA, userB, userC, userD, userE] = USERS as [
+      string,
+      string,
+      string,
+      string,
+      string,
+    ];
 
-  it("two devices converge, conflict explicitly and resolve through the real server", async () => {
-    const a = device("phone-a", userA, undefined, seedDocument("profile-a"));
-    await a.store.load();
-    const event = await a.act((data, ctx) =>
-      createServiceEvent(data, leave("2026-09-10", "처음"), ctx),
-    );
-    await a.act((data, ctx) =>
-      saveAttendanceMonth(
-        data,
-        {
-          month: "2026-07",
-          nonWorkingDates: ["2026-07-17"],
-          dayOverrides: [],
-          hadNonPayableAbsence: false,
+    it("two devices converge, conflict explicitly and resolve through the real server", async () => {
+      const a = device("phone-a", userA, undefined, seedDocument("profile-a"));
+      await a.store.load();
+      const event = await a.act((data, ctx) =>
+        createServiceEvent(data, leave("2026-09-10", "처음"), ctx),
+      );
+      await a.act((data, ctx) =>
+        saveAttendanceMonth(
+          data,
+          {
+            month: "2026-07",
+            nonWorkingDates: ["2026-07-17"],
+            dayOverrides: [],
+            hadNonPayableAbsence: false,
+          },
+          ctx,
+        ),
+      );
+      const enabledA = await a.enable();
+      expect(enabledA.preview).toMatchObject({ case: "UPLOAD", uploads: 3 });
+      expect(enabledA.status.phase).toBe("IDLE");
+
+      const b = device("laptop-b", userA);
+      const enabledB = await b.enable();
+      expect(enabledB.preview).toMatchObject({ case: "DOWNLOAD", uploads: 0 });
+      expect(records(b.data())).toBe(records(a.data()));
+
+      // Concurrent edits of one record.
+      const edit = (note: string) => (data: UserData, ctx: CommandContext) =>
+        updateServiceEvent(data, event.id, leave("2026-09-10", note), ctx);
+      await a.act(edit("A"));
+      await b.act(edit("B"));
+      expect((await a.engine.sync()).phase).toBe("IDLE");
+      const open = await b.engine.sync();
+      expect(open.conflicts).toHaveLength(1);
+      expect(open.conflicts[0]!.type).toBe("EQUAL_VERSION_DIVERGENT");
+      await b.engine.resolveConflicts({ [open.conflicts[0]!.key]: "INCOMING" });
+      const settled = await a.engine.sync();
+      expect(settled.conflicts).toEqual([]);
+      expect(records(a.data())).toBe(records(b.data()));
+      // Converged: further syncs move nothing.
+      expect((await a.engine.sync()).lastSummary).toMatchObject({
+        pulled: 0,
+        pushed: 0,
+      });
+      expect((await b.engine.sync()).lastSummary).toMatchObject({
+        pulled: 0,
+        pushed: 0,
+      });
+    });
+
+    it("converges independent offline edits and refuses a stale enable preview after a remote write", async () => {
+      const a = device(
+        "release-phone-a",
+        userE,
+        undefined,
+        seedDocument("profile-e"),
+      );
+      await a.store.load();
+      await a.enable();
+
+      const b = device("release-tablet-b", userE);
+      await b.enable();
+
+      await a.act((data, ctx) =>
+        createServiceEvent(data, leave("2026-11-03", "A only"), ctx),
+      );
+      await b.act((data, ctx) =>
+        createServiceEvent(data, leave("2026-11-04", "B only"), ctx),
+      );
+
+      expect((await a.engine.sync()).conflicts).toEqual([]);
+      expect((await b.engine.sync()).conflicts).toEqual([]);
+      expect((await a.engine.sync()).conflicts).toEqual([]);
+      expect(records(a.data())).toBe(records(b.data()));
+      expect(a.data().events).toHaveLength(2);
+
+      const fresh = device(
+        "release-fresh-c",
+        userE,
+        undefined,
+        seedDocument("profile-e"),
+      );
+      await fresh.store.load();
+      await fresh.engine.init();
+      const preview = await fresh.engine.previewEnable();
+      expect(preview.kind).toBe("READY");
+
+      await a.act((data, ctx) =>
+        createServiceEvent(data, leave("2026-11-05", "after preview"), ctx),
+      );
+      expect((await a.engine.sync()).phase).toBe("IDLE");
+
+      if (preview.kind !== "READY") throw new Error(preview.kind);
+      expect(await fresh.engine.enable(preview)).toEqual({
+        kind: "STALE_PREVIEW",
+        reason: "REMOTE",
+      });
+    });
+
+    it("a push whose response is lost is retried without duplicates", async () => {
+      let lose = true;
+      const a = device(
+        "phone-a",
+        userB,
+        (url) => {
+          if (lose && url.endsWith("/rpc/sync_push")) {
+            lose = false;
+            return "LOSE_RESPONSE";
+          }
+          return "PASS";
         },
-        ctx,
-      ),
-    );
-    const enabledA = await a.enable();
-    expect(enabledA.preview).toMatchObject({ case: "UPLOAD", uploads: 3 });
-    expect(enabledA.status.phase).toBe("IDLE");
-
-    const b = device("laptop-b", userA);
-    const enabledB = await b.enable();
-    expect(enabledB.preview).toMatchObject({ case: "DOWNLOAD", uploads: 0 });
-    expect(records(b.data())).toBe(records(a.data()));
-
-    // Concurrent edits of one record.
-    const edit = (note: string) => (data: UserData, ctx: CommandContext) =>
-      updateServiceEvent(data, event.id, leave("2026-09-10", note), ctx);
-    await a.act(edit("A"));
-    await b.act(edit("B"));
-    expect((await a.engine.sync()).phase).toBe("IDLE");
-    const open = await b.engine.sync();
-    expect(open.conflicts).toHaveLength(1);
-    expect(open.conflicts[0]!.type).toBe("EQUAL_VERSION_DIVERGENT");
-    await b.engine.resolveConflicts({ [open.conflicts[0]!.key]: "INCOMING" });
-    const settled = await a.engine.sync();
-    expect(settled.conflicts).toEqual([]);
-    expect(records(a.data())).toBe(records(b.data()));
-    // Converged: further syncs move nothing.
-    expect((await a.engine.sync()).lastSummary).toMatchObject({
-      pulled: 0,
-      pushed: 0,
+        seedDocument("profile-b"),
+      );
+      await a.store.load();
+      const first = await a.enable();
+      expect(first.status).toMatchObject({
+        phase: "OFFLINE",
+        error: "NETWORK",
+      });
+      const retry = await a.engine.sync();
+      expect(retry.phase).toBe("IDLE");
+      expect(retry.lastSummary?.pushed).toBe(0);
+      const account = await transportFor(userB).ensureAccount();
+      expect(account.lastSeq).toBe(1);
+      expect(account.profileId).toBe("profile-b");
     });
-    expect((await b.engine.sync()).lastSummary).toMatchObject({
-      pulled: 0,
-      pushed: 0,
+
+    it("isolates accounts: another user reads nothing, anonymous calls are refused", async () => {
+      const owner = transportFor(userA);
+      const backup = await owner.uploadBackup({
+        generation: (await owner.ensureAccount()).generation,
+        text: '{"secret":"a"}',
+        exportedAt: "2026-09-24T00:00:00.000Z",
+        schemaVersion: 3,
+        formatVersion: 2,
+        digest: null,
+      });
+      expect(backup.kind).toBe("OK");
+      if (backup.kind !== "OK") throw new Error();
+
+      const other = transportFor(userC);
+      const account = await other.ensureAccount();
+      const pulled = await other.pull({
+        generation: account.generation,
+        afterSeq: 0,
+        limit: 1000,
+      });
+      expect(pulled).toMatchObject({ kind: "OK", rows: [] });
+      expect(await other.listBackups()).toEqual([]);
+      await expect(
+        other.downloadBackup(backup.backup.id),
+      ).rejects.toMatchObject({
+        category: "NOT_FOUND",
+      });
+      await other.deleteBackup(backup.backup.id);
+      expect(await owner.downloadBackup(backup.backup.id)).toBe(
+        '{"secret":"a"}',
+      );
+
+      // A crafted push naming A's profile only writes into C's own account.
+      const crafted = await other.push({
+        generation: account.generation,
+        deviceId: "attacker",
+        items: [
+          {
+            collection: "profile",
+            recordId: "profile-a",
+            baseSeq: null,
+            schemaVersion: 3,
+            payload: { id: "profile-a", overwritten: true },
+          },
+        ],
+      });
+      expect(crafted.kind).toBe("OK");
+      const ownerRows = await owner.pull({
+        generation: (await owner.ensureAccount()).generation,
+        afterSeq: 0,
+        limit: 1000,
+      });
+      if (ownerRows.kind !== "OK") throw new Error();
+      expect(JSON.stringify(ownerRows.rows)).not.toContain("overwritten");
+
+      // The server itself refuses anonymous callers (no session at all).
+      const anonymous = client(null);
+      const denied = await anonymous.rpc("sync_ensure_account", {});
+      expect(denied.error).not.toBeNull();
+      expect(categorize(denied.status, denied.error)).toBe("AUTH");
+      const hidden = await anonymous.from("cloud_backups").select("id");
+      expect(hidden.error).not.toBeNull();
     });
-  });
 
-  it("converges independent offline edits and refuses a stale enable preview after a remote write", async () => {
-    const a = device(
-      "release-phone-a",
-      userE,
-      undefined,
-      seedDocument("profile-e"),
-    );
-    await a.store.load();
-    await a.enable();
-
-    const b = device("release-tablet-b", userE);
-    await b.enable();
-
-    await a.act((data, ctx) =>
-      createServiceEvent(data, leave("2026-11-03", "A only"), ctx),
-    );
-    await b.act((data, ctx) =>
-      createServiceEvent(data, leave("2026-11-04", "B only"), ctx),
-    );
-
-    expect((await a.engine.sync()).conflicts).toEqual([]);
-    expect((await b.engine.sync()).conflicts).toEqual([]);
-    expect((await a.engine.sync()).conflicts).toEqual([]);
-    expect(records(a.data())).toBe(records(b.data()));
-    expect(a.data().events).toHaveLength(2);
-
-    const fresh = device(
-      "release-fresh-c",
-      userE,
-      undefined,
-      seedDocument("profile-e"),
-    );
-    await fresh.store.load();
-    await fresh.engine.init();
-    const preview = await fresh.engine.previewEnable();
-    expect(preview.kind).toBe("READY");
-
-    await a.act((data, ctx) =>
-      createServiceEvent(data, leave("2026-11-05", "after preview"), ctx),
-    );
-    expect((await a.engine.sync()).phase).toBe("IDLE");
-
-    if (preview.kind !== "READY") throw new Error(preview.kind);
-    expect(await fresh.engine.enable(preview)).toEqual({
-      kind: "STALE_PREVIEW",
-      reason: "REMOTE",
-    });
-  });
-
-  it("a push whose response is lost is retried without duplicates", async () => {
-    let lose = true;
-    const a = device(
-      "phone-a",
-      userB,
-      (url) => {
-        if (lose && url.endsWith("/rpc/sync_push")) {
-          lose = false;
-          return "LOSE_RESPONSE";
-        }
-        return "PASS";
-      },
-      seedDocument("profile-b"),
-    );
-    await a.store.load();
-    const first = await a.enable();
-    expect(first.status).toMatchObject({ phase: "OFFLINE", error: "NETWORK" });
-    const retry = await a.engine.sync();
-    expect(retry.phase).toBe("IDLE");
-    expect(retry.lastSummary?.pushed).toBe(0);
-    const account = await transportFor(userB).ensureAccount();
-    expect(account.lastSeq).toBe(1);
-    expect(account.profileId).toBe("profile-b");
-  });
-
-  it("isolates accounts: another user reads nothing, anonymous calls are refused", async () => {
-    const owner = transportFor(userA);
-    const backup = await owner.uploadBackup({
-      generation: (await owner.ensureAccount()).generation,
-      text: '{"secret":"a"}',
-      exportedAt: "2026-09-24T00:00:00.000Z",
-      schemaVersion: 3,
-      formatVersion: 2,
-      digest: null,
-    });
-    expect(backup.kind).toBe("OK");
-    if (backup.kind !== "OK") throw new Error();
-
-    const other = transportFor(userC);
-    const account = await other.ensureAccount();
-    const pulled = await other.pull({
-      generation: account.generation,
-      afterSeq: 0,
-      limit: 1000,
-    });
-    expect(pulled).toMatchObject({ kind: "OK", rows: [] });
-    expect(await other.listBackups()).toEqual([]);
-    await expect(other.downloadBackup(backup.backup.id)).rejects.toMatchObject({
-      category: "NOT_FOUND",
-    });
-    await other.deleteBackup(backup.backup.id);
-    expect(await owner.downloadBackup(backup.backup.id)).toBe('{"secret":"a"}');
-
-    // A crafted push naming A's profile only writes into C's own account.
-    const crafted = await other.push({
-      generation: account.generation,
-      deviceId: "attacker",
-      items: [
-        {
-          collection: "profile",
-          recordId: "profile-a",
-          baseSeq: null,
-          schemaVersion: 3,
-          payload: { id: "profile-a", overwritten: true },
+    it("a transport pinned to A never sends a request once the session is B", async () => {
+      let requests = 0;
+      const pinnedToA = transportFor(
+        userA,
+        () => {
+          requests += 1;
+          return "PASS";
         },
-      ],
+        userB,
+      );
+      await expect(pinnedToA.ensureAccount()).rejects.toMatchObject({
+        category: "AUTH",
+      });
+      await expect(
+        pinnedToA.resetCloud({ expectedGeneration: 1 }),
+      ).rejects.toMatchObject({
+        category: "AUTH",
+      });
+      expect(requests).toBe(0);
     });
-    expect(crafted.kind).toBe("OK");
-    const ownerRows = await owner.pull({
-      generation: (await owner.ensureAccount()).generation,
-      afterSeq: 0,
-      limit: 1000,
-    });
-    if (ownerRows.kind !== "OK") throw new Error();
-    expect(JSON.stringify(ownerRows.rows)).not.toContain("overwritten");
 
-    // The server itself refuses anonymous callers (no session at all).
-    const anonymous = client(null);
-    const denied = await anonymous.rpc("sync_ensure_account", {});
-    expect(denied.error).not.toBeNull();
-    expect(categorize(denied.status, denied.error)).toBe("AUTH");
-    const hidden = await anonymous.from("cloud_backups").select("id");
-    expect(hidden.error).not.toBeNull();
-  });
+    it("cloud reset stops a stale device, and backups restore through parseBackup", async () => {
+      const a = device("phone-a", userD, undefined, seedDocument("profile-d"));
+      await a.store.load();
+      await a.act((data, ctx) =>
+        createServiceEvent(data, leave("2026-10-01"), ctx),
+      );
+      await a.enable();
+      const b = device("laptop-b", userD);
+      await b.enable();
 
-  it("a transport pinned to A never sends a request once the session is B", async () => {
-    let requests = 0;
-    const pinnedToA = transportFor(
-      userA,
-      () => {
-        requests += 1;
-        return "PASS";
-      },
-      userB,
-    );
-    await expect(pinnedToA.ensureAccount()).rejects.toMatchObject({
-      category: "AUTH",
-    });
-    await expect(
-      pinnedToA.resetCloud({ expectedGeneration: 1 }),
-    ).rejects.toMatchObject({
-      category: "AUTH",
-    });
-    expect(requests).toBe(0);
-  });
+      const uploaded = await a.engine.uploadBackup();
+      expect(uploaded.kind).toBe("OK");
+      const [info] = await b.engine.listBackups();
+      const parsed = parseBackup(await b.engine.downloadBackup(info!.id));
+      expect(parsed.ok && parsed.info.integrity).toBe("VERIFIED");
 
-  it("cloud reset stops a stale device, and backups restore through parseBackup", async () => {
-    const a = device("phone-a", userD, undefined, seedDocument("profile-d"));
-    await a.store.load();
-    await a.act((data, ctx) =>
-      createServiceEvent(data, leave("2026-10-01"), ctx),
-    );
-    await a.enable();
-    const b = device("laptop-b", userD);
-    await b.enable();
+      expect(await a.engine.deleteCloudData({ userId: userD })).toMatchObject({
+        ok: true,
+        account: { generation: 2 },
+      });
+      await b.act((data, ctx) =>
+        createServiceEvent(data, leave("2026-10-02"), ctx),
+      );
+      const stale = await b.engine.sync();
+      expect(stale).toMatchObject({
+        phase: "BLOCKED",
+        block: { reason: "GENERATION_MISMATCH" },
+      });
+      expect(await b.engine.listBackups()).toEqual([]);
+      const transport = transportFor(userD);
+      const pulled = await transport.pull({
+        generation: 2,
+        afterSeq: 0,
+        limit: 10,
+      });
+      expect(pulled).toMatchObject({ kind: "OK", rows: [] });
+      expect(b.data().events).toHaveLength(2);
+    });
 
-    const uploaded = await a.engine.uploadBackup();
-    expect(uploaded.kind).toBe("OK");
-    const [info] = await b.engine.listBackups();
-    const parsed = parseBackup(await b.engine.downloadBackup(info!.id));
-    expect(parsed.ok && parsed.info.integrity).toBe("VERIFIED");
-
-    expect(await a.engine.deleteCloudData({ userId: userD })).toMatchObject({
-      ok: true,
-      account: { generation: 2 },
+    it("reports an unreachable server as NETWORK", async () => {
+      const offline = transportFor(userA, () => "FAIL_BEFORE");
+      await expect(offline.ensureAccount()).rejects.toMatchObject({
+        category: "NETWORK",
+      });
     });
-    await b.act((data, ctx) =>
-      createServiceEvent(data, leave("2026-10-02"), ctx),
-    );
-    const stale = await b.engine.sync();
-    expect(stale).toMatchObject({
-      phase: "BLOCKED",
-      block: { reason: "GENERATION_MISMATCH" },
-    });
-    expect(await b.engine.listBackups()).toEqual([]);
-    const transport = transportFor(userD);
-    const pulled = await transport.pull({
-      generation: 2,
-      afterSeq: 0,
-      limit: 10,
-    });
-    expect(pulled).toMatchObject({ kind: "OK", rows: [] });
-    expect(b.data().events).toHaveLength(2);
-  });
-
-  it("reports an unreachable server as NETWORK", async () => {
-    const offline = transportFor(userA, () => "FAIL_BEFORE");
-    await expect(offline.ensureAccount()).rejects.toMatchObject({
-      category: "NETWORK",
-    });
-  });
-});
+  },
+);
 
 describe("Supabase error categories", () => {
   it("maps statuses and codes without exposing messages", () => {

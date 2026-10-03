@@ -4505,7 +4505,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 
 //#endregion
 //#region ../../node_modules/.pnpm/zod@4.5.4/node_modules/zod/v4/classic/parse.js
-	const parse = /* @__PURE__ */ _parse(ZodRealError);
+	const parse$1 = /* @__PURE__ */ _parse(ZodRealError);
 	const parseAsync = /* @__PURE__ */ _parseAsync(ZodRealError);
 	const safeParse = /* @__PURE__ */ _safeParse(ZodRealError);
 	const safeParseAsync = /* @__PURE__ */ _safeParseAsync(ZodRealError);
@@ -4638,7 +4638,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			own(this, "~standard", value);
 		},
 		parse: function _parse(data, params) {
-			return parse(this, data, params, { callee: _parse });
+			return parse$1(this, data, params, { callee: _parse });
 		},
 		parseAsync: async function _parseAsync(data, params) {
 			return await parseAsync(this, data, params, { callee: _parseAsync });
@@ -7332,7 +7332,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			compensationSnapshots: data.compensationSnapshots.filter(isLive).length
 		};
 	}
-	const fail$1 = (kind, error) => ({
+	const fail$2 = (kind, error) => ({
 		ok: false,
 		kind,
 		error
@@ -7343,23 +7343,23 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	* touches storage, so callers can preview and cancel freely.
 	*/
 	function parseBackup(text) {
-		if (text.length > 10485760) return fail$1("TOO_LARGE", "백업 파일이 너무 커요 (10MB 초과).");
+		if (text.length > 10485760) return fail$2("TOO_LARGE", "백업 파일이 너무 커요 (10MB 초과).");
 		let value;
 		try {
 			value = JSON.parse(text);
 		} catch {
-			return text.trimStart().startsWith("{") && text.includes("super-gongik.backup") ? fail$1("TRUNCATED", "슈퍼공익 백업 파일이지만 내용이 잘렸거나 손상됐어요. 원래 파일을 다시 내려받아 주세요.") : fail$1("MALFORMED_JSON", "JSON 형식이 아니에요. 슈퍼공익 백업 파일인지 확인해 주세요.");
+			return text.trimStart().startsWith("{") && text.includes("super-gongik.backup") ? fail$2("TRUNCATED", "슈퍼공익 백업 파일이지만 내용이 잘렸거나 손상됐어요. 원래 파일을 다시 내려받아 주세요.") : fail$2("MALFORMED_JSON", "JSON 형식이 아니에요. 슈퍼공익 백업 파일인지 확인해 주세요.");
 		}
-		if (typeof value !== "object" || value === null || Array.isArray(value)) return fail$1("FOREIGN_FILE", "슈퍼공익 백업 파일이 아니에요.");
+		if (typeof value !== "object" || value === null || Array.isArray(value)) return fail$2("FOREIGN_FILE", "슈퍼공익 백업 파일이 아니에요.");
 		const file = value;
-		if (file.format !== "super-gongik.backup") return fail$1("FOREIGN_FILE", "슈퍼공익 백업 파일이 아니에요.");
+		if (file.format !== "super-gongik.backup") return fail$2("FOREIGN_FILE", "슈퍼공익 백업 파일이 아니에요.");
 		const formatVersion = file.formatVersion;
-		if (typeof formatVersion === "number" && Number.isInteger(formatVersion) && formatVersion > 2) return fail$1("UNSUPPORTED_FORMAT_VERSION", `더 새로운 앱에서 만든 백업 형식(${formatVersion})이에요. 앱을 최신으로 업데이트한 뒤 복원해 주세요.`);
-		if (formatVersion !== 1 && formatVersion !== 2) return fail$1("INVALID_STRUCTURE", `알 수 없는 백업 형식 버전(${String(formatVersion)})이에요.`);
+		if (typeof formatVersion === "number" && Number.isInteger(formatVersion) && formatVersion > 2) return fail$2("UNSUPPORTED_FORMAT_VERSION", `더 새로운 앱에서 만든 백업 형식(${formatVersion})이에요. 앱을 최신으로 업데이트한 뒤 복원해 주세요.`);
+		if (formatVersion !== 1 && formatVersion !== 2) return fail$2("INVALID_STRUCTURE", `알 수 없는 백업 형식 버전(${String(formatVersion)})이에요.`);
 		let integrity = "NOT_PRESENT";
 		if (formatVersion === 2) {
 			const declared = file.integrity;
-			if (typeof declared !== "object" || declared === null || declared.algorithm !== "SHA-256" || declared.canonicalization !== "JCS" || typeof declared.digest !== "string" || !DIGEST_PATTERN.test(declared.digest)) return fail$1("INVALID_STRUCTURE", "백업 파일의 무결성 정보가 없거나 형식이 잘못됐어요.");
+			if (typeof declared !== "object" || declared === null || declared.algorithm !== "SHA-256" || declared.canonicalization !== "JCS" || typeof declared.digest !== "string" || !DIGEST_PATTERN.test(declared.digest)) return fail$2("INVALID_STRUCTURE", "백업 파일의 무결성 정보가 없거나 형식이 잘못됐어요.");
 			let actual;
 			try {
 				actual = computeBackupDigest({
@@ -7368,18 +7368,18 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					data: file.data
 				});
 			} catch {
-				return fail$1("INVALID_STRUCTURE", "백업 내용을 읽을 수 없어요.");
+				return fail$2("INVALID_STRUCTURE", "백업 내용을 읽을 수 없어요.");
 			}
-			if (actual !== declared.digest) return fail$1("INTEGRITY_MISMATCH", "백업 파일의 내용이 만들 때와 달라요(체크섬 불일치). 파일이 손상됐거나 수정됐을 수 있어요. 원래 파일로 다시 시도해 주세요.");
+			if (actual !== declared.digest) return fail$2("INTEGRITY_MISMATCH", "백업 파일의 내용이 만들 때와 달라요(체크섬 불일치). 파일이 손상됐거나 수정됐을 수 있어요. 원래 파일로 다시 시도해 주세요.");
 			integrity = "VERIFIED";
-			if (typeof file.exportedAt !== "string" || Number.isNaN(Date.parse(file.exportedAt))) return fail$1("INVALID_STRUCTURE", "백업 시각 정보가 올바르지 않아요.");
+			if (typeof file.exportedAt !== "string" || Number.isNaN(Date.parse(file.exportedAt))) return fail$2("INVALID_STRUCTURE", "백업 시각 정보가 올바르지 않아요.");
 		}
 		const data = file.data;
 		const dataVersion = typeof data === "object" && data !== null ? data.schemaVersion : void 0;
-		if (formatVersion === 2 && file.schemaVersion !== dataVersion) return fail$1("INVALID_STRUCTURE", "백업 머리말과 본문의 스키마 버전이 서로 달라요.");
+		if (formatVersion === 2 && file.schemaVersion !== dataVersion) return fail$2("INVALID_STRUCTURE", "백업 머리말과 본문의 스키마 버전이 서로 달라요.");
 		const decoded = decodeUserData(file.data);
-		if (decoded.kind === "NEWER_VERSION") return fail$1("NEWER_SCHEMA", `더 새로운 버전의 앱(데이터 형식 ${decoded.foundVersion})에서 만든 백업이에요. 앱을 업데이트한 뒤 복원해 주세요.`);
-		if (decoded.kind === "INVALID") return fail$1("INVALID_STRUCTURE", `백업 내용이 올바르지 않아요 (${decoded.reason}).`);
+		if (decoded.kind === "NEWER_VERSION") return fail$2("NEWER_SCHEMA", `더 새로운 버전의 앱(데이터 형식 ${decoded.foundVersion})에서 만든 백업이에요. 앱을 업데이트한 뒤 복원해 주세요.`);
+		if (decoded.kind === "INVALID") return fail$2("INVALID_STRUCTURE", `백업 내용이 올바르지 않아요 (${decoded.reason}).`);
 		const exportedAt = typeof file.exportedAt === "string" ? file.exportedAt : "";
 		return {
 			ok: true,
@@ -7588,7 +7588,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 
 //#endregion
 //#region ../domain/src/store/commands.ts
-	function fail(message) {
+	function fail$1(message) {
 		return {
 			ok: false,
 			errors: [{
@@ -7607,7 +7607,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		};
 	}
 	function createProfile(data, input, context) {
-		if (data.profile) return fail("이미 복무 프로필이 있어요.");
+		if (data.profile) return fail$1("이미 복무 프로필이 있어요.");
 		try {
 			const id = context.createId();
 			const profile = buildServiceProfile(input, {
@@ -7624,12 +7624,12 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				value: profile
 			};
 		} catch {
-			return fail("소집일과 소집해제 예정일을 다시 확인해 주세요.");
+			return fail$1("소집일과 소집해제 예정일을 다시 확인해 주세요.");
 		}
 	}
 	function editProfile(data, input, context) {
 		const current = requireProfile(data);
-		if (!current) return fail("복무 프로필이 없어요.");
+		if (!current) return fail$1("복무 프로필이 없어요.");
 		try {
 			const profile = profileAfterEdit(current, updateServiceProfile(current, input, context.now));
 			return {
@@ -7641,7 +7641,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				value: profile
 			};
 		} catch {
-			return fail("입력한 날짜와 금액을 다시 확인해 주세요.");
+			return fail$1("입력한 날짜와 금액을 다시 확인해 주세요.");
 		}
 	}
 	/** Remove every local record. Callers must confirm and offer export first. */
@@ -7657,7 +7657,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 	function createServiceEvent(data, draftInput, context) {
 		const profile = requireProfile(data);
-		if (!profile) return fail("복무 프로필을 먼저 만들어 주세요.");
+		if (!profile) return fail$1("복무 프로필을 먼저 만들어 주세요.");
 		const validation = validateServiceEventDraft(draftInput, {
 			existingEvents: data.events,
 			servicePeriod: servicePeriod(profile)
@@ -7690,7 +7690,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	function updateServiceEvent(data, id, draftInput, context) {
 		const profile = requireProfile(data);
 		const existing = data.events.find((event) => event.id === id);
-		if (!profile || !existing || !isLive(existing)) return fail("수정할 기록을 찾지 못했어요.");
+		if (!profile || !existing || !isLive(existing)) return fail$1("수정할 기록을 찾지 못했어요.");
 		const validation = validateServiceEventDraft(draftInput, {
 			existingEvents: data.events,
 			editingId: id,
@@ -7716,7 +7716,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 	function deleteServiceEvent(data, id, context) {
 		const existing = data.events.find((event) => event.id === id);
-		if (!existing || !isLive(existing)) return fail("삭제할 기록을 찾지 못했어요.");
+		if (!existing || !isLive(existing)) return fail$1("삭제할 기록을 찾지 못했어요.");
 		const deleted = {
 			...existing,
 			deletedAt: context.now,
@@ -7734,7 +7734,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	function restoreServiceEvent(data, id, context) {
 		const profile = requireProfile(data);
 		const existing = data.events.find((event) => event.id === id);
-		if (!profile || !existing || isLive(existing)) return fail("되돌릴 기록을 찾지 못했어요.");
+		if (!profile || !existing || isLive(existing)) return fail$1("되돌릴 기록을 찾지 못했어요.");
 		const validation = validateServiceEventDraft(existing, {
 			existingEvents: data.events,
 			editingId: id,
@@ -7824,8 +7824,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 	function commitImport(data, input, context) {
 		const profile = requireProfile(data);
-		if (!profile) return fail("복무 프로필을 먼저 만들어 주세요.");
-		if (data.imports.some((record) => record.id === input.batch.id)) return fail("이미 저장한 가져오기예요.");
+		if (!profile) return fail$1("복무 프로필을 먼저 만들어 주세요.");
+		if (data.imports.some((record) => record.id === input.batch.id)) return fail$1("이미 저장한 가져오기예요.");
 		const decisions = planImportRows(data, input.drafts);
 		const events = [];
 		for (const decision of decisions) {
@@ -7854,7 +7854,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			createdAt: context.now,
 			deletedAt: null
 		}));
-		if (events.length === 0 && snapshots.length === 0) return fail("저장할 새 기록이 없어요. 중복이거나 확인이 필요한 행만 남았어요.");
+		if (events.length === 0 && snapshots.length === 0) return fail$1("저장할 새 기록이 없어요. 중복이거나 확인이 필요한 행만 남았어요.");
 		const skippedDuplicates = decisions.filter((decision) => decision.status === "DUPLICATE_IMPORT" || decision.status === "DUPLICATE_CONTENT").length + (input.skippedBeforePlanning ?? 0);
 		const rejected = decisions.filter((decision) => decision.status === "CONFLICT").length;
 		const record = {
@@ -7892,7 +7892,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	*/
 	function rollbackImport(data, batchId, context) {
 		const record = data.imports.find((item) => item.id === batchId);
-		if (!record || record.status !== "ACTIVE") return fail("취소할 가져오기를 찾지 못했어요.");
+		if (!record || record.status !== "ACTIVE") return fail$1("취소할 가져오기를 찾지 못했어요.");
 		let removedEvents = 0;
 		const events = data.events.map((event) => {
 			if (isLive(event) && event.source.kind === "IMPORT" && event.source.batchId === batchId) {
@@ -7925,8 +7925,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 	function confirmLeaveCredit(data, input, context) {
 		const profile = requireProfile(data);
-		if (!profile) return fail("복무 프로필이 없어요.");
-		if (!Number.isInteger(input.days * 2) || input.days < 0 || input.days > 60) return fail("부여 일수는 0~60일, 반일 단위로 입력해 주세요.");
+		if (!profile) return fail$1("복무 프로필이 없어요.");
+		if (!Number.isInteger(input.days * 2) || input.days < 0 || input.days > 60) return fail$1("부여 일수는 0~60일, 반일 단위로 입력해 주세요.");
 		const previous = data.leaveAdjustments.filter((item) => isLive(item) && item.kind === "GRANT_CONFIRMATION" && item.creditKey === input.creditKey);
 		const adjustment = leaveAdjustmentSchema.parse({
 			id: context.createId(),
@@ -7959,10 +7959,10 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 	function addLeaveCorrection(data, input, context) {
 		const profile = requireProfile(data);
-		if (!profile) return fail("복무 프로필이 없어요.");
-		if (!Number.isInteger(input.halfDays) || !Number.isInteger(input.minutes)) return fail("보정량은 반일·분 단위의 정수여야 해요.");
-		if (input.halfDays === 0 && input.minutes === 0) return fail("보정할 양을 입력해 주세요.");
-		if (!input.reason.trim()) return fail("보정 사유를 입력해 주세요.");
+		if (!profile) return fail$1("복무 프로필이 없어요.");
+		if (!Number.isInteger(input.halfDays) || !Number.isInteger(input.minutes)) return fail$1("보정량은 반일·분 단위의 정수여야 해요.");
+		if (input.halfDays === 0 && input.minutes === 0) return fail$1("보정할 양을 입력해 주세요.");
+		if (!input.reason.trim()) return fail$1("보정 사유를 입력해 주세요.");
 		const parsed = leaveAdjustmentSchema.safeParse({
 			id: context.createId(),
 			serviceProfileId: profile.id,
@@ -7979,7 +7979,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			revision: 1,
 			deviceId: context.deviceId
 		});
-		if (!parsed.success) return fail("보정 내용을 다시 확인해 주세요.");
+		if (!parsed.success) return fail$1("보정 내용을 다시 확인해 주세요.");
 		return {
 			ok: true,
 			data: {
@@ -7991,7 +7991,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 	function deleteLeaveAdjustment(data, id, context) {
 		const existing = data.leaveAdjustments.find((item) => item.id === id);
-		if (!existing || !isLive(existing)) return fail("보정 기록을 찾지 못했어요.");
+		if (!existing || !isLive(existing)) return fail$1("보정 기록을 찾지 못했어요.");
 		return {
 			ok: true,
 			data: {
@@ -8011,7 +8011,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	*/
 	function saveAttendanceMonth(data, input, context) {
 		const profile = requireProfile(data);
-		if (!profile) return fail("복무 프로필을 먼저 만들어 주세요.");
+		if (!profile) return fail$1("복무 프로필을 먼저 만들어 주세요.");
 		const existing = data.attendanceMonths.find((item) => isLive(item) && item.month === input.month);
 		const parsed = attendanceMonthSchema.safeParse({
 			month: input.month,
@@ -8032,7 +8032,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				deviceId: context.deviceId
 			}
 		});
-		if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "확인 내용을 다시 봐 주세요.");
+		if (!parsed.success) return fail$1(parsed.error.issues[0]?.message ?? "확인 내용을 다시 봐 주세요.");
 		const record = parsed.data;
 		return {
 			ok: true,
@@ -8046,7 +8046,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	/** Append an immutable compensation snapshot. */
 	function saveCompensationSnapshot(data, input, context) {
 		const profile = requireProfile(data);
-		if (!profile) return fail("복무 프로필을 먼저 만들어 주세요.");
+		if (!profile) return fail$1("복무 프로필을 먼저 만들어 주세요.");
 		const parsed = compensationSnapshotSchema.safeParse({
 			...input,
 			generatedAt: context.now,
@@ -8058,7 +8058,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			revision: 1,
 			deviceId: context.deviceId
 		});
-		if (!parsed.success) return fail("저장할 계산 결과가 올바르지 않아요.");
+		if (!parsed.success) return fail$1("저장할 계산 결과가 올바르지 않아요.");
 		return {
 			ok: true,
 			data: {
@@ -8070,7 +8070,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 	function deleteCompensationSnapshot(data, id, context) {
 		const existing = data.compensationSnapshots.find((item) => item.id === id);
-		if (!existing || !isLive(existing)) return fail("저장된 계산을 찾지 못했어요.");
+		if (!existing || !isLive(existing)) return fail$1("저장된 계산을 찾지 못했어요.");
 		return {
 			ok: true,
 			data: {
@@ -9581,6 +9581,52 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			rows: valid
 		};
 	}
+	/**
+	* The remote side of a merge: the given rows as a (partial) user document.
+	* Records the rows do not mention are simply absent, which the merge engine
+	* treats as "retain local". Without a profile row the local profile stands
+	* in, so a delta that changed only events still merges.
+	*/
+	function incomingDocument(local, rows) {
+		const data = createEmptyUserData("remote");
+		let profile = local.profile;
+		for (const row of rows) if (row.collection === "profile") profile = row.record;
+		else data[row.collection].push(row.record);
+		const hasRecords = rows.some((row) => row.collection !== "profile");
+		if (!profile) {
+			if (!hasRecords) return {
+				ok: true,
+				data: null
+			};
+			return {
+				ok: false,
+				issues: [{
+					key: "profile",
+					seq: null,
+					code: "INVALID_DOCUMENT",
+					path: "profile"
+				}]
+			};
+		}
+		const candidate = {
+			...data,
+			profile
+		};
+		const parsed = userDataSchema.safeParse(candidate);
+		if (!parsed.success) return {
+			ok: false,
+			issues: parsed.error.issues.slice(0, MAX_ISSUES).map((issue) => ({
+				key: String(issue.path[0] ?? "document"),
+				seq: null,
+				code: "INVALID_DOCUMENT",
+				path: issue.path.join(".")
+			}))
+		};
+		return {
+			ok: true,
+			data: parsed.data
+		};
+	}
 	/** Every record of a document with its sync key, profile first. */
 	function localRecords(data) {
 		const out = [];
@@ -9597,6 +9643,32 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	/** Short digest of a record exactly as stored (all fields). */
 	function recordDigest(record) {
 		return sha256Hex(canonicalJson(record)).slice(0, 16);
+	}
+	function shadowEntryFor(collection, record, seq) {
+		const entry = {
+			s: seq,
+			d: recordDigest(record),
+			l: true
+		};
+		if (collection === "profile") {
+			entry.p = profileDigest(record);
+			return entry;
+		}
+		if (collection === "imports") {
+			entry.l = record.status === "ACTIVE";
+			entry.c = contentDigest(collection, record);
+			return entry;
+		}
+		entry.l = record.deletedAt === null;
+		if (collection === "leaveSnapshots") {
+			entry.c = contentDigest(collection, record);
+			return entry;
+		}
+		const versioned = record;
+		entry.r = versioned.revision;
+		entry.v = versioned.deviceId;
+		if (versioned.supersedes && Object.keys(versioned.supersedes).length > 0) entry.a = versioned.supersedes;
+		return entry;
 	}
 	/** Digest of the fields of a revision-less record that never change. */
 	function contentDigest(collection, record) {
@@ -9710,6 +9782,16 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 
 //#endregion
 //#region ../domain/src/sync/state.ts
+/**
+	* Per-account sync checkpoint kept on this device, next to (never inside) the
+	* user document. It is transport metadata: it is not part of backups, never
+	* bumps `documentRevision`, and never influences how a conflict is decided.
+	*
+	* Losing it is safe: the next sync pulls everything again and the merge is
+	* idempotent. That is why "delete local data" simply removes it.
+	*/
+	const SYNC_STATE_PREFIX = "super-gongik:sync:v1:";
+	const syncStateKey = (userId) => `${SYNC_STATE_PREFIX}${userId}`;
 	const shadowEntrySchema = object({
 		s: number().int().positive(),
 		d: string(),
@@ -9745,6 +9827,812 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		*/
 		stash: record(string(), stashedRowSchema)
 	});
+	function newSyncState(input) {
+		return {
+			version: 1,
+			userId: input.userId,
+			generation: input.generation,
+			cursor: 0,
+			enabledAt: input.now,
+			lastSyncedAt: null,
+			shadow: {},
+			stash: {}
+		};
+	}
+	/**
+	* Checkpoint persistence. An unreadable checkpoint is treated as absent:
+	* the next sync then starts from a full pull, which is always safe.
+	*/
+	function createSyncStateStore(storage, userId) {
+		const key = syncStateKey(userId);
+		return {
+			async load() {
+				const text = await storage.getItem(key);
+				if (text === null) return null;
+				try {
+					const parsed = syncStateSchema.safeParse(JSON.parse(text));
+					if (!parsed.success || parsed.data.userId !== userId) return null;
+					return parsed.data;
+				} catch {
+					return null;
+				}
+			},
+			async save(state) {
+				await storage.setItem(key, JSON.stringify(state));
+			},
+			async clear() {
+				await storage.removeItem(key);
+			}
+		};
+	}
+
+//#endregion
+//#region ../domain/src/sync/transport.ts
+	var SyncTransportError = class extends Error {
+		category;
+		constructor(category, message = category) {
+			super(message);
+			this.category = category;
+			this.name = "SyncTransportError";
+		}
+	};
+
+//#endregion
+//#region ../domain/src/sync/engine.ts
+/** True when a merge changed no record (reference equality per record). */
+	function sameRecords(base, next) {
+		if (base.profile !== next.profile) return false;
+		return [
+			"events",
+			"leaveAdjustments",
+			"leaveSnapshots",
+			"imports",
+			"attendanceMonths",
+			"compensationSnapshots"
+		].every((name) => {
+			const before = base[name];
+			const after = next[name];
+			if (before.length !== after.length) return false;
+			const known = new Set(before);
+			return after.every((record) => known.has(record));
+		});
+	}
+	function mergeCommand(rows, resolutions) {
+		return (base, context) => {
+			const unchanged = (value) => ({
+				ok: true,
+				data: base,
+				value
+			});
+			const incoming = incomingDocument(base, rows);
+			if (!incoming.ok) return unchanged({
+				kind: "INVALID",
+				issues: incoming.issues
+			});
+			if (!incoming.data) return unchanged({
+				kind: "MERGED",
+				conflicts: [],
+				rejected: [],
+				resolved: [],
+				counts: null
+			});
+			const result = analyzeMerge(base, incoming.data, {
+				now: context.now,
+				deviceId: base.deviceId
+			}, SYNC_MERGE_OPTIONS(resolutions));
+			if (!result.ok) return unchanged({ kind: "PROFILE_MISMATCH" });
+			const { analysis } = result;
+			const value = {
+				kind: "MERGED",
+				conflicts: analysis.conflicts,
+				rejected: analysis.changes.filter((change) => change.outcome === "REJECTED" && change.collection !== "leaveSnapshots"),
+				resolved: analysis.changes.filter((change) => change.outcome === "RESOLVED_LOCAL" || change.outcome === "RESOLVED_INCOMING").map((change) => syncRecordKey(change.collection, change.recordId)),
+				counts: analysis.counts
+			};
+			return sameRecords(base, analysis.data) ? unchanged(value) : {
+				ok: true,
+				data: analysis.data,
+				value
+			};
+		};
+	}
+	/** Merge policy for sync: deletions travel, ids are never collapsed. */
+	const SYNC_MERGE_OPTIONS = (resolutions) => ({
+		incomingDeletions: "APPLY_NEWER",
+		duplicateContent: "KEEP_BOTH",
+		resolutions
+	});
+	function hasUserData(data) {
+		return data.profile !== null;
+	}
+	var Stop = class extends Error {
+		block;
+		constructor(block) {
+			super(block.reason);
+			this.block = block;
+		}
+	};
+	function createSyncEngine(options) {
+		const now = options.now ?? (() => /* @__PURE__ */ new Date());
+		const pageSize = options.pageSize ?? 500;
+		const pushBatchSize = options.pushBatchSize ?? 200;
+		const maxRounds = options.maxRounds ?? 3;
+		const listeners = /* @__PURE__ */ new Set();
+		let status = {
+			phase: "DISABLED",
+			block: null,
+			error: null,
+			conflicts: [],
+			held: [],
+			lastSyncedAt: null,
+			dirty: false,
+			generation: null,
+			lastSummary: null,
+			localRevision: null
+		};
+		let queue = Promise.resolve();
+		let changeCounter = 0;
+		function setStatus(patch) {
+			status = {
+				...status,
+				...patch
+			};
+			for (const listener of listeners) listener();
+		}
+		let disposed = false;
+		const sessionId = options.sessionId ?? `${options.userId}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2)}`;
+		function exclusive(work) {
+			const lock = options.lock;
+			const task = () => disposed ? Promise.reject(new SyncEngineDisposedError()) : work();
+			const run = queue.then(() => lock ? lock(task) : task(), () => lock ? lock(task) : task());
+			queue = run.catch(() => void 0);
+			return run;
+		}
+		function emit(event) {
+			try {
+				options.diagnostics?.(event);
+			} catch {}
+		}
+		/** The newest stored document, read inside the store's write lock. */
+		async function latestData() {
+			const result = await options.store.run((base) => ({
+				ok: true,
+				data: base,
+				value: void 0
+			}));
+			if (!result.ok) throw localFailure(result.errors[0]?.message);
+			return result.data;
+		}
+		function localFailure(message) {
+			const snapshot = options.store.getSnapshot();
+			if (snapshot.phase === "READY" && snapshot.readOnly) return new Stop({
+				reason: "LOCAL_READ_ONLY",
+				message: message ?? "이 기기의 데이터는 지금 수정할 수 없어요."
+			});
+			return new SyncTransportErrorLike("LOCAL_WRITE");
+		}
+		async function pullAll(generation, afterSeq) {
+			const rows = [];
+			let cursor = afterSeq;
+			let account;
+			for (;;) {
+				const page = await options.transport.pull({
+					generation,
+					afterSeq: cursor,
+					limit: pageSize
+				});
+				if (page.kind === "GENERATION_MISMATCH") throw new Stop({
+					reason: "GENERATION_MISMATCH",
+					account: page.account
+				});
+				account = page.account;
+				for (const row of page.rows) {
+					rows.push(row);
+					if (Number.isSafeInteger(row.seq) && row.seq > cursor) cursor = row.seq;
+				}
+				if (!page.hasMore || page.rows.length === 0) break;
+			}
+			return {
+				rows,
+				cursor,
+				account
+			};
+		}
+		function conflictViews(conflicts, data, remote) {
+			const local = new Map(localRecords(data).map((item) => [item.key, item]));
+			return conflicts.map((conflict) => ({
+				...conflict,
+				localRecord: local.get(conflict.key)?.record ?? null,
+				cloudRecord: remote.get(conflict.key)?.record ?? null
+			}));
+		}
+		async function runSync(reason, resolutions) {
+			const started = Date.now();
+			const state = await options.state.load();
+			if (!state) {
+				setStatus({
+					phase: "DISABLED",
+					block: null,
+					error: null,
+					conflicts: [],
+					held: []
+				});
+				return status;
+			}
+			const changesAtStart = changeCounter;
+			setStatus({
+				phase: "SYNCING",
+				generation: state.generation
+			});
+			let pulledTotal = 0;
+			let pushedTotal = 0;
+			let rounds = 0;
+			let counts = {};
+			let conflicts;
+			let held;
+			let localRevision;
+			try {
+				const openKeys = new Set(Object.keys(state.stash));
+				let pendingResolutions = resolutions ? Object.fromEntries(Object.entries(resolutions).filter(([key]) => openKeys.has(key))) : void 0;
+				if (pendingResolutions && Object.keys(pendingResolutions).length === 0) pendingResolutions = void 0;
+				let forced = /* @__PURE__ */ new Set();
+				for (;;) {
+					rounds += 1;
+					const pulled = await pullAll(state.generation, state.cursor);
+					const fresh = pulled.rows.filter((row) => state.shadow[`${String(row.collection)}:${String(row.recordId)}`]?.s !== row.seq);
+					pulledTotal += fresh.length;
+					const freshKeys = new Set(fresh.map((row) => `${String(row.collection)}:${String(row.recordId)}`));
+					const stashed = Object.entries(state.stash).filter(([key]) => !freshKeys.has(key)).map(([, row]) => row);
+					const validation = validateRemoteRows([...stashed, ...fresh]);
+					if (!validation.ok) throw new Stop(validation.newerSchema ? { reason: "REMOTE_NEWER_SCHEMA" } : {
+						reason: "REMOTE_INVALID",
+						issues: validation.issues
+					});
+					const remoteByKey = new Map(validation.rows.map((row) => [row.key, row]));
+					let data;
+					let mergeConflicts = [];
+					let rejected = [];
+					if (validation.rows.length > 0 || pendingResolutions) {
+						const result = await options.store.run(mergeCommand(validation.rows, pendingResolutions));
+						if (!result.ok) throw localFailure(result.errors[0]?.message);
+						const value = result.value;
+						if (value.kind === "PROFILE_MISMATCH") throw new Stop({
+							reason: "PROFILE_MISMATCH",
+							account: pulled.account
+						});
+						if (value.kind === "INVALID") throw new Stop({
+							reason: "REMOTE_INVALID",
+							issues: value.issues
+						});
+						data = result.data;
+						mergeConflicts = value.conflicts;
+						rejected = value.rejected;
+						if (pendingResolutions) forced = new Set(value.resolved);
+						if (value.counts) counts = value.counts;
+					} else data = await latestData();
+					pendingResolutions = void 0;
+					localRevision = data.documentRevision;
+					for (const row of validation.rows) if (freshKeys.has(row.key)) state.shadow[row.key] = shadowEntryFor(row.collection, row.record, row.seq);
+					state.cursor = Math.max(state.cursor, pulled.cursor);
+					const conflictKeys = new Set(mergeConflicts.map((item) => item.key));
+					const heldKeys = new Set(rejected.map((change) => syncRecordKey(change.collection, change.recordId)));
+					const rawByKey = /* @__PURE__ */ new Map();
+					for (const row of [...stashed, ...fresh]) rawByKey.set(`${String(row.collection)}:${String(row.recordId)}`, row);
+					state.stash = Object.fromEntries([...conflictKeys, ...heldKeys].filter((key) => rawByKey.has(key)).map((key) => {
+						const row = rawByKey.get(key);
+						return [key, {
+							collection: row.collection,
+							recordId: row.recordId,
+							seq: row.seq,
+							schemaVersion: row.schemaVersion,
+							payload: row.payload
+						}];
+					}));
+					await options.state.save(state);
+					conflicts = conflictViews(mergeConflicts, data, remoteByKey);
+					held = rejected.map((change) => {
+						const key = syncRecordKey(change.collection, change.recordId);
+						return {
+							key,
+							collection: change.collection,
+							recordId: change.recordId,
+							reason: change.reason ?? null,
+							cloudRecord: remoteByKey.get(key)?.record ?? null
+						};
+					});
+					const items = planPush({
+						data,
+						shadow: state.shadow,
+						conflicted: conflictKeys,
+						forced
+					});
+					forced = /* @__PURE__ */ new Set();
+					let stale = false;
+					const recordByKey = new Map(localRecords(data).map((item) => [item.key, item]));
+					for (let index = 0; index < items.length; index += pushBatchSize) {
+						const batch = items.slice(index, index + pushBatchSize);
+						const response = await options.transport.push({
+							generation: state.generation,
+							deviceId: data.deviceId,
+							items: batch
+						});
+						if (response.kind === "GENERATION_MISMATCH") throw new Stop({
+							reason: "GENERATION_MISMATCH",
+							account: response.account
+						});
+						if (response.kind === "PROFILE_MISMATCH") throw new Stop({
+							reason: "PROFILE_MISMATCH",
+							account: response.account
+						});
+						for (const result of response.results) {
+							const key = `${result.collection}:${result.recordId}`;
+							const local = recordByKey.get(key);
+							if (result.status === "STALE" || result.seq === null || !local) {
+								stale = true;
+								continue;
+							}
+							if (result.status === "APPLIED") pushedTotal += 1;
+							state.shadow[key] = shadowEntryFor(local.collection, local.record, result.seq);
+						}
+						await options.state.save(state);
+					}
+					if (!stale) break;
+					if (rounds >= maxRounds) throw new SyncTransportError("SERVER", "too many concurrent writes");
+				}
+				state.lastSyncedAt = now().toISOString();
+				await options.state.save(state);
+				setStatus({
+					phase: "IDLE",
+					block: null,
+					error: null,
+					conflicts,
+					held,
+					lastSyncedAt: state.lastSyncedAt,
+					dirty: changeCounter !== changesAtStart,
+					lastSummary: {
+						pulled: pulledTotal,
+						pushed: pushedTotal,
+						counts,
+						rounds
+					},
+					localRevision
+				});
+				emit({
+					kind: "sync",
+					reason,
+					outcome: conflicts.length || held.length ? "CONFLICT" : "OK",
+					pulled: pulledTotal,
+					pushed: pushedTotal,
+					conflicts: conflicts.length,
+					rounds,
+					durationMs: Date.now() - started,
+					errorCategory: null,
+					block: null
+				});
+			} catch (error) {
+				fail(error, {
+					kind: "sync",
+					reason,
+					pulled: pulledTotal,
+					pushed: pushedTotal,
+					rounds,
+					started,
+					lastSyncedAt: state.lastSyncedAt
+				});
+			}
+			return status;
+		}
+		function fail(error, context) {
+			let outcome;
+			let block = null;
+			let category = null;
+			if (error instanceof Stop) {
+				block = error.block;
+				outcome = "BLOCKED";
+			} else if (error instanceof SyncTransportError && error.category === "AUTH") {
+				block = { reason: "AUTH" };
+				outcome = "BLOCKED";
+			} else {
+				category = error instanceof SyncTransportError || error instanceof SyncTransportErrorLike ? error.category : "UNKNOWN";
+				outcome = category === "NETWORK" ? "OFFLINE" : "ERROR";
+			}
+			setStatus({
+				phase: block ? "BLOCKED" : outcome === "OFFLINE" ? "OFFLINE" : "ERROR",
+				block,
+				error: category,
+				...context.lastSyncedAt !== void 0 ? { lastSyncedAt: context.lastSyncedAt } : {}
+			});
+			emit({
+				kind: context.kind,
+				reason: context.reason,
+				outcome,
+				pulled: context.pulled,
+				pushed: context.pushed,
+				conflicts: status.conflicts.length,
+				rounds: context.rounds,
+				durationMs: Date.now() - context.started,
+				errorCategory: category,
+				block: block?.reason ?? null
+			});
+		}
+		/** What turning sync on would do. Reads only; changes nothing. */
+		async function previewEnable() {
+			const started = Date.now();
+			const pulled = await pullAll((await options.transport.ensureAccount()).generation, 0).catch((error) => {
+				if (error instanceof Stop) throw new SyncTransportError("SERVER", "account changed");
+				throw error;
+			});
+			const validation = validateRemoteRows(pulled.rows);
+			if (!validation.ok) return {
+				kind: "REMOTE_INVALID",
+				issues: validation.issues,
+				newerSchema: validation.newerSchema
+			};
+			const local = await latestData();
+			const remoteRecords = validation.rows.length;
+			const localCount = localRecords(local).length;
+			const remoteProfileId = validation.rows.find((row) => row.collection === "profile")?.recordId ?? pulled.account.profileId;
+			if (local.profile && remoteProfileId !== null && remoteProfileId !== local.profile.id) return {
+				kind: "PROFILE_MISMATCH",
+				account: pulled.account,
+				remoteRecords
+			};
+			let merged = local;
+			let conflicts = 0;
+			let counts = {};
+			let downloads = 0;
+			const conflictKeys = /* @__PURE__ */ new Set();
+			const incoming = incomingDocument(local, validation.rows);
+			if (!incoming.ok) return {
+				kind: "REMOTE_INVALID",
+				issues: incoming.issues,
+				newerSchema: false
+			};
+			if (incoming.data) {
+				const result = analyzeMerge(local, incoming.data, {
+					now: now().toISOString(),
+					deviceId: local.deviceId
+				}, SYNC_MERGE_OPTIONS());
+				if (!result.ok) return {
+					kind: "PROFILE_MISMATCH",
+					account: pulled.account,
+					remoteRecords
+				};
+				merged = result.analysis.data;
+				conflicts = result.analysis.conflicts.length;
+				for (const conflict of result.analysis.conflicts) conflictKeys.add(conflict.key);
+				counts = result.analysis.counts;
+				for (const change of result.analysis.changes) if ([
+					"ADDED",
+					"ADDED_HISTORY",
+					"UPDATED",
+					"RESTORED",
+					"DELETED",
+					"HISTORY_UPDATED"
+				].includes(change.outcome)) downloads += 1;
+			}
+			const shadow = {};
+			for (const row of validation.rows) shadow[row.key] = shadowEntryFor(row.collection, row.record, row.seq);
+			const uploads = planPush({
+				data: merged,
+				shadow,
+				conflicted: conflictKeys
+			}).length;
+			const localHas = hasUserData(local);
+			const remoteHas = remoteRecords > 0;
+			emit({
+				kind: "enable-preview",
+				reason: "preview",
+				outcome: conflicts ? "CONFLICT" : "OK",
+				pulled: remoteRecords,
+				pushed: 0,
+				conflicts,
+				rounds: 0,
+				durationMs: Date.now() - started,
+				errorCategory: null,
+				block: null
+			});
+			return {
+				kind: "READY",
+				evidence: {
+					userId: options.userId,
+					sessionId,
+					localRevision: local.documentRevision,
+					generation: pulled.account.generation,
+					lastSeq: pulled.account.lastSeq,
+					profileId: pulled.account.profileId
+				},
+				account: pulled.account,
+				case: localHas && remoteHas ? "MERGE" : localHas ? "UPLOAD" : remoteHas ? "DOWNLOAD" : "NOTHING",
+				localRecords: localCount,
+				remoteRecords,
+				downloads,
+				uploads,
+				conflicts,
+				counts
+			};
+		}
+		return {
+			getStatus: () => status,
+			subscribe(listener) {
+				listeners.add(listener);
+				return () => {
+					listeners.delete(listener);
+				};
+			},
+			/** Read the checkpoint and publish the initial status. */
+			async init() {
+				const state = await options.state.load();
+				setStatus(state ? {
+					phase: "IDLE",
+					lastSyncedAt: state.lastSyncedAt,
+					generation: state.generation
+				} : {
+					phase: "DISABLED",
+					generation: null
+				});
+				return status;
+			},
+			/** A local write happened; the next sync pushes it. */
+			notifyLocalChange() {
+				changeCounter += 1;
+				if (!status.dirty && status.phase !== "DISABLED") setStatus({ dirty: true });
+			},
+			previewEnable: () => exclusive(previewEnable),
+			/**
+			* Turn sync on for this device after the user saw `preview`. Refuses a
+			* preview that is not READY. The first run pulls everything, merges with
+			* the causal rules (conflicts are surfaced, never auto-picked) and
+			* uploads what the cloud lacks.
+			*/
+			enable(preview) {
+				return exclusive(async () => {
+					if (preview.kind !== "READY") return { kind: "NOT_READY" };
+					const evidence = preview.evidence;
+					if (evidence.userId !== options.userId || evidence.sessionId !== sessionId) return {
+						kind: "STALE_PREVIEW",
+						reason: "ACCOUNT"
+					};
+					if ((await latestData()).documentRevision !== evidence.localRevision) return {
+						kind: "STALE_PREVIEW",
+						reason: "LOCAL"
+					};
+					const account = await options.transport.ensureAccount();
+					if (account.generation !== evidence.generation || account.lastSeq !== evidence.lastSeq || account.profileId !== evidence.profileId) return {
+						kind: "STALE_PREVIEW",
+						reason: "REMOTE"
+					};
+					await options.state.save(newSyncState({
+						userId: options.userId,
+						generation: evidence.generation,
+						now: now().toISOString()
+					}));
+					return {
+						kind: "ENABLED",
+						status: await runSync("enable")
+					};
+				});
+			},
+			/** The account this engine acts for. */
+			userId: options.userId,
+			/** This sign-in session (see `PreviewEvidence.sessionId`). */
+			sessionId,
+			/**
+			* The account was signed out or switched: refuse everything still
+			* queued or requested later. Idempotent.
+			*/
+			dispose() {
+				disposed = true;
+			},
+			sync: (reason = "manual") => exclusive(() => runSync(reason)),
+			/**
+			* Apply explicit choices for open conflicts, then sync. Only keys that
+			* are open conflicts of this account are honored.
+			*/
+			resolveConflicts(resolutions) {
+				return exclusive(() => runSync("resolve", resolutions));
+			},
+			/**
+			* Forget what this device knows about remote rows so the next run pulls
+			* and merges everything again. Needed after a REPLACE restore: it can
+			* put versions on this device that are older than rows the cursor has
+			* already passed, and only a full merge brings the newer ones back
+			* (or surfaces them as conflicts). Open conflicts are kept.
+			*/
+			requestFullResync: () => exclusive(async () => {
+				const state = await options.state.load();
+				if (!state) return;
+				await options.state.save({
+					...state,
+					cursor: 0,
+					shadow: {}
+				});
+			}),
+			/** Stop syncing on this device. Keeps local data; forgets the checkpoint. */
+			disable: () => exclusive(async () => {
+				await options.state.clear();
+				setStatus({
+					phase: "DISABLED",
+					block: null,
+					error: null,
+					conflicts: [],
+					held: [],
+					generation: null
+				});
+			}),
+			/**
+			* Delete every synced record and cloud backup of this account and move
+			* the account to a new generation, so devices still holding the old one
+			* cannot push until their user decides. Local data is not touched; this
+			* device's sync is turned off.
+			*/
+			deleteCloudData: (expected) => exclusive(async () => {
+				if (expected.userId !== options.userId) return {
+					ok: false,
+					reason: "ACCOUNT_MISMATCH"
+				};
+				const started = Date.now();
+				const expectedGeneration = (await options.state.load())?.generation ?? (await options.transport.ensureAccount()).generation;
+				const response = await options.transport.resetCloud({ expectedGeneration });
+				if (response.kind === "GENERATION_MISMATCH") return {
+					ok: false,
+					reason: "GENERATION_MISMATCH",
+					account: response.account
+				};
+				await options.state.clear();
+				setStatus({
+					phase: "DISABLED",
+					block: null,
+					error: null,
+					conflicts: [],
+					held: [],
+					generation: null,
+					lastSyncedAt: null
+				});
+				emit({
+					kind: "reset",
+					reason: "delete-cloud-data",
+					outcome: "OK",
+					pulled: 0,
+					pushed: 0,
+					conflicts: 0,
+					rounds: 0,
+					durationMs: Date.now() - started,
+					errorCategory: null,
+					block: null
+				});
+				return {
+					ok: true,
+					account: response.account
+				};
+			}),
+			listBackups: () => options.transport.listBackups(),
+			/** Upload a backup-v2 file of the current local document. */
+			async uploadBackup() {
+				const data = await latestData();
+				const exportedAt = now().toISOString();
+				const backup = createBackup(data, exportedAt);
+				const generation = (await options.state.load())?.generation ?? (await options.transport.ensureAccount()).generation;
+				return options.transport.uploadBackup({
+					generation,
+					text: serializeBackup(backup),
+					exportedAt,
+					schemaVersion: backup.schemaVersion,
+					formatVersion: backup.formatVersion,
+					digest: backup.integrity.digest
+				});
+			},
+			/** Raw backup text; restore it through `parseBackup` + the restore preview. */
+			downloadBackup: (id) => options.transport.downloadBackup(id),
+			deleteBackup: (id) => options.transport.deleteBackup(id)
+		};
+	}
+	/** The engine's account was signed out or switched; nothing was done. */
+	var SyncEngineDisposedError = class extends Error {
+		constructor() {
+			super("SYNC_ENGINE_DISPOSED");
+			this.name = "SyncEngineDisposedError";
+		}
+	};
+	/** Local (non-transport) failure category carrier. */
+	var SyncTransportErrorLike = class extends Error {
+		category;
+		constructor(category) {
+			super(category);
+			this.category = category;
+		}
+	};
+
+//#endregion
+//#region ../domain/src/sync/scheduler.ts
+	const DEFAULT_BACKOFF_MS = [
+		5e3,
+		15e3,
+		6e4,
+		3e5
+	];
+	function createSyncScheduler(options) {
+		const debounceMs = options.debounceMs ?? 2e3;
+		const backoff = options.backoffMs ?? DEFAULT_BACKOFF_MS;
+		const maxAttempts = options.maxAttempts ?? 8;
+		const random = options.random ?? Math.random;
+		let timer = null;
+		let running = false;
+		let rerun = null;
+		let failures = 0;
+		let stopped = false;
+		function clear() {
+			if (timer !== null) options.clearTimer(timer);
+			timer = null;
+		}
+		function schedule(reason, delay) {
+			if (stopped) return;
+			clear();
+			timer = options.setTimer(() => {
+				timer = null;
+				execute(reason);
+			}, delay);
+		}
+		async function execute(reason) {
+			if (stopped) return;
+			if (running) {
+				rerun = reason;
+				return;
+			}
+			running = true;
+			let status;
+			try {
+				status = await options.run(reason);
+			} catch {
+				status = null;
+			} finally {
+				running = false;
+			}
+			if (stopped) return;
+			const retryable = status === null || (status.phase === "OFFLINE" || status.phase === "ERROR") && status.error !== "LOCAL_WRITE";
+			if (status && !retryable) failures = 0;
+			else {
+				failures += 1;
+				if (failures < maxAttempts) {
+					const base = backoff[Math.min(failures - 1, backoff.length - 1)];
+					const delay = Math.round(base * (.8 + random() * .4));
+					options.onRetryScheduled?.({
+						attempt: failures,
+						delayMs: delay
+					});
+					schedule("retry", delay);
+				}
+			}
+			if (rerun !== null) {
+				const next = rerun;
+				rerun = null;
+				schedule(next, debounceMs);
+			} else if (status && !retryable && status.dirty) schedule("local-change", debounceMs);
+		}
+		return {
+			/** A local write committed. */
+			localChange() {
+				if (failures > 0 && timer !== null) return;
+				if (running) {
+					rerun = "local-change";
+					return;
+				}
+				schedule("local-change", debounceMs);
+			},
+			/** Connectivity or foreground regained, or the user asked. */
+			soon(reason) {
+				failures = 0;
+				schedule(reason, 0);
+			},
+			stop() {
+				stopped = true;
+				clear();
+			},
+			get consecutiveFailures() {
+				return failures;
+			}
+		};
+	}
 
 //#endregion
 //#region ../../apps/web/src/lib/restore-copy.ts
@@ -12836,6 +13724,492 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 
 //#endregion
+//#region ../../apps/web/src/lib/sync/cloud-controller.ts
+	const ACCOUNT_CHANGED = { kind: "ACCOUNT_CHANGED" };
+	var CloudAuthError = class extends Error {
+		constructor(kind) {
+			super(kind);
+			this.kind = kind;
+			this.name = "CloudAuthError";
+		}
+	};
+	const DIAGNOSTIC_LIMIT = 20;
+	const FOREGROUND_MIN_INTERVAL_MS = 6e4;
+	function createCloudController(options) {
+		const listeners = /* @__PURE__ */ new Set();
+		let state = {
+			phase: options.configured ? "GUEST" : "UNCONFIGURED",
+			email: null,
+			userId: null,
+			accountSession: null,
+			sync: null,
+			authError: null,
+			diagnostics: []
+		};
+		let sessions = 0;
+		let auth = null;
+		let authLoading = null;
+		let engine = null;
+		let scheduler = null;
+		let detach = [];
+		let lastRevision = null;
+		let lastAttempt = 0;
+		let started = false;
+		function set(patch) {
+			state = {
+				...state,
+				...patch
+			};
+			for (const listener of listeners) listener();
+		}
+		function ensureAuth() {
+			authLoading ??= options.loadAuth().then((loaded) => {
+				auth = loaded;
+				loaded.onChange((session) => {
+					if (session && session.userId !== state.userId) attach(session);
+					else if (!session && state.phase === "SIGNED_IN") {
+						teardown();
+						set({
+							phase: "GUEST",
+							email: null,
+							userId: null,
+							accountSession: null,
+							sync: null
+						});
+					}
+				});
+				return loaded;
+			});
+			return authLoading;
+		}
+		function revision() {
+			const snapshot = options.store.getSnapshot();
+			return snapshot.phase === "READY" ? snapshot.data.documentRevision : null;
+		}
+		function teardown() {
+			scheduler?.stop();
+			scheduler = null;
+			for (const stop of detach) stop();
+			detach = [];
+			engine?.dispose();
+			engine = null;
+		}
+		async function attach(session) {
+			if (!auth) return;
+			teardown();
+			const created = createSyncEngine({
+				userId: session.userId,
+				sessionId: `${session.userId}#${++sessions}`,
+				store: options.store,
+				transport: auth.transport(session.userId),
+				state: createSyncStateStore(options.storage, session.userId),
+				now: options.now,
+				lock: options.syncLock,
+				diagnostics: (event) => set({ diagnostics: [event, ...state.diagnostics].slice(0, DIAGNOSTIC_LIMIT) })
+			});
+			engine = created;
+			scheduler = createSyncScheduler({
+				run: (reason) => {
+					lastAttempt = Date.now();
+					return created.sync(reason);
+				},
+				setTimer: options.setTimer,
+				clearTimer: options.clearTimer
+			});
+			const activeScheduler = scheduler;
+			detach.push(created.subscribe(() => {
+				const sync = created.getStatus();
+				set({ sync });
+				const current = revision();
+				if (sync.phase !== "SYNCING" && sync.localRevision !== null && current !== null && current > sync.localRevision && current !== lastRevision) {
+					lastRevision = current;
+					created.notifyLocalChange();
+					activeScheduler.localChange();
+				}
+			}));
+			lastRevision = revision();
+			detach.push(options.store.subscribe(() => {
+				const current = revision();
+				if (current === null || current === lastRevision) return;
+				lastRevision = current;
+				if (created.getStatus().phase === "SYNCING") return;
+				created.notifyLocalChange();
+				activeScheduler.localChange();
+			}));
+			set({
+				phase: "SIGNED_IN",
+				email: session.email,
+				userId: session.userId,
+				accountSession: created.sessionId,
+				authError: null,
+				sync: await created.init()
+			});
+			if (created.getStatus().phase !== "DISABLED") activeScheduler.soon("sign-in");
+		}
+		async function guard(task) {
+			try {
+				return await task();
+			} catch (error) {
+				set({ authError: error instanceof CloudAuthError ? error.kind : "UNKNOWN" });
+				return null;
+			}
+		}
+		function requireEngine() {
+			if (!engine) throw new Error("Not signed in.");
+			return engine;
+		}
+		/**
+		* The engine, only if it still belongs to the account the user decided
+		* for. Null after a sign-out or an account switch.
+		*/
+		function forAccount(expectedSession) {
+			if (!engine || engine.sessionId !== expectedSession || state.accountSession !== expectedSession) return null;
+			return engine;
+		}
+		return {
+			getState: () => state,
+			subscribe(listener) {
+				listeners.add(listener);
+				return () => {
+					listeners.delete(listener);
+				};
+			},
+			/** Called once on app start. Guests: no SDK load, no network. */
+			async start() {
+				if (started) return;
+				started = true;
+				if (!options.configured || !options.hasStoredSession()) return;
+				set({ phase: "LOADING" });
+				const loaded = await guard(ensureAuth);
+				const session = loaded ? await guard(() => loaded.getSession()) : null;
+				if (session) await attach(session);
+				else if (state.phase === "LOADING") set({ phase: "GUEST" });
+			},
+			async sendCode(email) {
+				set({ authError: null });
+				const loaded = await guard(ensureAuth);
+				if (!loaded) return false;
+				const ok = await guard(async () => {
+					await loaded.sendCode(email);
+					return true;
+				});
+				if (ok) set({
+					phase: "CODE_SENT",
+					email
+				});
+				return Boolean(ok);
+			},
+			async verifyCode(code) {
+				if (!auth || !state.email) return false;
+				const loaded = auth;
+				const email = state.email;
+				set({ authError: null });
+				const session = await guard(() => loaded.verifyCode(email, code));
+				if (!session) return false;
+				await attach(session);
+				return true;
+			},
+			cancelCode() {
+				set({
+					phase: "GUEST",
+					email: null,
+					authError: null
+				});
+			},
+			/** Stop syncing on this device. Keeps local data and the checkpoint. */
+			async signOut() {
+				teardown();
+				const loaded = auth;
+				set({
+					phase: options.configured ? "GUEST" : "UNCONFIGURED",
+					email: null,
+					userId: null,
+					accountSession: null,
+					sync: null,
+					authError: null
+				});
+				if (loaded) await loaded.signOut().catch(() => void 0);
+			},
+			previewEnable: () => requireEngine().previewEnable(),
+			/**
+			* Enable with the preview the user approved. The engine re-checks the
+			* preview's account, local revision and remote version and refuses a
+			* stale one (`STALE_PREVIEW`); the UI then shows a fresh preview for the
+			* user to approve. After a sign-out or switch the preview is stale.
+			*/
+			async enable(preview) {
+				const expected = preview.kind === "READY" ? preview.evidence.sessionId : state.accountSession;
+				const current = expected ? forAccount(expected) : null;
+				if (!current) return {
+					kind: "STALE_PREVIEW",
+					reason: "ACCOUNT"
+				};
+				return current.enable(preview);
+			},
+			syncNow: () => {
+				lastAttempt = Date.now();
+				return requireEngine().sync("manual");
+			},
+			async resolveConflicts(expectedSession, resolutions) {
+				const current = forAccount(expectedSession);
+				return current ? current.resolveConflicts(resolutions) : ACCOUNT_CHANGED;
+			},
+			async disableSync(expectedSession) {
+				const current = forAccount(expectedSession);
+				if (!current) return ACCOUNT_CHANGED;
+				await current.disable();
+				return { kind: "DISABLED" };
+			},
+			async deleteCloudData(expectedSession) {
+				const current = forAccount(expectedSession);
+				if (!current) return ACCOUNT_CHANGED;
+				const result = await current.deleteCloudData({ userId: current.userId });
+				return !result.ok && result.reason === "ACCOUNT_MISMATCH" ? ACCOUNT_CHANGED : result;
+			},
+			listBackups: () => requireEngine().listBackups(),
+			async uploadBackup(expectedSession) {
+				const current = forAccount(expectedSession);
+				return current ? current.uploadBackup() : ACCOUNT_CHANGED;
+			},
+			downloadBackup: (id) => requireEngine().downloadBackup(id),
+			async deleteBackup(expectedSession, id) {
+				const current = forAccount(expectedSession);
+				if (!current) return ACCOUNT_CHANGED;
+				await current.deleteBackup(id);
+				return { kind: "DELETED" };
+			},
+			/** Connectivity regained (a hint; the next request decides). */
+			notifyOnline() {
+				scheduler?.soon("online");
+			},
+			/** App came to the foreground; throttled. */
+			notifyForeground() {
+				if (!scheduler) return;
+				if (Date.now() - lastAttempt < FOREGROUND_MIN_INTERVAL_MS) return;
+				scheduler.soon("foreground");
+			},
+			/**
+			* A backup was restored locally. After a REPLACE the next sync pulls
+			* and merges everything again, so newer cloud versions are not skipped.
+			*/
+			async afterRestore(mode) {
+				if (!engine || !scheduler) return;
+				if (mode === "REPLACE") await engine.requestFullResync();
+				scheduler.soon("restore");
+			},
+			/**
+			* Local data was deleted on this device. The checkpoint went with it,
+			* so sync is off here until the user turns it on again.
+			*/
+			async afterLocalWipe() {
+				if (engine) set({ sync: await engine.init() });
+			}
+		};
+	}
+
+//#endregion
+//#region ../../apps/web/src/lib/sync/supabase-transport.ts
+/**
+	* `SyncTransport` over the Supabase RPCs in
+	* `supabase/migrations/*_cloud_sync.sql`. The account is always the session's
+	* user (`auth.uid()` on the server); nothing here sends a user id.
+	*
+	* Responses are validated here (shape only); record payloads stay `unknown`
+	* until the domain validates them. Errors are reduced to a category and a
+	* short code — request and response bodies are never put in an error.
+	*/
+	const REQUEST_TIMEOUT_MS = 2e4;
+	const accountSchema = object({
+		generation: number().int().positive(),
+		last_seq: number().int().nonnegative(),
+		profile_id: string().nullable(),
+		reset_at: string().nullable()
+	}).transform((value) => ({
+		generation: value.generation,
+		lastSeq: value.last_seq,
+		profileId: value.profile_id,
+		resetAt: value.reset_at
+	}));
+	const mismatchSchema = object({
+		kind: _enum(["GENERATION_MISMATCH", "PROFILE_MISMATCH"]),
+		account: accountSchema
+	});
+	const generationMismatchSchema = object({
+		kind: literal("GENERATION_MISMATCH"),
+		account: accountSchema
+	});
+	const pullSchema = union([object({
+		kind: literal("OK"),
+		account: accountSchema,
+		rows: array(object({
+			collection: string(),
+			record_id: string(),
+			seq: number().int(),
+			schema_version: number().int(),
+			payload: unknown()
+		})),
+		has_more: boolean()
+	}), mismatchSchema]);
+	const pushSchema = union([object({
+		kind: literal("OK"),
+		account: accountSchema,
+		results: array(object({
+			collection: string(),
+			record_id: string(),
+			status: _enum([
+				"APPLIED",
+				"UNCHANGED",
+				"STALE"
+			]),
+			seq: number().int().nullable()
+		}))
+	}), mismatchSchema]);
+	const resetSchema = union([object({
+		kind: literal("OK"),
+		account: accountSchema
+	}), generationMismatchSchema]);
+	const backupInfoSchema = object({
+		id: string(),
+		created_at: string(),
+		exported_at: string(),
+		generation: number().int(),
+		schema_version: number().int(),
+		format_version: number().int(),
+		byte_size: number().int(),
+		digest: string().nullable()
+	}).transform((value) => ({
+		id: value.id,
+		createdAt: value.created_at,
+		exportedAt: value.exported_at,
+		generation: value.generation,
+		schemaVersion: value.schema_version,
+		formatVersion: value.format_version,
+		byteSize: value.byte_size,
+		digest: value.digest
+	}));
+	const backupCreateSchema = union([object({
+		kind: literal("OK"),
+		backup: backupInfoSchema
+	}), generationMismatchSchema]);
+	/** Map a Supabase/PostgREST failure to a sanitized category. */
+	function categorize(status, error) {
+		const code = error?.code ?? "";
+		if (status === 0) return "NETWORK";
+		if (status === 401 || code === "28000" || code === "PGRST301" || code === "PGRST302") return "AUTH";
+		if (status === 403 || code === "42501") return "AUTH";
+		if (status === 429) return "RATE_LIMITED";
+		if (code === "PGRST116") return "NOT_FOUND";
+		return "SERVER";
+	}
+	function fail(status, error) {
+		const category = categorize(status, error);
+		throw new SyncTransportError(category, `${category}${error?.code ? ` (${error.code})` : ""}`);
+	}
+	function parse(schema, value) {
+		const parsed = schema.safeParse(value);
+		if (!parsed.success) throw new SyncTransportError("INVALID_RESPONSE", "INVALID_RESPONSE");
+		return parsed.data;
+	}
+	function createSupabaseTransport(client, options) {
+		const timeout = () => AbortSignal.timeout(options.timeoutMs ?? REQUEST_TIMEOUT_MS);
+		/** Authorization header for the expected user, or refuse. */
+		async function bearer() {
+			const session = await options.identity.session();
+			if (!session || session.userId !== options.identity.userId) throw new SyncTransportError("AUTH", "ACCOUNT_CHANGED");
+			return `Bearer ${session.accessToken}`;
+		}
+		async function rpc(name, args) {
+			const authorization = await bearer();
+			const { data, error, status } = await client.rpc(name, args).setHeader("Authorization", authorization).abortSignal(timeout());
+			if (error) fail(status, error);
+			return data;
+		}
+		return {
+			async ensureAccount() {
+				return parse(accountSchema, await rpc("sync_ensure_account", {}));
+			},
+			async pull(request) {
+				const result = parse(pullSchema, await rpc("sync_pull", {
+					p_generation: request.generation,
+					p_after_seq: request.afterSeq,
+					p_limit: request.limit
+				}));
+				if (result.kind !== "OK") {
+					if (result.kind === "PROFILE_MISMATCH") throw new SyncTransportError("INVALID_RESPONSE");
+					return {
+						kind: "GENERATION_MISMATCH",
+						account: result.account
+					};
+				}
+				return {
+					kind: "OK",
+					account: result.account,
+					hasMore: result.has_more,
+					rows: result.rows.map((row) => ({
+						collection: row.collection,
+						recordId: row.record_id,
+						seq: row.seq,
+						schemaVersion: row.schema_version,
+						payload: row.payload
+					}))
+				};
+			},
+			async push(request) {
+				const result = parse(pushSchema, await rpc("sync_push", {
+					p_generation: request.generation,
+					p_device_id: request.deviceId,
+					p_items: request.items.map((item) => ({
+						collection: item.collection,
+						record_id: item.recordId,
+						base_seq: item.baseSeq,
+						schema_version: item.schemaVersion,
+						payload: item.payload
+					}))
+				}));
+				if (result.kind !== "OK") return result;
+				return {
+					kind: "OK",
+					account: result.account,
+					results: result.results.map((item) => ({
+						collection: item.collection,
+						recordId: item.record_id,
+						status: item.status,
+						seq: item.seq
+					}))
+				};
+			},
+			async resetCloud({ expectedGeneration }) {
+				return parse(resetSchema, await rpc("sync_reset", { p_expected_generation: expectedGeneration }));
+			},
+			async listBackups() {
+				const authorization = await bearer();
+				const { data, error, status } = await client.from("cloud_backups").select("id, created_at, exported_at, generation, schema_version, format_version, byte_size, digest").setHeader("Authorization", authorization).order("created_at", { ascending: false }).abortSignal(timeout());
+				if (error) fail(status, error);
+				return parse(array(backupInfoSchema), data);
+			},
+			async uploadBackup(request) {
+				return parse(backupCreateSchema, await rpc("backup_create", {
+					p_generation: request.generation,
+					p_content: request.text,
+					p_exported_at: request.exportedAt,
+					p_schema_version: request.schemaVersion,
+					p_format_version: request.formatVersion,
+					p_digest: request.digest
+				}));
+			},
+			async downloadBackup(id) {
+				const authorization = await bearer();
+				const { data, error, status } = await client.from("cloud_backups").select("content").eq("id", id).setHeader("Authorization", authorization).abortSignal(timeout()).single();
+				if (error) fail(status, error);
+				return parse(object({ content: string() }), data).content;
+			},
+			async deleteBackup(id) {
+				await rpc("backup_delete", { p_id: id });
+			}
+		};
+	}
+
+//#endregion
 //#region src/host.ts
 	function host() {
 		const value = globalThis.__sgHost;
@@ -12874,6 +14248,230 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				if (typeof result === "string") throw new NativeStorageError("compareAndSet", result);
 				return result;
 			}
+		};
+	}
+
+//#endregion
+//#region src/postgrest.ts
+	const DEFAULT_TIMEOUT_MS = 2e4;
+	var Builder = class {
+		http;
+		url;
+		method;
+		body;
+		headers;
+		query = [];
+		timeoutMs = DEFAULT_TIMEOUT_MS;
+		constructor(http, url, method, body, baseHeaders) {
+			this.http = http;
+			this.url = url;
+			this.method = method;
+			this.body = body;
+			this.headers = { ...baseHeaders };
+		}
+		setHeader(name, value) {
+			this.headers[name] = value;
+			return this;
+		}
+		abortSignal(signal) {
+			if (signal?.timeoutMs) this.timeoutMs = signal.timeoutMs;
+			return this;
+		}
+		select(columns) {
+			this.query.push(`select=${encodeURIComponent(columns.replace(/\s+/g, ""))}`);
+			return this;
+		}
+		order(column, options = {}) {
+			this.query.push(`order=${encodeURIComponent(column)}.${options.ascending === false ? "desc" : "asc"}`);
+			return this;
+		}
+		eq(column, value) {
+			this.query.push(`${encodeURIComponent(column)}=eq.${encodeURIComponent(String(value))}`);
+			return this;
+		}
+		single() {
+			this.headers.Accept = "application/vnd.pgrst.object+json";
+			return this;
+		}
+		async execute() {
+			const url = this.query.length ? `${this.url}?${this.query.join("&")}` : this.url;
+			const response = await this.http({
+				method: this.method,
+				url,
+				headers: this.headers,
+				body: this.body,
+				timeoutMs: this.timeoutMs
+			});
+			if (response.status === 0) return {
+				data: null,
+				error: {
+					code: "",
+					message: "FetchError"
+				},
+				status: 0
+			};
+			if (response.status >= 200 && response.status < 300) {
+				if (response.body === "") return {
+					data: null,
+					error: null,
+					status: response.status
+				};
+				try {
+					return {
+						data: JSON.parse(response.body),
+						error: null,
+						status: response.status
+					};
+				} catch {
+					return {
+						data: null,
+						error: { message: response.body },
+						status: response.status
+					};
+				}
+			}
+			try {
+				const error = JSON.parse(response.body);
+				if (Array.isArray(error) && response.status === 404) return {
+					data: [],
+					error: null,
+					status: 200
+				};
+				return {
+					data: null,
+					error,
+					status: response.status
+				};
+			} catch {
+				if (response.status === 404 && response.body === "") return {
+					data: null,
+					error: null,
+					status: 204
+				};
+				return {
+					data: null,
+					error: { message: response.body },
+					status: response.status
+				};
+			}
+		}
+		then(onfulfilled, onrejected) {
+			return this.execute().then(onfulfilled, onrejected);
+		}
+	};
+	function createPostgrestClient(options) {
+		const base = options.url.replace(/\/+$/, "");
+		const headers = {
+			apikey: options.anonKey,
+			Authorization: `Bearer ${options.anonKey}`,
+			"Content-Type": "application/json",
+			Accept: "application/json"
+		};
+		return {
+			rpc(name, args) {
+				return new Builder(options.http, `${base}/rest/v1/rpc/${encodeURIComponent(name)}`, "POST", JSON.stringify(args), headers);
+			},
+			from(table) {
+				const url = `${base}/rest/v1/${encodeURIComponent(table)}`;
+				return { select: (columns) => new Builder(options.http, url, "GET", null, headers).select(columns) };
+			}
+		};
+	}
+
+//#endregion
+//#region src/cloud.ts
+	function cloudHost() {
+		return host();
+	}
+	function call(start) {
+		return new Promise((resolve) => start(resolve));
+	}
+	const AUTH_ERRORS = [
+		"INVALID_EMAIL",
+		"INVALID_CODE",
+		"RATE_LIMITED",
+		"NETWORK",
+		"UNKNOWN"
+	];
+	function authError(kind) {
+		return new CloudAuthError(AUTH_ERRORS.includes(kind) ? kind : "UNKNOWN");
+	}
+	function createNativeCloud(store, storage) {
+		const native = cloudHost();
+		const sessionListeners = /* @__PURE__ */ new Set();
+		async function currentSession() {
+			const text = await call((done) => native.authSession(done));
+			return text ? JSON.parse(text) : null;
+		}
+		const http = async (request) => JSON.parse(await call((done) => native.http(JSON.stringify(request), done)));
+		const auth = {
+			async getSession() {
+				const session = await currentSession();
+				return session ? {
+					userId: session.userId,
+					email: session.email
+				} : null;
+			},
+			onChange(listener) {
+				sessionListeners.add(listener);
+				return () => sessionListeners.delete(listener);
+			},
+			async sendCode(email) {
+				const error = await call((done) => native.authSendCode(email, done));
+				if (error) throw authError(error);
+			},
+			async verifyCode(email, code) {
+				const result = JSON.parse(await call((done) => native.authVerifyCode(email, code, done)));
+				if (!result.session) throw authError(result.error);
+				return {
+					userId: result.session.userId,
+					email: result.session.email
+				};
+			},
+			async signOut() {
+				await call((done) => native.authSignOut(() => done()));
+			},
+			transport(userId) {
+				return createSupabaseTransport(createPostgrestClient({
+					url: native.cloudBaseURL(),
+					anonKey: native.cloudAnonKey(),
+					http
+				}), { identity: {
+					userId,
+					session: async () => {
+						const session = await currentSession();
+						return session ? {
+							userId: session.userId,
+							accessToken: session.accessToken
+						} : null;
+					}
+				} });
+			}
+		};
+		const controller = createCloudController({
+			configured: native.cloudConfigured(),
+			hasStoredSession: () => native.authHasStoredSession(),
+			loadAuth: async () => auth,
+			store,
+			storage,
+			setTimer: (callback, ms) => native.setTimer(ms, callback),
+			clearTimer: (handle) => native.clearTimer(handle)
+		});
+		controller.subscribe(() => native.cloudStateChanged(JSON.stringify(controller.getState())));
+		return {
+			controller,
+			/** The host signed in (OAuth, Apple) or lost the session (refresh failed). */
+			sessionChanged(sessionJson) {
+				const session = sessionJson ? JSON.parse(sessionJson) : null;
+				const plain = session ? {
+					userId: session.userId,
+					email: session.email
+				} : null;
+				for (const listener of sessionListeners) listener(plain);
+			},
+			preview: () => controller.previewEnable(),
+			enable: (preview) => controller.enable(preview),
+			resolve: (expectedSession, resolutions) => controller.resolveConflicts(expectedSession, resolutions)
 		};
 	}
 
@@ -13722,6 +15320,11 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	*/
 	function createNativeRuntime() {
 		let store = null;
+		let cloud = null;
+		function requireCloud() {
+			if (!cloud) cloud = createNativeCloud(requireStore(), createNativeStorage());
+			return cloud;
+		}
 		function requireStore() {
 			if (!store) throw new Error("open() must be called first.");
 			return store;
@@ -13833,6 +15436,77 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					const { compensation } = evaluateMoneyMonth(data, data.profile, draft.month, today);
 					return saveAttendanceMonth(data, attendanceMonthInput(draft, compensation), context);
 				}));
+			},
+			/** Start once after `open()`. Guests: no network, nothing happens. */
+			async cloudStart() {
+				const { controller } = requireCloud();
+				await controller.start();
+				return json(controller.getState());
+			},
+			cloudState: () => json(requireCloud().controller.getState()),
+			async cloudSendCode(email) {
+				return json(await requireCloud().controller.sendCode(email));
+			},
+			async cloudVerifyCode(code) {
+				return json(await requireCloud().controller.verifyCode(code));
+			},
+			cloudCancelCode() {
+				requireCloud().controller.cancelCode();
+				return json(null);
+			},
+			async cloudSignOut() {
+				await requireCloud().controller.signOut();
+				return json(null);
+			},
+			cloudSessionChanged(sessionJson) {
+				requireCloud().sessionChanged(sessionJson);
+				return json(null);
+			},
+			async cloudPreview() {
+				return json(await requireCloud().preview());
+			},
+			async cloudEnable(previewJson) {
+				return json(await requireCloud().enable(JSON.parse(previewJson)));
+			},
+			async cloudSyncNow() {
+				return json(await requireCloud().controller.syncNow());
+			},
+			async cloudResolve(session, resolutionsJson) {
+				return json(await requireCloud().resolve(session, JSON.parse(resolutionsJson)));
+			},
+			async cloudDisable(session) {
+				return json(await requireCloud().controller.disableSync(session));
+			},
+			async cloudDeleteData(session) {
+				return json(await requireCloud().controller.deleteCloudData(session));
+			},
+			async cloudListBackups() {
+				return json(await requireCloud().controller.listBackups());
+			},
+			async cloudUploadBackup(session) {
+				return json(await requireCloud().controller.uploadBackup(session));
+			},
+			async cloudDownloadBackup(id) {
+				return json(await requireCloud().controller.downloadBackup(id));
+			},
+			async cloudDeleteBackup(session, id) {
+				return json(await requireCloud().controller.deleteBackup(session, id));
+			},
+			cloudNotifyForeground() {
+				requireCloud().controller.notifyForeground();
+				return json(null);
+			},
+			cloudNotifyOnline() {
+				requireCloud().controller.notifyOnline();
+				return json(null);
+			},
+			async cloudAfterRestore(mode) {
+				await requireCloud().controller.afterRestore(mode);
+				return json(null);
+			},
+			async cloudAfterLocalWipe() {
+				await requireCloud().controller.afterLocalWipe();
+				return json(null);
 			},
 			/**
 			* Parse delimited text and preview it exactly as the web import panel:

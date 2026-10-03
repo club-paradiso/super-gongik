@@ -52,6 +52,7 @@ import {
 } from "@/lib/import-model";
 import { buildLedgerForProfile } from "@/lib/projections";
 
+import { createNativeCloud, type NativeCloud } from "./cloud";
 import { createNativeStorage, host } from "./host";
 import { buildNativeProjection } from "./projection";
 import { applyCommand, callPure } from "./pure";
@@ -109,6 +110,13 @@ function parseArgs(argsJson: string): unknown[] {
  */
 export function createNativeRuntime() {
   let store: UserDataStore | null = null;
+  let cloud: NativeCloud | null = null;
+
+  function requireCloud(): NativeCloud {
+    if (!cloud)
+      cloud = createNativeCloud(requireStore(), createNativeStorage());
+    return cloud;
+  }
 
   function requireStore(): UserDataStore {
     if (!store) throw new Error("open() must be called first.");
@@ -270,6 +278,85 @@ export function createNativeRuntime() {
         );
       });
       return json(result);
+    },
+
+    // ── Optional cloud sync (web cloud controller, unchanged) ───────────────
+
+    /** Start once after `open()`. Guests: no network, nothing happens. */
+    async cloudStart(): Promise<string> {
+      const { controller } = requireCloud();
+      await controller.start();
+      return json(controller.getState());
+    },
+    cloudState: (): string => json(requireCloud().controller.getState()),
+    async cloudSendCode(email: string): Promise<string> {
+      return json(await requireCloud().controller.sendCode(email));
+    },
+    async cloudVerifyCode(code: string): Promise<string> {
+      return json(await requireCloud().controller.verifyCode(code));
+    },
+    cloudCancelCode(): string {
+      requireCloud().controller.cancelCode();
+      return json(null);
+    },
+    async cloudSignOut(): Promise<string> {
+      await requireCloud().controller.signOut();
+      return json(null);
+    },
+    cloudSessionChanged(sessionJson: string | null): string {
+      requireCloud().sessionChanged(sessionJson);
+      return json(null);
+    },
+    async cloudPreview(): Promise<string> {
+      return json(await requireCloud().preview());
+    },
+    async cloudEnable(previewJson: string): Promise<string> {
+      return json(await requireCloud().enable(JSON.parse(previewJson)));
+    },
+    async cloudSyncNow(): Promise<string> {
+      return json(await requireCloud().controller.syncNow());
+    },
+    async cloudResolve(
+      session: string,
+      resolutionsJson: string,
+    ): Promise<string> {
+      return json(
+        await requireCloud().resolve(session, JSON.parse(resolutionsJson)),
+      );
+    },
+    async cloudDisable(session: string): Promise<string> {
+      return json(await requireCloud().controller.disableSync(session));
+    },
+    async cloudDeleteData(session: string): Promise<string> {
+      return json(await requireCloud().controller.deleteCloudData(session));
+    },
+    async cloudListBackups(): Promise<string> {
+      return json(await requireCloud().controller.listBackups());
+    },
+    async cloudUploadBackup(session: string): Promise<string> {
+      return json(await requireCloud().controller.uploadBackup(session));
+    },
+    async cloudDownloadBackup(id: string): Promise<string> {
+      return json(await requireCloud().controller.downloadBackup(id));
+    },
+    async cloudDeleteBackup(session: string, id: string): Promise<string> {
+      return json(await requireCloud().controller.deleteBackup(session, id));
+    },
+    cloudNotifyForeground(): string {
+      requireCloud().controller.notifyForeground();
+      return json(null);
+    },
+    cloudNotifyOnline(): string {
+      requireCloud().controller.notifyOnline();
+      return json(null);
+    },
+    async cloudAfterRestore(mode: "MERGE" | "REPLACE"): Promise<string> {
+      await requireCloud().controller.afterRestore(mode);
+      return json(null);
+    },
+    async cloudAfterLocalWipe(): Promise<string> {
+      await requireCloud().controller.afterLocalWipe();
+      return json(null);
     },
 
     // ── Institution record import (CSV/TSV text) ───────────────────────────

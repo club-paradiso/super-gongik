@@ -42,6 +42,8 @@ public actor CoreRuntime {
     private let core: JSValue
     private var lastException: String?
     public nonisolated let facadeVersion: String
+    /// Cloud controller state changes (JSON `CloudState`), in order.
+    public nonisolated let cloudEvents: AsyncStream<Data>
 
     public nonisolated var unownedExecutor: UnownedSerialExecutor {
         queue.asUnownedSerialExecutor()
@@ -49,13 +51,18 @@ public actor CoreRuntime {
 
     /// - Parameter storage: where the document lives. Pass `nil` for a runtime
     ///   that only evaluates pure functions (tests, previews).
-    public init(storage: FileKeyValueStore?, bundle: Bundle? = nil) throws {
+    public init(storage: FileKeyValueStore?, cloud: CoreCloudServices? = nil, bundle: Bundle? = nil) throws {
         let bundle = bundle ?? Bundle.module
         let queue = DispatchSerialQueue(label: "app.supergongik.core", qos: .userInitiated)
+        let (events, continuation) = AsyncStream<Data>.makeStream(bufferingPolicy: .bufferingNewest(16))
+        self.cloudEvents = events
         // Built synchronously on the core queue so the context is only ever
         // used from it.
         let built: Result<(JSContext, JSValue, String), Error> = queue.sync {
-            Result { try CoreRuntime.makeContext(storage: storage, bundle: bundle) }
+            Result {
+                try CoreRuntime.makeContext(
+                    storage: storage, cloud: cloud, queue: queue, events: continuation, bundle: bundle)
+            }
         }
         let (context, core, version) = try built.get()
         self.queue = queue
@@ -67,14 +74,19 @@ public actor CoreRuntime {
         }
     }
 
-    private static func makeContext(storage: FileKeyValueStore?, bundle: Bundle) throws -> (JSContext, JSValue, String) {
+    private static func makeContext(
+        storage: FileKeyValueStore?, cloud: CoreCloudServices?, queue: DispatchSerialQueue,
+        events: AsyncStream<Data>.Continuation, bundle: Bundle
+    ) throws -> (JSContext, JSValue, String) {
         guard let context = JSContext() else { throw CoreError.javaScript("JSContext unavailable") }
         context.name = "SUPER-GONGIK core"
         var startupError: String?
         context.exceptionHandler = { _, exception in
             startupError = exception?.toString() ?? "unknown exception"
         }
-        context.setObject(NativeHost.make(storage: storage), forKeyedSubscript: "__sgHost" as NSString)
+        var hostObject = NativeHost.make(storage: storage)
+        hostObject.merge(CloudHost.make(cloud: cloud, queue: queue, events: events)) { current, _ in current }
+        context.setObject(hostObject, forKeyedSubscript: "__sgHost" as NSString)
 
         for name in ["sg-shims", "sg-core"] {
             guard let url = bundle.url(forResource: name, withExtension: "js"),
@@ -230,6 +242,115 @@ enum NativeHost {
             "randomBytes": randomBytes,
             "sha256Hex": sha256Hex,
             "log": log,
+        ]
+    }
+}
+
+/// Host functions for the shared cloud controller. Every completion runs on
+/// the core queue, where JavaScript continues.
+enum CloudHost {
+    final class Timers: @unchecked Sendable {
+        var next = 0
+        var items: [Int: DispatchWorkItem] = [:]
+    }
+
+    static func make(cloud: CoreCloudServices?, queue: DispatchSerialQueue,
+                     events: AsyncStream<Data>.Continuation) -> [String: Any] {
+        let timers = Timers()
+        func complete(_ done: JSValue, _ argument: @escaping @Sendable () -> Any) -> @Sendable () -> Void {
+            let bound = CoreQueueBound(value: done)
+            return { queue.async { bound.value.call(withArguments: [argument()]) } }
+        }
+        func encode<T: Encodable>(_ value: T) -> String {
+            String(decoding: (try? JSONEncoder().encode(value)) ?? Data("null".utf8), as: UTF8.self)
+        }
+
+        let configured: @convention(block) () -> Bool = { cloud?.isConfigured ?? false }
+        let baseURL: @convention(block) () -> String = { cloud?.baseURL ?? "" }
+        let anonKey: @convention(block) () -> String = { cloud?.anonKey ?? "" }
+        let hasStoredSession: @convention(block) () -> Bool = { cloud?.hasStoredSession ?? false }
+        let authSession: @convention(block) (JSValue) -> Void = { done in
+            let bound = CoreQueueBound(value: done)
+            Task {
+                let session = await cloud?.session()
+                let text = session.map { encode($0) }
+                queue.async { bound.value.call(withArguments: [text as Any? ?? NSNull()]) }
+            }
+        }
+        let authSendCode: @convention(block) (String, JSValue) -> Void = { email, done in
+            let bound = CoreQueueBound(value: done)
+            Task {
+                // nil means success; a missing service is an error.
+                let error: String? = if let cloud { await cloud.sendCode(email: email) } else { "UNKNOWN" }
+                queue.async { bound.value.call(withArguments: [error as Any? ?? NSNull()]) }
+            }
+        }
+        let authVerifyCode: @convention(block) (String, String, JSValue) -> Void = { email, code, done in
+            let bound = CoreQueueBound(value: done)
+            Task {
+                let text: String
+                switch await cloud?.verifyCode(email: email, code: code) {
+                case .success(let session)?: text = "{\"session\":\(encode(session))}"
+                case .failure(let failure)?: text = "{\"error\":\"\(failure.kind)\"}"
+                case nil: text = "{\"error\":\"UNKNOWN\"}"
+                }
+                queue.async { bound.value.call(withArguments: [text]) }
+            }
+        }
+        let authSignOut: @convention(block) (JSValue) -> Void = { done in
+            let finish = complete(done) { NSNull() }
+            Task {
+                await cloud?.signOut()
+                finish()
+            }
+        }
+        let http: @convention(block) (String, JSValue) -> Void = { requestJSON, done in
+            let bound = CoreQueueBound(value: done)
+            let request = try? JSONDecoder().decode(CoreHTTPRequest.self, from: Data(requestJSON.utf8))
+            Task {
+                let response: CoreHTTPResponse
+                if let request, let cloud {
+                    response = await cloud.http(request)
+                } else {
+                    response = CoreHTTPResponse(status: 0, body: "")
+                }
+                let text = encode(response)
+                queue.async { bound.value.call(withArguments: [text]) }
+            }
+        }
+        let setTimer: @convention(block) (Double, JSValue) -> Int = { ms, callback in
+            dispatchPrecondition(condition: .onQueue(queue))
+            timers.next += 1
+            let id = timers.next
+            let bound = CoreQueueBound(value: callback)
+            let item = DispatchWorkItem {
+                timers.items[id] = nil
+                bound.value.call(withArguments: [])
+            }
+            timers.items[id] = item
+            queue.asyncAfter(deadline: .now() + .milliseconds(Int(max(0, ms))), execute: item)
+            return id
+        }
+        let clearTimer: @convention(block) (Int) -> Void = { id in
+            dispatchPrecondition(condition: .onQueue(queue))
+            timers.items.removeValue(forKey: id)?.cancel()
+        }
+        let stateChanged: @convention(block) (String) -> Void = { json in
+            events.yield(Data(json.utf8))
+        }
+        return [
+            "cloudConfigured": configured,
+            "cloudBaseURL": baseURL,
+            "cloudAnonKey": anonKey,
+            "authHasStoredSession": hasStoredSession,
+            "authSession": authSession,
+            "authSendCode": authSendCode,
+            "authVerifyCode": authVerifyCode,
+            "authSignOut": authSignOut,
+            "http": http,
+            "setTimer": setTimer,
+            "clearTimer": clearTimer,
+            "cloudStateChanged": stateChanged,
         ]
     }
 }
