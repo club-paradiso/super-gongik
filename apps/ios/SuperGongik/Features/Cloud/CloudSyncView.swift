@@ -103,12 +103,14 @@ struct CloudSyncView: View {
         }
 
         Section {
-            SignInWithAppleButton(.signIn) { request in
-                cloud.prepareAppleRequest(request)
-            } onCompletion: { result in
-                Task { await cloud.completeApple(result) }
+            if model.config.signInWithApple {
+                SignInWithAppleButton(.signIn) { request in
+                    cloud.prepareAppleRequest(request)
+                } onCompletion: { result in
+                    Task { await cloud.completeApple(result) }
+                }
+                .frame(height: 44)
             }
-            .frame(height: 44)
             ForEach([("google", "Google로 계속하기"), ("kakao", "카카오로 계속하기"), ("custom:naver", "네이버로 계속하기")], id: \.0) { provider, title in
                 Button(title) {
                     Task {

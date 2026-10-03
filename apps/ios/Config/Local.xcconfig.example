@@ -3,3 +3,11 @@
 // SG_DEVELOPMENT_TEAM = <TEAMID>
 // SG_SUPABASE_URL = https:/$()/<project-ref>.supabase.co
 // SG_SUPABASE_ANON_KEY = <publishable anon key>
+
+// Free Apple ID (personal team, no paid membership) — install on your own
+// iPhone without App Group / Sign in with Apple:
+// SG_APP_ENTITLEMENTS = Config/PersonalTeam.entitlements
+// SG_WIDGET_ENTITLEMENTS = Config/PersonalTeam.entitlements
+// After joining the Apple Developer Program and configuring the Apple
+// provider in Supabase:
+// SG_SIGN_IN_WITH_APPLE = YES

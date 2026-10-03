@@ -25,7 +25,10 @@ SDK, no provider secret and no service-role key is in the app.
    `app.supergongik.ios://auth-callback` (or your final bundle id scheme).
 2. Supabase → Auth → Providers → Apple: Services ID, team ID, key ID and
    private key (stored in Supabase only). Enable the Sign in with Apple
-   capability for the app id in the developer portal.
+   capability for the app id in the developer portal. This needs the paid
+   Apple Developer Program; until then keep `SG_SIGN_IN_WITH_APPLE = NO`
+   (the button stays hidden; App Review's Sign in with Apple rule only
+   applies at submission, which needs the membership anyway).
 3. Google/Kakao/NAVER need no change beyond the existing Supabase callback.
 4. Deploy the deletion function: `supabase functions deploy delete-account`
    (the runtime provides `SUPABASE_URL`, `SUPABASE_ANON_KEY`,

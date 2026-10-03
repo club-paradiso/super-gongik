@@ -32,6 +32,26 @@ requires explicit authorization and the credentials listed below.
 The bundle id and App Group are placeholders: confirm the final identifiers
 (and whether the product name stays SUPER-GONGIK) before registering them.
 
+## Without the paid membership (free Apple ID, personal team)
+
+Possible today: install on your own iPhone from Xcode (profiles expire after
+7 days; enable Developer Mode on the phone), and test everything except the
+widget's data and Sign in with Apple. Not possible: App Group, Sign in with
+Apple, TestFlight, App Store.
+
+1. Xcode → Settings → Accounts: add your Apple ID (creates a personal team).
+2. In `apps/ios/Config/Local.xcconfig` (git-ignored) set
+   `SG_DEVELOPMENT_TEAM` to the personal team id, a bundle id nobody else has
+   registered (e.g. `app.supergongik.ios.<yourname>`), and
+   `SG_APP_ENTITLEMENTS = Config/PersonalTeam.entitlements`,
+   `SG_WIDGET_ENTITLEMENTS = Config/PersonalTeam.entitlements`.
+3. Keep `SG_SIGN_IN_WITH_APPLE = NO` (default): the Apple button stays hidden.
+4. `cd apps/ios && xcodegen generate`, connect the iPhone, run.
+
+Widgets then show their empty state ("슈퍼공익을 열어 소집일을 입력해
+주세요") because the app cannot share data with them; that is expected, not
+a bug.
+
 ## Signing steps (human, needs an Apple Developer account)
 
 1. Register the app id, widget id and App Group in the developer portal.

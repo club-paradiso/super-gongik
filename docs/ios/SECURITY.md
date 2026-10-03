@@ -24,8 +24,10 @@ Scope: this branch (local-only client). Reviewed 2026-10-04.
 - The account-deletion Edge Function holds the service-role key in the
   Supabase runtime only; it deletes the user identified by the caller's
   token, never an id from the request (tests in handler_test.ts).
-- XcodeGen rewrites `.entitlements` from `project.yml`; entitlements must be
-  edited there (a hand-written App Group was silently emptied once).
+- Entitlements are the committed `.entitlements` files, selected through
+  `SG_APP_ENTITLEMENTS` / `SG_WIDGET_ENTITLEMENTS` (Config/Base.xcconfig).
+  `project.yml` must not use XcodeGen's `entitlements:` key: it rewrites the
+  files (that once emptied the App Group silently).
 - `swift test --sanitize=thread` passes every test but reports races inside
   `CoreRuntime.installExceptionHandler` between worker threads. Every
   JavaScriptCore entry asserts `dispatchPrecondition(.onQueue(coreQueue))`,

@@ -197,6 +197,9 @@ final class AppModel {
 struct AppConfig: Sendable {
     let supabaseURL: URL?
     let supabaseAnonKey: String?
+    /// "Apple로 로그인" is offered only when the build says the Apple
+    /// provider is configured (SG_SIGN_IN_WITH_APPLE).
+    let signInWithApple: Bool
 
     /// Cloud features appear only when both values are configured, exactly
     /// like the web's NEXT_PUBLIC_SUPABASE_* rule.
@@ -210,6 +213,8 @@ struct AppConfig: Sendable {
             return trimmed.isEmpty || trimmed.hasPrefix("$(") ? nil : trimmed
         }
         let url = value("SGSupabaseURL").flatMap(URL.init(string:)).flatMap { $0.scheme == "https" ? $0 : nil }
-        return AppConfig(supabaseURL: url, supabaseAnonKey: value("SGSupabaseAnonKey"))
+        return AppConfig(
+            supabaseURL: url, supabaseAnonKey: value("SGSupabaseAnonKey"),
+            signInWithApple: value("SGSignInWithApple")?.uppercased() == "YES")
     }()
 }
