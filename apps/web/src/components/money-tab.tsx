@@ -26,15 +26,18 @@ import {
 } from "@super-gongik/domain";
 import {
   currentPayStepOrdinal,
-  derivePayBandSchedule,
-  evaluateMonthlyCompensation,
   findAttendanceMonth,
   type MonthlyCompensationEvaluation,
   type PayBandSchedule,
-  type ServiceDay,
 } from "@super-gongik/rules";
 
 import { Button } from "@/components/ui/button";
+import {
+  DAY_KIND_LABELS,
+  attendanceEditorDays,
+  attendanceMonthInput,
+  evaluateMoneyMonth,
+} from "@/lib/money-model";
 
 // Same "1,200,000원" form as the home stat card, so one amount reads the
 // same on every screen. Display only: amounts arrive already rounded.
@@ -55,15 +58,6 @@ const STATUS_LABELS = {
   GATED: "검증 대기",
   UNSUPPORTED: "미지원",
 } as const;
-
-const DAY_KIND_LABELS: Record<ServiceDay["kind"], string> = {
-  OUTSIDE_SERVICE: "복무 기간 밖",
-  NOT_SCHEDULED: "근무 요일 아님",
-  DECLARED_NON_WORKING: "공휴일·휴무",
-  FULL_DAY_LEAVE: "종일 휴가",
-  NEEDS_DECISION: "직접 정해야 함",
-  WORKED: "근무일",
-};
 
 // Human names for rule bundle ids; the raw id stays visible as a secondary
 // line so nothing is lost when a bundle has no name here yet.
@@ -315,23 +309,10 @@ export function MoneyTab({
   onOpenProfile: () => void;
 }) {
   const [month, setMonth] = useState<YearMonth>(yearMonthOf(today));
-  // Evaluate the selected month on its current day for this month, else on
-  // the 15th (any in-month date selects the same month-wide bundle).
-  const asOfDate =
-    month === yearMonthOf(today) ? today : (`${month}-15` as DateOnly);
   const attendance = findAttendanceMonth(data.attendanceMonths, month);
-  const compensation = useMemo(
-    () =>
-      evaluateMonthlyCompensation(profile, asOfDate, {
-        events: data.events,
-        attendance,
-        attendanceMonths: data.attendanceMonths,
-      }),
-    [profile, asOfDate, data.events, data.attendanceMonths, attendance],
-  );
-  const schedule = useMemo(
-    () => derivePayBandSchedule(profile, asOfDate),
-    [profile, asOfDate],
+  const { compensation, schedule } = useMemo(
+    () => evaluateMoneyMonth(data, profile, month, today),
+    [data, profile, month, today],
   );
   const snapshots = data.compensationSnapshots
     .filter((item) => isLive(item) && item.month === month)
@@ -640,16 +621,7 @@ function AttendanceEditor({
     evaluation.basePayAdjustment?.derivedNonPayableDates ?? [];
   const derivedNonPayableSet = new Set(derivedNonPayableDates);
 
-  // Scheduled in-service weekdays can be marked as holidays; days the records
-  // leave open need an explicit meal/transport decision.
-  const scheduled = days.filter(
-    (day) =>
-      day.kind === "WORKED" ||
-      day.kind === "DECLARED_NON_WORKING" ||
-      (day.kind === "NEEDS_DECISION" && !nonWorking.has(day.date)) ||
-      day.kind === "FULL_DAY_LEAVE",
-  );
-  const decisionDays = days.filter((day) => day.requiresDecision);
+  const { scheduled, decisionDays } = attendanceEditorDays(days, nonWorking);
 
   function toggleNonWorking(date: DateOnly) {
     setNonWorking((current) => {
@@ -683,38 +655,21 @@ function AttendanceEditor({
 
   async function save() {
     onMessage("");
-    const liveDecisionDates = new Set(
-      decisionDays
-        .filter((day) => !nonWorking.has(day.date))
-        .map((day) => day.date),
-    );
     const result = await store.run((current, context) =>
       saveAttendanceMonth(
         current,
-        {
-          month,
-          nonWorkingDates: [...nonWorking],
-          dayOverrides: [...decisions.values()].flatMap((item) =>
-            item.date &&
-            liveDecisionDates.has(item.date) &&
-            typeof item.mealEligible === "boolean" &&
-            typeof item.transportEligible === "boolean"
-              ? [
-                  {
-                    date: item.date,
-                    mealEligible: item.mealEligible,
-                    transportEligible: item.transportEligible,
-                  },
-                ]
-              : [],
-          ),
-          hadNonPayableAbsence: hadAbsence,
-          nonPayableDates: [
-            ...new Set([...nonPayableDates, ...derivedNonPayableDates]),
-          ],
-          nonPayableDatesConfirmed,
-          roundingPolicy,
-        },
+        attendanceMonthInput(
+          {
+            month,
+            nonWorkingDates: [...nonWorking],
+            decisions: [...decisions.values()],
+            hadNonPayableAbsence: hadAbsence,
+            nonPayableDates: [...nonPayableDates],
+            nonPayableDatesConfirmed,
+            roundingPolicy,
+          },
+          evaluation,
+        ),
         context,
       ),
     );
@@ -771,49 +726,47 @@ function AttendanceEditor({
         </div>
       </fieldset>
 
-      {decisionDays.filter((day) => !nonWorking.has(day.date)).length ? (
+      {decisionDays.length ? (
         <fieldset className="form-field choice-field attendance-decisions">
           <legend>중식비·교통비 지급 여부를 정할 날</legend>
-          {decisionDays
-            .filter((day) => !nonWorking.has(day.date))
-            .map((day) => (
-              <div className="decision-row" key={day.date}>
-                <span className="num">
-                  {dayLabel(day.date)}
-                  <small>{DAY_KIND_LABELS[day.kind]}</small>
-                </span>
-                {(
-                  [
-                    ["mealEligible", "중식비"],
-                    ["transportEligible", "교통비"],
-                  ] as const
-                ).map(([field, label]) => {
-                  const value = decisions.get(day.date)?.[field];
-                  return (
-                    <label key={field}>
-                      {label}
-                      <select
-                        aria-label={`${dayLabel(day.date)} ${label}`}
-                        value={value === undefined ? "" : value ? "yes" : "no"}
-                        onChange={(event) =>
-                          decide(
-                            day.date,
-                            field,
-                            event.target.value === ""
-                              ? undefined
-                              : event.target.value === "yes",
-                          )
-                        }
-                      >
-                        <option value="">미정</option>
-                        <option value="yes">받음</option>
-                        <option value="no">안 받음</option>
-                      </select>
-                    </label>
-                  );
-                })}
-              </div>
-            ))}
+          {decisionDays.map((day) => (
+            <div className="decision-row" key={day.date}>
+              <span className="num">
+                {dayLabel(day.date)}
+                <small>{DAY_KIND_LABELS[day.kind]}</small>
+              </span>
+              {(
+                [
+                  ["mealEligible", "중식비"],
+                  ["transportEligible", "교통비"],
+                ] as const
+              ).map(([field, label]) => {
+                const value = decisions.get(day.date)?.[field];
+                return (
+                  <label key={field}>
+                    {label}
+                    <select
+                      aria-label={`${dayLabel(day.date)} ${label}`}
+                      value={value === undefined ? "" : value ? "yes" : "no"}
+                      onChange={(event) =>
+                        decide(
+                          day.date,
+                          field,
+                          event.target.value === ""
+                            ? undefined
+                            : event.target.value === "yes",
+                        )
+                      }
+                    >
+                      <option value="">미정</option>
+                      <option value="yes">받음</option>
+                      <option value="no">안 받음</option>
+                    </select>
+                  </label>
+                );
+              })}
+            </div>
+          ))}
           <small>
             종일 휴가를 포함해 휴가·외출·지각·조퇴·교육·훈련 날의 중식비·교통비
             지급 여부는 법령과 병무청 지급 기준에 휴가 종류별로 정해져 있지

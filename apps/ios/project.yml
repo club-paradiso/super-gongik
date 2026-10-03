@@ -1,0 +1,145 @@
+# XcodeGen spec. The .xcodeproj is generated (`xcodegen generate`) and not
+# committed; edit this file instead.
+name: SuperGongik
+options:
+  bundleIdPrefix: app.supergongik
+  deploymentTarget:
+    iOS: "18.0"
+  developmentLanguage: ko
+  createIntermediateGroups: true
+  groupSortPosition: top
+configFiles:
+  Debug: Config/Debug.xcconfig
+  Release: Config/Release.xcconfig
+packages:
+  SuperGongikKit:
+    path: Packages/SuperGongikKit
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    DEAD_CODE_STRIPPING: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+targets:
+  SuperGongik:
+    type: application
+    platform: iOS
+    sources:
+      - path: SuperGongik
+      - path: Shared
+    # Entitlements come from CODE_SIGN_ENTITLEMENTS ($(SG_APP_ENTITLEMENTS),
+    # Config/Base.xcconfig) so a free personal team can switch them off.
+    # Edit SuperGongik/SuperGongik.entitlements directly.
+    dependencies:
+      - target: SuperGongikWidgets
+      - package: SuperGongikKit
+        product: SGFoundation
+      - package: SuperGongikKit
+        product: SGCore
+      - package: SuperGongikKit
+        product: SGPersistence
+      - package: SuperGongikKit
+        product: SGDesignSystem
+      - package: SuperGongikKit
+        product: SGSync
+    info:
+      path: SuperGongik/Info.plist
+      properties:
+        CFBundleDisplayName: 슈퍼공익
+        CFBundleDevelopmentRegion: ko
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        ITSAppUsesNonExemptEncryption: false
+        NSFaceIDUsageDescription: 앱 잠금을 켜면 Face ID로 슈퍼공익 기록을 열어요.
+        LSRequiresIPhoneOS: true
+        UIApplicationSupportsIndirectInputEvents: true
+        UIAppFonts:
+          - Pretendard-Regular.otf
+          - Pretendard-Medium.otf
+          - Pretendard-SemiBold.otf
+          - Pretendard-Bold.otf
+          - Pretendard-ExtraBold.otf
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+          UIImageName: BrandMark
+          UIImageRespectsSafeAreaInsets: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        SGSupabaseURL: $(SG_SUPABASE_URL)
+        SGSupabaseAnonKey: $(SG_SUPABASE_ANON_KEY)
+        SGSignInWithApple: $(SG_SIGN_IN_WITH_APPLE)
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(SG_BUNDLE_ID)
+        PRODUCT_NAME: SuperGongik
+        CODE_SIGN_ENTITLEMENTS: $(SG_APP_ENTITLEMENTS)
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: $(SG_DEVELOPMENT_TEAM)
+  SuperGongikWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: SuperGongikWidgets
+      - path: Shared
+      - path: SuperGongik/Resources/Assets.xcassets
+    # Entitlements: $(SG_WIDGET_ENTITLEMENTS) (see the app target).
+    dependencies:
+      - package: SuperGongikKit
+        product: SGFoundation
+      - package: SuperGongikKit
+        product: SGDesignSystem
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    info:
+      path: SuperGongikWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: 슈퍼공익
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(SG_BUNDLE_ID).widgets
+        CODE_SIGN_ENTITLEMENTS: $(SG_WIDGET_ENTITLEMENTS)
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: $(SG_DEVELOPMENT_TEAM)
+        ASSETCATALOG_COMPILER_APPICON_NAME: ""
+  SuperGongikTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: SuperGongikTests
+    dependencies:
+      - target: SuperGongik
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: $(SG_BUNDLE_ID).tests
+schemes:
+  SuperGongik:
+    build:
+      targets:
+        SuperGongik: all
+        SuperGongikTests: [test]
+    test:
+      targets:
+        - SuperGongikTests
+      gatherCoverageData: false
+    run:
+      config: Debug

@@ -1,0 +1,2863 @@
+{
+  "formatVersion": 1,
+  "suite": "service-progress",
+  "description": "calculateServiceProgress: states, D-Day, day counts and the one-decimal percentage (JS toFixed rounding).",
+  "engines": [
+    "jsc",
+    "swift"
+  ],
+  "generatedBy": "packages/native-core/tests/conformance.test.ts",
+  "cases": [
+    {
+      "id": "progress standard @ 2026-05-03",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2026-05-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "NOT_STARTED",
+          "today": "2026-05-03",
+          "totalServiceDays": 640,
+          "elapsedDays": 0,
+          "remainingDays": 640,
+          "dDay": 641,
+          "completionPercentage": 0
+        }
+      }
+    },
+    {
+      "id": "progress standard @ 2026-05-04",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2026-05-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-05-04",
+          "totalServiceDays": 640,
+          "elapsedDays": 0,
+          "remainingDays": 640,
+          "dDay": 640,
+          "completionPercentage": 0
+        }
+      }
+    },
+    {
+      "id": "progress standard @ 2026-05-05",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2026-05-05"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-05-05",
+          "totalServiceDays": 640,
+          "elapsedDays": 1,
+          "remainingDays": 639,
+          "dDay": 639,
+          "completionPercentage": 0.2
+        }
+      }
+    },
+    {
+      "id": "progress standard @ 2026-10-03",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2026-10-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-10-03",
+          "totalServiceDays": 640,
+          "elapsedDays": 152,
+          "remainingDays": 488,
+          "dDay": 488,
+          "completionPercentage": 23.8
+        }
+      }
+    },
+    {
+      "id": "progress standard @ 2027-05-04",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2027-05-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-05-04",
+          "totalServiceDays": 640,
+          "elapsedDays": 365,
+          "remainingDays": 275,
+          "dDay": 275,
+          "completionPercentage": 57
+        }
+      }
+    },
+    {
+      "id": "progress standard @ 2028-02-02",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2028-02-02"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2028-02-02",
+          "totalServiceDays": 640,
+          "elapsedDays": 639,
+          "remainingDays": 1,
+          "dDay": 1,
+          "completionPercentage": 99.8
+        }
+      }
+    },
+    {
+      "id": "progress standard @ 2028-02-03",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2028-02-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "COMPLETED",
+          "today": "2028-02-03",
+          "totalServiceDays": 640,
+          "elapsedDays": 640,
+          "remainingDays": 0,
+          "dDay": 0,
+          "completionPercentage": 100
+        }
+      }
+    },
+    {
+      "id": "progress standard @ 2028-02-04",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2028-02-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "COMPLETED",
+          "today": "2028-02-04",
+          "totalServiceDays": 640,
+          "elapsedDays": 640,
+          "remainingDays": 0,
+          "dDay": 0,
+          "completionPercentage": 100
+        }
+      }
+    },
+    {
+      "id": "progress standard @ 2030-01-01",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        "2030-01-01"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "COMPLETED",
+          "today": "2030-01-01",
+          "totalServiceDays": 640,
+          "elapsedDays": 640,
+          "remainingDays": 0,
+          "dDay": 0,
+          "completionPercentage": 100
+        }
+      }
+    },
+    {
+      "id": "progress leapSpan @ 2028-02-28",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2027-06-15",
+          "expectedDischargeDate": "2029-03-14"
+        },
+        "2028-02-28"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2028-02-28",
+          "totalServiceDays": 638,
+          "elapsedDays": 258,
+          "remainingDays": 380,
+          "dDay": 380,
+          "completionPercentage": 40.4
+        }
+      }
+    },
+    {
+      "id": "progress leapSpan @ 2028-02-29",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2027-06-15",
+          "expectedDischargeDate": "2029-03-14"
+        },
+        "2028-02-29"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2028-02-29",
+          "totalServiceDays": 638,
+          "elapsedDays": 259,
+          "remainingDays": 379,
+          "dDay": 379,
+          "completionPercentage": 40.6
+        }
+      }
+    },
+    {
+      "id": "progress leapSpan @ 2028-03-01",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2027-06-15",
+          "expectedDischargeDate": "2029-03-14"
+        },
+        "2028-03-01"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2028-03-01",
+          "totalServiceDays": 638,
+          "elapsedDays": 260,
+          "remainingDays": 378,
+          "dDay": 378,
+          "completionPercentage": 40.8
+        }
+      }
+    },
+    {
+      "id": "progress leapSpan @ 2029-03-13",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2027-06-15",
+          "expectedDischargeDate": "2029-03-14"
+        },
+        "2029-03-13"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2029-03-13",
+          "totalServiceDays": 638,
+          "elapsedDays": 637,
+          "remainingDays": 1,
+          "dDay": 1,
+          "completionPercentage": 99.8
+        }
+      }
+    },
+    {
+      "id": "progress fourHundredDays @ 2026-01-02",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-01-01",
+          "expectedDischargeDate": "2027-02-05"
+        },
+        "2026-01-02"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-01-02",
+          "totalServiceDays": 400,
+          "elapsedDays": 1,
+          "remainingDays": 399,
+          "dDay": 399,
+          "completionPercentage": 0.3
+        }
+      }
+    },
+    {
+      "id": "progress fourHundredDays @ 2026-01-04",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-01-01",
+          "expectedDischargeDate": "2027-02-05"
+        },
+        "2026-01-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-01-04",
+          "totalServiceDays": 400,
+          "elapsedDays": 3,
+          "remainingDays": 397,
+          "dDay": 397,
+          "completionPercentage": 0.8
+        }
+      }
+    },
+    {
+      "id": "progress fourHundredDays @ 2026-01-06",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-01-01",
+          "expectedDischargeDate": "2027-02-05"
+        },
+        "2026-01-06"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-01-06",
+          "totalServiceDays": 400,
+          "elapsedDays": 5,
+          "remainingDays": 395,
+          "dDay": 395,
+          "completionPercentage": 1.3
+        }
+      }
+    },
+    {
+      "id": "progress fourHundredDays @ 2026-02-20",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-01-01",
+          "expectedDischargeDate": "2027-02-05"
+        },
+        "2026-02-20"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-02-20",
+          "totalServiceDays": 400,
+          "elapsedDays": 50,
+          "remainingDays": 350,
+          "dDay": 350,
+          "completionPercentage": 12.5
+        }
+      }
+    },
+    {
+      "id": "progress fourHundredDays @ 2026-07-20",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-01-01",
+          "expectedDischargeDate": "2027-02-05"
+        },
+        "2026-07-20"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-07-20",
+          "totalServiceDays": 400,
+          "elapsedDays": 200,
+          "remainingDays": 200,
+          "dDay": 200,
+          "completionPercentage": 50
+        }
+      }
+    },
+    {
+      "id": "progress fourHundredDays @ 2027-02-04",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-01-01",
+          "expectedDischargeDate": "2027-02-05"
+        },
+        "2027-02-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-02-04",
+          "totalServiceDays": 400,
+          "elapsedDays": 399,
+          "remainingDays": 1,
+          "dDay": 1,
+          "completionPercentage": 99.8
+        }
+      }
+    },
+    {
+      "id": "progress sameDay @ 2026-10-02",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-10-03",
+          "expectedDischargeDate": "2026-10-03"
+        },
+        "2026-10-02"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "NOT_STARTED",
+          "today": "2026-10-02",
+          "totalServiceDays": 0,
+          "elapsedDays": 0,
+          "remainingDays": 0,
+          "dDay": 1,
+          "completionPercentage": 0
+        }
+      }
+    },
+    {
+      "id": "progress sameDay @ 2026-10-03",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-10-03",
+          "expectedDischargeDate": "2026-10-03"
+        },
+        "2026-10-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "COMPLETED",
+          "today": "2026-10-03",
+          "totalServiceDays": 0,
+          "elapsedDays": 0,
+          "remainingDays": 0,
+          "dDay": 0,
+          "completionPercentage": 100
+        }
+      }
+    },
+    {
+      "id": "progress sameDay @ 2026-10-04",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-10-03",
+          "expectedDischargeDate": "2026-10-03"
+        },
+        "2026-10-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "COMPLETED",
+          "today": "2026-10-04",
+          "totalServiceDays": 0,
+          "elapsedDays": 0,
+          "remainingDays": 0,
+          "dDay": 0,
+          "completionPercentage": 100
+        }
+      }
+    },
+    {
+      "id": "progress yearEnd @ 2025-12-30",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2025-12-31",
+          "expectedDischargeDate": "2027-09-30"
+        },
+        "2025-12-30"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "NOT_STARTED",
+          "today": "2025-12-30",
+          "totalServiceDays": 638,
+          "elapsedDays": 0,
+          "remainingDays": 638,
+          "dDay": 639,
+          "completionPercentage": 0
+        }
+      }
+    },
+    {
+      "id": "progress yearEnd @ 2025-12-31",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2025-12-31",
+          "expectedDischargeDate": "2027-09-30"
+        },
+        "2025-12-31"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2025-12-31",
+          "totalServiceDays": 638,
+          "elapsedDays": 0,
+          "remainingDays": 638,
+          "dDay": 638,
+          "completionPercentage": 0
+        }
+      }
+    },
+    {
+      "id": "progress yearEnd @ 2026-01-01",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2025-12-31",
+          "expectedDischargeDate": "2027-09-30"
+        },
+        "2026-01-01"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-01-01",
+          "totalServiceDays": 638,
+          "elapsedDays": 1,
+          "remainingDays": 637,
+          "dDay": 637,
+          "completionPercentage": 0.2
+        }
+      }
+    },
+    {
+      "id": "progress yearEnd @ 2027-09-29",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2025-12-31",
+          "expectedDischargeDate": "2027-09-30"
+        },
+        "2027-09-29"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-09-29",
+          "totalServiceDays": 638,
+          "elapsedDays": 637,
+          "remainingDays": 1,
+          "dDay": 1,
+          "completionPercentage": 99.8
+        }
+      }
+    },
+    {
+      "id": "progress rejects call-up after discharge",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2027-01-01",
+          "expectedDischargeDate": "2026-01-01"
+        },
+        "2026-06-01"
+      ],
+      "expected": {
+        "ok": false,
+        "error": {
+          "name": "RangeError",
+          "message": "Call-up date must not be after discharge date."
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-03-01",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-03-01"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "NOT_STARTED",
+          "today": "2026-03-01",
+          "totalServiceDays": 639,
+          "elapsedDays": 0,
+          "remainingDays": 639,
+          "dDay": 640,
+          "completionPercentage": 0
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-03-08",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-03-08"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-03-08",
+          "totalServiceDays": 639,
+          "elapsedDays": 6,
+          "remainingDays": 633,
+          "dDay": 633,
+          "completionPercentage": 0.9
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-03-15",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-03-15"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-03-15",
+          "totalServiceDays": 639,
+          "elapsedDays": 13,
+          "remainingDays": 626,
+          "dDay": 626,
+          "completionPercentage": 2
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-03-22",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-03-22"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-03-22",
+          "totalServiceDays": 639,
+          "elapsedDays": 20,
+          "remainingDays": 619,
+          "dDay": 619,
+          "completionPercentage": 3.1
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-03-29",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-03-29"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-03-29",
+          "totalServiceDays": 639,
+          "elapsedDays": 27,
+          "remainingDays": 612,
+          "dDay": 612,
+          "completionPercentage": 4.2
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-04-05",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-04-05"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-04-05",
+          "totalServiceDays": 639,
+          "elapsedDays": 34,
+          "remainingDays": 605,
+          "dDay": 605,
+          "completionPercentage": 5.3
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-04-12",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-04-12"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-04-12",
+          "totalServiceDays": 639,
+          "elapsedDays": 41,
+          "remainingDays": 598,
+          "dDay": 598,
+          "completionPercentage": 6.4
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-04-19",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-04-19"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-04-19",
+          "totalServiceDays": 639,
+          "elapsedDays": 48,
+          "remainingDays": 591,
+          "dDay": 591,
+          "completionPercentage": 7.5
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-04-26",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-04-26"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-04-26",
+          "totalServiceDays": 639,
+          "elapsedDays": 55,
+          "remainingDays": 584,
+          "dDay": 584,
+          "completionPercentage": 8.6
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-05-03",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-05-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-05-03",
+          "totalServiceDays": 639,
+          "elapsedDays": 62,
+          "remainingDays": 577,
+          "dDay": 577,
+          "completionPercentage": 9.7
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-05-10",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-05-10"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-05-10",
+          "totalServiceDays": 639,
+          "elapsedDays": 69,
+          "remainingDays": 570,
+          "dDay": 570,
+          "completionPercentage": 10.8
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-05-17",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-05-17"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-05-17",
+          "totalServiceDays": 639,
+          "elapsedDays": 76,
+          "remainingDays": 563,
+          "dDay": 563,
+          "completionPercentage": 11.9
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-05-24",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-05-24"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-05-24",
+          "totalServiceDays": 639,
+          "elapsedDays": 83,
+          "remainingDays": 556,
+          "dDay": 556,
+          "completionPercentage": 13
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-05-31",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-05-31"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-05-31",
+          "totalServiceDays": 639,
+          "elapsedDays": 90,
+          "remainingDays": 549,
+          "dDay": 549,
+          "completionPercentage": 14.1
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-06-07",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-06-07"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-06-07",
+          "totalServiceDays": 639,
+          "elapsedDays": 97,
+          "remainingDays": 542,
+          "dDay": 542,
+          "completionPercentage": 15.2
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-06-14",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-06-14"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-06-14",
+          "totalServiceDays": 639,
+          "elapsedDays": 104,
+          "remainingDays": 535,
+          "dDay": 535,
+          "completionPercentage": 16.3
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-06-21",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-06-21"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-06-21",
+          "totalServiceDays": 639,
+          "elapsedDays": 111,
+          "remainingDays": 528,
+          "dDay": 528,
+          "completionPercentage": 17.4
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-06-28",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-06-28"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-06-28",
+          "totalServiceDays": 639,
+          "elapsedDays": 118,
+          "remainingDays": 521,
+          "dDay": 521,
+          "completionPercentage": 18.5
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-07-05",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-07-05"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-07-05",
+          "totalServiceDays": 639,
+          "elapsedDays": 125,
+          "remainingDays": 514,
+          "dDay": 514,
+          "completionPercentage": 19.6
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-07-12",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-07-12"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-07-12",
+          "totalServiceDays": 639,
+          "elapsedDays": 132,
+          "remainingDays": 507,
+          "dDay": 507,
+          "completionPercentage": 20.7
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-07-19",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-07-19"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-07-19",
+          "totalServiceDays": 639,
+          "elapsedDays": 139,
+          "remainingDays": 500,
+          "dDay": 500,
+          "completionPercentage": 21.8
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-07-26",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-07-26"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-07-26",
+          "totalServiceDays": 639,
+          "elapsedDays": 146,
+          "remainingDays": 493,
+          "dDay": 493,
+          "completionPercentage": 22.8
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-08-02",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-08-02"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-08-02",
+          "totalServiceDays": 639,
+          "elapsedDays": 153,
+          "remainingDays": 486,
+          "dDay": 486,
+          "completionPercentage": 23.9
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-08-09",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-08-09"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-08-09",
+          "totalServiceDays": 639,
+          "elapsedDays": 160,
+          "remainingDays": 479,
+          "dDay": 479,
+          "completionPercentage": 25
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-08-16",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-08-16"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-08-16",
+          "totalServiceDays": 639,
+          "elapsedDays": 167,
+          "remainingDays": 472,
+          "dDay": 472,
+          "completionPercentage": 26.1
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-08-23",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-08-23"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-08-23",
+          "totalServiceDays": 639,
+          "elapsedDays": 174,
+          "remainingDays": 465,
+          "dDay": 465,
+          "completionPercentage": 27.2
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-08-30",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-08-30"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-08-30",
+          "totalServiceDays": 639,
+          "elapsedDays": 181,
+          "remainingDays": 458,
+          "dDay": 458,
+          "completionPercentage": 28.3
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-09-06",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-09-06"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-09-06",
+          "totalServiceDays": 639,
+          "elapsedDays": 188,
+          "remainingDays": 451,
+          "dDay": 451,
+          "completionPercentage": 29.4
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-09-13",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-09-13"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-09-13",
+          "totalServiceDays": 639,
+          "elapsedDays": 195,
+          "remainingDays": 444,
+          "dDay": 444,
+          "completionPercentage": 30.5
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-09-20",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-09-20"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-09-20",
+          "totalServiceDays": 639,
+          "elapsedDays": 202,
+          "remainingDays": 437,
+          "dDay": 437,
+          "completionPercentage": 31.6
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-09-27",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-09-27"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-09-27",
+          "totalServiceDays": 639,
+          "elapsedDays": 209,
+          "remainingDays": 430,
+          "dDay": 430,
+          "completionPercentage": 32.7
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-10-04",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-10-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-10-04",
+          "totalServiceDays": 639,
+          "elapsedDays": 216,
+          "remainingDays": 423,
+          "dDay": 423,
+          "completionPercentage": 33.8
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-10-11",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-10-11"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-10-11",
+          "totalServiceDays": 639,
+          "elapsedDays": 223,
+          "remainingDays": 416,
+          "dDay": 416,
+          "completionPercentage": 34.9
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-10-18",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-10-18"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-10-18",
+          "totalServiceDays": 639,
+          "elapsedDays": 230,
+          "remainingDays": 409,
+          "dDay": 409,
+          "completionPercentage": 36
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-10-25",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-10-25"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-10-25",
+          "totalServiceDays": 639,
+          "elapsedDays": 237,
+          "remainingDays": 402,
+          "dDay": 402,
+          "completionPercentage": 37.1
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-11-01",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-11-01"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-11-01",
+          "totalServiceDays": 639,
+          "elapsedDays": 244,
+          "remainingDays": 395,
+          "dDay": 395,
+          "completionPercentage": 38.2
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-11-08",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-11-08"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-11-08",
+          "totalServiceDays": 639,
+          "elapsedDays": 251,
+          "remainingDays": 388,
+          "dDay": 388,
+          "completionPercentage": 39.3
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-11-15",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-11-15"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-11-15",
+          "totalServiceDays": 639,
+          "elapsedDays": 258,
+          "remainingDays": 381,
+          "dDay": 381,
+          "completionPercentage": 40.4
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-11-22",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-11-22"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-11-22",
+          "totalServiceDays": 639,
+          "elapsedDays": 265,
+          "remainingDays": 374,
+          "dDay": 374,
+          "completionPercentage": 41.5
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-11-29",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-11-29"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-11-29",
+          "totalServiceDays": 639,
+          "elapsedDays": 272,
+          "remainingDays": 367,
+          "dDay": 367,
+          "completionPercentage": 42.6
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-12-06",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-12-06"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-12-06",
+          "totalServiceDays": 639,
+          "elapsedDays": 279,
+          "remainingDays": 360,
+          "dDay": 360,
+          "completionPercentage": 43.7
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-12-13",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-12-13"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-12-13",
+          "totalServiceDays": 639,
+          "elapsedDays": 286,
+          "remainingDays": 353,
+          "dDay": 353,
+          "completionPercentage": 44.8
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-12-20",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-12-20"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-12-20",
+          "totalServiceDays": 639,
+          "elapsedDays": 293,
+          "remainingDays": 346,
+          "dDay": 346,
+          "completionPercentage": 45.9
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2026-12-27",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2026-12-27"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2026-12-27",
+          "totalServiceDays": 639,
+          "elapsedDays": 300,
+          "remainingDays": 339,
+          "dDay": 339,
+          "completionPercentage": 46.9
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-01-03",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-01-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-01-03",
+          "totalServiceDays": 639,
+          "elapsedDays": 307,
+          "remainingDays": 332,
+          "dDay": 332,
+          "completionPercentage": 48
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-01-10",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-01-10"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-01-10",
+          "totalServiceDays": 639,
+          "elapsedDays": 314,
+          "remainingDays": 325,
+          "dDay": 325,
+          "completionPercentage": 49.1
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-01-17",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-01-17"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-01-17",
+          "totalServiceDays": 639,
+          "elapsedDays": 321,
+          "remainingDays": 318,
+          "dDay": 318,
+          "completionPercentage": 50.2
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-01-24",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-01-24"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-01-24",
+          "totalServiceDays": 639,
+          "elapsedDays": 328,
+          "remainingDays": 311,
+          "dDay": 311,
+          "completionPercentage": 51.3
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-01-31",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-01-31"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-01-31",
+          "totalServiceDays": 639,
+          "elapsedDays": 335,
+          "remainingDays": 304,
+          "dDay": 304,
+          "completionPercentage": 52.4
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-02-07",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-02-07"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-02-07",
+          "totalServiceDays": 639,
+          "elapsedDays": 342,
+          "remainingDays": 297,
+          "dDay": 297,
+          "completionPercentage": 53.5
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-02-14",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-02-14"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-02-14",
+          "totalServiceDays": 639,
+          "elapsedDays": 349,
+          "remainingDays": 290,
+          "dDay": 290,
+          "completionPercentage": 54.6
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-02-21",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-02-21"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-02-21",
+          "totalServiceDays": 639,
+          "elapsedDays": 356,
+          "remainingDays": 283,
+          "dDay": 283,
+          "completionPercentage": 55.7
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-02-28",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-02-28"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-02-28",
+          "totalServiceDays": 639,
+          "elapsedDays": 363,
+          "remainingDays": 276,
+          "dDay": 276,
+          "completionPercentage": 56.8
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-03-07",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-03-07"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-03-07",
+          "totalServiceDays": 639,
+          "elapsedDays": 370,
+          "remainingDays": 269,
+          "dDay": 269,
+          "completionPercentage": 57.9
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-03-14",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-03-14"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-03-14",
+          "totalServiceDays": 639,
+          "elapsedDays": 377,
+          "remainingDays": 262,
+          "dDay": 262,
+          "completionPercentage": 59
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-03-21",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-03-21"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-03-21",
+          "totalServiceDays": 639,
+          "elapsedDays": 384,
+          "remainingDays": 255,
+          "dDay": 255,
+          "completionPercentage": 60.1
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-03-28",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-03-28"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-03-28",
+          "totalServiceDays": 639,
+          "elapsedDays": 391,
+          "remainingDays": 248,
+          "dDay": 248,
+          "completionPercentage": 61.2
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-04-04",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-04-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-04-04",
+          "totalServiceDays": 639,
+          "elapsedDays": 398,
+          "remainingDays": 241,
+          "dDay": 241,
+          "completionPercentage": 62.3
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-04-11",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-04-11"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-04-11",
+          "totalServiceDays": 639,
+          "elapsedDays": 405,
+          "remainingDays": 234,
+          "dDay": 234,
+          "completionPercentage": 63.4
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-04-18",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-04-18"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-04-18",
+          "totalServiceDays": 639,
+          "elapsedDays": 412,
+          "remainingDays": 227,
+          "dDay": 227,
+          "completionPercentage": 64.5
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-04-25",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-04-25"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-04-25",
+          "totalServiceDays": 639,
+          "elapsedDays": 419,
+          "remainingDays": 220,
+          "dDay": 220,
+          "completionPercentage": 65.6
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-05-02",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-05-02"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-05-02",
+          "totalServiceDays": 639,
+          "elapsedDays": 426,
+          "remainingDays": 213,
+          "dDay": 213,
+          "completionPercentage": 66.7
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-05-09",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-05-09"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-05-09",
+          "totalServiceDays": 639,
+          "elapsedDays": 433,
+          "remainingDays": 206,
+          "dDay": 206,
+          "completionPercentage": 67.8
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-05-16",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-05-16"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-05-16",
+          "totalServiceDays": 639,
+          "elapsedDays": 440,
+          "remainingDays": 199,
+          "dDay": 199,
+          "completionPercentage": 68.9
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-05-23",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-05-23"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-05-23",
+          "totalServiceDays": 639,
+          "elapsedDays": 447,
+          "remainingDays": 192,
+          "dDay": 192,
+          "completionPercentage": 70
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-05-30",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-05-30"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-05-30",
+          "totalServiceDays": 639,
+          "elapsedDays": 454,
+          "remainingDays": 185,
+          "dDay": 185,
+          "completionPercentage": 71
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-06-06",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-06-06"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-06-06",
+          "totalServiceDays": 639,
+          "elapsedDays": 461,
+          "remainingDays": 178,
+          "dDay": 178,
+          "completionPercentage": 72.1
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-06-13",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-06-13"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-06-13",
+          "totalServiceDays": 639,
+          "elapsedDays": 468,
+          "remainingDays": 171,
+          "dDay": 171,
+          "completionPercentage": 73.2
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-06-20",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-06-20"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-06-20",
+          "totalServiceDays": 639,
+          "elapsedDays": 475,
+          "remainingDays": 164,
+          "dDay": 164,
+          "completionPercentage": 74.3
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-06-27",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-06-27"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-06-27",
+          "totalServiceDays": 639,
+          "elapsedDays": 482,
+          "remainingDays": 157,
+          "dDay": 157,
+          "completionPercentage": 75.4
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-07-04",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-07-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-07-04",
+          "totalServiceDays": 639,
+          "elapsedDays": 489,
+          "remainingDays": 150,
+          "dDay": 150,
+          "completionPercentage": 76.5
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-07-11",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-07-11"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-07-11",
+          "totalServiceDays": 639,
+          "elapsedDays": 496,
+          "remainingDays": 143,
+          "dDay": 143,
+          "completionPercentage": 77.6
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-07-18",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-07-18"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-07-18",
+          "totalServiceDays": 639,
+          "elapsedDays": 503,
+          "remainingDays": 136,
+          "dDay": 136,
+          "completionPercentage": 78.7
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-07-25",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-07-25"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-07-25",
+          "totalServiceDays": 639,
+          "elapsedDays": 510,
+          "remainingDays": 129,
+          "dDay": 129,
+          "completionPercentage": 79.8
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-08-01",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-08-01"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-08-01",
+          "totalServiceDays": 639,
+          "elapsedDays": 517,
+          "remainingDays": 122,
+          "dDay": 122,
+          "completionPercentage": 80.9
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-08-08",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-08-08"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-08-08",
+          "totalServiceDays": 639,
+          "elapsedDays": 524,
+          "remainingDays": 115,
+          "dDay": 115,
+          "completionPercentage": 82
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-08-15",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-08-15"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-08-15",
+          "totalServiceDays": 639,
+          "elapsedDays": 531,
+          "remainingDays": 108,
+          "dDay": 108,
+          "completionPercentage": 83.1
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-08-22",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-08-22"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-08-22",
+          "totalServiceDays": 639,
+          "elapsedDays": 538,
+          "remainingDays": 101,
+          "dDay": 101,
+          "completionPercentage": 84.2
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-08-29",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-08-29"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-08-29",
+          "totalServiceDays": 639,
+          "elapsedDays": 545,
+          "remainingDays": 94,
+          "dDay": 94,
+          "completionPercentage": 85.3
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-09-05",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-09-05"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-09-05",
+          "totalServiceDays": 639,
+          "elapsedDays": 552,
+          "remainingDays": 87,
+          "dDay": 87,
+          "completionPercentage": 86.4
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-09-12",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-09-12"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-09-12",
+          "totalServiceDays": 639,
+          "elapsedDays": 559,
+          "remainingDays": 80,
+          "dDay": 80,
+          "completionPercentage": 87.5
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-09-19",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-09-19"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-09-19",
+          "totalServiceDays": 639,
+          "elapsedDays": 566,
+          "remainingDays": 73,
+          "dDay": 73,
+          "completionPercentage": 88.6
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-09-26",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-09-26"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-09-26",
+          "totalServiceDays": 639,
+          "elapsedDays": 573,
+          "remainingDays": 66,
+          "dDay": 66,
+          "completionPercentage": 89.7
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-10-03",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-10-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-10-03",
+          "totalServiceDays": 639,
+          "elapsedDays": 580,
+          "remainingDays": 59,
+          "dDay": 59,
+          "completionPercentage": 90.8
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-10-10",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-10-10"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-10-10",
+          "totalServiceDays": 639,
+          "elapsedDays": 587,
+          "remainingDays": 52,
+          "dDay": 52,
+          "completionPercentage": 91.9
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-10-17",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-10-17"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-10-17",
+          "totalServiceDays": 639,
+          "elapsedDays": 594,
+          "remainingDays": 45,
+          "dDay": 45,
+          "completionPercentage": 93
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-10-24",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-10-24"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-10-24",
+          "totalServiceDays": 639,
+          "elapsedDays": 601,
+          "remainingDays": 38,
+          "dDay": 38,
+          "completionPercentage": 94.1
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-10-31",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-10-31"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-10-31",
+          "totalServiceDays": 639,
+          "elapsedDays": 608,
+          "remainingDays": 31,
+          "dDay": 31,
+          "completionPercentage": 95.1
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-11-07",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-11-07"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-11-07",
+          "totalServiceDays": 639,
+          "elapsedDays": 615,
+          "remainingDays": 24,
+          "dDay": 24,
+          "completionPercentage": 96.2
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-11-14",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-11-14"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-11-14",
+          "totalServiceDays": 639,
+          "elapsedDays": 622,
+          "remainingDays": 17,
+          "dDay": 17,
+          "completionPercentage": 97.3
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-11-21",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-11-21"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-11-21",
+          "totalServiceDays": 639,
+          "elapsedDays": 629,
+          "remainingDays": 10,
+          "dDay": 10,
+          "completionPercentage": 98.4
+        }
+      }
+    },
+    {
+      "id": "progress sweep 2027-11-28",
+      "kind": "call",
+      "fn": "calculateServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-03-02",
+          "expectedDischargeDate": "2027-12-01"
+        },
+        "2027-11-28"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "state": "IN_SERVICE",
+          "today": "2027-11-28",
+          "totalServiceDays": 639,
+          "elapsedDays": 636,
+          "remainingDays": 3,
+          "dDay": 3,
+          "completionPercentage": 99.5
+        }
+      }
+    }
+  ]
+}

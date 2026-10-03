@@ -1,0 +1,779 @@
+{
+  "formatVersion": 1,
+  "suite": "live-progress",
+  "description": "Second-level progress (apps/web/src/lib/live-service-progress.ts), continuous completion and the floored home percentage.",
+  "engines": [
+    "jsc",
+    "swift"
+  ],
+  "generatedBy": "packages/native-core/tests/conformance.test.ts",
+  "cases": [
+    {
+      "id": "live 2026-05-03T14:59:59.999Z",
+      "kind": "call",
+      "fn": "calculateLiveServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2026-05-03T14:59:59.999Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "remainingMilliseconds": 55296000001,
+          "completionPercentage": 0,
+          "countdown": {
+            "days": 640,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "live 2026-05-03T15:00:00.000Z",
+      "kind": "call",
+      "fn": "calculateLiveServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2026-05-03T15:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "remainingMilliseconds": 55296000000,
+          "completionPercentage": 0,
+          "countdown": {
+            "days": 640,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "live 2026-05-03T15:00:00.001Z",
+      "kind": "call",
+      "fn": "calculateLiveServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2026-05-03T15:00:00.001Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "remainingMilliseconds": 55295999999,
+          "completionPercentage": 1.808449074074074e-9,
+          "countdown": {
+            "days": 639,
+            "hours": 23,
+            "minutes": 59,
+            "seconds": 59
+          }
+        }
+      }
+    },
+    {
+      "id": "live 2026-10-03T06:41:12.345Z",
+      "kind": "call",
+      "fn": "calculateLiveServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2026-10-03T06:41:12.345Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "remainingMilliseconds": 42106727655,
+          "completionPercentage": 23.85212736002604,
+          "countdown": {
+            "days": 487,
+            "hours": 8,
+            "minutes": 18,
+            "seconds": 47
+          }
+        }
+      }
+    },
+    {
+      "id": "live 2027-02-28T23:59:59.999Z",
+      "kind": "call",
+      "fn": "calculateLiveServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2027-02-28T23:59:59.999Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "remainingMilliseconds": 29257200001,
+          "completionPercentage": 47.08984374819155,
+          "countdown": {
+            "days": 338,
+            "hours": 15,
+            "minutes": 0,
+            "seconds": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "live 2028-02-02T14:59:59.000Z",
+      "kind": "call",
+      "fn": "calculateLiveServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2028-02-02T14:59:59.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "remainingMilliseconds": 1000,
+          "completionPercentage": 99.99999819155092,
+          "countdown": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "live 2028-02-02T15:00:00.000Z",
+      "kind": "call",
+      "fn": "calculateLiveServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2028-02-02T15:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "remainingMilliseconds": 0,
+          "completionPercentage": 100,
+          "countdown": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "live 2028-03-01T00:00:00.000Z",
+      "kind": "call",
+      "fn": "calculateLiveServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2028-03-01T00:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "remainingMilliseconds": 0,
+          "completionPercentage": 100,
+          "countdown": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "live percent text 2026-05-03T14:59:59.999Z",
+      "kind": "call",
+      "fn": "liveCompletionText",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2026-05-03T14:59:59.999Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "percent": "0.000000%",
+          "countdown": "640일 00:00:00"
+        }
+      }
+    },
+    {
+      "id": "live percent text 2026-05-03T15:00:00.000Z",
+      "kind": "call",
+      "fn": "liveCompletionText",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2026-05-03T15:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "percent": "0.000000%",
+          "countdown": "640일 00:00:00"
+        }
+      }
+    },
+    {
+      "id": "live percent text 2026-05-03T15:00:00.001Z",
+      "kind": "call",
+      "fn": "liveCompletionText",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2026-05-03T15:00:00.001Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "percent": "0.000000%",
+          "countdown": "639일 23:59:59"
+        }
+      }
+    },
+    {
+      "id": "live percent text 2026-10-03T06:41:12.345Z",
+      "kind": "call",
+      "fn": "liveCompletionText",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2026-10-03T06:41:12.345Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "percent": "23.852127%",
+          "countdown": "487일 08:18:47"
+        }
+      }
+    },
+    {
+      "id": "live percent text 2027-02-28T23:59:59.999Z",
+      "kind": "call",
+      "fn": "liveCompletionText",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2027-02-28T23:59:59.999Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "percent": "47.089843%",
+          "countdown": "338일 15:00:00"
+        }
+      }
+    },
+    {
+      "id": "live percent text 2028-02-02T14:59:59.000Z",
+      "kind": "call",
+      "fn": "liveCompletionText",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2028-02-02T14:59:59.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "percent": "99.999998%",
+          "countdown": "0일 00:00:01"
+        }
+      }
+    },
+    {
+      "id": "live percent text 2028-02-02T15:00:00.000Z",
+      "kind": "call",
+      "fn": "liveCompletionText",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2028-02-02T15:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "percent": "100.000000%",
+          "countdown": "0일 00:00:00"
+        }
+      }
+    },
+    {
+      "id": "live percent text 2028-03-01T00:00:00.000Z",
+      "kind": "call",
+      "fn": "liveCompletionText",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2028-03-01T00:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "percent": "100.000000%",
+          "countdown": "0일 00:00:00"
+        }
+      }
+    },
+    {
+      "id": "continuous 2026-05-03T14:59:59.999Z",
+      "kind": "call",
+      "fn": "continuousServiceCompletion",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2026-05-03T14:59:59.999Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0
+      }
+    },
+    {
+      "id": "continuous 2026-05-03T15:00:00.000Z",
+      "kind": "call",
+      "fn": "continuousServiceCompletion",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2026-05-03T15:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0
+      }
+    },
+    {
+      "id": "continuous 2026-05-03T15:00:00.001Z",
+      "kind": "call",
+      "fn": "continuousServiceCompletion",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2026-05-03T15:00:00.001Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": 1.808449074074074e-11
+      }
+    },
+    {
+      "id": "continuous 2026-10-03T06:41:12.345Z",
+      "kind": "call",
+      "fn": "continuousServiceCompletion",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2026-10-03T06:41:12.345Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0.2385212736002604
+      }
+    },
+    {
+      "id": "continuous 2027-02-28T23:59:59.999Z",
+      "kind": "call",
+      "fn": "continuousServiceCompletion",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2027-02-28T23:59:59.999Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0.4708984374819155
+      }
+    },
+    {
+      "id": "continuous 2028-02-02T14:59:59.000Z",
+      "kind": "call",
+      "fn": "continuousServiceCompletion",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2028-02-02T14:59:59.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0.9999999819155092
+      }
+    },
+    {
+      "id": "continuous 2028-02-02T15:00:00.000Z",
+      "kind": "call",
+      "fn": "continuousServiceCompletion",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2028-02-02T15:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": 1
+      }
+    },
+    {
+      "id": "continuous 2028-03-01T00:00:00.000Z",
+      "kind": "call",
+      "fn": "continuousServiceCompletion",
+      "args": [
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03"
+        },
+        {
+          "$instant": "2028-03-01T00:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": 1
+      }
+    },
+    {
+      "id": "continuous same-day before",
+      "kind": "call",
+      "fn": "continuousServiceCompletion",
+      "args": [
+        {
+          "callUpDate": "2026-10-03",
+          "expectedDischargeDate": "2026-10-03"
+        },
+        {
+          "$instant": "2026-10-02T00:00:00Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0
+      }
+    },
+    {
+      "id": "continuous same-day after",
+      "kind": "call",
+      "fn": "continuousServiceCompletion",
+      "args": [
+        {
+          "callUpDate": "2026-10-03",
+          "expectedDischargeDate": "2026-10-03"
+        },
+        {
+          "$instant": "2026-10-03T00:00:00Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": 1
+      }
+    },
+    {
+      "id": "live same-day",
+      "kind": "call",
+      "fn": "calculateLiveServiceProgress",
+      "args": [
+        {
+          "callUpDate": "2026-10-03",
+          "expectedDischargeDate": "2026-10-03"
+        },
+        {
+          "$instant": "2026-10-01T00:00:00Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "remainingMilliseconds": 140400000,
+          "completionPercentage": 100,
+          "countdown": {
+            "days": 1,
+            "hours": 15,
+            "minutes": 0,
+            "seconds": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "floorPercent 0/639",
+      "kind": "call",
+      "fn": "floorPercent",
+      "args": [
+        0,
+        639
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0
+      }
+    },
+    {
+      "id": "floorPercent 1/639",
+      "kind": "call",
+      "fn": "floorPercent",
+      "args": [
+        1,
+        639
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0.1
+      }
+    },
+    {
+      "id": "floorPercent 638/639",
+      "kind": "call",
+      "fn": "floorPercent",
+      "args": [
+        638,
+        639
+      ],
+      "expected": {
+        "ok": true,
+        "value": 99.8
+      }
+    },
+    {
+      "id": "floorPercent 639/639",
+      "kind": "call",
+      "fn": "floorPercent",
+      "args": [
+        639,
+        639
+      ],
+      "expected": {
+        "ok": true,
+        "value": 100
+      }
+    },
+    {
+      "id": "floorPercent 1/3",
+      "kind": "call",
+      "fn": "floorPercent",
+      "args": [
+        1,
+        3
+      ],
+      "expected": {
+        "ok": true,
+        "value": 33.3
+      }
+    },
+    {
+      "id": "floorPercent 2/3",
+      "kind": "call",
+      "fn": "floorPercent",
+      "args": [
+        2,
+        3
+      ],
+      "expected": {
+        "ok": true,
+        "value": 66.6
+      }
+    },
+    {
+      "id": "floorPercent 0/0",
+      "kind": "call",
+      "fn": "floorPercent",
+      "args": [
+        0,
+        0
+      ],
+      "expected": {
+        "ok": true,
+        "value": 100
+      }
+    },
+    {
+      "id": "floorPercent 137/400",
+      "kind": "call",
+      "fn": "floorPercent",
+      "args": [
+        137,
+        400
+      ],
+      "expected": {
+        "ok": true,
+        "value": 34.2
+      }
+    },
+    {
+      "id": "formatDdayNumber 0",
+      "kind": "call",
+      "fn": "formatDdayNumber",
+      "args": [
+        0
+      ],
+      "expected": {
+        "ok": true,
+        "value": "D-Day"
+      }
+    },
+    {
+      "id": "formatDdayNumber 1",
+      "kind": "call",
+      "fn": "formatDdayNumber",
+      "args": [
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "value": "D-1"
+      }
+    },
+    {
+      "id": "formatDdayNumber 2",
+      "kind": "call",
+      "fn": "formatDdayNumber",
+      "args": [
+        2
+      ],
+      "expected": {
+        "ok": true,
+        "value": "D-2"
+      }
+    },
+    {
+      "id": "formatDdayNumber 3",
+      "kind": "call",
+      "fn": "formatDdayNumber",
+      "args": [
+        3
+      ],
+      "expected": {
+        "ok": true,
+        "value": "D-3"
+      }
+    },
+    {
+      "id": "formatDdayNumber 527",
+      "kind": "call",
+      "fn": "formatDdayNumber",
+      "args": [
+        527
+      ],
+      "expected": {
+        "ok": true,
+        "value": "D-527"
+      }
+    },
+    {
+      "id": "formatDdayNumber 1234",
+      "kind": "call",
+      "fn": "formatDdayNumber",
+      "args": [
+        1234
+      ],
+      "expected": {
+        "ok": true,
+        "value": "D-1,234"
+      }
+    }
+  ]
+}

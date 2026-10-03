@@ -1,0 +1,26 @@
+// Shared build settings. Real values for the bundle id, team and Supabase
+// project go in Config/Local.xcconfig (git-ignored). Nothing secret belongs
+// in any xcconfig: the Supabase anon key is a publishable key protected by
+// row-level security, and service-role keys must never reach the app.
+
+SG_BUNDLE_ID = app.supergongik.ios
+SG_DEVELOPMENT_TEAM =
+
+// Cloud sync stays hidden unless both are set (same rule as the web's
+// NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY).
+SG_SUPABASE_URL =
+SG_SUPABASE_ANON_KEY =
+
+// Entitlements. A paid Apple Developer Program membership is needed for the
+// App Group (widget data) and Sign in with Apple. A free personal team
+// cannot sign them: set both to Config/PersonalTeam.entitlements in
+// Local.xcconfig to install on your own iPhone; widgets then show their
+// empty state and the Apple button stays hidden.
+SG_APP_ENTITLEMENTS = SuperGongik/SuperGongik.entitlements
+SG_WIDGET_ENTITLEMENTS = SuperGongikWidgets/SuperGongikWidgets.entitlements
+
+// Show "Apple로 로그인" only once the Apple provider is configured in Supabase
+// (needs the paid membership for the Services ID and key).
+SG_SIGN_IN_WITH_APPLE = NO
+
+#include? "Local.xcconfig"

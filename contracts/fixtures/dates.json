@@ -1,0 +1,576 @@
+{
+  "formatVersion": 1,
+  "suite": "dates",
+  "description": "Civil-date parsing and arithmetic (date-only.ts) and the Seoul calendar date of instants.",
+  "engines": [
+    "jsc",
+    "swift"
+  ],
+  "generatedBy": "packages/native-core/tests/conformance.test.ts",
+  "cases": [
+    {
+      "id": "parse \"2026-10-03\"",
+      "kind": "call",
+      "fn": "parseDateOnly",
+      "args": [
+        "2026-10-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "year": 2026,
+          "month": 10,
+          "day": 3
+        }
+      }
+    },
+    {
+      "id": "parse \"2028-02-29\"",
+      "kind": "call",
+      "fn": "parseDateOnly",
+      "args": [
+        "2028-02-29"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "year": 2028,
+          "month": 2,
+          "day": 29
+        }
+      }
+    },
+    {
+      "id": "parse \"2027-02-29\"",
+      "kind": "call",
+      "fn": "parseDateOnly",
+      "args": [
+        "2027-02-29"
+      ],
+      "expected": {
+        "ok": false,
+        "error": {
+          "name": "RangeError",
+          "message": "Invalid calendar date: 2027-02-29"
+        }
+      }
+    },
+    {
+      "id": "parse \"2026-13-01\"",
+      "kind": "call",
+      "fn": "parseDateOnly",
+      "args": [
+        "2026-13-01"
+      ],
+      "expected": {
+        "ok": false,
+        "error": {
+          "name": "RangeError",
+          "message": "Invalid calendar date: 2026-13-01"
+        }
+      }
+    },
+    {
+      "id": "parse \"2026-00-10\"",
+      "kind": "call",
+      "fn": "parseDateOnly",
+      "args": [
+        "2026-00-10"
+      ],
+      "expected": {
+        "ok": false,
+        "error": {
+          "name": "RangeError",
+          "message": "Invalid calendar date: 2026-00-10"
+        }
+      }
+    },
+    {
+      "id": "parse \"2026-04-31\"",
+      "kind": "call",
+      "fn": "parseDateOnly",
+      "args": [
+        "2026-04-31"
+      ],
+      "expected": {
+        "ok": false,
+        "error": {
+          "name": "RangeError",
+          "message": "Invalid calendar date: 2026-04-31"
+        }
+      }
+    },
+    {
+      "id": "parse \"2026-4-01\"",
+      "kind": "call",
+      "fn": "parseDateOnly",
+      "args": [
+        "2026-4-01"
+      ],
+      "expected": {
+        "ok": false,
+        "error": {
+          "name": "RangeError",
+          "message": "Invalid date-only value: 2026-4-01"
+        }
+      }
+    },
+    {
+      "id": "parse \" 2026-04-01\"",
+      "kind": "call",
+      "fn": "parseDateOnly",
+      "args": [
+        " 2026-04-01"
+      ],
+      "expected": {
+        "ok": false,
+        "error": {
+          "name": "RangeError",
+          "message": "Invalid date-only value:  2026-04-01"
+        }
+      }
+    },
+    {
+      "id": "parse \"0000-01-01\"",
+      "kind": "call",
+      "fn": "parseDateOnly",
+      "args": [
+        "0000-01-01"
+      ],
+      "expected": {
+        "ok": false,
+        "error": {
+          "name": "RangeError",
+          "message": "Invalid calendar date: 0000-01-01"
+        }
+      }
+    },
+    {
+      "id": "parse \"0099-12-31\"",
+      "kind": "call",
+      "fn": "parseDateOnly",
+      "args": [
+        "0099-12-31"
+      ],
+      "expected": {
+        "ok": false,
+        "error": {
+          "name": "RangeError",
+          "message": "Invalid calendar date: 0099-12-31"
+        }
+      }
+    },
+    {
+      "id": "parse \"0100-01-01\"",
+      "kind": "call",
+      "fn": "parseDateOnly",
+      "args": [
+        "0100-01-01"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "year": 100,
+          "month": 1,
+          "day": 1
+        }
+      }
+    },
+    {
+      "id": "parse \"9999-12-31\"",
+      "kind": "call",
+      "fn": "parseDateOnly",
+      "args": [
+        "9999-12-31"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "year": 9999,
+          "month": 12,
+          "day": 31
+        }
+      }
+    },
+    {
+      "id": "addDays 2026-12-31 1",
+      "kind": "call",
+      "fn": "addDays",
+      "args": [
+        "2026-12-31",
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2027-01-01"
+      }
+    },
+    {
+      "id": "addDays 2027-01-01 -1",
+      "kind": "call",
+      "fn": "addDays",
+      "args": [
+        "2027-01-01",
+        -1
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2026-12-31"
+      }
+    },
+    {
+      "id": "addDays 2028-02-28 1",
+      "kind": "call",
+      "fn": "addDays",
+      "args": [
+        "2028-02-28",
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2028-02-29"
+      }
+    },
+    {
+      "id": "addDays 2028-02-29 1",
+      "kind": "call",
+      "fn": "addDays",
+      "args": [
+        "2028-02-29",
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2028-03-01"
+      }
+    },
+    {
+      "id": "addDays 2027-02-28 1",
+      "kind": "call",
+      "fn": "addDays",
+      "args": [
+        "2027-02-28",
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2027-03-01"
+      }
+    },
+    {
+      "id": "addDays 2026-10-03 527",
+      "kind": "call",
+      "fn": "addDays",
+      "args": [
+        "2026-10-03",
+        527
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2028-03-13"
+      }
+    },
+    {
+      "id": "addDays 2026-10-03 -10000",
+      "kind": "call",
+      "fn": "addDays",
+      "args": [
+        "2026-10-03",
+        -10000
+      ],
+      "expected": {
+        "ok": true,
+        "value": "1999-05-18"
+      }
+    },
+    {
+      "id": "addDays 2100-02-28 1",
+      "kind": "call",
+      "fn": "addDays",
+      "args": [
+        "2100-02-28",
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2100-03-01"
+      }
+    },
+    {
+      "id": "addDays 2000-02-28 1",
+      "kind": "call",
+      "fn": "addDays",
+      "args": [
+        "2000-02-28",
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2000-02-29"
+      }
+    },
+    {
+      "id": "addCalendarMonths 2026-01-31 1",
+      "kind": "call",
+      "fn": "addCalendarMonths",
+      "args": [
+        "2026-01-31",
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2026-02-28"
+      }
+    },
+    {
+      "id": "addCalendarMonths 2028-01-31 1",
+      "kind": "call",
+      "fn": "addCalendarMonths",
+      "args": [
+        "2028-01-31",
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2028-02-29"
+      }
+    },
+    {
+      "id": "addCalendarMonths 2026-03-31 -1",
+      "kind": "call",
+      "fn": "addCalendarMonths",
+      "args": [
+        "2026-03-31",
+        -1
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2026-02-28"
+      }
+    },
+    {
+      "id": "addCalendarMonths 2026-05-04 21",
+      "kind": "call",
+      "fn": "addCalendarMonths",
+      "args": [
+        "2026-05-04",
+        21
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2028-02-04"
+      }
+    },
+    {
+      "id": "addCalendarMonths 2026-12-15 1",
+      "kind": "call",
+      "fn": "addCalendarMonths",
+      "args": [
+        "2026-12-15",
+        1
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2027-01-15"
+      }
+    },
+    {
+      "id": "addCalendarMonths 2026-01-15 -13",
+      "kind": "call",
+      "fn": "addCalendarMonths",
+      "args": [
+        "2026-01-15",
+        -13
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2024-12-15"
+      }
+    },
+    {
+      "id": "addCalendarMonths 2025-08-31 6",
+      "kind": "call",
+      "fn": "addCalendarMonths",
+      "args": [
+        "2025-08-31",
+        6
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2026-02-28"
+      }
+    },
+    {
+      "id": "difference 2028-02-03 2026-05-04",
+      "kind": "call",
+      "fn": "differenceInCalendarDays",
+      "args": [
+        "2028-02-03",
+        "2026-05-04"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 640
+      }
+    },
+    {
+      "id": "difference 2026-05-04 2028-02-03",
+      "kind": "call",
+      "fn": "differenceInCalendarDays",
+      "args": [
+        "2026-05-04",
+        "2028-02-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": -640
+      }
+    },
+    {
+      "id": "difference 2029-03-01 2028-02-28",
+      "kind": "call",
+      "fn": "differenceInCalendarDays",
+      "args": [
+        "2029-03-01",
+        "2028-02-28"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 367
+      }
+    },
+    {
+      "id": "difference 2026-10-03 2026-10-03",
+      "kind": "call",
+      "fn": "differenceInCalendarDays",
+      "args": [
+        "2026-10-03",
+        "2026-10-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0
+      }
+    },
+    {
+      "id": "seoul date of 2026-10-03T14:59:59.999Z",
+      "kind": "call",
+      "fn": "dateOnlyInTimeZone",
+      "args": [
+        {
+          "$instant": "2026-10-03T14:59:59.999Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2026-10-03"
+      }
+    },
+    {
+      "id": "seoul date of 2026-10-03T15:00:00.000Z",
+      "kind": "call",
+      "fn": "dateOnlyInTimeZone",
+      "args": [
+        {
+          "$instant": "2026-10-03T15:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2026-10-04"
+      }
+    },
+    {
+      "id": "seoul date of 2026-12-31T15:00:00.000Z",
+      "kind": "call",
+      "fn": "dateOnlyInTimeZone",
+      "args": [
+        {
+          "$instant": "2026-12-31T15:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2027-01-01"
+      }
+    },
+    {
+      "id": "seoul date of 2028-02-28T15:00:00.000Z",
+      "kind": "call",
+      "fn": "dateOnlyInTimeZone",
+      "args": [
+        {
+          "$instant": "2028-02-28T15:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2028-02-29"
+      }
+    },
+    {
+      "id": "seoul date of 2026-06-30T23:59:59.000+09:00",
+      "kind": "call",
+      "fn": "dateOnlyInTimeZone",
+      "args": [
+        {
+          "$instant": "2026-06-30T23:59:59.000+09:00"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": "2026-06-30"
+      }
+    },
+    {
+      "id": "seoul date of 1988-06-01T14:30:00.000Z",
+      "kind": "call",
+      "fn": "dateOnlyInTimeZone",
+      "args": [
+        {
+          "$instant": "1988-06-01T14:30:00.000Z"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": "1988-06-02"
+      }
+    },
+    {
+      "id": "seoulStartOfDay 2026-10-03",
+      "kind": "call",
+      "fn": "seoulStartOfDay",
+      "args": [
+        "2026-10-03"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 1790953200000
+      }
+    },
+    {
+      "id": "seoulStartOfDay 2028-02-29",
+      "kind": "call",
+      "fn": "seoulStartOfDay",
+      "args": [
+        "2028-02-29"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 1835362800000
+      }
+    },
+    {
+      "id": "seoulStartOfDay 1970-01-01",
+      "kind": "call",
+      "fn": "seoulStartOfDay",
+      "args": [
+        "1970-01-01"
+      ],
+      "expected": {
+        "ok": true,
+        "value": -32400000
+      }
+    }
+  ]
+}

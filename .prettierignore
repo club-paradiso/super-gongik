@@ -3,3 +3,11 @@ node_modules
 coverage
 pnpm-lock.yaml
 apps/web/public/icon-*.png
+contracts/fixtures
+apps/ios/Packages/SuperGongikKit/Sources/SGCore/Resources/sg-core.js
+apps/ios/**/*.xcodeproj
+apps/ios/**/.build
+apps/ios/**/.swiftpm
+apps/ios/Packages/SuperGongikKit/Sources/SGCore/Resources/sg-shims.js
+contracts/interchange
+apps/ios/**/*.xcassets
