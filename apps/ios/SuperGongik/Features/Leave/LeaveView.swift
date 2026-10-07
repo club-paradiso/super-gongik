@@ -33,13 +33,14 @@ struct LeaveView: View {
                     }
                     .padding(.horizontal, SGSpacing.gutter)
                     .padding(.bottom, SGSpacing.xxl)
-                    .frame(maxWidth: 720)
+                    .frame(maxWidth: SGLayout.readableWidth)
                     .frame(maxWidth: .infinity)
                 } else {
-                    ProgressView().padding(.top, 120)
+                    SGLoadingState()
                 }
             }
             .background(.sg(SGColor.background))
+            .sgScreenChrome()
             .navigationTitle("휴가")
             .sheet(item: $confirming) { credit in
                 ConfirmCreditSheet(credit: credit) { message = "\(credit.label) 부여 일수를 저장했어요." }
@@ -134,7 +135,7 @@ private struct CreditsCard: View {
     var body: some View {
         SGCard {
             VStack(alignment: .leading, spacing: SGSpacing.sm) {
-                SGSectionHeader("연가 부여")
+                SGSectionHeader("연가 부여", eyebrow: "LEAVE LEDGER")
                 ForEach(Array(ledger.credits.enumerated()), id: \.element.id) { index, credit in
                     let shown = index < text.credits.count ? text.credits[index] : nil
                     VStack(alignment: .leading, spacing: SGSpacing.xxs) {
@@ -237,7 +238,7 @@ private struct CorrectionsCard: View {
                 }
                 ForEach(adjustments) { item in
                     HStack {
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
                             Text(item.reason).font(SGTypography.bodyStrong)
                             Text("\(Formatters.longDate(item.effectiveDate)) · 반일 \(item.amountHalfDays) · \(item.amountMinutes)분")
                                 .font(SGTypography.caption).monospacedDigit()
@@ -286,7 +287,7 @@ private struct UsageCard: View {
                 }
                 Divider()
                 HStack {
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
                         Text("허가외출·지각·조퇴 누계").font(SGTypography.body)
                         Text("누계 8시간을 연가 1일로 공제해요.").font(SGTypography.caption)
                             .foregroundStyle(.sg(SGColor.textTertiary))
@@ -345,17 +346,21 @@ private struct ConfirmCreditSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    Stepper(value: $halfDays, in: 0...120) {
-                        LabeledContent("부여 일수") {
-                            Text(halfDays % 2 == 0 ? "\(halfDays / 2)일" : "\(halfDays / 2).5일").monospacedDigit()
+                Group {
+                    Section {
+                        Stepper(value: $halfDays, in: 0...120) {
+                            LabeledContent("부여 일수") {
+                                Text(halfDays % 2 == 0 ? "\(halfDays / 2)일" : "\(halfDays / 2).5일").monospacedDigit()
+                            }
                         }
+                    } footer: {
+                        Text("기관이 알려 준 \(credit.label) 일수를 반일 단위로 입력해 주세요. \(credit.explanation)")
                     }
-                } footer: {
-                    Text("기관이 알려 준 \(credit.label) 일수를 반일 단위로 입력해 주세요. \(credit.explanation)")
+                    ForEach(issues, id: \.self) { SGNotice(.danger, title: $0.message) }
                 }
-                ForEach(issues, id: \.self) { SGNotice(.danger, title: $0.message) }
+                .sgListRowSurface()
             }
+            .sgGroupedChrome()
             .navigationTitle(credit.label)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -393,19 +398,23 @@ private struct CorrectionSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Picker("방향", selection: $subtract) {
-                    Text("빼기").tag(true)
-                    Text("더하기").tag(false)
+                Group {
+                    Picker("방향", selection: $subtract) {
+                        Text("빼기").tag(true)
+                        Text("더하기").tag(false)
+                    }
+                    .pickerStyle(.segmented)
+                    Stepper("반일 \(halfDays)개", value: $halfDays, in: 0...120)
+                    Stepper("\(minutes)분", value: $minutes, in: 0...2400, step: 10)
+                    DatePicker("적용일", selection: $date, displayedComponents: .date)
+                        .environment(\.calendar, .seoul)
+                        .environment(\.timeZone, SeoulClock.timeZone)
+                    TextField("사유 (예: 기관 기록 반영)", text: $reason)
+                    ForEach(issues, id: \.self) { SGNotice(.danger, title: $0.message) }
                 }
-                .pickerStyle(.segmented)
-                Stepper("반일 \(halfDays)개", value: $halfDays, in: 0...120)
-                Stepper("\(minutes)분", value: $minutes, in: 0...2400, step: 10)
-                DatePicker("적용일", selection: $date, displayedComponents: .date)
-                    .environment(\.calendar, .seoul)
-                    .environment(\.timeZone, SeoulClock.timeZone)
-                TextField("사유 (예: 기관 기록 반영)", text: $reason)
-                ForEach(issues, id: \.self) { SGNotice(.danger, title: $0.message) }
+                .sgListRowSurface()
             }
+            .sgGroupedChrome()
             .navigationTitle("보정 추가")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

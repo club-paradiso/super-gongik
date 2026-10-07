@@ -41,15 +41,16 @@ struct PayView: View {
                             .font(SGTypography.caption)
                             .foregroundStyle(.sg(SGColor.textTertiary))
                     } else {
-                        ProgressView().frame(maxWidth: .infinity).padding(.top, 80)
+                        SGLoadingState()
                     }
                 }
                 .padding(.horizontal, SGSpacing.gutter)
                 .padding(.bottom, SGSpacing.xxl)
-                .frame(maxWidth: 720)
+                .frame(maxWidth: SGLayout.readableWidth)
                 .frame(maxWidth: .infinity)
             }
             .background(.sg(SGColor.background))
+            .sgScreenChrome()
             .navigationTitle("급여")
             .task(id: TaskKey(month: month.description, revision: model.document?.documentRevision ?? 0, today: model.today)) {
                 await load()
@@ -79,12 +80,12 @@ struct PayView: View {
 
     private var monthSwitcher: some View {
         HStack {
-            Button { shift(-1) } label: { Image(systemName: "chevron.left").frame(width: 44, height: 44) }
+            Button { shift(-1) } label: { Image(systemName: "chevron.left").frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget) }
                 .accessibilityLabel("이전 달")
             Spacer()
             Text(Formatters.month(month)).font(SGTypography.title3).monospacedDigit()
             Spacer()
-            Button { shift(1) } label: { Image(systemName: "chevron.right").frame(width: 44, height: 44) }
+            Button { shift(1) } label: { Image(systemName: "chevron.right").frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget) }
                 .accessibilityLabel("다음 달")
         }
     }
@@ -126,10 +127,12 @@ private struct SummaryCard: View {
                     Text(Formatters.won(amount))
                         .font(SGTypography.title1).monospacedDigit()
                         .foregroundStyle(.sg(SGColor.textPrimary))
-                    Label("기본 보수만이에요. 합계는 모든 항목이 확인돼야 보여요.", systemImage: "info.circle")
+                    // Warning tone: symbol and color agree, so the state is
+                    // never carried by color alone.
+                    Label("기본 보수만이에요. 합계는 모든 항목이 확인돼야 보여요.", systemImage: SGTone.warning.symbol)
                         .font(SGTypography.caption).foregroundStyle(.sg(SGColor.warning))
                 } else {
-                    Text("계산에 필요한 정보가 있어요")
+                    Label("계산에 필요한 정보가 있어요", systemImage: SGTone.warning.symbol)
                         .font(SGTypography.title3)
                         .foregroundStyle(.sg(SGColor.warning))
                 }
@@ -180,7 +183,7 @@ private struct ComponentsCard: View {
     var body: some View {
         SGCard {
             VStack(alignment: .leading, spacing: SGSpacing.sm) {
-                SGSectionHeader("항목별")
+                SGSectionHeader("항목별", eyebrow: "SUPPLY LEDGER")
                 ForEach(components) { component in
                     VStack(alignment: .leading, spacing: SGSpacing.xxs) {
                         HStack(alignment: .firstTextBaseline) {
@@ -238,14 +241,14 @@ private struct PayBandsCard: View {
                 } else {
                     ForEach(schedule.steps ?? []) { step in
                         HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                HStack(spacing: 6) {
+                            VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
+                                HStack(spacing: SGSpacing.iconGap) {
                                     Text(step.label).font(SGTypography.bodyStrong)
                                     if step.equivalentRank == schedule.current?.equivalentRank {
                                         Text("지금")
                                             .font(SGTypography.micro)
                                             .foregroundStyle(.sg(SGColor.onAccent))
-                                            .padding(.horizontal, 6).padding(.vertical, 2)
+                                            .padding(.horizontal, SGSpacing.iconGap).padding(.vertical, SGSpacing.xxxs)
                                             .background(.sg(SGColor.accent), in: Capsule())
                                     }
                                 }

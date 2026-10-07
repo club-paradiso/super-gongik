@@ -30,38 +30,42 @@ struct CloudSyncView: View {
 
     var body: some View {
         Form {
-            if let view = cloud.view {
-                Section {
-                    HStack {
-                        Text("상태")
-                        Spacer()
-                        Image(systemName: symbol(view.label.tone)).accessibilityHidden(true)
-                        Text(view.label.text)
+            Group {
+                if let view = cloud.view {
+                    Section {
+                        HStack {
+                            Text("상태")
+                            Spacer()
+                            Image(systemName: symbol(view.label.tone)).accessibilityHidden(true)
+                            Text(view.label.text)
+                        }
+                        .foregroundStyle(.sg(tone(view.label.tone)))
+                        .accessibilityElement(children: .combine)
+                        if view.state.phase == "SIGNED_IN" {
+                            LabeledContent("계정", value: view.state.email ?? "로그인됨")
+                            LabeledContent("마지막 동기화", value: view.lastSynced)
+                        }
+                    } footer: {
+                        Text("로그인해도 기록을 바로 올리지 않아요. 이 기기에서 동기화를 켤 때 무엇이 바뀌는지 먼저 보여 드려요. 클라우드에 저장된 기록은 종단간 암호화되지 않아요.")
                     }
-                    .foregroundStyle(.sg(tone(view.label.tone)))
-                    .accessibilityElement(children: .combine)
-                    if view.state.phase == "SIGNED_IN" {
-                        LabeledContent("계정", value: view.state.email ?? "로그인됨")
-                        LabeledContent("마지막 동기화", value: view.lastSynced)
+
+                    switch view.state.phase {
+                    case "SIGNED_IN": signedIn(view)
+                    case "LOADING": Section { ProgressView("계정 확인 중") }
+                    default: signIn(view)
                     }
-                } footer: {
-                    Text("로그인해도 기록을 바로 올리지 않아요. 이 기기에서 동기화를 켤 때 무엇이 바뀌는지 먼저 보여 드려요. 클라우드에 저장된 기록은 종단간 암호화되지 않아요.")
+                } else {
+                    Section { ProgressView() }
                 }
 
-                switch view.state.phase {
-                case "SIGNED_IN": signedIn(view)
-                case "LOADING": Section { ProgressView("계정 확인 중") }
-                default: signIn(view)
+                if let message = cloud.message ?? note {
+                    Section { SGNotice(.info, title: message) }
+                        .listRowBackground(Color.clear).listRowInsets(EdgeInsets())
                 }
-            } else {
-                Section { ProgressView() }
             }
-
-            if let message = cloud.message ?? note {
-                Section { SGNotice(.info, title: message) }
-                    .listRowBackground(Color.clear).listRowInsets(EdgeInsets())
-            }
+            .sgListRowSurface()
         }
+        .sgGroupedChrome()
         .navigationTitle("클라우드 동기화")
         .navigationBarTitleDisplayMode(.inline)
         .disabled(cloud.busy)
@@ -109,7 +113,7 @@ struct CloudSyncView: View {
                 } onCompletion: { result in
                     Task { await cloud.completeApple(result) }
                 }
-                .frame(height: 44)
+                .frame(height: SGSpacing.minimumHitTarget)
             }
             ForEach([("google", "Google로 계속하기"), ("kakao", "카카오로 계속하기"), ("custom:naver", "네이버로 계속하기")], id: \.0) { provider, title in
                 Button(title) {

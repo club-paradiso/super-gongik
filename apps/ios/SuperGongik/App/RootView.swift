@@ -40,7 +40,7 @@ struct RootView: View {
                 }
             }
         }
-        .tint(.sg(SGColor.accent))
+        .tint(SGStyle.sg(SGColor.accent))
         .background(.sg(SGColor.background))
     }
 }
@@ -77,10 +77,10 @@ private struct MainTabs: View {
 private struct LaunchView: View {
     var body: some View {
         ZStack {
-            Color.sg(SGColor.background).ignoresSafeArea()
+            Rectangle().fill(.sg(SGColor.background)).ignoresSafeArea()
             Image("BrandMark")
                 .resizable()
-                .frame(width: 72, height: 72)
+                .frame(width: SGSize.brandMark, height: SGSize.brandMark)
                 .accessibilityLabel("슈퍼공익")
         }
     }

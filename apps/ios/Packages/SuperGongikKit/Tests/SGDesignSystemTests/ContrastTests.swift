@@ -31,6 +31,11 @@ struct ContrastTests {
         Pair(name: "hero fg2 on hero", foreground: SGColor.heroForeground2, background: SGColor.heroBackground, minimum: 4.5),
         Pair(name: "hero fg3 on hero", foreground: SGColor.heroForeground3, background: SGColor.heroBackground, minimum: 4.5),
         Pair(name: "hero accent on hero", foreground: SGColor.heroAccent, background: SGColor.heroBackground, minimum: 4.5),
+        // Patterns.swift: date tile, icon tile, stat card attention value.
+        Pair(name: "tertiary on interactive", foreground: SGColor.textTertiary, background: SGColor.surfaceInteractive, minimum: 4.5),
+        Pair(name: "primary on interactive", foreground: SGColor.textPrimary, background: SGColor.surfaceInteractive, minimum: 4.5),
+        Pair(name: "accent on selected", foreground: SGColor.accent, background: SGColor.selectedBackground, minimum: 4.5),
+        Pair(name: "warning on surface", foreground: SGColor.warning, background: SGColor.surface, minimum: 4.5),
     ] + SGEventCategory.allCases.map {
         Pair(name: "\($0.rawValue) chip text", foreground: $0.chipForeground, background: $0.chipBackground, minimum: 4.5)
     }
@@ -56,5 +61,61 @@ struct ContrastTests {
     func marks(category: SGEventCategory) {
         #expect(RGB.contrast(category.mark.light, SGColor.surface.light) >= 3)
         #expect(RGB.contrast(category.mark.dark, SGColor.surface.dark) >= 3)
+        for dark in [false, true] {
+            let surface = SGColor.surface.rgb(theme: .warrior, dark: dark)
+            #expect(RGB.contrast(category.mark.rgb(theme: .warrior, dark: dark), surface) >= 3)
+        }
+    }
+
+    @Test("text pairs meet WCAG AA in the Warrior theme, light and dark", arguments: textPairs)
+    func warrior(pair: Pair) {
+        for dark in [false, true] {
+            let ratio = RGB.contrast(
+                pair.foreground.rgb(theme: .warrior, dark: dark),
+                pair.background.rgb(theme: .warrior, dark: dark))
+            #expect(ratio >= pair.minimum, "warrior \(dark ? "dark" : "light") \(pair.name): \(ratio)")
+        }
+    }
+
+    @Test("Warrior also holds with Increase Contrast on", arguments: textPairs)
+    func warriorHighContrast(pair: Pair) {
+        for dark in [false, true] {
+            let ratio = RGB.contrast(
+                pair.foreground.rgb(theme: .warrior, dark: dark, highContrast: true),
+                pair.background.rgb(theme: .warrior, dark: dark, highContrast: true))
+            #expect(ratio >= pair.minimum, "warrior HC \(dark ? "dark" : "light") \(pair.name): \(ratio)")
+        }
+    }
+
+    @Test("Warrior high-contrast values are at least as strong as Warrior's own", arguments: textPairs)
+    func warriorHighContrastStronger(pair: Pair) {
+        for dark in [false, true] {
+            let fg = pair.foreground, bg = pair.background
+            let normal = RGB.contrast(fg.rgb(theme: .warrior, dark: dark), bg.rgb(theme: .warrior, dark: dark))
+            let strong = RGB.contrast(
+                fg.rgb(theme: .warrior, dark: dark, highContrast: true),
+                bg.rgb(theme: .warrior, dark: dark, highContrast: true))
+            #expect(strong >= normal - 0.001, "warrior HC \(dark ? "dark" : "light") \(pair.name): \(normal) → \(strong)")
+        }
+    }
+
+    @Test("Increase Contrast changes Warrior tokens that have a high-contrast variant")
+    func warriorHighContrastApplies() {
+        for token in [SGColor.textSecondary, SGColor.textTertiary, SGColor.accent, SGColor.border, SGColor.borderStrong] {
+            for dark in [false, true] {
+                #expect(token.rgb(theme: .warrior, dark: dark, highContrast: true) != token.rgb(theme: .warrior, dark: dark))
+            }
+        }
+        // Tokens shared by both themes keep the standard high-contrast behavior.
+        #expect(SGColor.textSecondary.rgb(dark: true, highContrast: true) == SGColor.textSecondary.darkHighContrast)
+    }
+
+    @Test("the standard theme resolves to the token's own values")
+    func standardResolution() {
+        let token = SGColor.textSecondary
+        #expect(token.rgb(dark: false) == token.light)
+        #expect(token.rgb(dark: true) == token.dark)
+        #expect(token.rgb(dark: false, highContrast: true) == token.lightHighContrast)
+        #expect(SGColor.background.rgb(theme: .warrior, dark: false) != SGColor.background.light)
     }
 }

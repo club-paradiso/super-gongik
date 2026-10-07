@@ -30,7 +30,7 @@ public struct SGPrimaryButtonStyle: ButtonStyle {
         configuration.label
             .font(SGTypography.bodyStrong)
             .foregroundStyle(.sg(SGColor.onAccent))
-            .frame(maxWidth: .infinity, minHeight: 50)
+            .frame(maxWidth: .infinity, minHeight: SGSize.primaryControl)
             .padding(.horizontal, SGSpacing.md)
             .background(.sg(SGColor.accent), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
             .opacity(isEnabled ? (configuration.isPressed ? 0.85 : 1) : 0.45)
@@ -46,7 +46,7 @@ public struct SGSecondaryButtonStyle: ButtonStyle {
         configuration.label
             .font(SGTypography.bodyStrong)
             .foregroundStyle(.sg(SGColor.accent))
-            .frame(maxWidth: .infinity, minHeight: 48)
+            .frame(maxWidth: .infinity, minHeight: SGSize.control)
             .padding(.horizontal, SGSpacing.md)
             .background(.sg(SGColor.surfaceInteractive), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
             .opacity(isEnabled ? (configuration.isPressed ? 0.8 : 1) : 0.45)
@@ -54,17 +54,22 @@ public struct SGSecondaryButtonStyle: ButtonStyle {
     }
 }
 
+/// Destructive action (delete, reset). Only after a confirmation step; the
+/// label says what is lost, never only "삭제".
 public struct SGDestructiveButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
     public init() {}
 
     public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(SGTypography.bodyStrong)
             .foregroundStyle(.sg(SGColor.danger))
-            .frame(maxWidth: .infinity, minHeight: 48)
+            .frame(maxWidth: .infinity, minHeight: SGSize.control)
+            .padding(.horizontal, SGSpacing.md)
             .background(.sg(SGColor.dangerBackground), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous).strokeBorder(.sg(SGColor.dangerBorder)))
-            .opacity(configuration.isPressed ? 0.8 : 1)
+            .opacity(isEnabled ? (configuration.isPressed ? 0.8 : 1) : 0.45)
+            .contentShape(Rectangle())
     }
 }
 
@@ -177,41 +182,67 @@ public struct SGProgressBar: View {
 
 /// Night-sky hero background (the logo's sky): navy base, violet depth at the
 /// top trailing corner, one restrained warm horizon at the bottom leading edge.
+/// The Warrior theme deepens the sky and warms the horizon (Stitch
+/// `super_gongik_master_synthesis`); both stay gradients only, no imagery.
 public struct SGHeroBackground: View {
     let celebrate: Bool
+    @Environment(\.sgTheme) private var theme
 
     public init(celebrate: Bool = false) { self.celebrate = celebrate }
 
     public var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: [RGB(0x0B2275).color, RGB(0x0E1752).color, RGB(0x151A45).color],
-                startPoint: UnitPoint(x: 0.25, y: 0), endPoint: UnitPoint(x: 0.75, y: 1))
-            RadialGradient(
-                colors: [SGBrand.violet.color.opacity(0.55), .clear],
-                center: UnitPoint(x: 1, y: 0), startRadius: 0, endRadius: 260)
-            RadialGradient(
-                colors: [SGBrand.ember.color.opacity(celebrate ? 0.42 : 0.30), SGBrand.coral.color.opacity(0.12), .clear],
-                center: UnitPoint(x: 0.12, y: 1.18), startRadius: 0, endRadius: 320)
+        switch theme {
+        case .standard:
+            ZStack {
+                LinearGradient(
+                    colors: [RGB(0x0B2275).color, RGB(0x0E1752).color, RGB(0x151A45).color],
+                    startPoint: UnitPoint(x: 0.25, y: 0), endPoint: UnitPoint(x: 0.75, y: 1))
+                RadialGradient(
+                    colors: [SGBrand.violet.color.opacity(0.55), .clear],
+                    center: UnitPoint(x: 1, y: 0), startRadius: 0, endRadius: 260)
+                RadialGradient(
+                    colors: [SGBrand.ember.color.opacity(celebrate ? 0.42 : 0.30), SGBrand.coral.color.opacity(0.12), .clear],
+                    center: UnitPoint(x: 0.12, y: 1.18), startRadius: 0, endRadius: 320)
+            }
+        case .warrior:
+            ZStack {
+                LinearGradient(
+                    colors: [RGB(0x000C3F).color, RGB(0x081F68).color, RGB(0x14173E).color],
+                    startPoint: .top, endPoint: .bottom)
+                RadialGradient(
+                    colors: [RGB(0x5952AD).color.opacity(0.6), .clear],
+                    center: UnitPoint(x: 0.85, y: 0.05), startRadius: 0, endRadius: 280)
+                RadialGradient(
+                    colors: [RGB(0xFFDEA7).color.opacity(celebrate ? 0.5 : 0.36), SGBrand.ember.color.opacity(0.14), .clear],
+                    center: UnitPoint(x: 0.5, y: 1.25), startRadius: 0, endRadius: 340)
+            }
         }
     }
 }
 
 /// Section header used above grouped content.
+///
+/// `eyebrow` is the optional world-language tag from the Stitch direction
+/// ("AGENDA", "SUPPLY"). It is flavor, not information: shown only in the
+/// Warrior theme, after the Korean title, smaller and quieter, and VoiceOver
+/// skips it.
 public struct SGSectionHeader: View {
     let title: String
     let detail: String?
+    let eyebrow: String?
 
-    public init(_ title: String, detail: String? = nil) {
+    public init(_ title: String, detail: String? = nil, eyebrow: String? = nil) {
         self.title = title
         self.detail = detail
+        self.eyebrow = eyebrow
     }
 
     public var body: some View {
-        HStack(alignment: .firstTextBaseline) {
+        HStack(alignment: .firstTextBaseline, spacing: SGSpacing.xs) {
             Text(title).font(SGTypography.cardTitle).foregroundStyle(.sg(SGColor.textPrimary))
                 .accessibilityAddTraits(.isHeader)
-            Spacer()
+            if let eyebrow { SGWorldEyebrow(eyebrow) }
+            Spacer(minLength: SGSpacing.xs)
             if let detail {
                 Text(detail).font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
             }

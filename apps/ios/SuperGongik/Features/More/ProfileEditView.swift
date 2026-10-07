@@ -24,6 +24,7 @@ struct ProfileEditView: View {
     }
 
     @Environment(AppModel.self) private var model
+    @ScaledMetric(relativeTo: .body) private var fieldScale: CGFloat = 1
     @Environment(\.dismiss) private var dismiss
     @State private var options: Options?
     @State private var draft = Draft()
@@ -62,110 +63,114 @@ struct ProfileEditView: View {
 
     var body: some View {
         Form {
-            Section {
-                datePicker("소집일", $draft.callUp)
-                datePicker("소집해제 예정일", $draft.discharge)
-                Picker("복무 분야", selection: $draft.category) {
-                    ForEach(Self.categories, id: \.self) { Text($0.isEmpty ? "나중에 정할게요" : $0) }
-                }
-            } header: {
-                Text("복무 기간")
-            } footer: {
-                Text("소집해제 예정일이 연장 등으로 바뀌었다면 직접 고쳐 주세요.")
-            }
-
-            Section {
-                LabeledContent("1일 근무시간") {
-                    HStack(spacing: 4) {
-                        numberField("시간", $draft.workHours, width: 36)
-                        Text("시간")
-                        numberField("분", $draft.workMinutes, width: 36)
-                        Text("분")
+            Group {
+                Section {
+                    datePicker("소집일", $draft.callUp)
+                    datePicker("소집해제 예정일", $draft.discharge)
+                    Picker("복무 분야", selection: $draft.category) {
+                        ForEach(Self.categories, id: \.self) { Text($0.isEmpty ? "나중에 정할게요" : $0) }
                     }
+                } header: {
+                    Text("복무 기간")
+                } footer: {
+                    Text("소집해제 예정일이 연장 등으로 바뀌었다면 직접 고쳐 주세요.")
                 }
-                clock("평소 근무 시작", $draft.startTime)
-                clock("평소 근무 종료", $draft.endTime)
-            } header: {
-                Text("근무 시간")
-            } footer: {
-                Text("근무시간은 시간 단위 휴가를 일수와 합칠 때만 써요. 근무 시각은 시간 연가를 허가지각·허가조퇴·허가외출로 자동 구분할 때 쓰는 기준이에요. 직접 확인한 값만 넣어 주세요.")
-            }
 
-            Section {
-                Picker("복무형태", selection: $draft.workPattern) {
-                    ForEach(Self.patterns, id: \.0) { Text($0.1).tag($0.0) }
-                }
-                if draft.workPattern == "WEEKDAY_DAYTIME" {
-                    WeekdayPicker(selection: $draft.weekdays)
-                }
-            } header: {
-                Text("복무형태")
-            } footer: {
-                Text("중식비·교통비 근무일 계산은 주간 출퇴근만 지원해요. 야간 교대는 근무일수를 2일로 보는 별도 규정이 있어 계산하지 않아요.")
-            }
-
-            Section {
-                Picker("이전 복무 경력 인정", selection: $draft.priorCredit) {
-                    Text("없어요").tag("NONE")
-                    Text("있어요").tag("HAS_PRIOR_SERVICE")
-                    Text("잘 모르겠어요").tag("")
-                }
-                if draft.priorCredit == "HAS_PRIOR_SERVICE" {
-                    Picker("해당하는 경우 (제62조제2항)", selection: $draft.priorBasis) {
-                        Text("선택해 주세요").tag("")
-                        ForEach(options?.priorServiceBases ?? [], id: \.value) { Text($0.label).tag($0.value) }
+                Section {
+                    LabeledContent("1일 근무시간") {
+                        HStack(spacing: SGSpacing.xxs) {
+                            numberField("시간", $draft.workHours, width: 36)
+                            Text("시간")
+                            numberField("분", $draft.workMinutes, width: 36)
+                            Text("분")
+                        }
                     }
-                    LabeledContent("인정 기간") {
-                        HStack(spacing: 4) { numberField("개월", $draft.priorMonths, width: 44); Text("개월") }
+                    clock("평소 근무 시작", $draft.startTime)
+                    clock("평소 근무 종료", $draft.endTime)
+                } header: {
+                    Text("근무 시간")
+                } footer: {
+                    Text("근무시간은 시간 단위 휴가를 일수와 합칠 때만 써요. 근무 시각은 시간 연가를 허가지각·허가조퇴·허가외출로 자동 구분할 때 쓰는 기준이에요. 직접 확인한 값만 넣어 주세요.")
+                }
+
+                Section {
+                    Picker("복무형태", selection: $draft.workPattern) {
+                        ForEach(Self.patterns, id: \.0) { Text($0.1).tag($0.0) }
                     }
-                    Toggle("1개월 미만 기간이 있어요", isOn: $draft.priorPartial)
-                }
-            } header: {
-                Text("이전 복무 경력(현역 등)이 보수 등급에 인정되나요?")
-            } footer: {
-                Text("병역법 시행령 제62조제2항의 7가지 경우에만 기간이 합산돼요. ‘잘 모르겠어요’면 기본 보수를 계산하지 않아요. 기간은 복무기관에 확인한 값을 넣어 주세요.")
-            }
-
-            Section {
-                LabeledContent("1일 중식비 (기관이 더 줄 때만)") {
-                    HStack(spacing: 4) { numberField("원", $draft.meal, width: 80); Text("원") }
-                }
-                Picker("거주 지역", selection: $draft.region) {
-                    Text("지역 선택").tag("")
-                    ForEach(options?.residenceRegions ?? [], id: \.self) { Text($0).tag($0) }
-                }
-                LabeledContent("1일 교통비") {
-                    HStack(spacing: 4) { numberField("원", $draft.commute, width: 80); Text("원") }
-                }
-                if let fare {
-                    Button("제안 금액 \(Formatters.won(fare.dailyRoundTripFare)) 넣기") {
-                        draft.commute = String(Int(fare.dailyRoundTripFare))
+                    if draft.workPattern == "WEEKDAY_DAYTIME" {
+                        WeekdayPicker(selection: $draft.weekdays)
                     }
-                    Text("\(fare.basis) · \(fare.verifiedAt) 확인").font(SGTypography.caption)
-                        .foregroundStyle(.sg(SGColor.textTertiary))
-                } else if !draft.region.isEmpty {
-                    Text("이 지역은 현재 검증된 기본운임 자동값이 없어 직접 입력해야 해요.")
-                        .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+                } header: {
+                    Text("복무형태")
+                } footer: {
+                    Text("중식비·교통비 근무일 계산은 주간 출퇴근만 지원해요. 야간 교대는 근무일수를 2일로 보는 별도 규정이 있어 계산하지 않아요.")
                 }
-            } header: {
-                Text("중식비·교통비")
-            } footer: {
-                Text("병무청 2026년 지급 기준은 1일 중식비 9,000원이 최소이고, 기관이 예산 범위에서 더 줄 수 있어요. 더 받는 경우에만 그 금액을 넣으세요.")
-            }
 
-            Section {
-                Toggle("초 단위 진행률", isOn: $draft.live)
-            } header: {
-                Text("표시")
-            } footer: {
-                Text("켜면 오늘 화면이 열려 있는 동안 1초마다 남은 시간과 복무율을 갱신해요. 위젯은 이렇게 자주 갱신되지 않아요.")
-            }
+                Section {
+                    Picker("이전 복무 경력 인정", selection: $draft.priorCredit) {
+                        Text("없어요").tag("NONE")
+                        Text("있어요").tag("HAS_PRIOR_SERVICE")
+                        Text("잘 모르겠어요").tag("")
+                    }
+                    if draft.priorCredit == "HAS_PRIOR_SERVICE" {
+                        Picker("해당하는 경우 (제62조제2항)", selection: $draft.priorBasis) {
+                            Text("선택해 주세요").tag("")
+                            ForEach(options?.priorServiceBases ?? [], id: \.value) { Text($0.label).tag($0.value) }
+                        }
+                        LabeledContent("인정 기간") {
+                            HStack(spacing: SGSpacing.xxs) { numberField("개월", $draft.priorMonths, width: 44); Text("개월") }
+                        }
+                        Toggle("1개월 미만 기간이 있어요", isOn: $draft.priorPartial)
+                    }
+                } header: {
+                    Text("이전 복무 경력(현역 등)이 보수 등급에 인정되나요?")
+                } footer: {
+                    Text("병역법 시행령 제62조제2항의 7가지 경우에만 기간이 합산돼요. ‘잘 모르겠어요’면 기본 보수를 계산하지 않아요. 기간은 복무기관에 확인한 값을 넣어 주세요.")
+                }
 
-            if !issues.isEmpty {
-                Section { ForEach(issues, id: \.self) { SGNotice(.danger, title: $0.message) } }
-                    .listRowBackground(Color.clear)
+                Section {
+                    LabeledContent("1일 중식비 (기관이 더 줄 때만)") {
+                        HStack(spacing: SGSpacing.xxs) { numberField("원", $draft.meal, width: 80); Text("원") }
+                    }
+                    Picker("거주 지역", selection: $draft.region) {
+                        Text("지역 선택").tag("")
+                        ForEach(options?.residenceRegions ?? [], id: \.self) { Text($0).tag($0) }
+                    }
+                    LabeledContent("1일 교통비") {
+                        HStack(spacing: SGSpacing.xxs) { numberField("원", $draft.commute, width: 80); Text("원") }
+                    }
+                    if let fare {
+                        Button("제안 금액 \(Formatters.won(fare.dailyRoundTripFare)) 넣기") {
+                            draft.commute = String(Int(fare.dailyRoundTripFare))
+                        }
+                        Text("\(fare.basis) · \(fare.verifiedAt) 확인").font(SGTypography.caption)
+                            .foregroundStyle(.sg(SGColor.textTertiary))
+                    } else if !draft.region.isEmpty {
+                        Text("이 지역은 현재 검증된 기본운임 자동값이 없어 직접 입력해야 해요.")
+                            .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+                    }
+                } header: {
+                    Text("중식비·교통비")
+                } footer: {
+                    Text("병무청 2026년 지급 기준은 1일 중식비 9,000원이 최소이고, 기관이 예산 범위에서 더 줄 수 있어요. 더 받는 경우에만 그 금액을 넣으세요.")
+                }
+
+                Section {
+                    Toggle("초 단위 진행률", isOn: $draft.live)
+                } header: {
+                    Text("표시")
+                } footer: {
+                    Text("켜면 오늘 화면이 열려 있는 동안 1초마다 남은 시간과 복무율을 갱신해요. 위젯은 이렇게 자주 갱신되지 않아요.")
+                }
+
+                if !issues.isEmpty {
+                    Section { ForEach(issues, id: \.self) { SGNotice(.danger, title: $0.message) } }
+                        .listRowBackground(Color.clear)
+                }
             }
+            .sgListRowSurface()
         }
+        .sgGroupedChrome()
         .navigationTitle("복무 설정")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -198,7 +203,8 @@ struct ProfileEditView: View {
         TextField("", text: Binding(get: { text.wrappedValue }, set: { text.wrappedValue = String($0.filter(\.isNumber).prefix(7)) }))
             .keyboardType(.numberPad)
             .multilineTextAlignment(.trailing)
-            .frame(width: width)
+            // Grows with Dynamic Type so digits never clip at accessibility sizes.
+            .frame(width: width * fieldScale)
             .accessibilityLabel(label)
     }
 
@@ -282,7 +288,7 @@ private struct WeekdayPicker: View {
     @Binding var selection: Set<Int>
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: SGSpacing.iconGap) {
             ForEach([1, 2, 3, 4, 5, 6, 0], id: \.self) { day in
                 let on = selection.contains(day)
                 Button {
@@ -290,7 +296,7 @@ private struct WeekdayPicker: View {
                 } label: {
                     Text(Formatters.weekdays[day])
                         .font(SGTypography.label)
-                        .frame(maxWidth: .infinity, minHeight: 40)
+                        .frame(maxWidth: .infinity, minHeight: SGSpacing.minimumHitTarget)
                         .foregroundStyle(.sg(on ? SGColor.onAccent : SGColor.textSecondary))
                         .background(.sg(on ? SGColor.accent : SGColor.surfaceInteractive),
                                     in: RoundedRectangle(cornerRadius: SGRadius.small, style: .continuous))
@@ -300,6 +306,6 @@ private struct WeekdayPicker: View {
                 .accessibilityAddTraits(on ? .isSelected : [])
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, SGSpacing.xxs)
     }
 }

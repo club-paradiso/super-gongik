@@ -5,7 +5,11 @@ import UIKit
 
 /// 4-point spacing grid (HORIZON `--space-*`).
 public enum SGSpacing {
+    /// Between a value and its caption inside one reading unit.
+    public static let xxxs: CGFloat = 2
     public static let xxs: CGFloat = 4
+    /// Between a symbol and its label (icon labels, chips, badges).
+    public static let iconGap: CGFloat = 6
     public static let xs: CGFloat = 8
     public static let sm: CGFloat = 12
     public static let md: CGFloat = 16
@@ -16,6 +20,42 @@ public enum SGSpacing {
     public static let gutter: CGFloat = 16
     /// Minimum hit target (HIG 44 pt).
     public static let minimumHitTarget: CGFloat = 44
+}
+
+/// Responsive layout. Screens are never laid out for one device width: the
+/// content column fills the screen minus `SGSpacing.gutter` and stops growing
+/// at a readable width on wide windows (iPad, landscape). 375–430 pt iPhones
+/// all get the full-width column. Figma: `SG · Layout / layout/*`.
+public enum SGLayout {
+    /// Tab screens (오늘, 기록, 휴가, 급여): dashboards and ledgers.
+    public static let readableWidth: CGFloat = 720
+    /// Single-task flows (onboarding).
+    public static let focusedWidth: CGFloat = 560
+    /// A lone primary action centered on an otherwise empty screen.
+    public static let actionWidth: CGFloat = 280
+    /// Space above a full-screen loading indicator.
+    public static let loadingInset: CGFloat = 120
+}
+
+/// Fixed component metrics that are not spacing. Figma: `SG · Layout / size/*`.
+public enum SGSize {
+    /// List and agenda rows: one line of body text plus a caption.
+    public static let rowMinHeight: CGFloat = 52
+    /// Summary (stat) cards, so two side by side keep the same height.
+    public static let statCardMinHeight: CGFloat = 112
+    /// Date tile at the leading edge of an agenda row.
+    public static let dateTile: CGFloat = 44
+    /// Leading symbol tile on stat cards and quick actions.
+    public static let iconTile: CGFloat = 32
+    /// Status dot inside badges.
+    public static let statusDot: CGFloat = 6
+    /// Brand mark on launch and lock screens.
+    public static let brandMark: CGFloat = 72
+    /// Primary button height (secondary and destructive are 48).
+    public static let primaryControl: CGFloat = 50
+    public static let control: CGFloat = 48
+    /// Minimum height of chips and badges.
+    public static let chip: CGFloat = 24
 }
 
 /// Radius grows with importance: control → card → elevated → hero.
@@ -138,4 +178,11 @@ public enum SGTypography {
     public static let caption = font(13, .medium, relativeTo: .footnote)
     public static let micro = font(12, .bold, relativeTo: .caption)
     public static let statValue = font(22, .heavy, relativeTo: .title2)
+    /// Live percentage in the hero (ticks every second; use tabular digits).
+    public static let heroMetric = font(20, .heavy, relativeTo: .title3)
+    /// Live countdown under `heroMetric`.
+    public static let heroDetail = font(17, .semibold, relativeTo: .headline)
+    /// Secondary world-language eyebrow ("AGENDA", "JOURNEY"). Decorative:
+    /// never the only label, and hidden from VoiceOver.
+    public static let eyebrow = font(11, .bold, relativeTo: .caption2)
 }

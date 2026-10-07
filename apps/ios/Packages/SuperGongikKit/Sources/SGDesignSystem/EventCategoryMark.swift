@@ -103,13 +103,13 @@ public struct SGCategoryChip: View {
     }
 
     public var body: some View {
-        HStack(spacing: 5) {
+        HStack(spacing: SGSpacing.iconGap) {
             SGCategoryMark(category, size: 7)
             Text(text).font(SGTypography.micro).lineLimit(1)
         }
         .foregroundStyle(category.chipForeground.color)
-        .padding(.horizontal, 8)
-        .frame(minHeight: 24)
+        .padding(.horizontal, SGSpacing.xs)
+        .frame(minHeight: SGSize.chip)
         .background(category.chipBackground.color, in: RoundedRectangle(cornerRadius: SGRadius.small, style: .continuous))
     }
 }
