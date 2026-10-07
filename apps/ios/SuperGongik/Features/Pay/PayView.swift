@@ -126,10 +126,12 @@ private struct SummaryCard: View {
                     Text(Formatters.won(amount))
                         .font(SGTypography.title1).monospacedDigit()
                         .foregroundStyle(.sg(SGColor.textPrimary))
-                    Label("기본 보수만이에요. 합계는 모든 항목이 확인돼야 보여요.", systemImage: "info.circle")
+                    // Warning tone: symbol and color agree, so the state is
+                    // never carried by color alone.
+                    Label("기본 보수만이에요. 합계는 모든 항목이 확인돼야 보여요.", systemImage: SGTone.warning.symbol)
                         .font(SGTypography.caption).foregroundStyle(.sg(SGColor.warning))
                 } else {
-                    Text("계산에 필요한 정보가 있어요")
+                    Label("계산에 필요한 정보가 있어요", systemImage: SGTone.warning.symbol)
                         .font(SGTypography.title3)
                         .foregroundStyle(.sg(SGColor.warning))
                 }
