@@ -94,7 +94,6 @@ public struct SGStatCard<Value: View>: View {
     let badge: SGStatusBadge?
     let action: () -> Void
     let value: Value
-    @Environment(\.sgTheme) private var theme
 
     public init(
         title: String, eyebrow: String? = nil, symbol: String, caption: String, badge: SGStatusBadge? = nil,
@@ -125,14 +124,7 @@ public struct SGStatCard<Value: View>: View {
                     Text(title)
                         .font(SGTypography.label)
                         .foregroundStyle(.sg(SGColor.textSecondary))
-                    if let eyebrow, theme.showsWorldLanguage {
-                        Text(eyebrow)
-                            .font(SGTypography.eyebrow)
-                            .tracking(0.8)
-                            .foregroundStyle(.sg(SGColor.textTertiary))
-                            .lineLimit(1)
-                            .accessibilityHidden(true)
-                    }
+                    if let eyebrow { SGWorldEyebrow(eyebrow) }
                 }
                 value
                 Text(caption)

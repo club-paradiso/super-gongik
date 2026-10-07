@@ -241,8 +241,8 @@ private struct PayBandsCard: View {
                 } else {
                     ForEach(schedule.steps ?? []) { step in
                         HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                HStack(spacing: 6) {
+                            VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
+                                HStack(spacing: SGSpacing.iconGap) {
                                     Text(step.label).font(SGTypography.bodyStrong)
                                     if step.equivalentRank == schedule.current?.equivalentRank {
                                         Text("지금")

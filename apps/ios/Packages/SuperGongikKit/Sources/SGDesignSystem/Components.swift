@@ -230,7 +230,6 @@ public struct SGSectionHeader: View {
     let title: String
     let detail: String?
     let eyebrow: String?
-    @Environment(\.sgTheme) private var theme
 
     public init(_ title: String, detail: String? = nil, eyebrow: String? = nil) {
         self.title = title
@@ -242,14 +241,7 @@ public struct SGSectionHeader: View {
         HStack(alignment: .firstTextBaseline, spacing: SGSpacing.xs) {
             Text(title).font(SGTypography.cardTitle).foregroundStyle(.sg(SGColor.textPrimary))
                 .accessibilityAddTraits(.isHeader)
-            if let eyebrow, theme.showsWorldLanguage {
-                Text(eyebrow)
-                    .font(SGTypography.eyebrow)
-                    .tracking(0.8)
-                    .foregroundStyle(.sg(SGColor.textTertiary))
-                    .lineLimit(1)
-                    .accessibilityHidden(true)
-            }
+            if let eyebrow { SGWorldEyebrow(eyebrow) }
             Spacer(minLength: SGSpacing.xs)
             if let detail {
                 Text(detail).font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))

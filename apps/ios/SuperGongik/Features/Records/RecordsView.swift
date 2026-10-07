@@ -295,7 +295,7 @@ struct EventRow: View {
             if let display, let category = SGEventCategory(rawValue: display.category) {
                 SGCategoryChip(category, text: display.categoryLabel)
             }
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
                 Text(display?.label ?? event.eventType)
                     .font(SGTypography.bodyStrong)
                     .foregroundStyle(.sg(SGColor.textPrimary))

@@ -92,7 +92,7 @@ struct RecordImportView: View {
                     Section("가져오기 이력") {
                         ForEach(history) { record in
                             HStack {
-                                VStack(alignment: .leading, spacing: 2) {
+                                VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
                                     Text(record.fileName).font(SGTypography.bodyStrong).lineLimit(1)
                                     Text("\(record.eventCount)건 · \(record.status == "ACTIVE" ? "반영됨" : "취소됨")")
                                         .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
@@ -146,7 +146,7 @@ struct RecordImportView: View {
                 Toggle(isOn: Binding(
                     get: { accepted.contains(row.sourceRowIndex) },
                     set: { on in if on { accepted.insert(row.sourceRowIndex) } else { accepted.remove(row.sourceRowIndex) } })) {
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
                         Text("\(row.date ?? "날짜 없음") · \(row.eventType.map(model.label(for:)) ?? "종류 확인 필요")")
                             .font(SGTypography.bodyStrong).monospacedDigit()
                         Text(amount(row)).font(SGTypography.caption).foregroundStyle(.sg(SGColor.textSecondary))

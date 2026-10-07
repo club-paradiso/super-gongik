@@ -24,6 +24,7 @@ struct ProfileEditView: View {
     }
 
     @Environment(AppModel.self) private var model
+    @ScaledMetric(relativeTo: .body) private var fieldScale: CGFloat = 1
     @Environment(\.dismiss) private var dismiss
     @State private var options: Options?
     @State private var draft = Draft()
@@ -77,7 +78,7 @@ struct ProfileEditView: View {
 
                 Section {
                     LabeledContent("1일 근무시간") {
-                        HStack(spacing: 4) {
+                        HStack(spacing: SGSpacing.xxs) {
                             numberField("시간", $draft.workHours, width: 36)
                             Text("시간")
                             numberField("분", $draft.workMinutes, width: 36)
@@ -117,7 +118,7 @@ struct ProfileEditView: View {
                             ForEach(options?.priorServiceBases ?? [], id: \.value) { Text($0.label).tag($0.value) }
                         }
                         LabeledContent("인정 기간") {
-                            HStack(spacing: 4) { numberField("개월", $draft.priorMonths, width: 44); Text("개월") }
+                            HStack(spacing: SGSpacing.xxs) { numberField("개월", $draft.priorMonths, width: 44); Text("개월") }
                         }
                         Toggle("1개월 미만 기간이 있어요", isOn: $draft.priorPartial)
                     }
@@ -129,14 +130,14 @@ struct ProfileEditView: View {
 
                 Section {
                     LabeledContent("1일 중식비 (기관이 더 줄 때만)") {
-                        HStack(spacing: 4) { numberField("원", $draft.meal, width: 80); Text("원") }
+                        HStack(spacing: SGSpacing.xxs) { numberField("원", $draft.meal, width: 80); Text("원") }
                     }
                     Picker("거주 지역", selection: $draft.region) {
                         Text("지역 선택").tag("")
                         ForEach(options?.residenceRegions ?? [], id: \.self) { Text($0).tag($0) }
                     }
                     LabeledContent("1일 교통비") {
-                        HStack(spacing: 4) { numberField("원", $draft.commute, width: 80); Text("원") }
+                        HStack(spacing: SGSpacing.xxs) { numberField("원", $draft.commute, width: 80); Text("원") }
                     }
                     if let fare {
                         Button("제안 금액 \(Formatters.won(fare.dailyRoundTripFare)) 넣기") {
@@ -202,7 +203,8 @@ struct ProfileEditView: View {
         TextField("", text: Binding(get: { text.wrappedValue }, set: { text.wrappedValue = String($0.filter(\.isNumber).prefix(7)) }))
             .keyboardType(.numberPad)
             .multilineTextAlignment(.trailing)
-            .frame(width: width)
+            // Grows with Dynamic Type so digits never clip at accessibility sizes.
+            .frame(width: width * fieldScale)
             .accessibilityLabel(label)
     }
 
@@ -286,7 +288,7 @@ private struct WeekdayPicker: View {
     @Binding var selection: Set<Int>
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: SGSpacing.iconGap) {
             ForEach([1, 2, 3, 4, 5, 6, 0], id: \.self) { day in
                 let on = selection.contains(day)
                 Button {

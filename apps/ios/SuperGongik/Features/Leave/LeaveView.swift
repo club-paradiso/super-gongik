@@ -238,7 +238,7 @@ private struct CorrectionsCard: View {
                 }
                 ForEach(adjustments) { item in
                     HStack {
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
                             Text(item.reason).font(SGTypography.bodyStrong)
                             Text("\(Formatters.longDate(item.effectiveDate)) · 반일 \(item.amountHalfDays) · \(item.amountMinutes)분")
                                 .font(SGTypography.caption).monospacedDigit()
@@ -287,7 +287,7 @@ private struct UsageCard: View {
                 }
                 Divider()
                 HStack {
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
                         Text("허가외출·지각·조퇴 누계").font(SGTypography.body)
                         Text("누계 8시간을 연가 1일로 공제해요.").font(SGTypography.caption)
                             .foregroundStyle(.sg(SGColor.textTertiary))

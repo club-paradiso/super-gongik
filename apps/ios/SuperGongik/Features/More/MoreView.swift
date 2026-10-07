@@ -30,7 +30,7 @@ struct MoreView: View {
                                 showingProfile = true
                             } label: {
                                 HStack {
-                                    VStack(alignment: .leading, spacing: 2) {
+                                    VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
                                         Text("복무 설정").foregroundStyle(.sg(SGColor.textPrimary))
                                         Text("\(Formatters.longDate(profile.callUpDate)) ~ \(Formatters.longDate(profile.expectedDischargeDate))")
                                             .font(SGTypography.caption).monospacedDigit()
@@ -100,7 +100,7 @@ struct MoreView: View {
                                     await model.reminders.setEnabled(category, value)
                                     await model.reproject()
                                 } })) {
-                                VStack(alignment: .leading, spacing: 2) {
+                                VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
                                     Text(category.title)
                                     Text(category.detail).font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
                                 }

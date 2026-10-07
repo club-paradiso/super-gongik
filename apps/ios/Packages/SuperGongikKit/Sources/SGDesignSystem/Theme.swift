@@ -44,3 +44,31 @@ public extension EnvironmentValues {
         set { self[SGThemeKey.self] = newValue }
     }
 }
+
+/// A world-language tag from the Stitch direction ("JOURNEY", "AGENDA",
+/// "SUPPLY"). Renders only in the Warrior theme, always inline next to a
+/// Korean label so both themes keep the same geometry, and VoiceOver skips it.
+/// Screens never branch on the theme themselves; they place this view.
+public struct SGWorldEyebrow: View {
+    let text: String
+    let tint: SGToken
+    @Environment(\.sgTheme) private var theme
+
+    public init(_ text: String, tint: SGToken = SGColor.textTertiary) {
+        self.text = text
+        self.tint = tint
+    }
+
+    public var body: some View {
+        if theme.showsWorldLanguage {
+            Text(text)
+                .font(SGTypography.eyebrow)
+                .tracking(0.8)
+                .foregroundStyle(.sg(tint))
+                .lineLimit(1)
+                // The Korean label beside it always wins the space.
+                .layoutPriority(-1)
+                .accessibilityHidden(true)
+        }
+    }
+}

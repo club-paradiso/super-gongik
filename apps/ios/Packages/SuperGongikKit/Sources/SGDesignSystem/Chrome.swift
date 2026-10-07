@@ -10,16 +10,25 @@ public extension View {
     /// Root of a tab's `NavigationStack`: the navigation bar and tab bar show
     /// the theme canvas / raised surface when content scrolls under them.
     func sgScreenChrome() -> some View {
+        #if os(iOS)
         toolbarBackground(.sg(SGColor.background), for: .navigationBar)
             .toolbarBackground(.sg(SGColor.surfaceRaised), for: .tabBar)
+        #else
+        self // macOS builds this package only for `swift test`.
+        #endif
     }
 
     /// A native `Form` or `List`: theme canvas behind the grouped sections and a
     /// matching navigation bar. Pair with `sgListRowSurface()` on its content.
     func sgGroupedChrome() -> some View {
+        #if os(iOS)
         scrollContentBackground(.hidden)
             .background(.sg(SGColor.background))
             .toolbarBackground(.sg(SGColor.background), for: .navigationBar)
+        #else
+        scrollContentBackground(.hidden)
+            .background(.sg(SGColor.background))
+        #endif
     }
 
     /// Row background for the sections of a grouped `Form`/`List`.

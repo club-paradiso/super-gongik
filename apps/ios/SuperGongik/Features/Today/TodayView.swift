@@ -97,7 +97,6 @@ private struct HeroCard: View {
     let pay: HomeModel.Pay
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var typeSize
-    @Environment(\.sgTheme) private var theme
 
     private var rowLayout: AnyLayout {
         typeSize.isAccessibilitySize
@@ -114,17 +113,9 @@ private struct HeroCard: View {
                 Text(hero.eyebrow)
                     .font(SGTypography.label)
                     .foregroundStyle(.sg(SGColor.heroForeground2))
+                SGWorldEyebrow(celebrates ? "FINAL QUEST" : "JOURNEY", tint: SGColor.heroAccent)
                 Spacer()
                 stateBadge
-            }
-
-            if theme.showsWorldLanguage {
-                // Warrior theme flavor only; the Korean eyebrow above carries the meaning.
-                Text(celebrates ? "FINAL QUEST" : "JOURNEY")
-                    .font(SGTypography.eyebrow)
-                    .tracking(2)
-                    .foregroundStyle(.sg(SGColor.heroAccent))
-                    .accessibilityHidden(true)
             }
 
             Text(hero.headline)

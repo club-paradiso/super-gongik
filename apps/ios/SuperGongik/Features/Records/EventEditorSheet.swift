@@ -353,6 +353,8 @@ private struct DurationField: View {
     let hours: String
     let minutes: String
     let onChange: (String, String) -> Void
+    /// Two-digit field width that grows with Dynamic Type.
+    @ScaledMetric(relativeTo: .body) private var fieldWidth: CGFloat = 44
 
     var body: some View {
         LabeledContent("사용 시간") {
@@ -360,13 +362,13 @@ private struct DurationField: View {
                 TextField("0", text: Binding(get: { hours }, set: { onChange(digits($0), minutes) }))
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.trailing)
-                    .frame(width: 44)
+                    .frame(width: fieldWidth)
                     .accessibilityLabel("시간")
                 Text("시간")
                 TextField("0", text: Binding(get: { minutes }, set: { onChange(hours, digits($0)) }))
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.trailing)
-                    .frame(width: 44)
+                    .frame(width: fieldWidth)
                     .accessibilityLabel("분")
                 Text("분")
             }
