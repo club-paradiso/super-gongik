@@ -197,6 +197,19 @@ jobs:
       - name: Screenshot matrix (themes × appearance × width × Dynamic Type × contrast)
         working-directory: apps/ios
         run: DERIVED_DATA="$RUNNER_TEMP/DerivedData-qa" scripts/screenshot-qa.sh "$RUNNER_TEMP/screenshots"
+      - name: Print screenshot thumbnails (for reviewers without artifact access)
+        if: always()
+        run: |
+          # One line per screenshot: "QAIMG <file> <base64 JPEG, 540 px tall>".
+          # Lets a reviewer that can read job logs but not download artifacts
+          # inspect every case; the full-resolution PNGs are in the artifact.
+          mkdir -p "$RUNNER_TEMP/thumbs"
+          for f in "$RUNNER_TEMP"/screenshots/*.png; do
+            [ -e "$f" ] || continue
+            t="$RUNNER_TEMP/thumbs/$(basename "${f%.png}").jpg"
+            sips -Z 540 -s format jpeg -s formatOptions 45 "$f" --out "$t" >/dev/null
+            echo "QAIMG $(basename "$f") $(base64 -i "$t" | tr -d '\n')"
+          done
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
