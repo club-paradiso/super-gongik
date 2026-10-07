@@ -40,7 +40,7 @@ struct RootView: View {
                 }
             }
         }
-        .tint(.sg(SGColor.accent))
+        .tint(SGStyle.sg(SGColor.accent))
         .background(.sg(SGColor.background))
     }
 }
