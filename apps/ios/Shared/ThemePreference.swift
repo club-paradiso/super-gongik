@@ -14,7 +14,10 @@ enum ThemePreference {
     /// One instance for the process lifetime. `@AppStorage` observes the
     /// defaults object it is given, so the app root and the 더보기 picker must
     /// share this exact instance for a selection to re-render the root at once.
-    static let store: UserDefaults = UserDefaults(suiteName: WidgetSnapshot.appGroup) ?? .standard
+    /// `nonisolated(unsafe)`: the SDK does not mark `UserDefaults` `Sendable`,
+    /// but Apple documents it as thread-safe, and the widget reads it off the
+    /// main actor, so `@MainActor` would not fit.
+    nonisolated(unsafe) static let store: UserDefaults = UserDefaults(suiteName: WidgetSnapshot.appGroup) ?? .standard
 
     /// The stored theme; `.standard` when nothing (or an unknown value) is stored.
     static func load(from defaults: UserDefaults = store) -> SGTheme {
