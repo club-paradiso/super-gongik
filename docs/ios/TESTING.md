@@ -88,7 +88,14 @@ The matrix covers:
 - Accessibility XXL Dynamic Type;
 - Increase Contrast.
 
-`manifest.tsv` in the artifact lists each case.
+`manifest.tsv` in the artifact lists each case. The job log also prints a JPEG thumbnail of each case (lines starting `QAIMG`). Results and the discrepancy classification are in `docs/design/SCREEN-MAP.md` § 4.
+
+Still not covered by automation:
+
+- VoiceOver traversal on a device;
+- a visual Reduce Motion pass (the code removes interpolation through `SGMotion`, which is unit-level only);
+- widget rendering on a home screen;
+- iPad.
 
 ## Real-device checklist
 

@@ -125,3 +125,30 @@ Totals: 54 views → 1 MATCH, 11 MERGE, 2 REFINE, 7 FUTURE, 33 DEPRECATE. Produc
 | `50:155` `50:186` `50:228` `50:321` `50:365` `50:438` `50:456`                                                                                                                                                                                         | 7     | — (legal scripts, cutscene skip, sealed pay slip, social share, fake contact, card flip, photocard print) | DEPRECATE |
 
 51 imported controls → 5 production components (`AppTabBar`, `NavigationBar`, `SGButton`, agenda link row, `DayCell`); 3 FUTURE; 7 DEPRECATE.
+
+## 4. Rendered native QA vs canonical Figma (2026-10-07)
+
+Evidence: CI job "iOS · app tests and simulator screenshot QA", artifact `ios-screenshots-<sha>`. It is also printed as JPEG thumbnails in the job log.
+
+- Runtime: Xcode 26.3, iOS 26.2 Simulator.
+- 27 cases:
+  - iPhone 16 (393 pt): standard and Warrior, light and dark, every tab;
+  - iPhone SE 3rd gen (375 pt) and iPhone 16 Plus (430 pt);
+  - Accessibility XXL Dynamic Type;
+  - Increase Contrast.
+- Demo document: created by the shared core through the DEBUG seed.
+
+| Finding                                                                                               | Class                         | Action                                                                                                    |
+| ----------------------------------------------------------------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Tab bar renders as the iOS 26 floating Liquid Glass bar; Figma `AppTabBar` is a full-width bar        | INTENTIONAL_NATIVE_DIFFERENCE | Figma page 52 header and `AppTabBar` description say the bar is system-owned                              |
+| 기록 segmented control reads 월간 / 목록 in the app; Figma said 달력 / 목록                           | MINOR                         | Figma updated to 월간 / 목록                                                                              |
+| 급여 rank line ("상병 상당 · 복무 11개월 차") can wrap inside "11개월" at Accessibility XXL           | MINOR                         | Left as is: native Korean line breaking, nothing clipped. Revisit with a stacked layout if it is reported |
+| Warrior light differs from standard light mostly in accent and canvas tint                            | INTENTIONAL                   | Matches Stitch's light screens; the Warrior identity is strongest in the hero and in dark mode            |
+| Hierarchy, card geometry, spacing, hero, stat cards, agenda date tiles, section headers, theme picker | MATCH                         | —                                                                                                         |
+| Clipping or overflow at 375 / 430 pt or Accessibility XXL                                             | none found                    | —                                                                                                         |
+| Increase Contrast: stronger borders and secondary text in both themes                                 | MATCH                         | —                                                                                                         |
+| Native chrome in both themes: nav bar canvas, grouped list rows, Warrior gold selection               | MATCH                         | —                                                                                                         |
+
+No BLOCKER or MAJOR discrepancies.
+
+The seed's call-up date predates the verified leave rule, so 휴가 and 오늘 show the "확인 필요" attention states. That is real core output, and it exercises the warning treatment.
