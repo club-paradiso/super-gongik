@@ -63,10 +63,37 @@ Implementation primitives: existing `SGDesignSystem` → existing SwiftUI compon
 | 일반 (standard, default) | `SGTheme.standard` | `SG · Color` modes **Light / Dark**                                                                  | HORIZON palette, logo night sky, no world-language                                                                                        |
 | 워리어 (Warrior)         | `SGTheme.warrior`  | `SG · Color` modes **Warrior Light / Warrior Dark**; `SGHeroCard` `Theme=Warrior`; `Show eyebrow` on | Lavender/gold palette from Stitch (`49:10627`, dark HUD views), deeper sky with a gold horizon, JOURNEY / AGENDA / REST / SUPPLY eyebrows |
 
-- The choice is a device-local presentation preference (`@AppStorage("sg.theme")`), not part of the synced document, and it never changes a value or a rule.
-- Both themes pass the same WCAG AA tests in light, dark and Increase Contrast (`ContrastTests`).
-- Warrior screens: page 52, row "Warrior 테마" (오늘 light/dark/completed, 기록, 휴가, 급여, 더보기 theme picker).
-- Not themed yet: widgets and the system tab bar background (they follow the standard palette).
+### Product direction (audited 2026-10-07)
+
+The original goal was "apply the newly refined Stitch design cleanly to the mobile app". The product owner then asked for 일반 and Warrior as user-selectable themes. The two decisions do not conflict, because the Stitch work is applied in two layers:
+
+| Layer                                                                                                                                        | Where it lives                                                 | Applies to                                         |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------- |
+| Stitch structure and hierarchy: hero → stat cards with icon tiles → agenda with date tiles → quick actions, section hierarchy, status badges | `SGDesignSystem` components and the 52 screens                 | **Both themes**. This is the canonical product UI. |
+| Stitch RPG presentation: lavender/gold palette, deeper night sky with a gold horizon, world-language eyebrows                                | `SGTheme.warrior` tokens, `SGHeroBackground`, `SGWorldEyebrow` | **Warrior only**.                                  |
+
+- **일반 (standard)** is HORIZON, the logo's palette. It is the canonical, default appearance and the one used in store screenshots and docs.
+- **워리어 (Warrior)** is the Stitch RPG mood applied to the same product. It is opt-in.
+- **Why two themes and not two design systems:** there is one component set, one token set with per-theme values, and one set of screens. A theme is resolved from the environment by `SGStyle` and three design-system views (`SGHeroBackground`, `SGWorldEyebrow`, and the chrome modifiers). No screen reads the theme. No screen has a second implementation.
+- **Shared by both themes (enforced):**
+  - information architecture (5 native tabs, same screens and order)
+  - component geometry (world-language eyebrows render inline beside Korean labels at a lower layout priority, so no row gains a line)
+  - interaction behavior
+  - accessibility contract
+  - feature availability
+- **Different (presentation only):**
+  - color values
+  - hero sky
+  - decorative eyebrows, which VoiceOver skips
+- **Storage:**
+  - The preference is stored in the App Group `UserDefaults` (`ThemePreference`, key `sg.theme`). The widget reads it read-only.
+  - It is not in the synced document and not read by the core.
+  - When nothing or an unknown value is stored, the app falls back to `.standard`. Changing it reloads widget timelines.
+- **Contrast:** precedence is theme palette first, then that palette's Increase Contrast variant. Warrior has its own high-contrast values. `ContrastTests` covers standard and Warrior in light, dark and Increase Contrast.
+- **Chrome:** system surfaces stay native (`TabView`, `NavigationStack`, `Form`, `List`) and only take theme colors (`Chrome.swift`).
+- **Figma:**
+  - Warrior screens: page 52, row "Warrior 테마".
+  - Rendered evidence: CI artifact `ios-screenshots-<sha>` (`apps/ios/scripts/screenshot-qa.sh`).
 
 ## Rules for future edits
 

@@ -68,6 +68,28 @@ very long Korean text. Only one simulator device was available; interactive
 tapping needed simulator-panel permission, which was not granted during the
 session.
 
+## Simulator screenshot QA (CI)
+
+CI job `ios-visual-qa`:
+
+- runs `SuperGongikTests` on a fresh simulator;
+- runs `apps/ios/scripts/screenshot-qa.sh` and uploads artifact `ios-screenshots-<sha>`.
+
+The app is a Debug build with DEBUG-only hooks:
+
+- `-SGSeedDemo YES` creates a demo document through the shared core commands on an empty store;
+- `-SGTheme` selects the theme;
+- `-SGInitialTab` opens a tab.
+
+The matrix covers:
+
+- iPhone 16 (393 pt): standard and Warrior, light and dark, every tab;
+- iPhone SE 3rd gen (375 pt) and iPhone 16 Plus (430 pt);
+- Accessibility XXL Dynamic Type;
+- Increase Contrast.
+
+`manifest.tsv` in the artifact lists each case.
+
 ## Real-device checklist
 
 See RELEASE.md § Real-device QA.

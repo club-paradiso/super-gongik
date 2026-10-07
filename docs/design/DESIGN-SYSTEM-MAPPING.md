@@ -32,6 +32,15 @@ Web-only variables in `SG · Color`/`SG · Layout` without iOS code syntax (`sur
 | `accent` / `accentSecondary` / `onAccent`        | `#4F48A3` / `#000C3F` / `#FFFFFF` | `#FDCF7C` / `#C7D2FE` / `#090C1C` |
 | `selectedBackground` / `selectedBorder`          | `#E7E6FF` / `#9D97E0`             | `#1E2568` / `#FDCF7C`             |
 
+Warrior Increase Contrast values (light / dark): `border` `#8E86C9` / `#5A60A0`, `borderStrong` `#6F68B0` / `#7077B8`, `textSecondary` `#2E2F3A` / `#E2E8F0`, `textTertiary` `#3E3F4A` / `#CBD5E1`, `accent` `#3A338A` / `#FFE2A8`. Precedence in `SGToken.rgb(theme:dark:highContrast:)` is the theme palette first, then that palette's Increase Contrast variant. A token without Warrior values uses the standard values, including the standard high-contrast ones, in both themes.
+
+System chrome (`Chrome.swift`):
+
+- `sgScreenChrome()` on each tab root: navigation bar → `background`, tab bar → `surfaceRaised`, shown when content scrolls under them (native scroll-edge behavior kept).
+- `sgGroupedChrome()` + `sgListRowSurface()` on every `Form`/`List`: canvas → `background`, rows → `surface`.
+- Native `TabView`, `NavigationStack`, `Form` and `List` are kept; nothing is redrawn.
+- World-language tags go through `SGWorldEyebrow` only, which renders inline in Warrior and is hidden from VoiceOver.
+
 Feedback tones, event categories and hero tokens are shared by both themes. `SGHeroBackground` draws a Warrior sky (`#000C3F → #081F68 → #14173E`, violet top, gold `#FFDEA7` horizon). Stitch's light accent `#5952AD` was darkened to `#4F48A3` for AA margin.
 
 ### Color (selection)
