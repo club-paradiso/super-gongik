@@ -98,24 +98,26 @@ Figma blur = SwiftUI radius × 2. Dark mode draws no shadow (borders separate la
 
 ## Components (page 51)
 
-| Figma component (node)       | Variants / properties                                                           | SwiftUI                                                                                           | Code Connect |
+Figma Code Connect needs a Dev or Full seat on an Organization or Enterprise plan; this file's plan does not have one, so the mapping call was refused. Traceability instead: every component's description ends with `Source: club-paradiso/super-gongik/<path>`, page 54 lists the same table, and every variable carries iOS code syntax. When the plan allows it, map the nodes below with the SwiftUI label.
+
+| Figma component (node)       | Variants / properties                                                           | SwiftUI                                                                                           | Traceability |
 | ---------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------ |
-| `SGButton` (`103:20`)        | Style = Primary/Secondary/Destructive × State = Default/Pressed/Disabled; Label | `SGPrimaryButtonStyle`, `SGSecondaryButtonStyle`, `SGDestructiveButtonStyle` (`Components.swift`) | yes          |
-| `SGNotice` (`103:51`)        | Tone = Info/Success/Warning/Danger/Neutral; Title, Message, Show message        | `SGNotice` (`Components.swift`)                                                                   | yes          |
-| `SGStatusBadge` (`103:72`)   | Tone × 5                                                                        | `SGStatusBadge` (`Patterns.swift`, new)                                                           | yes          |
-| `SGCategoryChip` (`103:91`)  | Category = leave/sick/attendance/duty/nonpayable/note                           | `SGCategoryChip`, `SGCategoryMark` (`EventCategoryMark.swift`)                                    | yes          |
-| `SGSectionHeader` (`103:92`) | Title, Eyebrow, Detail (+ visibility)                                           | `SGSectionHeader` (`Components.swift`, `eyebrow:` new)                                            | yes          |
-| `SGCard` (`104:2`)           | content slot                                                                    | `SGCard`                                                                                          | yes          |
-| `SGProgressBar` (`104:5`)    | —                                                                               | `SGProgressBar`                                                                                   | yes          |
-| `SGIconTile` (`104:8`)       | —                                                                               | `SGIconTile` (new)                                                                                | yes          |
-| `SGDateTile` (`104:16`)      | Today = true/false                                                              | `SGDateTile` (new)                                                                                | yes          |
-| `SGStatCard` (`104:55`)      | State = Value/Muted/Attention; Title, Caption                                   | `SGStatCard` (new) + `StatValue` (`TodayView.swift`)                                              | yes          |
-| `SGQuickAction` (`104:56`)   | Title                                                                           | `SGQuickAction` (new)                                                                             | yes          |
-| `SGEmptyState` (`104:61`)    | Title, Message                                                                  | `SGEmptyState` (new)                                                                              | yes          |
-| `SGAgendaRow` (`104:67`)     | Title, Subtitle, Days                                                           | `AgendaRow` (`Features/Today/TodayView.swift`)                                                    | yes          |
-| `SGHeroCard` (`105:73`)      | Phase = In service/Celebrate × Live = On/Off                                    | `HeroCard` + `SGHeroBackground` (`TodayView.swift`, `Components.swift`)                           | yes          |
-| `AppTabBar` (`105:179`)      | Selected = 오늘/기록/휴가/급여/더보기                                           | native `TabView` (`App/RootView.swift`)                                                           | yes          |
-| `NavigationBar` (`105:180`)  | Title                                                                           | native `NavigationStack` title                                                                    | yes          |
+| `SGButton` (`103:20`)        | Style = Primary/Secondary/Destructive × State = Default/Pressed/Disabled; Label | `SGPrimaryButtonStyle`, `SGSecondaryButtonStyle`, `SGDestructiveButtonStyle` (`Components.swift`) | description  |
+| `SGNotice` (`103:51`)        | Tone = Info/Success/Warning/Danger/Neutral; Title, Message, Show message        | `SGNotice` (`Components.swift`)                                                                   | description  |
+| `SGStatusBadge` (`103:72`)   | Tone × 5                                                                        | `SGStatusBadge` (`Patterns.swift`, new)                                                           | description  |
+| `SGCategoryChip` (`103:91`)  | Category = leave/sick/attendance/duty/nonpayable/note                           | `SGCategoryChip`, `SGCategoryMark` (`EventCategoryMark.swift`)                                    | description  |
+| `SGSectionHeader` (`103:92`) | Title, Eyebrow, Detail (+ visibility)                                           | `SGSectionHeader` (`Components.swift`, `eyebrow:` new)                                            | description  |
+| `SGCard` (`104:2`)           | content slot                                                                    | `SGCard`                                                                                          | description  |
+| `SGProgressBar` (`104:5`)    | —                                                                               | `SGProgressBar`                                                                                   | description  |
+| `SGIconTile` (`104:8`)       | —                                                                               | `SGIconTile` (new)                                                                                | description  |
+| `SGDateTile` (`104:16`)      | Today = true/false                                                              | `SGDateTile` (new)                                                                                | description  |
+| `SGStatCard` (`104:55`)      | State = Value/Muted/Attention; Title, Caption                                   | `SGStatCard` (new) + `StatValue` (`TodayView.swift`)                                              | description  |
+| `SGQuickAction` (`104:56`)   | Title                                                                           | `SGQuickAction` (new)                                                                             | description  |
+| `SGEmptyState` (`104:61`)    | Title, Message                                                                  | `SGEmptyState` (new)                                                                              | description  |
+| `SGAgendaRow` (`104:67`)     | Title, Subtitle, Days                                                           | `AgendaRow` (`Features/Today/TodayView.swift`)                                                    | description  |
+| `SGHeroCard` (`105:73`)      | Phase = In service/Celebrate × Live = On/Off                                    | `HeroCard` + `SGHeroBackground` (`TodayView.swift`, `Components.swift`)                           | description  |
+| `AppTabBar` (`105:179`)      | Selected = 오늘/기록/휴가/급여/더보기                                           | native `TabView` (`App/RootView.swift`)                                                           | description  |
+| `NavigationBar` (`105:180`)  | Title                                                                           | native `NavigationStack` title                                                                    | description  |
 
 Code-only helpers without a Figma component: `SGPressableStyle`, `SGTintedIconLabelStyle`, `SGLoadingState` (system `ProgressView`), `SGHeroBackground` (drawn inside `SGHeroCard`).
 
