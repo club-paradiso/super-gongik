@@ -60,128 +60,132 @@ struct EventEditorSheet: View {
         let evaluation = self.evaluation
         let annual = evaluation?.isAnnualCharge ?? false
         Form {
-            Section {
-                Picker("종류", selection: binding(\.eventType)) {
-                    ForEach(model.taxonomy?.typeGroups ?? []) { group in
-                        Section(group.label) {
-                            ForEach(group.types, id: \.self) { type in
-                                Text(model.label(for: type)).tag(type)
+            Group {
+                Section {
+                    Picker("종류", selection: binding(\.eventType)) {
+                        ForEach(model.taxonomy?.typeGroups ?? []) { group in
+                            Section(group.label) {
+                                ForEach(group.types, id: \.self) { type in
+                                    Text(model.label(for: type)).tag(type)
+                                }
                             }
                         }
                     }
-                }
-                if form.eventType == "SICK_LEAVE" {
-                    Picker("병가 구분", selection: binding(\.sickLeaveCategory)) {
-                        Text("공무 외 질병·부상").tag("ORDINARY")
-                        Text("공무수행상 질병·부상").tag("PUBLIC_DUTY")
-                        Text("아직 확인하지 못함").tag("UNKNOWN")
-                        if form.sickLeaveCategory.isEmpty { Text("선택").tag("") }
-                    }
-                }
-            }
-
-            Section {
-                Picker("기록 단위", selection: binding(\.mode)) {
-                    Text(annual ? "종일 연가" : "하루 단위").tag("ALL_DAY")
-                    if form.eventType == "ANNUAL_LEAVE" {
-                        Text(annual ? "반가" : "반일").tag("HALF_DAY")
-                    }
-                    if !(evaluation?.isNonPayable ?? false) {
-                        Text(annual ? "시간 사용" : "시간 단위").tag("PARTIAL")
-                    }
-                }
-                .pickerStyle(.segmented)
-                .listRowSeparator(.hidden)
-            } header: {
-                Text("기록 단위")
-            } footer: {
-                if evaluation?.isNonPayable == true {
-                    Text("이 기록은 기본 보수 미지급일 근거로 쓰이므로 하루 단위로만 저장해요.")
-                } else if form.eventType != "ANNUAL_LEAVE" && !annual {
-                    Text("반일은 연가(반가)에만 쓸 수 있어요.")
-                } else if form.mode == "HALF_DAY" {
-                    Text("반가는 단순한 4시간 사용이 아니에요. 오전·오후 반일 승인 단위이며 14:00를 기준으로 구분해요.")
-                }
-            }
-
-            Section {
-                switch form.mode {
-                case "ALL_DAY":
-                    datePicker("시작일", \.startDate)
-                    datePicker("종료일", \.endDate)
-                    Stepper(value: dayCountBinding, in: 1...365) {
-                        LabeledContent(evaluation?.isLeave == true ? "차감 일수" : "일수") {
-                            Text("\(form.dayCount)일").monospacedDigit()
+                    if form.eventType == "SICK_LEAVE" {
+                        Picker("병가 구분", selection: binding(\.sickLeaveCategory)) {
+                            Text("공무 외 질병·부상").tag("ORDINARY")
+                            Text("공무수행상 질병·부상").tag("PUBLIC_DUTY")
+                            Text("아직 확인하지 못함").tag("UNKNOWN")
+                            if form.sickLeaveCategory.isEmpty { Text("선택").tag("") }
                         }
                     }
-                case "HALF_DAY":
-                    datePicker("날짜", \.startDate)
-                    Picker("오전 또는 오후", selection: binding(\.half)) {
-                        Text("오전").tag("AM")
-                        Text("오후").tag("PM")
+                }
+
+                Section {
+                    Picker("기록 단위", selection: binding(\.mode)) {
+                        Text(annual ? "종일 연가" : "하루 단위").tag("ALL_DAY")
+                        if form.eventType == "ANNUAL_LEAVE" {
+                            Text(annual ? "반가" : "반일").tag("HALF_DAY")
+                        }
+                        if !(evaluation?.isNonPayable ?? false) {
+                            Text(annual ? "시간 사용" : "시간 단위").tag("PARTIAL")
+                        }
                     }
                     .pickerStyle(.segmented)
-                default:
-                    datePicker("날짜", \.startDate)
-                    clockField("시작 시각 (선택)", \.startTime)
-                    clockField("종료 시각 (선택)", \.endTime)
-                    DurationField(hours: form.hours, minutes: form.minutes) { hours, minutes in
-                        // Same result as `applyFormPatch` for a touched
-                        // duration, without a round trip per keystroke.
-                        self.form?.hours = hours
-                        self.form?.minutes = minutes
-                        self.form?.durationTouched = true
-                        Task { await evaluate() }
+                    .listRowSeparator(.hidden)
+                } header: {
+                    Text("기록 단위")
+                } footer: {
+                    if evaluation?.isNonPayable == true {
+                        Text("이 기록은 기본 보수 미지급일 근거로 쓰이므로 하루 단위로만 저장해요.")
+                    } else if form.eventType != "ANNUAL_LEAVE" && !annual {
+                        Text("반일은 연가(반가)에만 쓸 수 있어요.")
+                    } else if form.mode == "HALF_DAY" {
+                        Text("반가는 단순한 4시간 사용이 아니에요. 오전·오후 반일 승인 단위이며 14:00를 기준으로 구분해요.")
                     }
                 }
-            }
 
-            if let classification = evaluation?.classification {
                 Section {
-                    VStack(alignment: .leading, spacing: SGSpacing.xxs) {
-                        Text("자동 구분: \(classification.label)").font(SGTypography.bodyStrong)
-                        Text(classification.reason).font(SGTypography.caption)
-                        if classification.kind == "LATE_ARRIVAL" {
-                            Text("입력 시간이 4시간이어도 14:00 반일 경계와 맞지 않으면 반가로 바꾸지 않고 허가지각으로 저장해요. 누계 8시간은 연가 1일로 공제해요.")
-                                .font(SGTypography.caption)
-                        } else if classification.kind == "HALF_DAY" && form.mode == "PARTIAL" {
-                            Text("입력 구간이 14:00 반일 경계와 정확히 맞아 반가로 저장해요.").font(SGTypography.caption)
+                    switch form.mode {
+                    case "ALL_DAY":
+                        datePicker("시작일", \.startDate)
+                        datePicker("종료일", \.endDate)
+                        Stepper(value: dayCountBinding, in: 1...365) {
+                            LabeledContent(evaluation?.isLeave == true ? "차감 일수" : "일수") {
+                                Text("\(form.dayCount)일").monospacedDigit()
+                            }
+                        }
+                    case "HALF_DAY":
+                        datePicker("날짜", \.startDate)
+                        Picker("오전 또는 오후", selection: binding(\.half)) {
+                            Text("오전").tag("AM")
+                            Text("오후").tag("PM")
+                        }
+                        .pickerStyle(.segmented)
+                    default:
+                        datePicker("날짜", \.startDate)
+                        clockField("시작 시각 (선택)", \.startTime)
+                        clockField("종료 시각 (선택)", \.endTime)
+                        DurationField(hours: form.hours, minutes: form.minutes) { hours, minutes in
+                            // Same result as `applyFormPatch` for a touched
+                            // duration, without a round trip per keystroke.
+                            self.form?.hours = hours
+                            self.form?.minutes = minutes
+                            self.form?.durationTouched = true
+                            Task { await evaluate() }
                         }
                     }
-                    .foregroundStyle(.sg(SGColor.info))
-                    .accessibilityElement(children: .combine)
                 }
-            }
 
-            Section("메모 (선택)") {
-                TextField("예: 가족 행사", text: binding(\.note), axis: .vertical)
-                    .lineLimit(2...5)
-            }
-
-            let errors = submitErrors.isEmpty ? [] : submitErrors
-            if !errors.isEmpty || showsWarnings {
-                Section {
-                    ForEach(errors, id: \.self) { SGNotice(.danger, title: $0.message) }
-                    if showsWarnings {
-                        ForEach(evaluation?.validation.warnings ?? [], id: \.self) { SGNotice(.warning, title: $0.message) }
+                if let classification = evaluation?.classification {
+                    Section {
+                        VStack(alignment: .leading, spacing: SGSpacing.xxs) {
+                            Text("자동 구분: \(classification.label)").font(SGTypography.bodyStrong)
+                            Text(classification.reason).font(SGTypography.caption)
+                            if classification.kind == "LATE_ARRIVAL" {
+                                Text("입력 시간이 4시간이어도 14:00 반일 경계와 맞지 않으면 반가로 바꾸지 않고 허가지각으로 저장해요. 누계 8시간은 연가 1일로 공제해요.")
+                                    .font(SGTypography.caption)
+                            } else if classification.kind == "HALF_DAY" && form.mode == "PARTIAL" {
+                                Text("입력 구간이 14:00 반일 경계와 정확히 맞아 반가로 저장해요.").font(SGTypography.caption)
+                            }
+                        }
+                        .foregroundStyle(.sg(SGColor.info))
+                        .accessibilityElement(children: .combine)
                     }
                 }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
-            }
 
-            if let event {
-                Section {
-                    Button("이 기록 삭제", role: .destructive) { confirmingDelete = true }
-                        .frame(maxWidth: .infinity)
-                        .confirmationDialog("이 기록을 삭제할까요?", isPresented: $confirmingDelete, titleVisibility: .visible) {
-                            Button("삭제", role: .destructive) { Task { await delete(event) } }
-                        } message: {
-                            Text("최근 삭제한 기록에서 되돌릴 수 있어요.")
+                Section("메모 (선택)") {
+                    TextField("예: 가족 행사", text: binding(\.note), axis: .vertical)
+                        .lineLimit(2...5)
+                }
+
+                let errors = submitErrors.isEmpty ? [] : submitErrors
+                if !errors.isEmpty || showsWarnings {
+                    Section {
+                        ForEach(errors, id: \.self) { SGNotice(.danger, title: $0.message) }
+                        if showsWarnings {
+                            ForEach(evaluation?.validation.warnings ?? [], id: \.self) { SGNotice(.warning, title: $0.message) }
                         }
+                    }
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
+                }
+
+                if let event {
+                    Section {
+                        Button("이 기록 삭제", role: .destructive) { confirmingDelete = true }
+                            .frame(maxWidth: .infinity)
+                            .confirmationDialog("이 기록을 삭제할까요?", isPresented: $confirmingDelete, titleVisibility: .visible) {
+                                Button("삭제", role: .destructive) { Task { await delete(event) } }
+                            } message: {
+                                Text("최근 삭제한 기록에서 되돌릴 수 있어요.")
+                            }
+                    }
                 }
             }
+            .sgListRowSurface()
         }
+        .sgGroupedChrome()
         .scrollDismissesKeyboard(.interactively)
     }
 

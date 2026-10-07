@@ -87,6 +87,29 @@ struct ContrastTests {
         }
     }
 
+    @Test("Warrior high-contrast values are at least as strong as Warrior's own", arguments: textPairs)
+    func warriorHighContrastStronger(pair: Pair) {
+        for dark in [false, true] {
+            let fg = pair.foreground, bg = pair.background
+            let normal = RGB.contrast(fg.rgb(theme: .warrior, dark: dark), bg.rgb(theme: .warrior, dark: dark))
+            let strong = RGB.contrast(
+                fg.rgb(theme: .warrior, dark: dark, highContrast: true),
+                bg.rgb(theme: .warrior, dark: dark, highContrast: true))
+            #expect(strong >= normal - 0.001, "warrior HC \(dark ? "dark" : "light") \(pair.name): \(normal) → \(strong)")
+        }
+    }
+
+    @Test("Increase Contrast changes Warrior tokens that have a high-contrast variant")
+    func warriorHighContrastApplies() {
+        for token in [SGColor.textSecondary, SGColor.textTertiary, SGColor.accent, SGColor.border, SGColor.borderStrong] {
+            for dark in [false, true] {
+                #expect(token.rgb(theme: .warrior, dark: dark, highContrast: true) != token.rgb(theme: .warrior, dark: dark))
+            }
+        }
+        // Tokens shared by both themes keep the standard high-contrast behavior.
+        #expect(SGColor.textSecondary.rgb(dark: true, highContrast: true) == SGColor.textSecondary.darkHighContrast)
+    }
+
     @Test("the standard theme resolves to the token's own values")
     func standardResolution() {
         let token = SGColor.textSecondary

@@ -67,46 +67,50 @@ struct RecordImportView: View {
 
     var body: some View {
         Form {
-            Section {
-                Button {
-                    importing = true
-                } label: {
-                    Label(result == nil ? "파일 선택 (CSV·TSV)" : "다른 파일 선택", systemImage: "doc.badge.plus")
+            Group {
+                Section {
+                    Button {
+                        importing = true
+                    } label: {
+                        Label(result == nil ? "파일 선택 (CSV·TSV)" : "다른 파일 선택", systemImage: "doc.badge.plus")
+                    }
+                } footer: {
+                    Text("기관에서 받은 복무상황 파일을 CSV나 TSV로 저장해 선택하세요. 미리보기에서 확인한 행만 저장해요. XLSX·HWP·PDF는 아직 웹 슈퍼공익에서 가져올 수 있어요.")
                 }
-            } footer: {
-                Text("기관에서 받은 복무상황 파일을 CSV나 TSV로 저장해 선택하세요. 미리보기에서 확인한 행만 저장해요. XLSX·HWP·PDF는 아직 웹 슈퍼공익에서 가져올 수 있어요.")
-            }
 
-            if let result {
-                previewSections(result)
-            }
+                if let result {
+                    previewSections(result)
+                }
 
-            if let notice {
-                Section { SGNotice(notice.0, title: notice.1) }
-                    .listRowBackground(Color.clear).listRowInsets(EdgeInsets())
-            }
+                if let notice {
+                    Section { SGNotice(notice.0, title: notice.1) }
+                        .listRowBackground(Color.clear).listRowInsets(EdgeInsets())
+                }
 
-            let history = (model.document?.imports ?? []).sorted { $0.createdAt > $1.createdAt }
-            if !history.isEmpty {
-                Section("가져오기 이력") {
-                    ForEach(history) { record in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(record.fileName).font(SGTypography.bodyStrong).lineLimit(1)
-                                Text("\(record.eventCount)건 · \(record.status == "ACTIVE" ? "반영됨" : "취소됨")")
-                                    .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
-                            }
-                            Spacer()
-                            if record.status == "ACTIVE" {
-                                Button("취소") { confirmingRollback = record }
-                                    .font(SGTypography.label)
-                                    .disabled(model.isReadOnly)
+                let history = (model.document?.imports ?? []).sorted { $0.createdAt > $1.createdAt }
+                if !history.isEmpty {
+                    Section("가져오기 이력") {
+                        ForEach(history) { record in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(record.fileName).font(SGTypography.bodyStrong).lineLimit(1)
+                                    Text("\(record.eventCount)건 · \(record.status == "ACTIVE" ? "반영됨" : "취소됨")")
+                                        .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+                                }
+                                Spacer()
+                                if record.status == "ACTIVE" {
+                                    Button("취소") { confirmingRollback = record }
+                                        .font(SGTypography.label)
+                                        .disabled(model.isReadOnly)
+                                }
                             }
                         }
                     }
                 }
             }
+            .sgListRowSurface()
         }
+        .sgGroupedChrome()
         .navigationTitle("기관 기록 가져오기")
         .navigationBarTitleDisplayMode(.inline)
         .fileImporter(isPresented: $importing,

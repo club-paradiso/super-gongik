@@ -50,6 +50,7 @@ struct PayView: View {
                 .frame(maxWidth: .infinity)
             }
             .background(.sg(SGColor.background))
+            .sgScreenChrome()
             .navigationTitle("급여")
             .task(id: TaskKey(month: month.description, revision: model.document?.documentRevision ?? 0, today: model.today)) {
                 await load()

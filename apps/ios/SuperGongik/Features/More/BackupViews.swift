@@ -101,26 +101,30 @@ struct BackupRestoreView: View {
 
     var body: some View {
         Form {
-            Section {
-                Button {
-                    importing = true
-                } label: {
-                    Label(text == nil ? "백업 파일 선택" : "다른 파일 선택", systemImage: "doc.badge.arrow.up")
+            Group {
+                Section {
+                    Button {
+                        importing = true
+                    } label: {
+                        Label(text == nil ? "백업 파일 선택" : "다른 파일 선택", systemImage: "doc.badge.arrow.up")
+                    }
+                } footer: {
+                    Text("슈퍼공익(웹 또는 앱)에서 만든 전체 백업 JSON 파일을 선택하세요. 고르기만 해서는 아무것도 바뀌지 않아요.")
                 }
-            } footer: {
-                Text("슈퍼공익(웹 또는 앱)에서 만든 전체 백업 JSON 파일을 선택하세요. 고르기만 해서는 아무것도 바뀌지 않아요.")
-            }
 
-            if let preview {
-                previewSections(preview)
-            }
+                if let preview {
+                    previewSections(preview)
+                }
 
-            if let outcome {
-                Section { SGNotice(outcome.tone, title: outcome.title, message: outcome.message) }
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
+                if let outcome {
+                    Section { SGNotice(outcome.tone, title: outcome.title, message: outcome.message) }
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                }
             }
+            .sgListRowSurface()
         }
+        .sgGroupedChrome()
         .navigationTitle("백업에서 복원")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

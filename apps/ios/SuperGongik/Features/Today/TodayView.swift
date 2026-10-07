@@ -55,6 +55,7 @@ struct TodayView: View {
                 }
             }
             .background(.sg(SGColor.background))
+            .sgScreenChrome()
             .navigationTitle(Formatters.longDate(model.today))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

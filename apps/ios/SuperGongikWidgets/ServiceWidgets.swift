@@ -10,6 +10,8 @@ import WidgetKit
 struct ServiceEntry: TimelineEntry {
     let date: Date
     let snapshot: WidgetSnapshot?
+    /// The app's theme preference (App Group defaults), read-only here.
+    var theme: SGTheme = ThemePreference.load()
 }
 
 struct ServiceTimelineProvider: TimelineProvider {
@@ -185,6 +187,7 @@ private struct WidgetBody: View {
             }
         }
         .environment(\.colorScheme, family == .systemSmall || family == .systemMedium ? .dark : .light)
+        .environment(\.sgTheme, entry.theme)
     }
 }
 

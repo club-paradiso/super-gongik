@@ -59,90 +59,94 @@ struct AttendanceEditorView: View {
 
     var body: some View {
         Form {
-            if let editor {
-                Section {
-                    LabeledContent("중식비 대상", value: editor.mealEligibleDays.map { "\(Int($0))일" } ?? "?일")
-                    LabeledContent("교통비 대상", value: editor.transportEligibleDays.map { "\(Int($0))일" } ?? "?일")
-                } footer: {
-                    Text("공휴일 달력은 앱에 넣지 않았어요. 쉬는 날을 직접 표시하고 저장해야 중식비·교통비 일수를 세요."
-                         + (editor.needsReconfirmation ? " 확인한 뒤 기록이 바뀌어 다시 저장해야 해요." : ""))
-                }
+            Group {
+                if let editor {
+                    Section {
+                        LabeledContent("중식비 대상", value: editor.mealEligibleDays.map { "\(Int($0))일" } ?? "?일")
+                        LabeledContent("교통비 대상", value: editor.transportEligibleDays.map { "\(Int($0))일" } ?? "?일")
+                    } footer: {
+                        Text("공휴일 달력은 앱에 넣지 않았어요. 쉬는 날을 직접 표시하고 저장해야 중식비·교통비 일수를 세요."
+                             + (editor.needsReconfirmation ? " 확인한 뒤 기록이 바뀌어 다시 저장해야 해요." : ""))
+                    }
 
-                Section("근무 요일 중 쉬는 날 (공휴일·기관 휴무)") {
-                    ForEach(editor.scheduled) { day in
-                        Toggle(isOn: Binding(
-                            get: { nonWorking.contains(day.date) },
-                            set: { on in
-                                if on { nonWorking.insert(day.date) } else { nonWorking.remove(day.date) }
-                                Task { await reload() }
-                            })) {
-                            dayLabel(day, editor)
+                    Section("근무 요일 중 쉬는 날 (공휴일·기관 휴무)") {
+                        ForEach(editor.scheduled) { day in
+                            Toggle(isOn: Binding(
+                                get: { nonWorking.contains(day.date) },
+                                set: { on in
+                                    if on { nonWorking.insert(day.date) } else { nonWorking.remove(day.date) }
+                                    Task { await reload() }
+                                })) {
+                                dayLabel(day, editor)
+                            }
                         }
                     }
-                }
 
-                if !editor.decisionDays.isEmpty {
-                    Section {
-                        ForEach(editor.decisionDays) { day in
-                            VStack(alignment: .leading, spacing: SGSpacing.xs) {
-                                dayLabel(day, editor)
-                                HStack {
-                                    choice("중식비", day.date, \.mealEligible)
-                                    choice("교통비", day.date, \.transportEligible)
+                    if !editor.decisionDays.isEmpty {
+                        Section {
+                            ForEach(editor.decisionDays) { day in
+                                VStack(alignment: .leading, spacing: SGSpacing.xs) {
+                                    dayLabel(day, editor)
+                                    HStack {
+                                        choice("중식비", day.date, \.mealEligible)
+                                        choice("교통비", day.date, \.transportEligible)
+                                    }
                                 }
                             }
+                        } header: {
+                            Text("중식비·교통비 지급 여부를 정할 날")
+                        } footer: {
+                            Text("휴가·외출·지각·조퇴·교육·훈련 날의 중식비·교통비 지급 여부는 법령과 병무청 지급 기준에 휴가 종류별로 정해져 있지 않아요. 복무기관 기준대로 둘 다 골라야 그날이 계산에 들어가요. 하나라도 미정이면 합계를 내지 않아요.")
                         }
-                    } header: {
-                        Text("중식비·교통비 지급 여부를 정할 날")
-                    } footer: {
-                        Text("휴가·외출·지각·조퇴·교육·훈련 날의 중식비·교통비 지급 여부는 법령과 병무청 지급 기준에 휴가 종류별로 정해져 있지 않아요. 복무기관 기준대로 둘 다 골라야 그날이 계산에 들어가요. 하나라도 미정이면 합계를 내지 않아요.")
                     }
-                }
 
-                Section {
-                    let derived = Set(editor.derivedNonPayableDates)
-                    ForEach(editor.days.filter { $0.kind != "OUTSIDE_SERVICE" }) { day in
-                        Toggle(isOn: Binding(
-                            get: { nonPayable.contains(day.date) || derived.contains(day.date) },
-                            set: { on in if on { nonPayable.insert(day.date) } else { nonPayable.remove(day.date) } })) {
-                            HStack {
-                                Text("\(day.date.month)/\(day.date.day) (\(Formatters.weekdays[day.date.weekday]))").monospacedDigit()
-                                Spacer()
-                                Text(derived.contains(day.date) ? "기록에서 자동 도출" : nonPayable.contains(day.date) ? "미지급" : "지급")
-                                    .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+                    Section {
+                        let derived = Set(editor.derivedNonPayableDates)
+                        ForEach(editor.days.filter { $0.kind != "OUTSIDE_SERVICE" }) { day in
+                            Toggle(isOn: Binding(
+                                get: { nonPayable.contains(day.date) || derived.contains(day.date) },
+                                set: { on in if on { nonPayable.insert(day.date) } else { nonPayable.remove(day.date) } })) {
+                                HStack {
+                                    Text("\(day.date.month)/\(day.date.day) (\(Formatters.weekdays[day.date.weekday]))").monospacedDigit()
+                                    Spacer()
+                                    Text(derived.contains(day.date) ? "기록에서 자동 도출" : nonPayable.contains(day.date) ? "미지급" : "지급")
+                                        .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+                                }
                             }
+                            .disabled(derived.contains(day.date))
                         }
-                        .disabled(derived.contains(day.date))
+                        Toggle("이 달의 기본 보수 미지급 날짜를 전부 확인했어요", isOn: $nonPayableConfirmed)
+                        Toggle("정확한 날짜를 아직 모르는 미지급 사유가 남아 있어요", isOn: $hadAbsence)
+                    } header: {
+                        Text("기본 보수 미지급 날짜")
+                    } footer: {
+                        Text("복무중단·복무이탈·연가 초과 결근·보수 미지급 병가처럼 기본 보수를 받지 않는 날짜만 표시하세요. 중식비·교통비 판단과는 별개예요."
+                             + (editor.derivedNonPayableDates.isEmpty ? "" : " 복무 기록에서 \(editor.derivedNonPayableDates.count)일을 자동 도출했어요. 자동 도출 날짜는 원본 복무 기록을 수정해야 바뀌어요."))
                     }
-                    Toggle("이 달의 기본 보수 미지급 날짜를 전부 확인했어요", isOn: $nonPayableConfirmed)
-                    Toggle("정확한 날짜를 아직 모르는 미지급 사유가 남아 있어요", isOn: $hadAbsence)
-                } header: {
-                    Text("기본 보수 미지급 날짜")
-                } footer: {
-                    Text("복무중단·복무이탈·연가 초과 결근·보수 미지급 병가처럼 기본 보수를 받지 않는 날짜만 표시하세요. 중식비·교통비 판단과는 별개예요."
-                         + (editor.derivedNonPayableDates.isEmpty ? "" : " 복무 기록에서 \(editor.derivedNonPayableDates.count)일을 자동 도출했어요. 자동 도출 날짜는 원본 복무 기록을 수정해야 바뀌어요."))
-                }
 
-                Section {
-                    Picker("기본 보수 끝수 처리", selection: $rounding) {
-                        Text("아직 확인하지 않음").tag("")
-                        Text("국고금 관리법 제47조 적용 확인 (10원 미만 버림)").tag("NATIONAL_TREASURY_ARTICLE_47")
-                        Text("기관에서 10원 미만 절사 적용을 직접 확인").tag("INSTITUTION_CONFIRMED_TRUNCATE_SUB_10")
-                        Text("기관이 다른 방식 사용 / 정확한 방식 미확인").tag("INSTITUTION_OTHER_OR_UNKNOWN")
+                    Section {
+                        Picker("기본 보수 끝수 처리", selection: $rounding) {
+                            Text("아직 확인하지 않음").tag("")
+                            Text("국고금 관리법 제47조 적용 확인 (10원 미만 버림)").tag("NATIONAL_TREASURY_ARTICLE_47")
+                            Text("기관에서 10원 미만 절사 적용을 직접 확인").tag("INSTITUTION_CONFIRMED_TRUNCATE_SUB_10")
+                            Text("기관이 다른 방식 사용 / 정확한 방식 미확인").tag("INSTITUTION_OTHER_OR_UNKNOWN")
+                        }
+                        .pickerStyle(.navigationLink)
+                    } footer: {
+                        Text("국가기관 이름만 보고 자동 선택하지 않아요. 지급 회계 기준을 실제로 확인한 경우에만 선택하세요.")
                     }
-                    .pickerStyle(.navigationLink)
-                } footer: {
-                    Text("국가기관 이름만 보고 자동 선택하지 않아요. 지급 회계 기준을 실제로 확인한 경우에만 선택하세요.")
-                }
 
-                if let message {
-                    Section { SGNotice(message.0, title: message.1) }
-                        .listRowBackground(Color.clear).listRowInsets(EdgeInsets())
+                    if let message {
+                        Section { SGNotice(message.0, title: message.1) }
+                            .listRowBackground(Color.clear).listRowInsets(EdgeInsets())
+                    }
+                } else {
+                    ProgressView()
                 }
-            } else {
-                ProgressView()
             }
+            .sgListRowSurface()
         }
+        .sgGroupedChrome()
         .navigationTitle("\(month.month)월 근무일 확인")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

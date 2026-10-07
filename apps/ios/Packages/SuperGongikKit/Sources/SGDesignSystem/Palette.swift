@@ -41,15 +41,21 @@ public struct SGToken: Hashable, Sendable {
     /// Warrior theme values (Stitch RPG direction). `nil` keeps the standard value.
     public let warriorLight: RGB?
     public let warriorDark: RGB?
+    /// Warrior values for Increase Contrast. Only meaningful with `warrior`.
+    public let warriorLightHighContrast: RGB?
+    public let warriorDarkHighContrast: RGB?
 
     public init(_ light: UInt32, _ dark: UInt32, highContrast: (light: UInt32, dark: UInt32)? = nil,
-                warrior: (light: UInt32, dark: UInt32)? = nil) {
+                warrior: (light: UInt32, dark: UInt32)? = nil,
+                warriorHighContrast: (light: UInt32, dark: UInt32)? = nil) {
         self.light = RGB(light)
         self.dark = RGB(dark)
         self.lightHighContrast = highContrast.map { RGB($0.light) }
         self.darkHighContrast = highContrast.map { RGB($0.dark) }
         self.warriorLight = warrior.map { RGB($0.light) }
         self.warriorDark = warrior.map { RGB($0.dark) }
+        self.warriorLightHighContrast = warriorHighContrast.map { RGB($0.light) }
+        self.warriorDarkHighContrast = warriorHighContrast.map { RGB($0.dark) }
     }
 
     public init(fixed: UInt32, alpha: Double = 1) {
@@ -59,13 +65,22 @@ public struct SGToken: Hashable, Sendable {
         darkHighContrast = nil
         warriorLight = nil
         warriorDark = nil
+        warriorLightHighContrast = nil
+        warriorDarkHighContrast = nil
     }
 
-    /// The value for one theme, appearance and contrast. A Warrior value wins
-    /// over the standard high-contrast value: Warrior values are themselves
-    /// checked against WCAG AA in `ContrastTests`.
+    /// The value for one theme, appearance and contrast. Precedence:
+    /// 1. the theme's palette (a token without Warrior values uses the
+    ///    standard ones in both themes),
+    /// 2. within that palette, the Increase Contrast variant when it exists.
+    /// So Warrior + Increase Contrast uses Warrior's own high-contrast values,
+    /// never a standard value from another palette. `ContrastTests` checks
+    /// every combination.
     public func rgb(theme: SGTheme = .standard, dark isDark: Bool, highContrast: Bool = false) -> RGB {
-        if theme == .warrior, let value = isDark ? warriorDark : warriorLight { return value }
+        if theme == .warrior, let value = isDark ? warriorDark : warriorLight {
+            if highContrast, let strong = isDark ? warriorDarkHighContrast : warriorLightHighContrast { return strong }
+            return value
+        }
         if highContrast, let value = isDark ? darkHighContrast : lightHighContrast { return value }
         return isDark ? dark : light
     }
@@ -113,16 +128,16 @@ public enum SGColor {
     public static let surface = SGToken(0xFFFFFF, 0x151A35, warrior: (0xFFFFFF, 0x13173D))
     public static let surfaceRaised = SGToken(0xFFFFFF, 0x1C2242, warrior: (0xFFFFFF, 0x1B204E))
     public static let surfaceInteractive = SGToken(0xECEEF6, 0x222A4D, warrior: (0xEEECFF, 0x282D5E))
-    public static let border = SGToken(0xDFE2EC, 0x2C3458, highContrast: (0x9AA1BA, 0x5A6390), warrior: (0xE3DFFF, 0x282D5E))
-    public static let borderStrong = SGToken(0xC5CADB, 0x3D4671, highContrast: (0x7C84A3, 0x6B75A0), warrior: (0xC9C3F0, 0x3B4178))
+    public static let border = SGToken(0xDFE2EC, 0x2C3458, highContrast: (0x9AA1BA, 0x5A6390), warrior: (0xE3DFFF, 0x282D5E), warriorHighContrast: (0x8E86C9, 0x5A60A0))
+    public static let borderStrong = SGToken(0xC5CADB, 0x3D4671, highContrast: (0x7C84A3, 0x6B75A0), warrior: (0xC9C3F0, 0x3B4178), warriorHighContrast: (0x6F68B0, 0x7077B8))
 
     // Text
     public static let textPrimary = SGToken(0x111735, 0xF3EFE6, warrior: (0x14173E, 0xFEF1D3))
-    public static let textSecondary = SGToken(0x474E6A, 0xC3C8DC, highContrast: (0x2F3552, 0xE0E3EE), warrior: (0x454651, 0xCBD5E1))
-    public static let textTertiary = SGToken(0x5C6380, 0xA0A8C6, highContrast: (0x3D4462, 0xC9CEE0), warrior: (0x5E5F6B, 0x94A3B8))
+    public static let textSecondary = SGToken(0x474E6A, 0xC3C8DC, highContrast: (0x2F3552, 0xE0E3EE), warrior: (0x454651, 0xCBD5E1), warriorHighContrast: (0x2E2F3A, 0xE2E8F0))
+    public static let textTertiary = SGToken(0x5C6380, 0xA0A8C6, highContrast: (0x3D4462, 0xC9CEE0), warrior: (0x5E5F6B, 0x94A3B8), warriorHighContrast: (0x3E3F4A, 0xCBD5E1))
 
     // Interaction
-    public static let accent = SGToken(0x2740A0, 0xA9B8FF, highContrast: (0x1A2D7C, 0xC6D0FF), warrior: (0x4F48A3, 0xFDCF7C))
+    public static let accent = SGToken(0x2740A0, 0xA9B8FF, highContrast: (0x1A2D7C, 0xC6D0FF), warrior: (0x4F48A3, 0xFDCF7C), warriorHighContrast: (0x3A338A, 0xFFE2A8))
     public static let accentSecondary = SGToken(0x4A3FA6, 0xBDB3F5, warrior: (0x000C3F, 0xC7D2FE))
     public static let accentWarm = SGToken(0x8A5200, 0xFDCF7C)
     public static let onAccent = SGToken(0xFFFFFF, 0x0A1030, warrior: (0xFFFFFF, 0x090C1C))

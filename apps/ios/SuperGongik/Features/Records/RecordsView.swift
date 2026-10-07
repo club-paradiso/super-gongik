@@ -56,6 +56,7 @@ struct RecordsView: View {
                 .frame(maxWidth: .infinity)
             }
             .background(.sg(SGColor.background))
+            .sgScreenChrome()
             .navigationTitle("기록")
             .toolbar {
                 if mode == .agenda {
