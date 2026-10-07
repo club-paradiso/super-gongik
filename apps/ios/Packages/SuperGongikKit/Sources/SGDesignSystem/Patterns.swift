@@ -84,20 +84,24 @@ public struct SGIconTile: View {
 }
 
 /// Summary card on 오늘: symbol, title, one large value, a caption, and an
-/// optional status badge. The whole card is one button.
+/// optional status badge. The whole card is one button. `eyebrow` is the
+/// Warrior theme's decorative world-language tag ("REST", "SUPPLY").
 public struct SGStatCard<Value: View>: View {
     let title: String
+    let eyebrow: String?
     let symbol: String
     let caption: String
     let badge: SGStatusBadge?
     let action: () -> Void
     let value: Value
+    @Environment(\.sgTheme) private var theme
 
     public init(
-        title: String, symbol: String, caption: String, badge: SGStatusBadge? = nil,
+        title: String, eyebrow: String? = nil, symbol: String, caption: String, badge: SGStatusBadge? = nil,
         action: @escaping () -> Void, @ViewBuilder value: () -> Value
     ) {
         self.title = title
+        self.eyebrow = eyebrow
         self.symbol = symbol
         self.caption = caption
         self.badge = badge
@@ -117,9 +121,19 @@ public struct SGStatCard<Value: View>: View {
                         .foregroundStyle(.sg(SGColor.textTertiary))
                         .accessibilityHidden(true)
                 }
-                Text(title)
-                    .font(SGTypography.label)
-                    .foregroundStyle(.sg(SGColor.textSecondary))
+                HStack(alignment: .firstTextBaseline, spacing: SGSpacing.xs) {
+                    Text(title)
+                        .font(SGTypography.label)
+                        .foregroundStyle(.sg(SGColor.textSecondary))
+                    if let eyebrow, theme.showsWorldLanguage {
+                        Text(eyebrow)
+                            .font(SGTypography.eyebrow)
+                            .tracking(0.8)
+                            .foregroundStyle(.sg(SGColor.textTertiary))
+                            .lineLimit(1)
+                            .accessibilityHidden(true)
+                    }
+                }
                 value
                 Text(caption)
                     .font(SGTypography.caption)

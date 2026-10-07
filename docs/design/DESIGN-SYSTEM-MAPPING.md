@@ -17,6 +17,23 @@
 
 Web-only variables in `SG · Color`/`SG · Layout` without iOS code syntax (`surface/hover`, `accent/hover`, `focus/ring`, `border/emphasis`, `desktop/backdrop`, `hero/final*`, `hero/focus`, `rail/width`, `tabbar/h`, `radius/pill`) stay for the web; iOS uses the system equivalents (hover/focus rings, tab bar height, `Capsule`).
 
+### Themes
+
+`SGTheme` (`Theme.swift`) is read from the environment (`\.sgTheme`, set at the app root from `@AppStorage(SGTheme.storageKey)`). Views keep writing `.sg(token)`; that now returns `SGStyle`, a `ShapeStyle` that resolves per view from theme, color scheme and Increase Contrast (`SGToken.rgb(theme:dark:highContrast:)`). A Warrior value, when present, wins over the standard and high-contrast values.
+
+| Token                                            | Warrior light                     | Warrior dark                      |
+| ------------------------------------------------ | --------------------------------- | --------------------------------- |
+| `background`                                     | `#FBF8FF`                         | `#090C1C`                         |
+| `backgroundElevated`                             | `#F3F0FD`                         | `#0C0F28`                         |
+| `surface` / `surfaceRaised`                      | `#FFFFFF` / `#FFFFFF`             | `#13173D` / `#1B204E`             |
+| `surfaceInteractive`                             | `#EEECFF`                         | `#282D5E`                         |
+| `border` / `borderStrong`                        | `#E3DFFF` / `#C9C3F0`             | `#282D5E` / `#3B4178`             |
+| `textPrimary` / `textSecondary` / `textTertiary` | `#14173E` / `#454651` / `#5E5F6B` | `#FEF1D3` / `#CBD5E1` / `#94A3B8` |
+| `accent` / `accentSecondary` / `onAccent`        | `#4F48A3` / `#000C3F` / `#FFFFFF` | `#FDCF7C` / `#C7D2FE` / `#090C1C` |
+| `selectedBackground` / `selectedBorder`          | `#E7E6FF` / `#9D97E0`             | `#1E2568` / `#FDCF7C`             |
+
+Feedback tones, event categories and hero tokens are shared by both themes. `SGHeroBackground` draws a Warrior sky (`#000C3F → #081F68 → #14173E`, violet top, gold `#FFDEA7` horizon). Stitch's light accent `#5952AD` was darkened to `#4F48A3` for AA margin.
+
 ### Color (selection)
 
 | Figma                                                                          | Swift                                                                   |
@@ -130,4 +147,4 @@ Icons in Figma are placeholders named `sf:<symbol>`; the code uses that SF Symbo
 - Status = color + SF Symbol + text. Event categories also differ by mark shape.
 - WCAG AA text contrast in light, dark and Increase Contrast, verified by `ContrastTests` (pairs added for date tile, icon tile and attention values).
 - Reduce Motion removes interpolation (`SGMotion.animation`, `SGPressableStyle`) but never hides information.
-- Decorative world-language eyebrows and icon tiles are hidden from VoiceOver; cards and rows read as one element.
+- Decorative world-language eyebrows (Warrior theme only) and icon tiles are hidden from VoiceOver; cards and rows read as one element.

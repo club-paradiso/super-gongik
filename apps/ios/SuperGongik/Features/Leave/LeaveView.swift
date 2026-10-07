@@ -134,7 +134,7 @@ private struct CreditsCard: View {
     var body: some View {
         SGCard {
             VStack(alignment: .leading, spacing: SGSpacing.sm) {
-                SGSectionHeader("연가 부여")
+                SGSectionHeader("연가 부여", eyebrow: "LEAVE LEDGER")
                 ForEach(Array(ledger.credits.enumerated()), id: \.element.id) { index, credit in
                     let shown = index < text.credits.count ? text.credits[index] : nil
                     VStack(alignment: .leading, spacing: SGSpacing.xxs) {

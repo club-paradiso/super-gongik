@@ -7,6 +7,7 @@ import SwiftUI
 struct MoreView: View {
     @Environment(AppModel.self) private var model
     @Environment(PrivacyLock.self) private var lock
+    @AppStorage(SGTheme.storageKey) private var theme: SGTheme = .standard
     @State private var showingProfile = false
     @State private var showingCloud = Self.debugOpenCloud
 
@@ -43,6 +44,25 @@ struct MoreView: View {
                             set: { value in Task { await model.editProfile(["liveProgressEnabled": .bool(value)]) } }))
                         .disabled(model.isReadOnly)
                     }
+                }
+
+                Section {
+                    Picker("화면 테마", selection: $theme) {
+                        ForEach(SGTheme.allCases) { option in
+                            VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
+                                Text(option.title)
+                                Text(option.summary)
+                                    .font(SGTypography.caption)
+                                    .foregroundStyle(.sg(SGColor.textTertiary))
+                            }
+                            .tag(option)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                } header: {
+                    Text("화면")
+                } footer: {
+                    Text("테마는 색과 분위기만 바꿔요. 숫자와 계산, 기록은 그대로예요. 이 기기에만 저장돼요.")
                 }
 
                 BackupExportView()

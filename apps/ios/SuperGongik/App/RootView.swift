@@ -77,7 +77,7 @@ private struct MainTabs: View {
 private struct LaunchView: View {
     var body: some View {
         ZStack {
-            Color.sg(SGColor.background).ignoresSafeArea()
+            Rectangle().fill(.sg(SGColor.background)).ignoresSafeArea()
             Image("BrandMark")
                 .resizable()
                 .frame(width: SGSize.brandMark, height: SGSize.brandMark)

@@ -61,5 +61,38 @@ struct ContrastTests {
     func marks(category: SGEventCategory) {
         #expect(RGB.contrast(category.mark.light, SGColor.surface.light) >= 3)
         #expect(RGB.contrast(category.mark.dark, SGColor.surface.dark) >= 3)
+        for dark in [false, true] {
+            let surface = SGColor.surface.rgb(theme: .warrior, dark: dark)
+            #expect(RGB.contrast(category.mark.rgb(theme: .warrior, dark: dark), surface) >= 3)
+        }
+    }
+
+    @Test("text pairs meet WCAG AA in the Warrior theme, light and dark", arguments: textPairs)
+    func warrior(pair: Pair) {
+        for dark in [false, true] {
+            let ratio = RGB.contrast(
+                pair.foreground.rgb(theme: .warrior, dark: dark),
+                pair.background.rgb(theme: .warrior, dark: dark))
+            #expect(ratio >= pair.minimum, "warrior \(dark ? "dark" : "light") \(pair.name): \(ratio)")
+        }
+    }
+
+    @Test("Warrior also holds with Increase Contrast on", arguments: textPairs)
+    func warriorHighContrast(pair: Pair) {
+        for dark in [false, true] {
+            let ratio = RGB.contrast(
+                pair.foreground.rgb(theme: .warrior, dark: dark, highContrast: true),
+                pair.background.rgb(theme: .warrior, dark: dark, highContrast: true))
+            #expect(ratio >= pair.minimum, "warrior HC \(dark ? "dark" : "light") \(pair.name): \(ratio)")
+        }
+    }
+
+    @Test("the standard theme resolves to the token's own values")
+    func standardResolution() {
+        let token = SGColor.textSecondary
+        #expect(token.rgb(dark: false) == token.light)
+        #expect(token.rgb(dark: true) == token.dark)
+        #expect(token.rgb(dark: false, highContrast: true) == token.lightHighContrast)
+        #expect(SGColor.background.rgb(theme: .warrior, dark: false) != SGColor.background.light)
     }
 }

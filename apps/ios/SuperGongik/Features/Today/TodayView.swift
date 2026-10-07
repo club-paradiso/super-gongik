@@ -96,6 +96,7 @@ private struct HeroCard: View {
     let pay: HomeModel.Pay
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.sgTheme) private var theme
 
     private var rowLayout: AnyLayout {
         typeSize.isAccessibilitySize
@@ -114,6 +115,15 @@ private struct HeroCard: View {
                     .foregroundStyle(.sg(SGColor.heroForeground2))
                 Spacer()
                 stateBadge
+            }
+
+            if theme.showsWorldLanguage {
+                // Warrior theme flavor only; the Korean eyebrow above carries the meaning.
+                Text(celebrates ? "FINAL QUEST" : "JOURNEY")
+                    .font(SGTypography.eyebrow)
+                    .tracking(2)
+                    .foregroundStyle(.sg(SGColor.heroAccent))
+                    .accessibilityHidden(true)
             }
 
             Text(hero.headline)
@@ -292,7 +302,7 @@ private struct LeaveStatCard: View {
     let action: () -> Void
 
     var body: some View {
-        SGStatCard(title: "남은 연가", symbol: "list.clipboard", caption: caption, action: action) {
+        SGStatCard(title: "남은 연가", eyebrow: "REST", symbol: "list.clipboard", caption: caption, action: action) {
             // Copy mirrors the web stat card (`home-tab.tsx` HomeStats).
             switch leave.kind {
             case "READY": StatValue(text: leave.remaining ?? "–", emphasis: .value)
@@ -314,7 +324,7 @@ private struct PayStatCard: View {
     let action: () -> Void
 
     var body: some View {
-        SGStatCard(title: "이번 달 급여", symbol: "wonsign.circle", caption: caption, action: action) {
+        SGStatCard(title: "이번 달 급여", eyebrow: "SUPPLY", symbol: "wonsign.circle", caption: caption, action: action) {
             switch pay.kind {
             case "TOTAL", "BASE_ONLY": StatValue(text: Formatters.won(pay.amount ?? 0), emphasis: .value)
             case "PENDING": StatValue(text: "확인 필요", emphasis: .attention)
@@ -429,7 +439,7 @@ private struct QuickActions: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SGSpacing.sm) {
-            SGSectionHeader("빠른 실행")
+            SGSectionHeader("빠른 실행", eyebrow: "COMMAND")
             layout {
                 SGQuickAction("휴가·근태 기록", symbol: "calendar.badge.plus", action: recordLeave)
                     .disabled(readOnly)

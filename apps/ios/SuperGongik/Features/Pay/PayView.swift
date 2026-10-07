@@ -182,7 +182,7 @@ private struct ComponentsCard: View {
     var body: some View {
         SGCard {
             VStack(alignment: .leading, spacing: SGSpacing.sm) {
-                SGSectionHeader("항목별")
+                SGSectionHeader("항목별", eyebrow: "SUPPLY LEDGER")
                 ForEach(components) { component in
                     VStack(alignment: .leading, spacing: SGSpacing.xxs) {
                         HStack(alignment: .firstTextBaseline) {
