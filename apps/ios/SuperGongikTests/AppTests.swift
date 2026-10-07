@@ -1,4 +1,5 @@
 import SGCore
+import SGDesignSystem
 import SGFoundation
 import UserNotifications
 import Testing
@@ -93,5 +94,34 @@ struct WidgetModelTests {
     func floored() throws {
         // 152/640 = 23.75 % → the hero and widget show 23.7 %, never 23.8 %.
         #expect(try #require(model(at: "2026-10-03T03:00:00Z")).percentText == "23.7%")
+    }
+}
+
+@Suite("Theme preference")
+struct ThemePreferenceTests {
+    private func defaults() -> UserDefaults {
+        let name = "sg.tests.\(UUID().uuidString)"
+        return UserDefaults(suiteName: name)!
+    }
+
+    @Test("nothing stored falls back to the standard theme")
+    func fallback() {
+        #expect(ThemePreference.load(from: defaults()) == .standard)
+    }
+
+    @Test("an unknown stored value falls back to the standard theme")
+    func unknownValue() {
+        let store = defaults()
+        store.set("neon", forKey: ThemePreference.key)
+        #expect(ThemePreference.load(from: store) == .standard)
+    }
+
+    @Test("the stored theme round-trips")
+    func roundTrip() {
+        let store = defaults()
+        for theme in SGTheme.allCases {
+            store.set(theme.rawValue, forKey: ThemePreference.key)
+            #expect(ThemePreference.load(from: store) == theme)
+        }
     }
 }

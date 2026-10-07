@@ -57,6 +57,9 @@ final class AppModel {
             let snapshot = try await runtime.open()
             taxonomy = try await runtime.pure("eventTaxonomy", [], as: EventTaxonomy.self)
             await publish(snapshot)
+            #if DEBUG
+            await DebugSeed.runIfRequested(self)
+            #endif
             phase = .ready
             scheduleMidnightRefresh()
             await cloud.attach(runtime)
