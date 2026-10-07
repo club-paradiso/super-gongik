@@ -125,7 +125,7 @@ struct PrivacyCoverView: View {
         ZStack {
             SGHeroBackground().ignoresSafeArea()
             VStack(spacing: SGSpacing.md) {
-                Image("BrandMark").resizable().frame(width: 72, height: 72)
+                Image("BrandMark").resizable().frame(width: SGSize.brandMark, height: SGSize.brandMark)
                     .accessibilityHidden(true)
                 Text("SUPER-GONGIK")
                     .font(SGTypography.font(17, .heavy, relativeTo: .headline))
@@ -137,7 +137,7 @@ struct PrivacyCoverView: View {
                         Label("\(lock.methodName)로 열기", systemImage: "lock.open")
                     }
                     .buttonStyle(SGPrimaryButtonStyle())
-                    .frame(maxWidth: 280)
+                    .frame(maxWidth: SGLayout.actionWidth)
                     .padding(.top, SGSpacing.lg)
                     if let error = lock.lastError {
                         Text(error).font(SGTypography.caption).foregroundStyle(.sg(SGColor.heroForeground2))

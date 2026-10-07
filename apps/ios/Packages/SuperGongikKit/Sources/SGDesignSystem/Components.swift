@@ -30,7 +30,7 @@ public struct SGPrimaryButtonStyle: ButtonStyle {
         configuration.label
             .font(SGTypography.bodyStrong)
             .foregroundStyle(.sg(SGColor.onAccent))
-            .frame(maxWidth: .infinity, minHeight: 50)
+            .frame(maxWidth: .infinity, minHeight: SGSize.primaryControl)
             .padding(.horizontal, SGSpacing.md)
             .background(.sg(SGColor.accent), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
             .opacity(isEnabled ? (configuration.isPressed ? 0.85 : 1) : 0.45)
@@ -46,7 +46,7 @@ public struct SGSecondaryButtonStyle: ButtonStyle {
         configuration.label
             .font(SGTypography.bodyStrong)
             .foregroundStyle(.sg(SGColor.accent))
-            .frame(maxWidth: .infinity, minHeight: 48)
+            .frame(maxWidth: .infinity, minHeight: SGSize.control)
             .padding(.horizontal, SGSpacing.md)
             .background(.sg(SGColor.surfaceInteractive), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
             .opacity(isEnabled ? (configuration.isPressed ? 0.8 : 1) : 0.45)
@@ -54,17 +54,22 @@ public struct SGSecondaryButtonStyle: ButtonStyle {
     }
 }
 
+/// Destructive action (delete, reset). Only after a confirmation step; the
+/// label says what is lost, never only "삭제".
 public struct SGDestructiveButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
     public init() {}
 
     public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(SGTypography.bodyStrong)
             .foregroundStyle(.sg(SGColor.danger))
-            .frame(maxWidth: .infinity, minHeight: 48)
+            .frame(maxWidth: .infinity, minHeight: SGSize.control)
+            .padding(.horizontal, SGSpacing.md)
             .background(.sg(SGColor.dangerBackground), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous).strokeBorder(.sg(SGColor.dangerBorder)))
-            .opacity(configuration.isPressed ? 0.8 : 1)
+            .opacity(isEnabled ? (configuration.isPressed ? 0.8 : 1) : 0.45)
+            .contentShape(Rectangle())
     }
 }
 
@@ -198,20 +203,34 @@ public struct SGHeroBackground: View {
 }
 
 /// Section header used above grouped content.
+///
+/// `eyebrow` is the optional world-language tag from the Stitch direction
+/// ("AGENDA", "SUPPLY"). It is flavor, not information: it sits after the
+/// Korean title, is smaller and quieter, and VoiceOver skips it.
 public struct SGSectionHeader: View {
     let title: String
     let detail: String?
+    let eyebrow: String?
 
-    public init(_ title: String, detail: String? = nil) {
+    public init(_ title: String, detail: String? = nil, eyebrow: String? = nil) {
         self.title = title
         self.detail = detail
+        self.eyebrow = eyebrow
     }
 
     public var body: some View {
-        HStack(alignment: .firstTextBaseline) {
+        HStack(alignment: .firstTextBaseline, spacing: SGSpacing.xs) {
             Text(title).font(SGTypography.cardTitle).foregroundStyle(.sg(SGColor.textPrimary))
                 .accessibilityAddTraits(.isHeader)
-            Spacer()
+            if let eyebrow {
+                Text(eyebrow)
+                    .font(SGTypography.eyebrow)
+                    .tracking(0.8)
+                    .foregroundStyle(.sg(SGColor.textTertiary))
+                    .lineLimit(1)
+                    .accessibilityHidden(true)
+            }
+            Spacer(minLength: SGSpacing.xs)
             if let detail {
                 Text(detail).font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
             }

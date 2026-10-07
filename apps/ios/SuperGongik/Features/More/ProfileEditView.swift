@@ -290,7 +290,7 @@ private struct WeekdayPicker: View {
                 } label: {
                     Text(Formatters.weekdays[day])
                         .font(SGTypography.label)
-                        .frame(maxWidth: .infinity, minHeight: 40)
+                        .frame(maxWidth: .infinity, minHeight: SGSpacing.minimumHitTarget)
                         .foregroundStyle(.sg(on ? SGColor.onAccent : SGColor.textSecondary))
                         .background(.sg(on ? SGColor.accent : SGColor.surfaceInteractive),
                                     in: RoundedRectangle(cornerRadius: SGRadius.small, style: .continuous))
@@ -300,6 +300,6 @@ private struct WeekdayPicker: View {
                 .accessibilityAddTraits(on ? .isSelected : [])
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, SGSpacing.xxs)
     }
 }

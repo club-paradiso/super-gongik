@@ -31,6 +31,11 @@ struct ContrastTests {
         Pair(name: "hero fg2 on hero", foreground: SGColor.heroForeground2, background: SGColor.heroBackground, minimum: 4.5),
         Pair(name: "hero fg3 on hero", foreground: SGColor.heroForeground3, background: SGColor.heroBackground, minimum: 4.5),
         Pair(name: "hero accent on hero", foreground: SGColor.heroAccent, background: SGColor.heroBackground, minimum: 4.5),
+        // Patterns.swift: date tile, icon tile, stat card attention value.
+        Pair(name: "tertiary on interactive", foreground: SGColor.textTertiary, background: SGColor.surfaceInteractive, minimum: 4.5),
+        Pair(name: "primary on interactive", foreground: SGColor.textPrimary, background: SGColor.surfaceInteractive, minimum: 4.5),
+        Pair(name: "accent on selected", foreground: SGColor.accent, background: SGColor.selectedBackground, minimum: 4.5),
+        Pair(name: "warning on surface", foreground: SGColor.warning, background: SGColor.surface, minimum: 4.5),
     ] + SGEventCategory.allCases.map {
         Pair(name: "\($0.rawValue) chip text", foreground: $0.chipForeground, background: $0.chipBackground, minimum: 4.5)
     }

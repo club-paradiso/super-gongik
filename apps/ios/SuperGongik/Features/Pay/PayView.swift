@@ -41,12 +41,12 @@ struct PayView: View {
                             .font(SGTypography.caption)
                             .foregroundStyle(.sg(SGColor.textTertiary))
                     } else {
-                        ProgressView().frame(maxWidth: .infinity).padding(.top, 80)
+                        SGLoadingState()
                     }
                 }
                 .padding(.horizontal, SGSpacing.gutter)
                 .padding(.bottom, SGSpacing.xxl)
-                .frame(maxWidth: 720)
+                .frame(maxWidth: SGLayout.readableWidth)
                 .frame(maxWidth: .infinity)
             }
             .background(.sg(SGColor.background))
@@ -79,12 +79,12 @@ struct PayView: View {
 
     private var monthSwitcher: some View {
         HStack {
-            Button { shift(-1) } label: { Image(systemName: "chevron.left").frame(width: 44, height: 44) }
+            Button { shift(-1) } label: { Image(systemName: "chevron.left").frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget) }
                 .accessibilityLabel("이전 달")
             Spacer()
             Text(Formatters.month(month)).font(SGTypography.title3).monospacedDigit()
             Spacer()
-            Button { shift(1) } label: { Image(systemName: "chevron.right").frame(width: 44, height: 44) }
+            Button { shift(1) } label: { Image(systemName: "chevron.right").frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget) }
                 .accessibilityLabel("다음 달")
         }
     }
@@ -245,7 +245,7 @@ private struct PayBandsCard: View {
                                         Text("지금")
                                             .font(SGTypography.micro)
                                             .foregroundStyle(.sg(SGColor.onAccent))
-                                            .padding(.horizontal, 6).padding(.vertical, 2)
+                                            .padding(.horizontal, SGSpacing.iconGap).padding(.vertical, SGSpacing.xxxs)
                                             .background(.sg(SGColor.accent), in: Capsule())
                                     }
                                 }

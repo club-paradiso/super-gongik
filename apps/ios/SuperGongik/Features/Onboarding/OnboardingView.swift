@@ -31,7 +31,7 @@ struct OnboardingView: View {
             }
             .padding(.horizontal, SGSpacing.gutter)
             .padding(.bottom, SGSpacing.xxl)
-            .frame(maxWidth: 560)
+            .frame(maxWidth: SGLayout.focusedWidth)
             .frame(maxWidth: .infinity)
         }
         .background(.sg(SGColor.background))

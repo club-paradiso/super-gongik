@@ -52,7 +52,7 @@ struct RecordsView: View {
                 }
                 .padding(.horizontal, SGSpacing.gutter)
                 .padding(.bottom, SGSpacing.xxl)
-                .frame(maxWidth: 720)
+                .frame(maxWidth: SGLayout.readableWidth)
                 .frame(maxWidth: .infinity)
             }
             .background(.sg(SGColor.background))
@@ -152,12 +152,12 @@ private struct MonthCalendar: View {
         SGCard(padding: SGSpacing.sm) {
             VStack(spacing: SGSpacing.xs) {
                 HStack {
-                    Button { shift(-1) } label: { Image(systemName: "chevron.left").frame(width: 44, height: 44) }
+                    Button { shift(-1) } label: { Image(systemName: "chevron.left").frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget) }
                         .accessibilityLabel("이전 달")
                     Spacer()
                     Text(Formatters.month(month)).font(SGTypography.cardTitle).monospacedDigit()
                     Spacer()
-                    Button { shift(1) } label: { Image(systemName: "chevron.right").frame(width: 44, height: 44) }
+                    Button { shift(1) } label: { Image(systemName: "chevron.right").frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget) }
                         .accessibilityLabel("다음 달")
                 }
                 .overlay(alignment: .trailing) {
@@ -189,7 +189,7 @@ private struct MonthCalendar: View {
                                 .onTapGesture { selected = date }
                                 .accessibilityAddTraits(date == selected ? [.isButton, .isSelected] : .isButton)
                         } else {
-                            Color.clear.frame(height: 52)
+                            Color.clear.frame(height: SGSize.rowMinHeight)
                         }
                     }
                 }
@@ -242,7 +242,7 @@ private struct DayCell: View {
             }
             .frame(height: 6)
         }
-        .frame(maxWidth: .infinity, minHeight: 52)
+        .frame(maxWidth: .infinity, minHeight: SGSize.rowMinHeight)
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Formatters.longDate(date) + (isToday ? ", 오늘" : ""))
@@ -314,7 +314,7 @@ struct EventRow: View {
             Image(systemName: "chevron.right").font(.caption).foregroundStyle(.sg(SGColor.textTertiary))
                 .accessibilityHidden(true)
         }
-        .frame(minHeight: 52)
+        .frame(minHeight: SGSize.rowMinHeight)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
     }
@@ -350,8 +350,8 @@ private struct AgendaList: View {
                         Text("\(event.startDate.month).\(event.startDate.day)")
                             .font(SGTypography.label).monospacedDigit()
                             .foregroundStyle(.sg(SGColor.textSecondary))
-                            .frame(width: 44, alignment: .leading)
-                            .padding(.top, 16)
+                            .frame(width: SGSize.dateTile, alignment: .leading)
+                            .padding(.top, SGSpacing.md)
                         Button { onOpen(event) } label: { EventRow(event: event, display: display(event)) }
                             .buttonStyle(.plain)
                     }
@@ -416,7 +416,7 @@ private struct UndoBar: View {
         }
         .foregroundStyle(.sg(SGColor.heroForeground))
         .padding(.horizontal, SGSpacing.md)
-        .frame(minHeight: 52)
+        .frame(minHeight: SGSize.rowMinHeight)
         .background(.sg(SGColor.heroBackground), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
         .sgShadow(.raised)
     }

@@ -80,7 +80,7 @@ private struct LaunchView: View {
             Color.sg(SGColor.background).ignoresSafeArea()
             Image("BrandMark")
                 .resizable()
-                .frame(width: 72, height: 72)
+                .frame(width: SGSize.brandMark, height: SGSize.brandMark)
                 .accessibilityLabel("슈퍼공익")
         }
     }

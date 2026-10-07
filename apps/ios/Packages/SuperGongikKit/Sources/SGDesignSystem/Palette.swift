@@ -135,6 +135,8 @@ public enum SGColor {
     public static let heroAccentStrong = SGToken(fixed: 0xFDA870)
     public static let heroTrack = SGToken(fixed: 0xD3D8EF, alpha: 0.18)
     public static let heroLine = SGToken(fixed: 0xD3D8EF, alpha: 0.16)
+    /// Hairline that lifts the hero edge off a dark canvas.
+    public static let heroBorder = SGToken(fixed: 0xFFFFFF, alpha: 0.08)
 }
 
 public extension ShapeStyle where Self == Color {

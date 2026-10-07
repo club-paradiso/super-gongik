@@ -33,10 +33,10 @@ struct LeaveView: View {
                     }
                     .padding(.horizontal, SGSpacing.gutter)
                     .padding(.bottom, SGSpacing.xxl)
-                    .frame(maxWidth: 720)
+                    .frame(maxWidth: SGLayout.readableWidth)
                     .frame(maxWidth: .infinity)
                 } else {
-                    ProgressView().padding(.top, 120)
+                    SGLoadingState()
                 }
             }
             .background(.sg(SGColor.background))
