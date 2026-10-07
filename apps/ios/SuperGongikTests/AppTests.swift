@@ -124,4 +124,23 @@ struct ThemePreferenceTests {
             #expect(ThemePreference.load(from: store) == theme)
         }
     }
+
+    /// Regression (PR #56 post-merge review): every `@AppStorage` reader must
+    /// get the same defaults object, or a write from 더보기 may not invalidate
+    /// the app root's theme until relaunch.
+    @Test("the shared store is one instance for the process")
+    func storeIdentity() {
+        #expect(ThemePreference.store === ThemePreference.store)
+    }
+
+    @Test("a write through the shared store is what the widget path loads")
+    func sharedStoreRoundTrip() {
+        let store = ThemePreference.store
+        let previous = store.object(forKey: ThemePreference.key)
+        defer { store.set(previous, forKey: ThemePreference.key) }
+        for theme in [SGTheme.warrior, .standard] {
+            store.set(theme.rawValue, forKey: ThemePreference.key)
+            #expect(ThemePreference.load() == theme)
+        }
+    }
 }
