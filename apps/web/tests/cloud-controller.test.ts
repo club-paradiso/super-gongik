@@ -9,8 +9,10 @@ import {
   createServiceEvent,
   createUserDataRepository,
   createUserDataStore,
+  syncStateKey,
   type MemorySyncServer,
   type ServiceEventDraft,
+  type SyncTransport,
   type UserData,
 } from "@super-gongik/domain";
 
@@ -56,8 +58,15 @@ const leave = (date: string): ServiceEventDraft => ({
 });
 
 /** A fake auth provider over the in-memory server: accepts code "123456". */
-function fakeAuth(server: MemorySyncServer, users: Record<string, string>) {
-  let session: CloudSession | null = null;
+function fakeAuth(
+  server: MemorySyncServer,
+  users: Record<string, string>,
+  options: {
+    initialSession?: CloudSession | null;
+    wrapTransport?: (transport: SyncTransport) => SyncTransport;
+  } = {},
+) {
+  let session: CloudSession | null = options.initialSession ?? null;
   const listeners = new Set<(session: CloudSession | null) => void>();
   const calls: string[] = [];
   const auth: CloudAuth = {
@@ -84,7 +93,10 @@ function fakeAuth(server: MemorySyncServer, users: Record<string, string>) {
       session = null;
     },
     // Pinned to the user it was created for, like the Supabase transport.
-    transport: (userId) => server.transport(userId),
+    transport: (userId) =>
+      (options.wrapTransport ?? ((transport) => transport))(
+        server.transport(userId),
+      ),
   };
   /** Another tab changed the shared session (Supabase broadcasts it). */
   const switchTo = (email: string) => {
@@ -100,6 +112,10 @@ function setup(
     configured?: boolean;
     storedSession?: boolean;
     seedData?: UserData;
+    initialSession?: CloudSession | null;
+    wrapTransport?: (transport: SyncTransport) => SyncTransport;
+    /** How many times loading the auth SDK fails before it succeeds. */
+    failedLoads?: number;
   } = {},
 ) {
   const server = options.server ?? createMemorySyncServer();
@@ -117,17 +133,29 @@ function setup(
     }),
     createId,
   });
-  const { auth, calls, switchTo } = fakeAuth(server, {
-    "a@example.test": "user-a",
-    "b@example.test": "user-b",
-  });
+  const { auth, calls, switchTo } = fakeAuth(
+    server,
+    {
+      "a@example.test": "user-a",
+      "b@example.test": "user-b",
+    },
+    {
+      initialSession: options.initialSession,
+      wrapTransport: options.wrapTransport,
+    },
+  );
   let loads = 0;
+  let failedLoads = options.failedLoads ?? 0;
   const timers: Array<() => void> = [];
   const controller = createCloudController({
     configured: options.configured ?? true,
     hasStoredSession: () => options.storedSession ?? false,
     loadAuth: async () => {
       loads += 1;
+      if (failedLoads > 0) {
+        failedLoads -= 1;
+        throw new Error("ChunkLoadError");
+      }
       return auth;
     },
     store,
@@ -443,5 +471,152 @@ describe("cloud configuration", () => {
         }),
       ).toThrow(/secret\/service-role/);
     }
+  });
+});
+
+/** Holds the next `push` until released, to act while a sync run is in flight. */
+function holdPush() {
+  let armed = false;
+  let entered!: () => void;
+  let release!: () => void;
+  const reached = new Promise<void>((resolve) => (entered = resolve));
+  const released = new Promise<void>((resolve) => (release = resolve));
+  const wrap = (transport: SyncTransport): SyncTransport => ({
+    ...transport,
+    push: async (request) => {
+      if (armed) {
+        armed = false;
+        entered();
+        await released;
+      }
+      return transport.push(request);
+    },
+  });
+  return {
+    wrap,
+    arm: () => (armed = true),
+    reached,
+    release: () => release(),
+  };
+}
+
+describe("local wipe, account isolation and SDK loading", () => {
+  const tick = () => new Promise((resolve) => setTimeout(resolve, 10));
+
+  it("wiping local data while a sync run is in flight leaves sync off with no checkpoint", async () => {
+    const hold = holdPush();
+    const env = setup({
+      seedData: seed("profile-1"),
+      wrapTransport: hold.wrap,
+    });
+    await env.store.load();
+    await env.controller.sendCode("a@example.test");
+    await env.controller.verifyCode("123456");
+    await env.controller.enable(await env.controller.previewEnable());
+    expect(await env.storage.getItem(syncStateKey("user-a"))).not.toBeNull();
+
+    // A run has merged and is now pushing a local edit.
+    await env.store.run((data, ctx) =>
+      createServiceEvent(data, leave("2026-09-04"), ctx),
+    );
+    hold.arm();
+    const running = env.controller.syncNow();
+    await hold.reached;
+
+    // The user confirms "delete everything on this device" meanwhile.
+    expect((await env.store.wipeAll()).ok).toBe(true);
+    const wiped = env.controller.afterLocalWipe();
+    hold.release();
+    await running.catch(() => undefined);
+    await wiped;
+
+    expect(env.controller.getState().sync?.phase).toBe("DISABLED");
+    // The in-flight run's checkpoint did not come back.
+    expect(await env.storage.getItem(syncStateKey("user-a"))).toBeNull();
+    const snapshot = env.store.getSnapshot();
+    expect(snapshot.phase === "READY" && snapshot.data.profile).toBeNull();
+    // A scheduled run afterwards neither downloads nor uploads.
+    for (const timer of env.timers.splice(0)) timer();
+    await tick();
+    expect(env.controller.getState().sync?.phase).toBe("DISABLED");
+    const after = env.store.getSnapshot();
+    expect(after.phase === "READY" && after.data.events).toEqual([]);
+  });
+
+  it("an account switch keeps each account's checkpoint apart and never acts as the previous account", async () => {
+    const env = setup({ seedData: seed("profile-1") });
+    await env.store.load();
+    await env.controller.sendCode("a@example.test");
+    await env.controller.verifyCode("123456");
+    await env.controller.enable(await env.controller.previewEnable());
+    const checkpointA = await env.storage.getItem(syncStateKey("user-a"));
+    expect(checkpointA).not.toBeNull();
+    const rowsA = env.server.rows("user-a");
+    const callsBefore = env.server.calls.length;
+
+    env.switchTo("b@example.test");
+    await tick();
+    // B starts from its own (absent) checkpoint, not A's cursor and shadow.
+    expect(env.controller.getState()).toMatchObject({
+      userId: "user-b",
+      sync: { phase: "DISABLED" },
+    });
+    expect(await env.storage.getItem(syncStateKey("user-b"))).toBeNull();
+    expect(await env.storage.getItem(syncStateKey("user-a"))).toBe(checkpointA);
+    // Local edits and scheduled runs under B neither reach A nor B (B has
+    // not turned sync on).
+    await env.store.run((data, ctx) =>
+      createServiceEvent(data, leave("2026-09-05"), ctx),
+    );
+    for (const timer of env.timers.splice(0)) timer();
+    await tick();
+    expect(env.server.calls.slice(callsBefore)).toEqual([]);
+    expect(env.server.rows("user-a")).toEqual(rowsA);
+    expect(env.server.rows("user-b")).toEqual([]);
+
+    // Back to A: A resumes from its own checkpoint and pushes only as A.
+    env.switchTo("a@example.test");
+    await tick();
+    expect(env.controller.getState()).toMatchObject({
+      userId: "user-a",
+      sync: { phase: "IDLE" },
+    });
+    await env.controller.syncNow();
+    expect(
+      env.server.calls
+        .slice(callsBefore)
+        .every((call) => call.user === "user-a"),
+    ).toBe(true);
+    expect(env.server.rows("user-b")).toEqual([]);
+  });
+
+  it("a failed SDK load is retried by the next action instead of failing until reload", async () => {
+    const env = setup({ seedData: seed("profile-1"), failedLoads: 1 });
+    await env.store.load();
+    await env.controller.start();
+    expect(await env.controller.sendCode("a@example.test")).toBe(false);
+    expect(env.controller.getState().authError).toBe("UNKNOWN");
+    expect(await env.controller.sendCode("a@example.test")).toBe(true);
+    expect(env.controller.getState().phase).toBe("CODE_SENT");
+    expect(env.loads()).toBe(2);
+  });
+
+  it("a stored session that could not be resumed at start resumes once back online", async () => {
+    const env = setup({
+      seedData: seed("profile-1"),
+      storedSession: true,
+      initialSession: { userId: "user-a", email: "a@example.test" },
+      failedLoads: 1,
+    });
+    await env.store.load();
+    await env.controller.start();
+    expect(env.controller.getState().phase).toBe("GUEST");
+    env.controller.notifyOnline();
+    await tick();
+    expect(env.controller.getState()).toMatchObject({
+      phase: "SIGNED_IN",
+      userId: "user-a",
+    });
+    expect(env.loads()).toBe(2);
   });
 });

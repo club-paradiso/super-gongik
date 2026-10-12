@@ -13910,6 +13910,9 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					}
 				});
 				return loaded;
+			}, (error) => {
+				authLoading = null;
+				throw error;
 			});
 			return authLoading;
 		}
@@ -13997,6 +14000,18 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			if (!engine || engine.sessionId !== expectedSession || state.accountSession !== expectedSession) return null;
 			return engine;
 		}
+		/** Called once on app start. Guests: no SDK load, no network. */
+		async function start() {
+			if (started) return;
+			started = true;
+			if (!options.configured || !options.hasStoredSession()) return;
+			set({ phase: "LOADING" });
+			const loaded = await guard(ensureAuth);
+			if (!loaded) started = false;
+			const session = loaded ? await guard(() => loaded.getSession()) : null;
+			if (session) await attach(session);
+			else if (state.phase === "LOADING") set({ phase: "GUEST" });
+		}
 		return {
 			getState: () => state,
 			subscribe(listener) {
@@ -14005,17 +14020,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					listeners.delete(listener);
 				};
 			},
-			/** Called once on app start. Guests: no SDK load, no network. */
-			async start() {
-				if (started) return;
-				started = true;
-				if (!options.configured || !options.hasStoredSession()) return;
-				set({ phase: "LOADING" });
-				const loaded = await guard(ensureAuth);
-				const session = loaded ? await guard(() => loaded.getSession()) : null;
-				if (session) await attach(session);
-				else if (state.phase === "LOADING") set({ phase: "GUEST" });
-			},
+			start,
 			async sendCode(email) {
 				set({ authError: null });
 				const loaded = await guard(ensureAuth);
@@ -14109,9 +14114,14 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				await current.deleteBackup(id);
 				return { kind: "DELETED" };
 			},
-			/** Connectivity regained (a hint; the next request decides). */
+			/**
+			* Connectivity regained (a hint; the next request decides). If the
+			* stored session could not be resumed at start because the SDK failed
+			* to load, try again now.
+			*/
 			notifyOnline() {
-				scheduler?.soon("online");
+				if (scheduler) scheduler.soon("online");
+				else if (!started && state.phase === "GUEST") start();
 			},
 			/** App came to the foreground; throttled. */
 			notifyForeground() {
@@ -14129,11 +14139,18 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				scheduler.soon("restore");
 			},
 			/**
-			* Local data was deleted on this device. The checkpoint went with it,
-			* so sync is off here until the user turns it on again.
+			* Local data was deleted on this device: sync is off here until the
+			* user turns it on again. The wipe removed the checkpoint, but a run in
+			* flight still holds it in memory and would save it again (cursor and
+			* shadow covering every cloud record, over an empty document). So turn
+			* sync off through the engine queue, after that run, which clears the
+			* checkpoint for good.
 			*/
 			async afterLocalWipe() {
-				if (engine) set({ sync: await engine.init() });
+				const current = engine;
+				if (!current) return;
+				await current.disable().catch(() => void 0);
+				if (engine === current) set({ sync: current.getStatus() });
 			}
 		};
 	}

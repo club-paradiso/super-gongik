@@ -296,11 +296,18 @@ PostgREST → PostgreSQL with RLS).
 
 ## 12. Data deletion — three separate actions
 
-| action                       | effect                                                                                                                                |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| 로그아웃 (sign out)          | stops syncing on this device; keeps all local records and the checkpoint                                                              |
-| 클라우드 데이터 삭제         | deletes synced records and cloud backups of the account (typed confirmation); bumps the generation; no device's local data is touched |
-| 이 기기의 모든 데이터 지우기 | deletes this device's records and recovery copies (and its sync checkpoint, so sync is off here); cloud data and sign-in stay         |
+| action                       | effect                                                                                                                                                           |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 로그아웃 (sign out)          | stops syncing on this device; keeps all local records and the checkpoint                                                                                         |
+| 클라우드 데이터 삭제         | deletes synced records and cloud backups of the account (typed confirmation); bumps the generation; no device's local data is touched                            |
+| 이 기기의 모든 데이터 지우기 | deletes this device's records and recovery copies (and its sync checkpoint, so sync is off here); cloud data and sign-in stay                                    |
+| 계정 삭제 (iOS only)         | deletes the Supabase user through the `delete-account` Edge Function (cascades all cloud rows and backups); forgets this device's checkpoint; local records stay |
+
+Deleting local data while a sync run is in flight: the run still holds the
+checkpoint in memory and would save it again over the empty document. The
+controller therefore turns sync off through the engine queue
+(`afterLocalWipe` → `engine.disable()`), after that run, which clears the
+checkpoint for good (`apps/web/tests/cloud-controller.test.ts`).
 
 ## 13. Configuration and tests
 
@@ -370,8 +377,11 @@ Tests:
 - multi-user shared service profiles
 - collaborative editing
 - end-to-end encryption
-- iOS/Android native wrapper
+- Android native wrapper (iOS exists: `apps/ios`, see `docs/ios`)
 - background (push-triggered) native sync
 - cross-account record sharing
-- account deletion from inside the app (deleting the Supabase user cascades
-  all of its cloud rows)
+- account deletion from inside the **web** app. iOS has it through the
+  `delete-account` Edge Function (`docs/ios/AUTH.md`). The function has no
+  CORS / `OPTIONS` handling, so a browser call would fail preflight until web
+  deletion is added together with an origin allowlist. Deleting the Supabase
+  user cascades all of its cloud rows.

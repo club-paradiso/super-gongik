@@ -103,6 +103,12 @@ public actor SupabaseAuth {
     let store: SessionStoring
     private var cached: StoredSession?
     private var refreshing: Task<StoredSession?, Never>?
+    /// Bumped whenever the stored session is replaced or removed (sign-in,
+    /// sign-out, deletion). A refresh that started under an older value
+    /// must not apply its result: actor reentrancy lets those run while the
+    /// refresh request is in flight.
+    private var generation = 0
+    private var sessionEnded: (@Sendable () async -> Void)?
     private let now: @Sendable () -> Date
 
     public init(config: SupabaseConfig, http: HTTPPerforming = URLSessionHTTP(),
@@ -153,8 +159,33 @@ public actor SupabaseAuth {
     }
 
     private func adopt(_ session: StoredSession) {
+        generation += 1
+        refreshing = nil
         cached = session
         store.save(session)
+    }
+
+    private func forget() {
+        generation += 1
+        refreshing = nil
+        cached = nil
+        store.delete()
+    }
+
+    /// Called (outside the actor, without waiting) when the server rejected
+    /// the refresh token and the session ended here. The web gets the same
+    /// signal from supabase-js as `SIGNED_OUT`.
+    public func onSessionEnded(_ handler: @escaping @Sendable () async -> Void) {
+        sessionEnded = handler
+    }
+
+    /// Refresh responses that mean the refresh token itself is no longer
+    /// valid (GoTrue: refresh_token_not_found, refresh_token_already_used,
+    /// session_not_found, ...). Anything else — no response, 408, 429, 5xx,
+    /// an unreadable body — is transient and keeps the session, as
+    /// supabase-js keeps it for retryable errors.
+    static func refreshRejected(status: Int) -> Bool {
+        status == 400 || status == 401 || status == 403
     }
 
     // MARK: Email one-time code
@@ -177,7 +208,8 @@ public actor SupabaseAuth {
 
     /// The stored session, refreshed when it expires within a minute. A
     /// refresh that the server rejects ends the session (signed out locally);
-    /// one that fails for lack of network keeps it for a later attempt.
+    /// one that fails for lack of network or a server error keeps it for a
+    /// later attempt.
     public func currentSession() async -> StoredSession? {
         guard let session = cached else { return nil }
         if session.expiresAt - now().timeIntervalSince1970 > 60 { return session }
@@ -185,32 +217,42 @@ public actor SupabaseAuth {
         let task = Task { await self.refresh(session) }
         refreshing = task
         let result = await task.value
-        refreshing = nil
+        if refreshing == task { refreshing = nil }
         return result
     }
 
     private func refresh(_ session: StoredSession) async -> StoredSession? {
+        let started = generation
         let (status, body) = await http.perform(request(
             "auth/v1/token", query: [URLQueryItem(name: "grant_type", value: "refresh_token")],
             body: ["refresh_token": session.refreshToken]))
-        if status == 0 { return session } // offline: the transport will report NETWORK
-        guard (200..<300).contains(status), let next = Self.session(from: body, now: now()) else {
-            cached = nil
-            store.delete()
-            return nil
+        // Signed out, signed in again or switched while the request was in
+        // flight: the answer belongs to a session that is no longer current.
+        // Neither restore it nor delete its successor.
+        guard generation == started, cached?.refreshToken == session.refreshToken else { return cached }
+        if (200..<300).contains(status), let next = Self.session(from: body, now: now()) {
+            adopt(next)
+            return next
         }
-        adopt(next)
-        return next
+        guard Self.refreshRejected(status: status) else {
+            return session // transient: the transport will report NETWORK / a retry
+        }
+        forget()
+        if let sessionEnded { Task { await sessionEnded() } }
+        return nil
     }
 
     /// Local sign-out (web: `signOut({ scope: "local" })`): this device only.
     public func signOut() async {
-        if let session = cached {
-            _ = await http.perform(request("auth/v1/logout", query: [URLQueryItem(name: "scope", value: "local")],
-                                           body: [:], bearer: session.accessToken))
+        guard let session = cached else {
+            forget()
+            return
         }
-        cached = nil
-        store.delete()
+        // Forget first: a refresh in flight must not bring the session back,
+        // and a sign-in during the logout request must not be removed by it.
+        forget()
+        _ = await http.perform(request("auth/v1/logout", query: [URLQueryItem(name: "scope", value: "local")],
+                                       body: [:], bearer: session.accessToken))
     }
 
     /// In-app account deletion through the `delete-account` Edge Function
@@ -220,8 +262,9 @@ public actor SupabaseAuth {
         guard let session = await currentSession() else { return false }
         let (status, _) = await http.perform(request("functions/v1/delete-account", body: [:], bearer: session.accessToken))
         guard status == 200 else { return false }
-        cached = nil
-        store.delete()
+        // Only the deleted account's session; a sign-in that landed during
+        // the request stays.
+        if cached?.userId == session.userId { forget() }
         return true
     }
 
@@ -241,7 +284,11 @@ public actor SupabaseAuth {
     }
 
     /// `/auth/v1/authorize` for a provider id (`google`, `kakao`,
-    /// `custom:naver`), with the same scopes the web requests.
+    /// `custom:naver`), with the same scopes the web requests. Kakao gets the
+    /// web's `scope` query parameter (social-auth.ts `queryParams`): GoTrue
+    /// forwards it to Kakao and it replaces the default scopes, which include
+    /// account_email that a non-Biz Kakao app may not request. GoTrue's own
+    /// `scopes` parameter would only append to those defaults.
     public nonisolated func authorizeURL(provider: String, redirectTo: String, pkce: PKCE) -> URL {
         var components = URLComponents(url: config.url.appendingPathComponent("auth/v1/authorize"), resolvingAgainstBaseURL: false)!
         var items = [
@@ -250,7 +297,7 @@ public actor SupabaseAuth {
             URLQueryItem(name: "code_challenge", value: pkce.challenge),
             URLQueryItem(name: "code_challenge_method", value: "s256"),
         ]
-        if provider == "kakao" { items.append(URLQueryItem(name: "scopes", value: "profile_nickname profile_image")) }
+        if provider == "kakao" { items.append(URLQueryItem(name: "scope", value: "profile_nickname profile_image")) }
         components.queryItems = items
         return components.url!
     }

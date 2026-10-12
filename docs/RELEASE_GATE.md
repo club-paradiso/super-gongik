@@ -110,8 +110,28 @@ physical device:
 - the visual chrome of the native iOS date picker
 - Safari browser bars and hardware safe-area appearance on a physical iPhone
 - installed home-screen PWA background/resume behavior on iOS
+- real OAuth round trips (Google, Kakao, NAVER) on the web and in
+  `ASWebAuthenticationSession`, including the Kakao consent screen asking
+  only for nickname and profile image (no `account_email`, KOE205)
+- Sign in with Apple (needs the paid Apple Developer Program)
+- an iOS token refresh against a hosted GoTrue (expiry → refresh → rotated
+  refresh token stored in the Keychain), and a revoked refresh token moving
+  the cloud screen to the signed-out state
+- the `delete-account` Edge Function deployed on the hosted project, run
+  with a disposable test account (cascade of `sync_accounts`, records and
+  backups; never with a production user)
 
 These are narrow operational smoke checks, not full regression passes.
+
+The automated side of those flows is covered without a hosted project:
+`SupabaseAuthTests` (refresh status handling, refresh vs sign-out / sign-in
+races, Kakao `scope`), `apps/web/tests/cloud-controller.test.ts` (account
+switch isolation, wipe during a run, SDK load retry),
+`packages/native-core/tests/cloud.test.ts` (session loss, checkpoint removal
+on account deletion), `packages/domain/tests/sync-engine.test.ts`
+(multi-device conflicts, stale devices after a reset) and
+`supabase/tests/database/cloud_sync.test.sql` (RLS isolation, reset
+generations, auth-user cascade).
 
 ## Issue #29
 

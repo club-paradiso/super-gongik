@@ -130,24 +130,32 @@ export function createCloudController(options: CloudControllerOptions) {
   }
 
   function ensureAuth(): Promise<CloudAuth> {
-    authLoading ??= options.loadAuth().then((loaded) => {
-      auth = loaded;
-      loaded.onChange((session) => {
-        if (session && session.userId !== state.userId) {
-          void attach(session);
-        } else if (!session && state.phase === "SIGNED_IN") {
-          teardown();
-          set({
-            phase: "GUEST",
-            email: null,
-            userId: null,
-            accountSession: null,
-            sync: null,
-          });
-        }
-      });
-      return loaded;
-    });
+    // A failed load (offline before the chunk was cached, or a chunk removed
+    // by a newer deploy) is not remembered: the next action tries again.
+    authLoading ??= options.loadAuth().then(
+      (loaded) => {
+        auth = loaded;
+        loaded.onChange((session) => {
+          if (session && session.userId !== state.userId) {
+            void attach(session);
+          } else if (!session && state.phase === "SIGNED_IN") {
+            teardown();
+            set({
+              phase: "GUEST",
+              email: null,
+              userId: null,
+              accountSession: null,
+              sync: null,
+            });
+          }
+        });
+        return loaded;
+      },
+      (error: unknown) => {
+        authLoading = null;
+        throw error;
+      },
+    );
     return authLoading;
   }
 
@@ -267,6 +275,20 @@ export function createCloudController(options: CloudControllerOptions) {
     return engine;
   }
 
+  /** Called once on app start. Guests: no SDK load, no network. */
+  async function start() {
+    if (started) return;
+    started = true;
+    if (!options.configured || !options.hasStoredSession()) return;
+    set({ phase: "LOADING" });
+    const loaded = await guard(ensureAuth);
+    // The SDK could not be loaded: allow a later start (connectivity regained).
+    if (!loaded) started = false;
+    const session = loaded ? await guard(() => loaded.getSession()) : null;
+    if (session) await attach(session);
+    else if (state.phase === "LOADING") set({ phase: "GUEST" });
+  }
+
   return {
     getState: () => state,
     subscribe(listener: () => void) {
@@ -276,17 +298,7 @@ export function createCloudController(options: CloudControllerOptions) {
       };
     },
 
-    /** Called once on app start. Guests: no SDK load, no network. */
-    async start() {
-      if (started) return;
-      started = true;
-      if (!options.configured || !options.hasStoredSession()) return;
-      set({ phase: "LOADING" });
-      const loaded = await guard(ensureAuth);
-      const session = loaded ? await guard(() => loaded.getSession()) : null;
-      if (session) await attach(session);
-      else if (state.phase === "LOADING") set({ phase: "GUEST" });
-    },
+    start,
 
     async sendCode(email: string) {
       set({ authError: null });
@@ -405,9 +417,14 @@ export function createCloudController(options: CloudControllerOptions) {
       return { kind: "DELETED" };
     },
 
-    /** Connectivity regained (a hint; the next request decides). */
+    /**
+     * Connectivity regained (a hint; the next request decides). If the
+     * stored session could not be resumed at start because the SDK failed
+     * to load, try again now.
+     */
     notifyOnline() {
-      scheduler?.soon("online");
+      if (scheduler) scheduler.soon("online");
+      else if (!started && state.phase === "GUEST") void start();
     },
 
     /** App came to the foreground; throttled. */
@@ -428,11 +445,18 @@ export function createCloudController(options: CloudControllerOptions) {
     },
 
     /**
-     * Local data was deleted on this device. The checkpoint went with it,
-     * so sync is off here until the user turns it on again.
+     * Local data was deleted on this device: sync is off here until the
+     * user turns it on again. The wipe removed the checkpoint, but a run in
+     * flight still holds it in memory and would save it again (cursor and
+     * shadow covering every cloud record, over an empty document). So turn
+     * sync off through the engine queue, after that run, which clears the
+     * checkpoint for good.
      */
     async afterLocalWipe() {
-      if (engine) set({ sync: await engine.init() });
+      const current = engine;
+      if (!current) return;
+      await current.disable().catch(() => undefined);
+      if (engine === current) set({ sync: current.getStatus() });
     },
   };
 }
