@@ -151,7 +151,8 @@
   color: var(--hero-accent);
 }
 
-/* Section banner: a 3 px accent bar before summary section titles. */
+/* Section banner: a 3 px accent bar before summary section titles. Ledger
+   cards already lead with an accent icon, so they get no bar. */
 [data-theme="warrior"] .home-card__head h2::before,
 [data-theme="warrior"] .quick-actions__title::before,
 [data-theme="warrior"] .profile-section-head h2::before {
@@ -163,15 +164,6 @@
   border-radius: 2px;
   background: var(--accent-primary);
   vertical-align: -0.12em;
-}
-
-[data-theme="warrior"] .ledger-card h2::before {
-  content: "";
-  flex: none;
-  width: 3px;
-  height: 0.95em;
-  border-radius: 2px;
-  background: var(--accent-primary);
 }
 
 /* Hero crest: halo arcs behind the D-day and an inset gilded hairline. */
