@@ -286,6 +286,8 @@ public struct SGSectionHeader: View {
     }
 
     public var body: some View {
+        // Captured as a value: alignment closures are Sendable.
+        let bannerDrop = bannerHeight * 0.18
         HStack(alignment: .firstTextBaseline, spacing: SGSpacing.xs) {
             if theme.showsOrnaments {
                 // Warrior banner bar. Aligned to the title's first baseline so
@@ -293,7 +295,7 @@ public struct SGSectionHeader: View {
                 Capsule()
                     .fill(.sg(SGColor.accent))
                     .frame(width: 3, height: bannerHeight)
-                    .alignmentGuide(.firstTextBaseline) { $0[.bottom] - bannerHeight * 0.18 }
+                    .alignmentGuide(.firstTextBaseline) { $0[.bottom] - bannerDrop }
                     .accessibilityHidden(true)
             }
             Text(title).font(SGTypography.cardTitle).foregroundStyle(.sg(SGColor.textPrimary))
