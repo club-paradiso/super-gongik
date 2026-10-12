@@ -92,6 +92,11 @@ final class CloudModel {
             Task { @MainActor in try? await self?.runtime?.cloudSync("cloudNotifyOnline") }
         }
         monitor.start(queue: .global(qos: .utility))
+        // The server rejected the refresh token (revoked, account deleted on
+        // another device): tell the controller, as supabase-js tells the web
+        // with SIGNED_OUT, so it drops to the guest state instead of staying
+        // signed in with every request refused.
+        await auth?.onSessionEnded { [weak self] in await self?.sessionEnded() }
         _ = try? await runtime.cloud("cloudStart")
         await refresh()
     }
@@ -102,6 +107,16 @@ final class CloudModel {
            let decoded = try? JSONDecoder().decode(View.self, from: Data(value.jsonText.utf8)) {
             view = decoded
         }
+    }
+
+    private func sessionEnded() async {
+        // The signal hops actors after the session was forgotten. A sign-in
+        // that landed in between (an OAuth or Apple flow already under way)
+        // has stored its own session: that account is current, so leave the
+        // controller signed in with it.
+        if auth?.hasStoredSession == true { return }
+        try? await runtime?.cloudSessionChanged(nil)
+        await refresh()
     }
 
     func foreground() async { _ = try? await runtime?.cloudSync("cloudNotifyForeground") }
@@ -137,12 +152,22 @@ final class CloudModel {
         guard let auth else { return false }
         busy = true
         defer { busy = false }
+        let session = view?.state.accountSession
         guard await auth.deleteAccount() else {
             message = "계정을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요."
             return false
         }
-        try? await runtime?.cloudSessionChanged(nil)
-        _ = try? await runtime?.cloud("cloudSignOut")
+        // Forget the deleted account's sync checkpoint, including the cloud
+        // copies stashed for open conflicts. Local records stay.
+        if let session { _ = try? await runtime?.cloud("cloudDisable", [session]) }
+        // `SupabaseAuth.deleteAccount` keeps a session that another sign-in
+        // stored during the request. That account is current: tearing the
+        // controller down would leave it a guest while the Keychain holds
+        // the new account.
+        if !auth.hasStoredSession {
+            try? await runtime?.cloudSessionChanged(nil)
+            _ = try? await runtime?.cloud("cloudSignOut")
+        }
         await refresh()
         message = "계정과 클라우드 데이터를 삭제했어요. 이 기기의 기록은 그대로예요."
         return true

@@ -5,6 +5,7 @@ import {
   createMemoryStorage,
   createUserDataRepository,
   createUserDataStore,
+  syncStateKey,
   type RemoteAccount,
   type SyncTransport,
 } from "@super-gongik/domain";
@@ -197,7 +198,12 @@ function makeDevice(name: string, userId: string) {
   const cloud = createNativeCloud(store, storage);
   const device = {
     store,
+    storage,
     cloud,
+    /** The host lost the session (Keychain item removed). */
+    loseSession: () => {
+      signedIn = false;
+    },
     stop: () => {
       for (const timer of timers.values()) clearTimeout(timer);
     },
@@ -295,5 +301,66 @@ describe("native cloud path", { timeout: 30_000 }, () => {
     expect(await controller.deleteCloudData(session)).toEqual({
       kind: "ACCOUNT_CHANGED",
     });
+  });
+
+  it("a session the host lost (refresh rejected) drops the controller to guest", async () => {
+    const phone = makeDevice("phone", "user-3");
+    await phone.store.load();
+    const controller = phone.cloud.controller;
+    await controller.start();
+    await controller.sendCode("phone@example.com");
+    await controller.verifyCode("123456");
+    expect(controller.getState().phase).toBe("SIGNED_IN");
+
+    // SupabaseAuth removed the rejected session and CloudModel forwards it.
+    phone.loseSession();
+    phone.cloud.sessionChanged(null);
+    expect(controller.getState()).toMatchObject({
+      phase: "GUEST",
+      userId: null,
+      email: null,
+      accountSession: null,
+      sync: null,
+    });
+  });
+
+  it("deleting the account forgets its sync checkpoint on this device and keeps local records", async () => {
+    const phone = makeDevice("phone", "user-4");
+    await phone.store.load();
+    await phone.store.run((data, context) =>
+      createProfile(
+        data,
+        {
+          callUpDate: "2026-05-04",
+          expectedDischargeDate: "2028-02-03",
+          serviceCategory: null,
+          workplaceType: null,
+          defaultCommuteCost: null,
+          defaultMealAllowanceOverride: null,
+          timezone: "Asia/Seoul",
+        } as never,
+        context,
+      ),
+    );
+    const controller = phone.cloud.controller;
+    await controller.start();
+    await controller.sendCode("phone@example.com");
+    await controller.verifyCode("123456");
+    const preview = await phone.cloud.preview();
+    expect((await phone.cloud.enable(preview)).kind).toBe("ENABLED");
+    expect(await phone.storage.getItem(syncStateKey("user-4"))).not.toBeNull();
+    const profileId = phone.data().profile!.id;
+
+    // CloudModel.deleteAccount after the Edge Function succeeded:
+    // cloudDisable(session) → cloudSessionChanged(nil) → cloudSignOut.
+    const session = controller.getState().accountSession!;
+    phone.loseSession();
+    expect(await controller.disableSync(session)).toEqual({ kind: "DISABLED" });
+    phone.cloud.sessionChanged(null);
+    await controller.signOut();
+
+    expect(await phone.storage.getItem(syncStateKey("user-4"))).toBeNull();
+    expect(controller.getState().phase).toBe("GUEST");
+    expect(phone.data().profile?.id).toBe(profileId);
   });
 });
