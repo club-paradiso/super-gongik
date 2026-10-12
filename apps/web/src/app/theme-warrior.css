@@ -1,0 +1,225 @@
+/*
+ * 워리어 (Warrior) theme.
+ *
+ * A presentation layer over HORIZON: the same screens, numbers and rules,
+ * with the RPG direction's palette and a few ornaments. Selected per browser
+ * (src/lib/theme.ts) and applied as <html data-theme="warrior"> before paint.
+ *
+ * Values mirror `SGColor` Warrior values in
+ * apps/ios/Packages/SuperGongikKit/Sources/SGDesignSystem/Palette.swift and the
+ * Figma `SG · Color` modes "Warrior Light" / "Warrior Dark"; contrast is
+ * verified there (ContrastTests, ThemeOrnamentTests).
+ *
+ * Ornament rules (docs/design/WARRIOR-COMPLETION-MATRIX.md §3):
+ * - only on brand moments and summary surfaces (hero, section heads, quick
+ *   actions, today); forms, sheets and ledgers get the palette only;
+ * - decorative: no information, aria-hidden, no motion.
+ */
+
+/* Ornament tokens are transparent in the standard theme. */
+:root {
+  --ornament: transparent;
+  --ornament-soft: transparent;
+  --hero-ornament: transparent;
+  --hero-halo: transparent;
+}
+
+:root[data-theme="warrior"] {
+  /* Vellum canvas with white plates and lavender hairlines. */
+  --background: #f4f1fb;
+  --background-elevated: #ece8f8;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-interactive: #eeecff;
+  --surface-hover: #e4e0fb;
+  --border: #dcd5f2;
+  --border-strong: #beb5e6;
+  --border-emphasis: #8e86c9;
+
+  --text-primary: #14173e;
+  --text-secondary: #454651;
+  --text-tertiary: #5e5f6b;
+
+  --accent-primary: #4f48a3;
+  --accent-secondary: #000c3f;
+  --accent-hover: #3a338a;
+  --on-accent: #ffffff;
+  --selected-background: #e7e6ff;
+  --selected-border: #9d97e0;
+  --focus-ring: #4f48a3;
+
+  --ornament: #b48a36;
+  --ornament-soft: rgb(180 138 54 / 30%);
+  --hero-ornament: rgb(253 207 124 / 40%);
+  --hero-halo: rgb(253 207 124 / 16%);
+
+  /* Deeper night sky with a gold horizon (Stitch master_synthesis). */
+  --gradient-brand: linear-gradient(
+    168deg,
+    #000c3f 0%,
+    #081f68 46%,
+    #14173e 100%
+  );
+  --gradient-hero:
+    radial-gradient(
+      70% 60% at 50% 125%,
+      rgb(255 222 167 / 36%) 0%,
+      rgb(253 168 112 / 14%) 40%,
+      transparent 72%
+    ),
+    radial-gradient(
+      60% 55% at 85% 5%,
+      rgb(89 82 173 / 60%) 0%,
+      transparent 70%
+    ),
+    linear-gradient(180deg, #000c3f 0%, #081f68 52%, #14173e 100%);
+
+  --desktop-backdrop: var(--background);
+
+  --select-chevron-active: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%234f48a3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="warrior"] {
+    --background: #090c1c;
+    --background-elevated: #0c0f28;
+    --surface: #13173d;
+    --surface-raised: #1b204e;
+    --surface-interactive: #282d5e;
+    --surface-hover: #323873;
+    --border: #282d5e;
+    --border-strong: #3b4178;
+    --border-emphasis: #7077b8;
+
+    --text-primary: #fef1d3;
+    --text-secondary: #cbd5e1;
+    --text-tertiary: #94a3b8;
+
+    --accent-primary: #fdcf7c;
+    --accent-secondary: #c7d2fe;
+    --accent-hover: #ffe2a8;
+    --on-accent: #090c1c;
+    --selected-background: #1e2568;
+    --selected-border: #fdcf7c;
+    --focus-ring: #fdcf7c;
+
+    --ornament: #b8964f;
+    --ornament-soft: rgb(253 207 124 / 28%);
+
+    --desktop-backdrop: #06081a;
+
+    --select-chevron-active: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23fdcf7c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+    --check-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23090c1c' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3.5 8.5 3 3 6-6.5'/%3E%3C/svg%3E");
+  }
+}
+
+/* World-language eyebrows (components/ui/world-eyebrow.tsx). The Korean label
+   beside it always stays the accessible name. */
+.world-eyebrow {
+  display: none;
+}
+
+[data-theme="warrior"] .world-eyebrow {
+  display: inline-block;
+  margin-left: var(--space-2);
+  color: var(--text-tertiary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: 0.12em;
+}
+
+[data-theme="warrior"] .stat-card__label .world-eyebrow {
+  margin-left: 2px;
+}
+
+/* The Korean label always wins the space (iOS: lower layout priority). A
+   stat card shows its eyebrow only when the label still fits on one line. */
+[data-theme="warrior"] .stat-card {
+  container-type: inline-size;
+}
+
+@container (max-width: 219px) {
+  [data-theme="warrior"] .stat-card__label .world-eyebrow {
+    display: none;
+  }
+}
+
+[data-theme="warrior"] .hero .world-eyebrow {
+  color: var(--hero-accent);
+}
+
+/* Section banner: a 3 px accent bar before summary section titles. Ledger
+   cards already lead with an accent icon, so they get no bar. */
+[data-theme="warrior"] .home-card__head h2::before,
+[data-theme="warrior"] .quick-actions__title::before,
+[data-theme="warrior"] .profile-section-head h2::before {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 0.95em;
+  margin-right: var(--space-2);
+  border-radius: 2px;
+  background: var(--accent-primary);
+  vertical-align: -0.12em;
+}
+
+/* Hero crest: halo arcs behind the D-day and an inset gilded hairline. */
+[data-theme="warrior"] .hero > * {
+  position: relative;
+}
+
+[data-theme="warrior"] .hero::before {
+  content: "";
+  position: absolute;
+  top: -26px;
+  right: -94px;
+  width: 260px;
+  height: 260px;
+  border: 1px solid var(--hero-halo);
+  border-radius: 50%;
+  outline: 1px solid var(--hero-halo);
+  outline-offset: -43px;
+  pointer-events: none;
+}
+
+[data-theme="warrior"] .hero::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid var(--hero-ornament);
+  border-radius: calc(var(--radius-hero) - 6px);
+  pointer-events: none;
+}
+
+/* Quarter markers at the core's percent milestones (25/50/75). */
+[data-theme="warrior"] .hero-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent calc(25% - 1px),
+    var(--hero-ornament) calc(25% - 1px) calc(25% + 1px),
+    transparent calc(25% + 1px) calc(50% - 1px),
+    var(--hero-ornament) calc(50% - 1px) calc(50% + 1px),
+    transparent calc(50% + 1px) calc(75% - 1px),
+    var(--hero-ornament) calc(75% - 1px) calc(75% + 1px),
+    transparent calc(75% + 1px)
+  );
+  pointer-events: none;
+}
+
+/* Sigil ring on icon tiles. */
+[data-theme="warrior"] .quick-actions__icon {
+  box-shadow: inset 0 0 0 1px var(--ornament-soft);
+}
+
+/* Today: a gilded ring around the solid disc. */
+[data-theme="warrior"] .month-cell.is-today .month-cell__day {
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 3.5px var(--ornament);
+}

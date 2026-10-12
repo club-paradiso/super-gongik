@@ -1,6 +1,7 @@
 "use client";
 
 import { EmptyState } from "@/components/ui/empty-state";
+import { WorldEyebrow } from "@/components/ui/world-eyebrow";
 
 import {
   AlertTriangle,
@@ -179,6 +180,7 @@ export function LeaveLedgerPanel({
           <h2 id="credits-title">
             <CalendarPlus2 aria-hidden="true" size={18} />
             연가 부여
+            <WorldEyebrow>LEAVE LEDGER</WorldEyebrow>
           </h2>
           <ul className="credit-list">
             {ledger.credits.map((credit) => (

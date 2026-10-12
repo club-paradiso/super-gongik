@@ -1,6 +1,6 @@
 # Figma source of truth (iOS)
 
-- Updated: 2026-10-07
+- Updated: 2026-10-13 (Warrior completion — [WARRIOR-COMPLETION-MATRIX.md](./WARRIOR-COMPLETION-MATRIX.md), [WARRIOR-IMPLEMENTATION-REPORT.md](./WARRIOR-IMPLEMENTATION-REPORT.md))
 - Figma file: [SUPER GONGIK · MASTER](https://www.figma.com/design/hy0KYmsJxVzj2JwJtbfIpS) (`hy0KYmsJxVzj2JwJtbfIpS`)
 - Code: `apps/ios` (SwiftUI), design system `apps/ios/Packages/SuperGongikKit/Sources/SGDesignSystem`
 - Related: [SCREEN-MAP.md](./SCREEN-MAP.md), [DESIGN-SYSTEM-MAPPING.md](./DESIGN-SYSTEM-MAPPING.md), [horizon.md](./horizon.md)
@@ -13,10 +13,11 @@
 | -------------------------------------- | -------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------- |
 | 50 · iOS Production — Foundations      | `101:1565`                       | **CANONICAL** | Variables, text styles, effect styles; every value maps to an `SG*` Swift token (iOS code syntax is set) |
 | 51 · iOS Production — Components       | `101:1566`                       | **CANONICAL** | 16 components / sets bound to variables; each description names its SwiftUI type                         |
-| 52 · iOS Production — Screens          | `101:1567`                       | **CANONICAL** | 16 screens: 오늘 (7 states), 기록, 휴가, 급여, 더보기, 온보딩, 기록 편집 시트                            |
+| 52 · iOS Production — Screens          | `101:1567`                       | **CANONICAL** | 16 standard screens + 7 standard secondary flows; Warrior: 21 screen states + 8 secondary flows          |
 | 53 · iOS Production — Flows & States   | `101:1568`                       | **CANONICAL** | Responsive check (375–430 pt, iPad readable width), global states, primary flows                         |
 | 54 · iOS Production — Handoff          | `101:1569`                       | **CANONICAL** | Figma → Swift source table and rules                                                                     |
-| 99 · Archive / Deprecated              | `101:1570`                       | index         | Index of every Stitch view and source control with its classification; originals are **not** moved       |
+| 55 · Warrior — Spec & QA               | `123:2853`                       | record        | Warrior direction, ornament contract, responsive/a11y rules and the design-QA record (2026-10-13)        |
+| 99 · Archive / Deprecated              | `101:1570`                       | index         | Stitch index; also the superseded 2026-10-07 Warrior row (moved here 2026-10-13, label `125:8484`)       |
 | 00 · Master Index                      | `17:2`                           | index         | Entry page; points at 50–54                                                                              |
 | 01–03 · Frontier                       | `0:1`…`2:3`                      | reference     | Original design kit                                                                                      |
 | 10–10j · Legacy UX workspace           | `17:3`…                          | reference     | Earlier UX boards                                                                                        |
@@ -58,10 +59,10 @@ Implementation primitives: existing `SGDesignSystem` → existing SwiftUI compon
 
 ## Themes
 
-| Theme                    | Swift              | Figma                                                                                                | What changes                                                                                                                              |
-| ------------------------ | ------------------ | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| 일반 (standard, default) | `SGTheme.standard` | `SG · Color` modes **Light / Dark**                                                                  | HORIZON palette, logo night sky, no world-language                                                                                        |
-| 워리어 (Warrior)         | `SGTheme.warrior`  | `SG · Color` modes **Warrior Light / Warrior Dark**; `SGHeroCard` `Theme=Warrior`; `Show eyebrow` on | Lavender/gold palette from Stitch (`49:10627`, dark HUD views), deeper sky with a gold horizon, JOURNEY / AGENDA / REST / SUPPLY eyebrows |
+| Theme                    | Swift              | Figma                                                                                                                                | What changes                                                                                                                                                                                             |
+| ------------------------ | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 일반 (standard, default) | `SGTheme.standard` | `SG · Color` modes **Light / Dark**                                                                                                  | HORIZON palette, logo night sky, no world-language                                                                                                                                                       |
+| 워리어 (Warrior)         | `SGTheme.warrior`  | `SG · Color` modes **Warrior Light / Warrior Dark** + `SG · Theme` mode **Warrior**; `SGHeroCard` `Theme=Warrior`; `Show eyebrow` on | Vellum/lavender (light) and midnight/gold (dark) palette; crest-framed hero with halo arcs; banner section heads; sigil icon tiles; gilded today ring; progress quarter markers; world-language eyebrows |
 
 ### Product direction (audited 2026-10-07)
 
@@ -85,14 +86,16 @@ The original goal was "apply the newly refined Stitch design cleanly to the mobi
   - color values
   - hero sky
   - decorative eyebrows, which VoiceOver skips
+  - ornaments (2026-10-13): tokens that are transparent in the standard theme (`ornament`, `ornament/soft`, `hero/ornament`, `hero/halo`) plus one layout ornament (section banner bar) gated by `SGTheme.showsOrnaments` / `SG · Theme`. Only on brand moments and summary surfaces; forms, sheets and lists get the palette only.
 - **Storage:**
   - The preference is stored in the App Group `UserDefaults` (`ThemePreference`, key `sg.theme`). The widget reads it read-only.
   - It is not in the synced document and not read by the core.
   - When nothing or an unknown value is stored, the app falls back to `.standard`. Changing it reloads widget timelines.
 - **Contrast:** precedence is theme palette first, then that palette's Increase Contrast variant. Warrior has its own high-contrast values. `ContrastTests` covers standard and Warrior in light, dark and Increase Contrast.
 - **Chrome:** system surfaces stay native (`TabView`, `NavigationStack`, `Form`, `List`) and only take theme colors (`Chrome.swift`).
+- **Web (2026-10-13):** the same two themes. `src/lib/theme.ts` stores `super-gongik:theme` per browser and a boot script sets `<html data-theme>` before paint; picker in 내 정보 › 화면 설정; `theme-warrior.css` mirrors `Palette.swift`.
 - **Figma:**
-  - Warrior screens: page 52, row "Warrior 테마".
+  - Warrior screens: page 52, row "Warrior 테마" (all states) and the 보조 화면 rows; state boards on page 53; decisions on page 55.
   - Rendered evidence: CI artifact `ios-screenshots-<sha>` (`apps/ios/scripts/screenshot-qa.sh`).
 
 ## Rules for future edits
@@ -101,5 +104,7 @@ The original goal was "apply the newly refined Stitch design cleanly to the mobi
 - A new screen goes on page 52 only when the feature exists in `apps/ios`. Concepts go to a new reference page, not 52.
 - Sample numbers in Figma (D-306, 1,284,500원, dates) are samples. The app always shows values from the shared core.
 - A new color token gets a Warrior value (or deliberately inherits the standard one) and a contrast-test pair.
+- A new Warrior decoration is a token transparent in the standard theme (`SGToken(warriorOnly:)`, a Figma variable with `alpha/clear` in Light/Dark, a `--*` property that defaults to `transparent`), or, if it takes space, gated by `SG · Theme` / `SGTheme.showsOrnaments`. Never branch on the theme inside a screen.
+- A new screen state gets a Standard frame and a Warrior frame (clone, set the two modes).
 - Status is always color + symbol + text (`SGNotice`, `SGStatusBadge`, attention values).
 - Every interactive element ≥ 44 pt (`SGSpacing.minimumHitTarget`).

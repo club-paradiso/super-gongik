@@ -238,6 +238,12 @@ private struct DayCell: View {
                         Circle().strokeBorder(.sg(SGColor.accent), lineWidth: 1.5)
                     }
                 }
+                // Warrior gilded ring around today (transparent in the standard theme).
+                .overlay {
+                    if isToday {
+                        Circle().strokeBorder(.sg(SGColor.ornament), lineWidth: 1.5).padding(-3.5)
+                    }
+                }
             HStack(spacing: 2) {
                 ForEach(categories.prefix(3), id: \.self) { SGCategoryMark($0, size: 6) }
             }

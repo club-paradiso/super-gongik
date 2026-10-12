@@ -1,19 +1,20 @@
 # Design system mapping — Figma ↔ SGDesignSystem
 
-- Updated: 2026-10-07
+- Updated: 2026-10-13 (Warrior completion; see [WARRIOR-IMPLEMENTATION-REPORT.md](./WARRIOR-IMPLEMENTATION-REPORT.md))
 - Swift: `apps/ios/Packages/SuperGongikKit/Sources/SGDesignSystem` (`Tokens.swift`, `Palette.swift`, `Components.swift`, `Patterns.swift`, `EventCategoryMark.swift`)
 - Figma: page 50 (foundations, `101:1565`), page 51 (components, `101:1566`)
 - Code wins on any mismatch. Every Figma variable used by iOS carries an **iOS code syntax** naming its Swift symbol; read it in Figma's variable panel or Dev Mode.
 
 ## Variables
 
-| Figma collection        | Modes        | Swift                                         | Notes                                                                                                                          |
-| ----------------------- | ------------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `SG · Primitives`       | Value        | `RGB(0x…)` literals in `Palette.swift`        | Hidden (no scopes). `alpha/*` added for hero track/line/border                                                                 |
-| `SG · Color`            | Light / Dark | `SGColor.*`, `SGBrand.*`, `SGEventCategory.*` | Semantic aliases of primitives. High-contrast values exist only in Swift (`SGToken(highContrast:)`), tested in `ContrastTests` |
-| `SG · Layout`           | Value        | `SGSpacing`, `SGRadius`, `SGLayout`, `SGSize` | Scoped to GAP / CORNER_RADIUS / WIDTH_HEIGHT                                                                                   |
-| `SG · Motion`           | Value        | `SGMotion`                                    | Milliseconds; curve `cubic-bezier(0.2, 0.8, 0.2, 1)`; Reduce Motion → no interpolation                                         |
-| `stitch.withgoogle.com` | Mode 1       | —                                             | Imported with Stitch. Reference only; never bind production nodes to it                                                        |
+| Figma collection        | Modes                                       | Swift                                                  | Notes                                                                                                                          |
+| ----------------------- | ------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `SG · Primitives`       | Value                                       | `RGB(0x…)` literals in `Palette.swift`                 | Hidden (no scopes). `alpha/*` added for hero track/line/border                                                                 |
+| `SG · Color`            | Light / Dark / Warrior Light / Warrior Dark | `SGColor.*`, `SGBrand.*`, `SGEventCategory.*`          | Semantic aliases of primitives. High-contrast values exist only in Swift (`SGToken(highContrast:)`), tested in `ContrastTests` |
+| `SG · Layout`           | Value                                       | `SGSpacing`, `SGRadius`, `SGLayout`, `SGSize`          | Scoped to GAP / CORNER_RADIUS / WIDTH_HEIGHT                                                                                   |
+| `SG · Motion`           | Value                                       | `SGMotion`                                             | Milliseconds; curve `cubic-bezier(0.2, 0.8, 0.2, 1)`; Reduce Motion → no interpolation                                         |
+| `SG · Theme` (new)      | Standard / Warrior                          | `SGTheme.showsOrnaments`, `SGTheme.showsWorldLanguage` | Booleans bound to layer visibility for layout-affecting ornaments (section banner bar). Web: `[data-theme="warrior"]`          |
+| `stitch.withgoogle.com` | Mode 1                                      | —                                                      | Imported with Stitch. Reference only; never bind production nodes to it                                                        |
 
 Web-only variables in `SG · Color`/`SG · Layout` without iOS code syntax (`surface/hover`, `accent/hover`, `focus/ring`, `border/emphasis`, `desktop/backdrop`, `hero/final*`, `hero/focus`, `rail/width`, `tabbar/h`, `radius/pill`) stay for the web; iOS uses the system equivalents (hover/focus rings, tab bar height, `Capsule`).
 
@@ -23,14 +24,33 @@ Web-only variables in `SG · Color`/`SG · Layout` without iOS code syntax (`sur
 
 | Token                                            | Warrior light                     | Warrior dark                      |
 | ------------------------------------------------ | --------------------------------- | --------------------------------- |
-| `background`                                     | `#FBF8FF`                         | `#090C1C`                         |
-| `backgroundElevated`                             | `#F3F0FD`                         | `#0C0F28`                         |
+| `background`                                     | `#F4F1FB` (was `#FBF8FF`)         | `#090C1C`                         |
+| `backgroundElevated`                             | `#ECE8F8` (was `#F3F0FD`)         | `#0C0F28`                         |
 | `surface` / `surfaceRaised`                      | `#FFFFFF` / `#FFFFFF`             | `#13173D` / `#1B204E`             |
 | `surfaceInteractive`                             | `#EEECFF`                         | `#282D5E`                         |
-| `border` / `borderStrong`                        | `#E3DFFF` / `#C9C3F0`             | `#282D5E` / `#3B4178`             |
+| `border` / `borderStrong`                        | `#DCD5F2` / `#BEB5E6`             | `#282D5E` / `#3B4178`             |
 | `textPrimary` / `textSecondary` / `textTertiary` | `#14173E` / `#454651` / `#5E5F6B` | `#FEF1D3` / `#CBD5E1` / `#94A3B8` |
 | `accent` / `accentSecondary` / `onAccent`        | `#4F48A3` / `#000C3F` / `#FFFFFF` | `#FDCF7C` / `#C7D2FE` / `#090C1C` |
 | `selectedBackground` / `selectedBorder`          | `#E7E6FF` / `#9D97E0`             | `#1E2568` / `#FDCF7C`             |
+
+Warrior Light was refined on 2026-10-13: a vellum-lavender canvas with white plates and lavender hairlines, so it no longer reads as the standard light theme.
+
+#### Ornament tokens (new, 2026-10-13)
+
+Transparent in the standard theme (`SGToken(warriorOnly:)`), so one component draws both themes with the same geometry. Decorative only; never read by VoiceOver.
+
+| Figma (`SG · Color`) | Swift                  | Web (`theme-warrior.css`) | Warrior light  | Warrior dark   | Used by                                      |
+| -------------------- | ---------------------- | ------------------------- | -------------- | -------------- | -------------------------------------------- |
+| `ornament`           | `SGColor.ornament`     | `--ornament`              | `#B48A36`      | `#B8964F`      | today ring (`SGDateTile`), web today cell    |
+| `ornament/soft`      | `SGColor.ornamentSoft` | `--ornament-soft`         | `#B48A36` 30 % | `#FDCF7C` 28 % | sigil ring (`SGIconTile`, web quick actions) |
+| `hero/ornament`      | `SGColor.heroOrnament` | `--hero-ornament`         | `#FDCF7C` 40 % | same           | hero crest frame, progress quarter markers   |
+| `hero/halo`          | `SGColor.heroHalo`     | `--hero-halo`             | `#FDCF7C` 16 % | same           | hero halo arcs                               |
+
+`ThemeOrnamentTests` pins: invisible in standard (all appearances and contrast settings), visible in Warrior, gilded ring ≥ 3:1 on Warrior plates.
+
+#### Web
+
+The web had no theme before 2026-10-13. It now mirrors the iOS theme: `src/lib/theme.ts` (per-browser preference `super-gongik:theme`, boot script that sets `<html data-theme>` before paint), `src/hooks/use-theme.ts`, a picker in 내 정보 › 화면 설정, `src/app/theme-warrior.css` (Warrior palette and ornaments, values copied from `Palette.swift`), and `components/ui/world-eyebrow.tsx` (aria-hidden, Warrior only). CSS custom property names are the Figma variables' WEB code syntax.
 
 Warrior Increase Contrast values (light / dark): `border` `#8E86C9` / `#5A60A0`, `borderStrong` `#6F68B0` / `#7077B8`, `textSecondary` `#2E2F3A` / `#E2E8F0`, `textTertiary` `#3E3F4A` / `#CBD5E1`, `accent` `#3A338A` / `#FFE2A8`. Precedence in `SGToken.rgb(theme:dark:highContrast:)` is the theme palette first, then that palette's Increase Contrast variant. A token without Warrior values uses the standard values, including the standard high-contrast ones, in both themes.
 
@@ -126,28 +146,28 @@ Figma blur = SwiftUI radius × 2. Dark mode draws no shadow (borders separate la
 
 Figma Code Connect needs a Dev or Full seat on an Organization or Enterprise plan; this file's plan does not have one, so the mapping call was refused. Traceability instead: every component's description ends with `Source: club-paradiso/super-gongik/<path>`, page 54 lists the same table, and every variable carries iOS code syntax. When the plan allows it, map the nodes below with the SwiftUI label.
 
-| Figma component (node)       | Variants / properties                                                           | SwiftUI                                                                                           | Traceability |
-| ---------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------ |
-| `SGButton` (`103:20`)        | Style = Primary/Secondary/Destructive × State = Default/Pressed/Disabled; Label | `SGPrimaryButtonStyle`, `SGSecondaryButtonStyle`, `SGDestructiveButtonStyle` (`Components.swift`) | description  |
-| `SGNotice` (`103:51`)        | Tone = Info/Success/Warning/Danger/Neutral; Title, Message, Show message        | `SGNotice` (`Components.swift`)                                                                   | description  |
-| `SGStatusBadge` (`103:72`)   | Tone × 5                                                                        | `SGStatusBadge` (`Patterns.swift`, new)                                                           | description  |
-| `SGCategoryChip` (`103:91`)  | Category = leave/sick/attendance/duty/nonpayable/note                           | `SGCategoryChip`, `SGCategoryMark` (`EventCategoryMark.swift`)                                    | description  |
-| `SGSectionHeader` (`103:92`) | Title, Eyebrow, Detail (+ visibility)                                           | `SGSectionHeader` (`Components.swift`, `eyebrow:` new)                                            | description  |
-| `SGCard` (`104:2`)           | content slot                                                                    | `SGCard`                                                                                          | description  |
-| `SGProgressBar` (`104:5`)    | —                                                                               | `SGProgressBar`                                                                                   | description  |
-| `SGIconTile` (`104:8`)       | —                                                                               | `SGIconTile` (new)                                                                                | description  |
-| `SGDateTile` (`104:16`)      | Today = true/false                                                              | `SGDateTile` (new)                                                                                | description  |
-| `SGStatCard` (`104:55`)      | State = Value/Muted/Attention; Title, Caption                                   | `SGStatCard` (new) + `StatValue` (`TodayView.swift`)                                              | description  |
-| `SGQuickAction` (`104:56`)   | Title                                                                           | `SGQuickAction` (new)                                                                             | description  |
-| `SGEmptyState` (`104:61`)    | Title, Message                                                                  | `SGEmptyState` (new)                                                                              | description  |
-| `SGAgendaRow` (`104:67`)     | Title, Subtitle, Days                                                           | `AgendaRow` (`Features/Today/TodayView.swift`)                                                    | description  |
-| `SGHeroCard` (`105:73`)      | Phase = In service/Celebrate × Live = On/Off                                    | `HeroCard` + `SGHeroBackground` (`TodayView.swift`, `Components.swift`)                           | description  |
-| `AppTabBar` (`105:179`)      | Selected = 오늘/기록/휴가/급여/더보기                                           | native `TabView` (`App/RootView.swift`)                                                           | description  |
-| `NavigationBar` (`105:180`)  | Title                                                                           | native `NavigationStack` title                                                                    | description  |
+| Figma component (node)       | Variants / properties                                                                | SwiftUI                                                                                           | Traceability |
+| ---------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- | ------------ |
+| `SGButton` (`103:20`)        | Style = Primary/Secondary/Destructive × State = Default/Pressed/Disabled; Label      | `SGPrimaryButtonStyle`, `SGSecondaryButtonStyle`, `SGDestructiveButtonStyle` (`Components.swift`) | description  |
+| `SGNotice` (`103:51`)        | Tone = Info/Success/Warning/Danger/Neutral; Title, Message, Show message             | `SGNotice` (`Components.swift`)                                                                   | description  |
+| `SGStatusBadge` (`103:72`)   | Tone × 5                                                                             | `SGStatusBadge` (`Patterns.swift`, new)                                                           | description  |
+| `SGCategoryChip` (`103:91`)  | Category = leave/sick/attendance/duty/nonpayable/note                                | `SGCategoryChip`, `SGCategoryMark` (`EventCategoryMark.swift`)                                    | description  |
+| `SGSectionHeader` (`103:92`) | Title, Eyebrow, Detail (+ visibility); Warrior banner bar bound to `theme/ornaments` | `SGSectionHeader` (`Components.swift`; banner when `SGTheme.showsOrnaments`)                      | description  |
+| `SGCard` (`104:2`)           | content slot                                                                         | `SGCard`                                                                                          | description  |
+| `SGProgressBar` (`104:5`)    | quarter markers 25/50/75 % (`hero/ornament`)                                         | `SGProgressBar(markers:)` (widgets pass `false`)                                                  | description  |
+| `SGIconTile` (`104:8`)       | Symbol (instance swap of `Icon / <SF Symbol>`); sigil ring (`ornament/soft`)         | `SGIconTile`                                                                                      | description  |
+| `SGDateTile` (`104:16`)      | Today = true/false; today ring (`ornament`)                                          | `SGDateTile`                                                                                      | description  |
+| `SGStatCard` (`104:55`)      | State = Value/Muted/Attention; Title, Caption                                        | `SGStatCard` (new) + `StatValue` (`TodayView.swift`)                                              | description  |
+| `SGQuickAction` (`104:56`)   | Title                                                                                | `SGQuickAction` (new)                                                                             | description  |
+| `SGEmptyState` (`104:61`)    | Title, Message                                                                       | `SGEmptyState` (new)                                                                              | description  |
+| `SGAgendaRow` (`104:67`)     | Title, Subtitle, Days                                                                | `AgendaRow` (`Features/Today/TodayView.swift`)                                                    | description  |
+| `SGHeroCard` (`105:73`)      | Theme = Standard/Warrior × Phase × Live; Warrior: crest frame + halo arcs            | `HeroCard` + `SGHeroBackground` + `SGHeroCrest` (`TodayView.swift`, `Components.swift`)           | description  |
+| `AppTabBar` (`105:179`)      | Selected = 오늘/기록/휴가/급여/더보기                                                | native `TabView` (`App/RootView.swift`)                                                           | description  |
+| `NavigationBar` (`105:180`)  | Title                                                                                | native `NavigationStack` title                                                                    | description  |
 
 Code-only helpers without a Figma component: `SGPressableStyle`, `SGTintedIconLabelStyle`, `SGLoadingState` (system `ProgressView`), `SGHeroBackground` (drawn inside `SGHeroCard`).
 
-Icons in Figma are placeholders named `sf:<symbol>`; the code uses that SF Symbol name.
+Icons: 35 `Icon / <SF Symbol name>` components on page 51 (frame "Icons · SF Symbol stand-ins"), drawn from lucide — the web's icon set — as stand-ins. The app renders the SF Symbol of the same name; the web renders the lucide icon. Slots are still named `sf:<symbol>`. Component review board for both themes: page 51, "Warrior · Component review" (`120:3712`).
 
 ## Accessibility contract
 
@@ -157,3 +177,4 @@ Icons in Figma are placeholders named `sf:<symbol>`; the code uses that SF Symbo
 - WCAG AA text contrast in light, dark and Increase Contrast, verified by `ContrastTests` (pairs added for date tile, icon tile and attention values).
 - Reduce Motion removes interpolation (`SGMotion.animation`, `SGPressableStyle`) but never hides information.
 - Decorative world-language eyebrows (Warrior theme only) and icon tiles are hidden from VoiceOver; cards and rows read as one element.
+- Warrior ornaments (banner bar, sigil ring, today ring, quarter markers, crest, halo) are static decoration: hidden from VoiceOver and screen readers, nothing to animate, no information of their own.

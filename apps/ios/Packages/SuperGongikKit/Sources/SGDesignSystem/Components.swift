@@ -142,15 +142,25 @@ public struct SGNotice: View {
 
 /// The warm progress bar (ivory → sun → ember → coral), used only for
 /// service progress: "warm colors mark value, not decoration".
+///
+/// The Warrior theme adds quarter markers at the core's percent milestones
+/// (`PERCENT_MILESTONES` 25/50/75 in `packages/domain`). They are drawn in
+/// `SGColor.heroOrnament`, which is transparent in the standard theme, and
+/// carry no information the percentage beside the bar does not already give.
 public struct SGProgressBar: View {
     let fraction: Double
     let height: CGFloat
     let track: SGToken
+    let markers: Bool
 
-    public init(fraction: Double, height: CGFloat = 8, track: SGToken = SGColor.heroTrack) {
+    /// Quarter milestones, as fractions.
+    static let markerFractions: [Double] = [0.25, 0.5, 0.75]
+
+    public init(fraction: Double, height: CGFloat = 8, track: SGToken = SGColor.heroTrack, markers: Bool = true) {
         self.fraction = min(1, max(0, fraction))
         self.height = height
         self.track = track
+        self.markers = markers
     }
 
     public var body: some View {
@@ -173,6 +183,14 @@ public struct SGProgressBar: View {
                         Capsule().frame(width: max(height, proxy.size.width * fraction))
                     }
                     .opacity(fraction == 0 ? 0 : 1)
+                if markers {
+                    ForEach(Self.markerFractions, id: \.self) { marker in
+                        Rectangle()
+                            .fill(.sg(SGColor.heroOrnament))
+                            .frame(width: 2, height: height)
+                            .offset(x: proxy.size.width * marker - 1)
+                    }
+                }
             }
         }
         .frame(height: height)
@@ -215,7 +233,35 @@ public struct SGHeroBackground: View {
                 RadialGradient(
                     colors: [RGB(0xFFDEA7).color.opacity(celebrate ? 0.5 : 0.36), SGBrand.ember.color.opacity(0.14), .clear],
                     center: UnitPoint(x: 0.5, y: 1.25), startRadius: 0, endRadius: 340)
+                // Two halo arcs behind the D-day, upper trailing side. Static.
+                GeometryReader { proxy in
+                    ZStack {
+                        Circle().strokeBorder(.sg(SGColor.heroHalo), lineWidth: 1).frame(width: 260, height: 260)
+                        Circle().strokeBorder(.sg(SGColor.heroHalo), lineWidth: 1).frame(width: 176, height: 176)
+                    }
+                    .position(x: proxy.size.width - 36, y: 104)
+                }
             }
+        }
+    }
+}
+
+/// The Warrior hero's crest: a gilded hairline inset inside a hero-shaped
+/// container. Draws nothing in the standard theme. Overlay it on a hero card;
+/// full-screen hero backgrounds (onboarding, privacy lock) do not use it.
+public struct SGHeroCrest: View {
+    let cornerRadius: CGFloat
+    @Environment(\.sgTheme) private var theme
+
+    public init(cornerRadius: CGFloat = SGRadius.hero) { self.cornerRadius = cornerRadius }
+
+    public var body: some View {
+        if theme.showsOrnaments {
+            RoundedRectangle(cornerRadius: cornerRadius - SGSpacing.iconGap, style: .continuous)
+                .strokeBorder(.sg(SGColor.heroOrnament), lineWidth: 1)
+                .padding(SGSpacing.iconGap)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
         }
     }
 }
@@ -230,6 +276,8 @@ public struct SGSectionHeader: View {
     let title: String
     let detail: String?
     let eyebrow: String?
+    @Environment(\.sgTheme) private var theme
+    @ScaledMetric(relativeTo: .headline) private var bannerHeight: CGFloat = 16
 
     public init(_ title: String, detail: String? = nil, eyebrow: String? = nil) {
         self.title = title
@@ -238,7 +286,18 @@ public struct SGSectionHeader: View {
     }
 
     public var body: some View {
+        // Captured as a value: alignment closures are Sendable.
+        let bannerDrop = bannerHeight * 0.18
         HStack(alignment: .firstTextBaseline, spacing: SGSpacing.xs) {
+            if theme.showsOrnaments {
+                // Warrior banner bar. Aligned to the title's first baseline so
+                // a wrapped title keeps the bar beside its first line.
+                Capsule()
+                    .fill(.sg(SGColor.accent))
+                    .frame(width: 3, height: bannerHeight)
+                    .alignmentGuide(.firstTextBaseline) { $0[.bottom] - bannerDrop }
+                    .accessibilityHidden(true)
+            }
             Text(title).font(SGTypography.cardTitle).foregroundStyle(.sg(SGColor.textPrimary))
                 .accessibilityAddTraits(.isHeader)
             if let eyebrow { SGWorldEyebrow(eyebrow) }

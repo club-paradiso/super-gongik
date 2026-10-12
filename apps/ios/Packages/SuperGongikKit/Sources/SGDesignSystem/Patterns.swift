@@ -79,6 +79,8 @@ public struct SGIconTile: View {
             .foregroundStyle(.sg(tint))
             .frame(width: side, height: side)
             .background(.sg(background), in: RoundedRectangle(cornerRadius: SGRadius.small, style: .continuous))
+            // Warrior sigil ring; transparent in the standard theme.
+            .overlay(RoundedRectangle(cornerRadius: SGRadius.small, style: .continuous).strokeBorder(.sg(SGColor.ornamentSoft), lineWidth: 1))
             .accessibilityHidden(true)
     }
 }
@@ -172,6 +174,13 @@ public struct SGDateTile: View {
         .background(
             .sg(isToday ? SGColor.selectedBackground : SGColor.surfaceInteractive),
             in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
+        // Warrior today ring; transparent in the standard theme.
+        .overlay {
+            if isToday {
+                RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous)
+                    .strokeBorder(.sg(SGColor.ornament), lineWidth: 1.5)
+            }
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(isToday ? "오늘" : "\(month)월 \(day)일")
     }

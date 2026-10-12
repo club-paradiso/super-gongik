@@ -23,10 +23,12 @@ import { RecordImportPanel } from "@/components/record-import-panel";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/ui/date-input";
 import { useCloud } from "@/hooks/use-cloud";
+import { useTheme } from "@/hooks/use-theme";
 import {
   RESIDENCE_REGIONS,
   regionalFareSuggestion,
 } from "@/lib/regional-transit-fares";
+import { APP_THEMES } from "@/lib/theme";
 
 type PriorAnswer = "" | "NONE" | "HAS_PRIOR_SERVICE";
 type WorkPatternAnswer = "" | NonNullable<ServiceProfile["workPattern"]>;
@@ -507,6 +509,7 @@ function ProfileForm({
 
       <div className="profile-form__column">
         <SettingsGroup title="화면 설정">
+          <ThemeChoice />
           <div className="setting-toggle">
             <label className="check-row setting-toggle__row">
               <input
@@ -688,6 +691,37 @@ function ProfileForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+/**
+ * Theme picker. Applies at once and is stored in this browser only, outside
+ * the profile form: saving or discarding the form never touches it.
+ */
+function ThemeChoice() {
+  const [theme, setTheme] = useTheme();
+  return (
+    <fieldset className="form-field choice-field choice-field--tiles theme-choice">
+      <legend>화면 테마</legend>
+      {APP_THEMES.map((option) => (
+        <label key={option.value}>
+          <input
+            checked={theme === option.value}
+            name="app-theme"
+            onChange={() => setTheme(option.value)}
+            type="radio"
+          />
+          <span className="theme-choice__text">
+            <span>{option.title}</span>
+            <small>{option.summary}</small>
+          </span>
+        </label>
+      ))}
+      <small>
+        테마는 색과 분위기만 바꿔요. 숫자와 계산, 기록은 그대로예요. 이
+        브라우저에만 저장돼요.
+      </small>
+    </fieldset>
   );
 }
 

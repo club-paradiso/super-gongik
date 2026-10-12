@@ -32,6 +32,10 @@ public enum SGTheme: String, CaseIterable, Identifiable, Sendable {
     /// World-language eyebrows are decorative and appear only here. They never
     /// replace a Korean label and VoiceOver skips them.
     public var showsWorldLanguage: Bool { self == .warrior }
+
+    /// Layout-affecting ornaments (the section banner bar). Color-only
+    /// ornaments use tokens that are transparent in the standard theme instead.
+    public var showsOrnaments: Bool { self == .warrior }
 }
 
 private struct SGThemeKey: EnvironmentKey {
@@ -61,14 +65,20 @@ public struct SGWorldEyebrow: View {
 
     public var body: some View {
         if theme.showsWorldLanguage {
-            Text(text)
-                .font(SGTypography.eyebrow)
-                .tracking(0.8)
-                .foregroundStyle(.sg(tint))
-                .lineLimit(1)
-                // The Korean label beside it always wins the space.
-                .layoutPriority(-1)
-                .accessibilityHidden(true)
+            // Whole word or nothing: a clipped "J…" reads as a defect. The
+            // Korean label beside it always wins the space (lower priority),
+            // so at large Dynamic Type sizes the eyebrow simply drops out.
+            ViewThatFits(in: .horizontal) {
+                Text(text)
+                    .font(SGTypography.eyebrow)
+                    .tracking(0.8)
+                    .foregroundStyle(.sg(tint))
+                    .lineLimit(1)
+                    .fixedSize()
+                Color.clear.frame(width: 0, height: 0)
+            }
+            .layoutPriority(-1)
+            .accessibilityHidden(true)
         }
     }
 }
