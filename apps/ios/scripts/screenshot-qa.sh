@@ -22,16 +22,34 @@ BUNDLE_ID="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.pl
 RUNTIME="$(xcrun simctl list runtimes -j | python3 -c 'import json,sys; r=[x for x in json.load(sys.stdin)["runtimes"] if x["platform"]=="iOS" and x["isAvailable"]]; print(sorted(r,key=lambda x:[int(p) for p in x["version"].split(".")])[-1]["identifier"])')"
 echo "app=$APP bundle=$BUNDLE_ID runtime=$RUNTIME"
 
+# Runs a command, killing it after $1 seconds. macOS ships no `timeout`; an alarm set
+# before exec survives the exec, so SIGALRM ends the command itself.
+bounded() { local seconds="$1"; shift; perl -e 'alarm shift @ARGV; exec @ARGV or die "exec: $!"' "$seconds" "$@"; }
+
+# A fresh simulator sometimes never finishes booting on the hosted runner (seen on
+# iPhone 16 Plus, which also takes ~10 min when it does boot). Without a bound the
+# matrix waits until the job's 60-minute limit cancels everything, so each boot gets
+# BOOT_SECONDS and one retry on a brand-new device.
+BOOT_SECONDS="${BOOT_SECONDS:-600}"
+
 device() { # name -> udid (created fresh so the store starts empty)
   local type
   type="$(xcrun simctl list devicetypes -j | python3 -c "import json,sys; print(next(d['identifier'] for d in json.load(sys.stdin)['devicetypes'] if d['name']=='$1'))")"
-  local udid
-  udid="$(xcrun simctl create "QA $1" "$type" "$RUNTIME")"
-  xcrun simctl boot "$udid"
-  xcrun simctl bootstatus "$udid" -b >/dev/null
-  xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --batteryLevel 100 --cellularBars 4 || true
-  xcrun simctl install "$udid" "$APP"
-  echo "$udid"
+  local udid attempt
+  for attempt in 1 2; do
+    udid="$(xcrun simctl create "QA $1" "$type" "$RUNTIME")"
+    if bounded "$BOOT_SECONDS" xcrun simctl boot "$udid" >&2 \
+      && bounded "$BOOT_SECONDS" xcrun simctl bootstatus "$udid" -b >/dev/null; then
+      xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --batteryLevel 100 --cellularBars 4 >&2 || true
+      xcrun simctl install "$udid" "$APP" >&2
+      echo "$udid"
+      return 0
+    fi
+    echo "boot of $1 did not finish within ${BOOT_SECONDS}s (attempt $attempt)" >&2
+    xcrun simctl shutdown "$udid" >/dev/null 2>&1 || true
+    xcrun simctl delete "$udid" >/dev/null 2>&1 || true
+  done
+  return 1
 }
 
 printf 'file\tdevice\tappearance\ttheme\tcontent_size\tcontrast\ttab\n' > "$OUT/manifest.tsv"
@@ -59,6 +77,8 @@ for row in "${MATRIX[@]}"; do
   IFS='|' read -r name appearance theme size contrast tabs <<<"$row"
   udid="$(grep -F "$name|" "$DEVICES" | cut -d'|' -f2 || true)"
   if [[ -z "$udid" ]]; then
+    # A device that already failed to boot is not tried again for its next row.
+    if grep -qxF "SKIPPED: $name is not available with $RUNTIME" "$OUT/skipped.txt" 2>/dev/null; then continue; fi
     if ! udid="$(device "$name" | tail -1)" || [[ -z "$udid" ]]; then
       echo "SKIPPED: $name is not available with $RUNTIME" | tee -a "$OUT/skipped.txt"
       continue
