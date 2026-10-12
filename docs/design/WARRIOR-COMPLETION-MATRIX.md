@@ -107,3 +107,15 @@ Rules:
 2. Ornaments are tokens (`ornament`, `ornamentSoft`): transparent in the standard theme, so one component draws both themes with the same geometry.
 3. Warrior Light gets a real identity: a vellum-lavender canvas (`#F4F1FB`) with white plates and lavender hairlines, so the cards read as "plates on parchment" rather than standard white-on-grey.
 4. Every number, label and state is identical in both themes.
+
+## 4. Completion status (2026-10-13)
+
+| Priority | Item                                                                                 | Status                                                                                               |
+| -------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| P0       | Web theme + picker; Warrior tokens and ornament tokens                               | Done (web `theme-warrior.css`, iOS `Palette.swift`, Figma `SG · Color` / `SG · Theme`)               |
+| P1       | Every core screen state in Warrior (21 frames)                                       | Done — page 52 row "Warrior 테마"                                                                    |
+| P1       | Secondary flows in both themes (backup, import, cloud ×2, profile, attendance, lock) | Done — page 52 보조 화면 rows (7 Standard, 8 Warrior)                                                |
+| P1       | Global states in Warrior                                                             | Done — page 53 (`125:8178`, `125:8241`)                                                              |
+| P2       | Placeholder icons, brand-mark placeholders, clipped rows                             | Done — 35 icon components; official logo; 2 row layouts fixed in both themes                         |
+| P2       | Permission-denied and success rows on the state board                                | Open — the board reuses the existing rows; notification denial copy lives in 더보기 (see SCREEN-MAP) |
+| P3       | Journey trail, widget presets, Live Activity                                         | Not planned here (need core read models or new targets)                                              |
