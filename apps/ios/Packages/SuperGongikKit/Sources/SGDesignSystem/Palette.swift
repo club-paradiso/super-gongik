@@ -58,6 +58,19 @@ public struct SGToken: Hashable, Sendable {
         self.warriorDarkHighContrast = warriorHighContrast.map { RGB($0.dark) }
     }
 
+    /// A decoration that exists only in the Warrior theme: fully transparent in
+    /// the standard theme, so a component draws the same geometry in both.
+    public init(warriorOnly warrior: (light: RGB, dark: RGB)) {
+        light = RGB(0x000000, alpha: 0)
+        dark = light
+        lightHighContrast = nil
+        darkHighContrast = nil
+        warriorLight = warrior.light
+        warriorDark = warrior.dark
+        warriorLightHighContrast = nil
+        warriorDarkHighContrast = nil
+    }
+
     public init(fixed: UInt32, alpha: Double = 1) {
         light = RGB(fixed, alpha: alpha)
         dark = light
@@ -123,13 +136,13 @@ public enum SGBrand {
 /// "Warrior Light/Dark" on page 50). All are verified in `SGDesignSystemTests`.
 public enum SGColor {
     // Canvas and surfaces
-    public static let background = SGToken(0xF3F4F8, 0x0A0D20, warrior: (0xFBF8FF, 0x090C1C))
-    public static let backgroundElevated = SGToken(0xECEEF5, 0x10142C, warrior: (0xF3F0FD, 0x0C0F28))
+    public static let background = SGToken(0xF3F4F8, 0x0A0D20, warrior: (0xF4F1FB, 0x090C1C))
+    public static let backgroundElevated = SGToken(0xECEEF5, 0x10142C, warrior: (0xECE8F8, 0x0C0F28))
     public static let surface = SGToken(0xFFFFFF, 0x151A35, warrior: (0xFFFFFF, 0x13173D))
     public static let surfaceRaised = SGToken(0xFFFFFF, 0x1C2242, warrior: (0xFFFFFF, 0x1B204E))
     public static let surfaceInteractive = SGToken(0xECEEF6, 0x222A4D, warrior: (0xEEECFF, 0x282D5E))
-    public static let border = SGToken(0xDFE2EC, 0x2C3458, highContrast: (0x9AA1BA, 0x5A6390), warrior: (0xE3DFFF, 0x282D5E), warriorHighContrast: (0x8E86C9, 0x5A60A0))
-    public static let borderStrong = SGToken(0xC5CADB, 0x3D4671, highContrast: (0x7C84A3, 0x6B75A0), warrior: (0xC9C3F0, 0x3B4178), warriorHighContrast: (0x6F68B0, 0x7077B8))
+    public static let border = SGToken(0xDFE2EC, 0x2C3458, highContrast: (0x9AA1BA, 0x5A6390), warrior: (0xDCD5F2, 0x282D5E), warriorHighContrast: (0x8E86C9, 0x5A60A0))
+    public static let borderStrong = SGToken(0xC5CADB, 0x3D4671, highContrast: (0x7C84A3, 0x6B75A0), warrior: (0xBEB5E6, 0x3B4178), warriorHighContrast: (0x6F68B0, 0x7077B8))
 
     // Text
     public static let textPrimary = SGToken(0x111735, 0xF3EFE6, warrior: (0x14173E, 0xFEF1D3))
@@ -167,6 +180,18 @@ public enum SGColor {
     public static let heroLine = SGToken(fixed: 0xD3D8EF, alpha: 0.16)
     /// Hairline that lifts the hero edge off a dark canvas.
     public static let heroBorder = SGToken(fixed: 0xFFFFFF, alpha: 0.08)
+
+    // Warrior ornaments (Figma `ornament`, `ornament/soft`, `hero/ornament`,
+    // `hero/halo`). Transparent in the standard theme. Decorative only: they
+    // never carry information and VoiceOver never reads them.
+    /// Gilded hairline: today ring, sigil accents.
+    public static let ornament = SGToken(warriorOnly: (RGB(0xB48A36), RGB(0xB8964F)))
+    /// Quiet ornament: icon-tile sigil ring.
+    public static let ornamentSoft = SGToken(warriorOnly: (RGB(0xB48A36, alpha: 0.30), RGB(0xFDCF7C, alpha: 0.28)))
+    /// Hero crest frame and progress quarter markers (the hero is always dark).
+    public static let heroOrnament = SGToken(warriorOnly: (RGB(0xFDCF7C, alpha: 0.40), RGB(0xFDCF7C, alpha: 0.40)))
+    /// Hero halo arcs behind the D-day.
+    public static let heroHalo = SGToken(warriorOnly: (RGB(0xFDCF7C, alpha: 0.16), RGB(0xFDCF7C, alpha: 0.16)))
 }
 
 /// A token as a shape style. Resolves per view from the environment: theme

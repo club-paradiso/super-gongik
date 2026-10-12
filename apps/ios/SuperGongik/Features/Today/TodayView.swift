@@ -198,6 +198,7 @@ private struct HeroCard: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: SGRadius.hero, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: SGRadius.hero, style: .continuous).strokeBorder(.sg(SGColor.heroBorder)))
+        .overlay { SGHeroCrest() }
         .sgShadow(.hero)
         .environment(\.colorScheme, .dark)
     }

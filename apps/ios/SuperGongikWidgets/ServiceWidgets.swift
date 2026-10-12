@@ -69,7 +69,7 @@ struct SmallServiceView: View {
                     .font(.system(size: 15, weight: .bold))
                     .monospacedDigit()
                     .foregroundStyle(.sg(SGColor.heroAccent))
-                SGProgressBar(fraction: model.percent / 100, height: 6)
+                SGProgressBar(fraction: model.percent / 100, height: 6, markers: false)
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("\(model.caption) \(model.headline), 복무 \(model.percentText)")

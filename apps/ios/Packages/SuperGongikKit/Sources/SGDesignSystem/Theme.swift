@@ -32,6 +32,10 @@ public enum SGTheme: String, CaseIterable, Identifiable, Sendable {
     /// World-language eyebrows are decorative and appear only here. They never
     /// replace a Korean label and VoiceOver skips them.
     public var showsWorldLanguage: Bool { self == .warrior }
+
+    /// Layout-affecting ornaments (the section banner bar). Color-only
+    /// ornaments use tokens that are transparent in the standard theme instead.
+    public var showsOrnaments: Bool { self == .warrior }
 }
 
 private struct SGThemeKey: EnvironmentKey {
