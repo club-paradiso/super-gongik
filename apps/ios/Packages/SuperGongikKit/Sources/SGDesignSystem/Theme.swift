@@ -65,14 +65,20 @@ public struct SGWorldEyebrow: View {
 
     public var body: some View {
         if theme.showsWorldLanguage {
-            Text(text)
-                .font(SGTypography.eyebrow)
-                .tracking(0.8)
-                .foregroundStyle(.sg(tint))
-                .lineLimit(1)
-                // The Korean label beside it always wins the space.
-                .layoutPriority(-1)
-                .accessibilityHidden(true)
+            // Whole word or nothing: a clipped "J…" reads as a defect. The
+            // Korean label beside it always wins the space (lower priority),
+            // so at large Dynamic Type sizes the eyebrow simply drops out.
+            ViewThatFits(in: .horizontal) {
+                Text(text)
+                    .font(SGTypography.eyebrow)
+                    .tracking(0.8)
+                    .foregroundStyle(.sg(tint))
+                    .lineLimit(1)
+                    .fixedSize()
+                Color.clear.frame(width: 0, height: 0)
+            }
+            .layoutPriority(-1)
+            .accessibilityHidden(true)
         }
     }
 }
