@@ -6,6 +6,7 @@ import "pretendard/dist/web/variable/PretendardVariable-VF.css";
 import { OfflineBanner } from "@/components/offline-banner";
 import { PwaRegistrar } from "@/components/pwa-registrar";
 import { environment } from "@/env";
+import { THEME_BOOT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -38,7 +39,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   void environment;
 
   return (
-    <html lang="ko">
+    // `data-theme` is set before paint by the boot script from a per-browser
+    // preference, so the server-rendered attribute may differ on hydration.
+    <html data-theme="standard" lang="ko" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+      </head>
       <body>
         <PwaRegistrar />
         <OfflineBanner />

@@ -249,6 +249,22 @@
   margin-top: 4px;
 }
 
+/* Theme picker: title over a one-line summary inside each tile. */
+.theme-choice > label {
+  padding-block: 10px;
+}
+
+.theme-choice__text {
+  display: grid;
+  gap: 2px;
+}
+
+.theme-choice__text small {
+  color: var(--text-tertiary);
+  font-size: var(--font-caption);
+  font-weight: 500;
+}
+
 /* Toggle chips for weekdays */
 .weekday-row {
   display: grid;

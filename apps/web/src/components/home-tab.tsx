@@ -14,6 +14,7 @@ import {
 import { memo, type CSSProperties } from "react";
 
 import { EmptyState } from "@/components/ui/empty-state";
+import { WorldEyebrow } from "@/components/ui/world-eyebrow";
 
 import type { ServiceProfile } from "@super-gongik/domain";
 
@@ -96,6 +97,11 @@ function ServiceHero({
       <div className="hero__top">
         <p className="hero__eyebrow">
           {hero.eyebrow}
+          <WorldEyebrow>
+            {hero.phase === "DISCHARGE_DAY" || hero.phase === "COMPLETED"
+              ? "FINAL QUEST"
+              : "JOURNEY"}
+          </WorldEyebrow>
           {/* The eyebrow and headline already carry the state on every width
               ("소집까지" before call-up, "소집해제까지" in service, "복무 완료"
               after), so only the time-sensitive states earn a marker here. */}
@@ -268,6 +274,7 @@ function HomeStats({
         <span className="stat-card__label">
           <ClipboardList aria-hidden="true" size={16} />
           남은 연가
+          <WorldEyebrow>REST</WorldEyebrow>
           <ChevronRight
             aria-hidden="true"
             className="stat-card__chevron"
@@ -304,6 +311,7 @@ function HomeStats({
         <span className="stat-card__label">
           <WalletCards aria-hidden="true" size={16} />
           이번 달 급여
+          <WorldEyebrow>SUPPLY</WorldEyebrow>
           <ChevronRight
             aria-hidden="true"
             className="stat-card__chevron"
@@ -388,7 +396,10 @@ function HomeAgenda({
   return (
     <section className="home-card" aria-labelledby="agenda-title">
       <header className="home-card__head">
-        <h2 id="agenda-title">다가오는 일정</h2>
+        <h2 id="agenda-title">
+          다가오는 일정
+          <WorldEyebrow>AGENDA</WorldEyebrow>
+        </h2>
         <button
           className="text-button"
           onClick={actions.onOpenCalendar}
@@ -425,7 +436,10 @@ function QuickActions({
   if (completed) return null;
   return (
     <nav aria-label="빠른 실행" className="quick-actions">
-      <h2 className="quick-actions__title">빠른 실행</h2>
+      <h2 className="quick-actions__title">
+        빠른 실행
+        <WorldEyebrow>COMMAND</WorldEyebrow>
+      </h2>
       <button onClick={actions.onRecordLeave} type="button">
         <span aria-hidden="true" className="quick-actions__icon">
           <CalendarPlus size={20} />
