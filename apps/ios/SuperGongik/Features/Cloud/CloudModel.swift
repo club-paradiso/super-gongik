@@ -291,8 +291,9 @@ final class CloudModel {
         return result?["ok"]?.boolValue == true || result?["kind"]?.stringValue == "OK"
     }
 
-    func listBackups() async -> [JSONValue] {
-        (await perform { try await runtime?.cloud("cloudListBackups") } ?? nil)?.arrayValue ?? []
+    func listBackups() async -> [JSONValue]? {
+        // nil means loading failed; an empty array means a successful empty list.
+        (await perform { try await runtime?.cloud("cloudListBackups") } ?? nil)?.arrayValue
     }
 
     func uploadBackup() async -> Bool {
