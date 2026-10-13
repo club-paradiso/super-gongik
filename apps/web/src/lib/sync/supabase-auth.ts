@@ -5,6 +5,7 @@ import {
 } from "./cloud-controller";
 import type { CloudConfig } from "./cloud-config";
 import { createSupabaseTransport } from "./supabase-transport";
+import { authRedirectURL } from "./social-auth";
 
 /**
  * Supabase Auth with a one-time email code (or the magic link in the same
@@ -70,7 +71,9 @@ export async function loadSupabaseAuth(
         options: {
           shouldCreateUser: true,
           emailRedirectTo:
-            typeof window === "undefined" ? undefined : window.location.origin,
+            typeof window === "undefined"
+              ? undefined
+              : authRedirectURL(window.location.origin),
         },
       });
       if (error) throw authError(error);

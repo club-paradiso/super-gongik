@@ -15,7 +15,8 @@ import { Button } from "@/components/ui/button";
 import { useCloud } from "@/hooks/use-cloud";
 import { isAccountChanged } from "@/lib/sync/cloud-controller";
 import {
-  SOCIAL_AUTH_OPTIONS,
+  enabledSocialOptions,
+  readSignInFlags,
   SocialSignInError,
   startSocialSignIn,
   type SocialAuthProvider,
@@ -134,6 +135,7 @@ function SignIn() {
   const [busy, setBusy] = useState(false);
   const [socialBusy, setSocialBusy] = useState<SocialAuthProvider | null>(null);
   const [socialError, setSocialError] = useState("");
+  const flags = readSignInFlags();
 
   async function send(event: FormEvent) {
     event.preventDefault();
@@ -218,7 +220,7 @@ function SignIn() {
         className="cloud-social-login"
         role="group"
       >
-        {SOCIAL_AUTH_OPTIONS.map((option) => (
+        {enabledSocialOptions(flags).map((option) => (
           <Button
             disabled={busy || state.phase === "LOADING"}
             key={option.id}
@@ -235,31 +237,35 @@ function SignIn() {
           {socialError}
         </p>
       ) : null}
-      <div aria-hidden="true" className="cloud-auth-divider">
-        <span>또는 이메일</span>
-      </div>
-      <form className="cloud-form" onSubmit={send}>
-        <label className="form-field">
-          <span>이메일</span>
-          <input
-            autoComplete="email"
-            disabled={state.phase === "LOADING"}
-            inputMode="email"
-            onChange={(event) => setEmail(event.target.value)}
-            required
-            type="email"
-            value={email}
-          />
-        </label>
-        {error}
-        <Button disabled={busy || state.phase === "LOADING"} type="submit">
-          로그인 코드 받기
-        </Button>
-        <p className="field-hint">
-          어떤 방식으로 로그인해도 동기화를 켤지 먼저 물어봐요. 로그인만으로는
-          아무것도 올리지 않아요.
-        </p>
-      </form>
+      {flags.email ? (
+        <>
+          <div aria-hidden="true" className="cloud-auth-divider">
+            <span>또는 이메일</span>
+          </div>
+          <form className="cloud-form" onSubmit={send}>
+            <label className="form-field">
+              <span>이메일</span>
+              <input
+                autoComplete="email"
+                disabled={state.phase === "LOADING"}
+                inputMode="email"
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                type="email"
+                value={email}
+              />
+            </label>
+            {error}
+            <Button disabled={busy || state.phase === "LOADING"} type="submit">
+              로그인 코드 받기
+            </Button>
+          </form>
+        </>
+      ) : null}
+      <p className="field-hint">
+        어떤 방식으로 로그인해도 동기화를 켤지 먼저 물어봐요. 로그인만으로는
+        아무것도 올리지 않아요.
+      </p>
     </div>
   );
 }

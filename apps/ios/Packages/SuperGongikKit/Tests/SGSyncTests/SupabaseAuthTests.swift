@@ -262,6 +262,28 @@ struct SupabaseAuthTests {
         #expect(!(URLComponents(url: google, resolvingAgainstBaseURL: false)!.queryItems!.contains { $0.name == "scope" }))
     }
 
+    @Test("a Kakao session has no email; its provider names the account instead")
+    func kakaoSessionWithoutEmail() throws {
+        // GoTrue's shape for a Kakao account that shared only nickname and
+        // profile image (as checked against the hosted project on 2026-10-13).
+        let body = Data(#"{"access_token":"a","refresh_token":"r","expires_in":3600,"user":{"id":"u1","email":"","app_metadata":{"provider":"kakao","providers":["kakao"]}}}"#.utf8)
+        let session = try #require(SupabaseAuth.session(from: body, now: Date(timeIntervalSince1970: 0)))
+        #expect(session.email == nil)
+        #expect(session.provider == "kakao")
+        #expect(accountDisplayName(email: session.email, provider: session.provider) == "카카오 계정")
+        #expect(accountDisplayName(email: "a@example.com", provider: "google") == "a@example.com")
+        #expect(accountDisplayName(email: nil, provider: "google") == "Google 계정")
+        #expect(accountDisplayName(email: nil, provider: nil) == "로그인됨")
+    }
+
+    @Test("a session stored before the provider field still decodes")
+    func legacyStoredSession() throws {
+        let old = Data(#"{"accessToken":"a","refreshToken":"r","expiresAt":1,"userId":"u1","email":null}"#.utf8)
+        let session = try JSONDecoder().decode(StoredSession.self, from: old)
+        #expect(session.userId == "u1")
+        #expect(session.provider == nil)
+    }
+
     @Test("the transport cannot be pointed at another host")
     func hostPinning() async {
         let services = SupabaseCloudServices(

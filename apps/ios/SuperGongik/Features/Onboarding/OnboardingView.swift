@@ -14,6 +14,7 @@ struct OnboardingView: View {
     @State private var issues: [EventIssue] = []
     @State private var saving = false
     @State private var showingRestore = false
+    @State private var showingCloud = false
 
     private static let categories = ["", "사회복지", "보건의료", "교육", "행정", "기타"]
 
@@ -37,6 +38,19 @@ struct OnboardingView: View {
         .background(.sg(SGColor.background))
         .sheet(isPresented: $showingRestore) {
             NavigationStack { BackupRestoreView(onboarding: true) }
+        }
+        // A new device signs in before it has a profile: making one first
+        // would be a different 복무 프로필, which sync never merges. When the
+        // cloud profile arrives, RootView leaves onboarding and the sheet goes.
+        .sheet(isPresented: $showingCloud) {
+            NavigationStack {
+                CloudSyncView()
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("닫기") { showingCloud = false }
+                        }
+                    }
+            }
         }
         .task(id: callUp) { await suggestDischarge() }
     }
@@ -114,6 +128,11 @@ struct OnboardingView: View {
 
             Button("백업 파일에서 복원하기") { showingRestore = true }
                 .buttonStyle(SGSecondaryButtonStyle())
+
+            if model.config.isCloudConfigured {
+                Button("계정으로 로그인") { showingCloud = true }
+                    .buttonStyle(SGSecondaryButtonStyle())
+            }
         }
     }
 

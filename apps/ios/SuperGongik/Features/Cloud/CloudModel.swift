@@ -61,8 +61,16 @@ final class CloudModel {
     private(set) var view: View?
     private(set) var busy = false
     private(set) var message: String?
+    /// The last Kakao, Google, NAVER or Apple sign-in did not finish. The
+    /// screen shows one danger notice; provider error codes stay out of it.
+    private(set) var signInFailed = false
+    /// 계정 row: the email, or the provider's name for accounts without one.
+    private(set) var accountName = "로그인됨"
     let auth: SupabaseAuth?
     @ObservationIgnored weak var runtime: CoreRuntime?
+    /// Re-reads the local store after sync may have written to it (pulled
+    /// records, a resolved conflict, a profile arriving during onboarding).
+    @ObservationIgnored var onStoreChange: (@MainActor () async -> Void)?
     @ObservationIgnored private var events: Task<Void, Never>?
     @ObservationIgnored private let monitor = NWPathMonitor()
 
@@ -85,6 +93,7 @@ final class CloudModel {
         events = Task { [weak self] in
             for await _ in runtime.cloudEvents {
                 await self?.refresh()
+                await self?.onStoreChange?()
             }
         }
         monitor.pathUpdateHandler = { [weak self] path in
@@ -106,6 +115,7 @@ final class CloudModel {
         if let value = try? await runtime.cloudSync("cloudView"),
            let decoded = try? JSONDecoder().decode(View.self, from: Data(value.jsonText.utf8)) {
             view = decoded
+            accountName = accountDisplayName(email: decoded.state.email, provider: auth?.storedProvider)
         }
     }
 
@@ -129,6 +139,7 @@ final class CloudModel {
         defer { busy = false }
         let result = try? await action()
         await refresh()
+        await onStoreChange?()
         return result
     }
 
@@ -182,18 +193,20 @@ final class CloudModel {
         let pkce = SupabaseAuth.PKCE.make()
         let url = auth.authorizeURL(provider: provider, redirectTo: "\(Self.callbackScheme)://auth-callback", pkce: pkce)
         busy = true
+        signInFailed = false
         defer { busy = false }
         do {
             let callback = try await WebAuthentication.run(url: url, scheme: Self.callbackScheme, anchor: anchor)
+            // A provider or GoTrue error comes back as ?error=… with no code.
             guard let code = URLComponents(url: callback, resolvingAgainstBaseURL: false)?
                 .queryItems?.first(where: { $0.name == "code" })?.value
             else {
-                message = "로그인을 마치지 못했어요. 다시 시도해 주세요."
+                signInFailed = true
                 return
             }
             switch await auth.exchange(code: code, pkce: pkce) {
             case .success(let session): await adopt(session)
-            case .failure: message = "로그인하지 못했어요. 잠시 후 다시 시도해 주세요."
+            case .failure: signInFailed = true
             }
         } catch let error as ASWebAuthenticationSessionError where error.code == .canceledLogin {
             message = nil
@@ -227,10 +240,11 @@ final class CloudModel {
                 return
             }
             busy = true
+            signInFailed = false
             defer { busy = false }
             switch await auth.signInWithApple(idToken: token, nonce: appleNonce) {
             case .success(let session): await adopt(session)
-            case .failure: message = "Apple로 로그인하지 못했어요. 잠시 후 다시 시도해 주세요."
+            case .failure: signInFailed = true
             }
         case .failure(let error):
             if (error as? ASAuthorizationError)?.code != .canceled {
@@ -240,6 +254,7 @@ final class CloudModel {
     }
 
     private func adopt(_ session: StoredSession) async {
+        signInFailed = false
         try? await runtime?.cloudSessionChanged(
             CoreSession(userId: session.userId, email: session.email, accessToken: session.accessToken))
         await refresh()
@@ -276,8 +291,9 @@ final class CloudModel {
         return result?["ok"]?.boolValue == true || result?["kind"]?.stringValue == "OK"
     }
 
-    func listBackups() async -> [JSONValue] {
-        (await perform { try await runtime?.cloud("cloudListBackups") } ?? nil)?.arrayValue ?? []
+    func listBackups() async -> [JSONValue]? {
+        // nil means loading failed; an empty array means a successful empty list.
+        (await perform { try await runtime?.cloud("cloudListBackups") } ?? nil)?.arrayValue
     }
 
     func uploadBackup() async -> Bool {

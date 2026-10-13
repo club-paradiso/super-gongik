@@ -9,7 +9,7 @@ import {
   type RemoteAccount,
   type SyncTransport,
 } from "@super-gongik/domain";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createNativeCloud } from "../src/cloud";
 import type { HttpRequest, HttpResponse } from "../src/postgrest";
@@ -204,6 +204,11 @@ function makeDevice(name: string, userId: string) {
     loseSession: () => {
       signedIn = false;
     },
+    /** The host finished OAuth or Apple itself and stored the session. */
+    storeSession: () => {
+      signedIn = true;
+      return session();
+    },
     stop: () => {
       for (const timer of timers.values()) clearTimeout(timer);
     },
@@ -301,6 +306,23 @@ describe("native cloud path", { timeout: 30_000 }, () => {
     expect(await controller.deleteCloudData(session)).toEqual({
       kind: "ACCOUNT_CHANGED",
     });
+  });
+
+  it("a sign-in the host finished after a guest start reaches the controller (Kakao, Google, Apple)", async () => {
+    const phone = makeDevice("phone", "user-5");
+    await phone.store.load();
+    const controller = phone.cloud.controller;
+    await controller.start();
+    expect(controller.getState().phase).toBe("GUEST");
+
+    // CloudModel.adopt: the Keychain holds the session, then the core hears it.
+    phone.cloud.sessionChanged(phone.storeSession());
+    await vi.waitFor(() =>
+      expect(controller.getState()).toMatchObject({
+        phase: "SIGNED_IN",
+        userId: "user-5",
+      }),
+    );
   });
 
   it("a session the host lost (refresh rejected) drops the controller to guest", async () => {
