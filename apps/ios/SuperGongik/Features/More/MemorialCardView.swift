@@ -11,8 +11,17 @@ import SwiftUI
 struct MemorialCardView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var showingBack = false
+    @State private var showingBack = Self.debugShowBack
     @State private var images: [CardImage] = []
+
+    /// DEBUG-only screenshot hook: `-SGMemorialCardBack YES`.
+    private static var debugShowBack: Bool {
+        #if DEBUG
+        UserDefaults.standard.bool(forKey: "SGMemorialCardBack")
+        #else
+        false
+        #endif
+    }
 
     struct CardImage: Transferable, Identifiable {
         let id = UUID()

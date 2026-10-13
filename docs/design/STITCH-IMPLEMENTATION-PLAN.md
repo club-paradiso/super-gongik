@@ -51,3 +51,40 @@ storage and sync stay exactly as the shared core computes them.
 3. Verify: `swift test`, simulator build and screenshots, kolint on new
    Korean strings.
 4. One PR per phase.
+
+## Status (2026-10-14)
+
+Figma frames and node IDs: [SCREEN-MAP.md](./SCREEN-MAP.md) § Stitch · Civic Codex.
+
+| Phase | Figma (page 52) | Code | Verified |
+| --- | --- | --- | --- |
+| 1 홈 · 4 tabs | done | `dc75870` | simulator screenshots (Standard, Warrior Light/Dark) |
+| 2 캘린더 | done | `dc75870` | simulator screenshots |
+| 3 급여 | done | `dc75870`, `6c35b14` | simulator screenshots, XXL stacked header |
+| 4 내 정보 | done | `dc75870` | simulator screenshots |
+| 5 온보딩 4 steps | done | `6c35b14` | simulator screenshots of each step |
+| 6 복무 기록 요약 PDF | done | `40220aa` | PDFKit unit test (page size, text, no official wording) |
+| 7 Live Activity | done | `5f19b67` | Dynamic Island compact seen on the simulator (D-338 · 47.0%); expanded and lock screen not captured yet (below) |
+| 8 복무 기념 카드 | done | `5f19b67` | simulator screenshots, front and back, Standard Light and Warrior Dark; matches `210:4664`/`210:4672` |
+
+Phases 1–5 were reviewed in PR #62. That PR merged into
+`feat/ios-cloud-sync-ui` after #61 had already merged, so they are not on
+`main` yet; phases 6–8 are on `feat/stitch-civic-codex` only.
+
+### Live Activity on the simulator
+
+A first run on 2026-10-14 drew nothing, and it was not the widget code:
+chronod's session with the widget extension "watchdogged after 15 s", and
+Apple's own `WidgetRenderer_Activities` was killed by the launch watchdog
+(`0x8BADF00D`, 30 s) while still loading its libraries, at 85 % host CPU. The
+Mac has 8 GB of RAM; 6.4 of 7.1 GB swap was in use and a second simulator was
+booted. Rerun the same day with one simulator booted and nothing building, the
+extension started and the compact Dynamic Island showed `D-338` and `47.0%`.
+Run this check with one simulator booted and nothing else building.
+
+Still to capture: the expanded island (long press) and the lock screen. Both
+need input the `simctl` scripts cannot send.
+
+All 17 app tests pass (`xcodebuild test-without-building`, 7 suites,
+including 오늘 근무 Live Activity). DEBUG screenshot hook for the card's back
+face: `-SGMemorialCardBack YES`.
