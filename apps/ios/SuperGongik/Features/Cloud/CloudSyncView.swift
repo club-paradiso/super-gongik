@@ -16,6 +16,7 @@ struct CloudSyncView: View {
     @State private var choices: [String: String] = [:]
     @State private var backups: [JSONValue] = []
     @State private var backupsLoaded = false
+    @State private var backupsLoadFailed = false
     @State private var restoreText: IdentifiedText?
     @State private var confirmDelete = false
     @State private var confirmAccountDeletion = false
@@ -232,6 +233,11 @@ struct CloudSyncView: View {
         }
 
         Section {
+            if backupsLoadFailed {
+                SGNotice(.warning, title: "클라우드 백업을 불러오지 못했어요.",
+                         message: "연결 상태를 확인한 뒤 다시 시도해 주세요.")
+                Button("백업 목록 다시 불러오기") { Task { await reloadBackups() } }
+            }
             if backupsLoaded && backups.isEmpty {
                 Text("클라우드 백업이 아직 없어요.").foregroundStyle(.sg(SGColor.textTertiary))
             }
@@ -254,7 +260,7 @@ struct CloudSyncView: View {
                     Button(role: .destructive) {
                         Task {
                             if let id = backup["id"]?.stringValue { await cloud.deleteBackup(id) }
-                            backups = await cloud.listBackups()
+                            await reloadBackups()
                         }
                     } label: { Image(systemName: "trash") }
                         .buttonStyle(.borderless)
@@ -264,7 +270,7 @@ struct CloudSyncView: View {
             Button("지금 클라우드에 백업") {
                 Task {
                     note = await cloud.uploadBackup() ? "클라우드에 백업했어요." : "클라우드에 백업하지 못했어요."
-                    backups = await cloud.listBackups()
+                    await reloadBackups()
                 }
             }
         } header: {
@@ -272,10 +278,7 @@ struct CloudSyncView: View {
         } footer: {
             Text("최근 10개까지 보관해요. 복원하면 파일과 같은 미리보기를 거쳐요.")
         }
-        .task {
-            backups = await cloud.listBackups()
-            backupsLoaded = true
-        }
+        .task { await reloadBackups() }
 
         Section {
             Button("로그아웃") { Task { await cloud.signOut() } }
@@ -327,6 +330,18 @@ struct CloudSyncView: View {
             SGNotice(.warning, title: "다른 기기가 더 새로운 앱 버전으로 동기화했어요.", message: "앱을 업데이트해 주세요.")
         default:
             SGNotice(.warning, title: "동기화를 확인해 주세요.")
+        }
+    }
+
+    private func reloadBackups() async {
+        if let fetched = await cloud.listBackups() {
+            backups = fetched
+            backupsLoaded = true
+            backupsLoadFailed = false
+        } else {
+            backups = []
+            backupsLoaded = false
+            backupsLoadFailed = true
         }
     }
 
