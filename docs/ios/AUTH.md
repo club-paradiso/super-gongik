@@ -1,6 +1,9 @@
 # Authentication on iOS
 
-Status: **implemented, not verified against a hosted project.** Sign-in is
+Status: **Kakao verified against the hosted project on 2026-10-13** (simulator:
+sign-in after a guest start, 계정 shows 카카오 계정, enable preview DOWNLOAD
+pulls the web account's profile and ends onboarding). Google, Apple, NAVER,
+email code and token refresh are not yet verified on iOS. Sign-in is
 optional and only enables sync and cloud backup. The cloud screen appears
 only when `SG_SUPABASE_URL` and `SG_SUPABASE_ANON_KEY` are set
 (`apps/ios/Config/Local.xcconfig`, git-ignored), like the web.
@@ -30,6 +33,12 @@ SDK, no provider secret and no service-role key is in the app.
    (the button stays hidden; App Review's Sign in with Apple rule only
    applies at submission, which needs the membership anyway).
 3. Google/Kakao/NAVER need no change beyond the existing Supabase callback.
+   The app offers Kakao, then Google. NAVER appears only with
+   `SG_SIGN_IN_NAVER = YES` (once Supabase has the `custom:naver` provider),
+   and the email code only with `SG_SIGN_IN_EMAIL = YES` (once custom SMTP
+   delivers codes to anyone; the built-in sender reaches organization
+   members only, two messages an hour). Both default to `NO` in
+   Base.xcconfig.
 4. Deploy the deletion function: `supabase functions deploy delete-account`
    (the runtime provides `SUPABASE_URL`, `SUPABASE_ANON_KEY`,
    `SUPABASE_SERVICE_ROLE_KEY`).
