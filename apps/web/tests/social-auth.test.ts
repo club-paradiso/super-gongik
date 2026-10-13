@@ -21,7 +21,7 @@ afterEach(() => {
 });
 
 describe("social auth requests", () => {
-  it.each(["google", "kakao", "naver"] as const)(
+  it.each(["kakao", "google", "naver"] as const)(
     "returns %s to the preview origin and only overrides Kakao scopes",
     async (provider) => {
       const origin = "https://super-gongik-test-club-paradiso.vercel.app";
@@ -34,7 +34,7 @@ describe("social auth requests", () => {
       expect(signInWithOAuth).toHaveBeenCalledExactlyOnceWith({
         provider: socialProviderId(provider),
         options: {
-          redirectTo: origin,
+          redirectTo: `${origin}/`,
           ...(provider === "kakao"
             ? { queryParams: { scope: "profile_nickname profile_image" } }
             : {}),
@@ -56,8 +56,8 @@ describe("social auth provider mapping", () => {
 
   it("keeps the three sign-in options in the intended UI order", () => {
     expect(SOCIAL_AUTH_OPTIONS.map((option) => option.id)).toEqual([
-      "google",
       "kakao",
+      "google",
       "naver",
     ]);
   });

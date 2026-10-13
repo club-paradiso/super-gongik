@@ -8,14 +8,14 @@ export const SOCIAL_AUTH_OPTIONS: ReadonlyArray<{
   pendingLabel: string;
 }> = [
   {
-    id: "google",
-    label: "Google로 계속하기",
-    pendingLabel: "Google 연결 중…",
-  },
-  {
     id: "kakao",
     label: "카카오로 계속하기",
     pendingLabel: "카카오 연결 중…",
+  },
+  {
+    id: "google",
+    label: "Google로 계속하기",
+    pendingLabel: "Google 연결 중…",
   },
   {
     id: "naver",
@@ -41,6 +41,55 @@ export class SocialSignInError extends Error {
 
 export function socialProviderId(provider: SocialAuthProvider): string {
   return PROVIDER_IDS[provider];
+}
+
+/**
+ * Sign-in methods that work on the hosted project. NAVER needs the
+ * `custom:naver` provider and the email code needs custom SMTP (the built-in
+ * sender reaches organization members only), so both stay hidden until the
+ * build says otherwise — the same rule as the iOS SG_SIGN_IN_* settings.
+ */
+export type SignInFlags = { email: boolean; naver: boolean };
+
+export function readSignInFlags(): SignInFlags {
+  return {
+    email: process.env.NEXT_PUBLIC_SIGN_IN_EMAIL === "true",
+    naver: process.env.NEXT_PUBLIC_SIGN_IN_NAVER === "true",
+  };
+}
+
+export function enabledSocialOptions(flags: SignInFlags) {
+  return SOCIAL_AUTH_OPTIONS.filter(
+    (option) => option.id !== "naver" || flags.naver,
+  );
+}
+
+/**
+ * Where Supabase sends the browser back. The trailing slash matters: the
+ * allow-list patterns end in `/**`, which matches `origin/` but not a bare
+ * origin, and an unmatched preview origin silently falls back to the
+ * production Site URL.
+ */
+export function authRedirectURL(origin: string): string {
+  return `${origin.replace(/\/+$/, "")}/`;
+}
+
+/** GoTrue came back with ?error=… or #error=… instead of a code. */
+export function hasAuthReturnError(location: {
+  search: string;
+  hash: string;
+}): boolean {
+  return /[?&#]error(_description)?=/.test(location.search + location.hash);
+}
+
+/** The same URL without GoTrue's error parameters (for history.replaceState). */
+export function withoutAuthReturnError(href: string): string {
+  const url = new URL(href);
+  for (const key of ["error", "error_code", "error_description"]) {
+    url.searchParams.delete(key);
+  }
+  if (/error/.test(url.hash)) url.hash = "";
+  return url.pathname + url.search + url.hash;
 }
 
 /**
@@ -76,7 +125,7 @@ export async function startSocialSignIn(
   const { error } = await client.auth.signInWithOAuth({
     provider: providerId,
     options: {
-      redirectTo: window.location.origin,
+      redirectTo: authRedirectURL(window.location.origin),
       // Supabase's Kakao defaults include account_email even when email is
       // optional. Override the provider scope for non-Biz Kakao apps.
       ...(provider === "kakao"
