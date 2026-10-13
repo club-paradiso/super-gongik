@@ -280,6 +280,10 @@ export function createCloudController(options: CloudControllerOptions) {
     if (started) return;
     started = true;
     if (!options.configured || !options.hasStoredSession()) return;
+    await loadStoredSession();
+  }
+
+  async function loadStoredSession() {
     set({ phase: "LOADING" });
     const loaded = await guard(ensureAuth);
     // The SDK could not be loaded: allow a later start (connectivity regained).
@@ -287,6 +291,19 @@ export function createCloudController(options: CloudControllerOptions) {
     const session = loaded ? await guard(() => loaded.getSession()) : null;
     if (session) await attach(session);
     else if (state.phase === "LOADING") set({ phase: "GUEST" });
+  }
+
+  /**
+   * The host stored a session itself after a guest start (native OAuth or
+   * Sign in with Apple). A guest start never loaded auth, so no listener
+   * heard the sign-in: load it now and attach, as `start` does when a
+   * session is already stored. Once auth is loaded its listener handles
+   * every later change.
+   */
+  async function resume() {
+    if (!options.configured || auth) return;
+    started = true;
+    await loadStoredSession();
   }
 
   return {
@@ -299,6 +316,7 @@ export function createCloudController(options: CloudControllerOptions) {
     },
 
     start,
+    resume,
 
     async sendCode(email: string) {
       set({ authError: null });

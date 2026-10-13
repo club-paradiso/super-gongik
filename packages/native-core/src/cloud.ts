@@ -158,6 +158,12 @@ export function createNativeCloud(
       const plain = session
         ? { userId: session.userId, email: session.email }
         : null;
+      // A guest start never loaded auth, so nobody listens yet: the host's
+      // OAuth or Apple sign-in would be dropped. Let the controller pick it up.
+      if (plain && sessionListeners.size === 0) {
+        void controller.resume();
+        return;
+      }
       for (const listener of sessionListeners) listener(plain);
     },
     preview: () => controller.previewEnable(),
