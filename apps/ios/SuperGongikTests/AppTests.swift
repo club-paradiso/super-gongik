@@ -1,6 +1,7 @@
 import SGCore
 import SGDesignSystem
 import SGFoundation
+import PDFKit
 import UserNotifications
 import Testing
 @testable import SuperGongik
@@ -178,5 +179,29 @@ struct MilestoneRouteTests {
     @Test("after discharge there is nothing left to show")
     func completed() {
         #expect(MilestoneRoute(list, today: CivilDate("2027-09-17")!) == nil)
+    }
+}
+
+@Suite("복무 기록 요약 PDF")
+struct RecordSummaryPDFTests {
+    private func decode<T: Decodable>(_ json: String) throws -> T {
+        try JSONDecoder().decode(T.self, from: Data(json.utf8))
+    }
+
+    @Test("says on the page that it is not an official document and leaves notes out")
+    func disclaimerAndNoNotes() throws {
+        let profile: ServiceProfile = try decode(#"{"id":"p1","callUpDate":"2025-12-17","expectedDischargeDate":"2027-09-16","serviceCategory":"행정"}"#)
+        let event: ServiceEvent = try decode(#"{"id":"e1","eventType":"ANNUAL_LEAVE","startDate":"2026-10-19","endDate":"2026-10-19","timing":{"kind":"ALL_DAY","dayCount":1},"note":"병원 진료 메모","updatedAt":"2026-10-13T00:00:00Z","source":{"kind":"MANUAL"}}"#)
+        let events = Array(repeating: (event: event, display: EventDisplay?.none), count: 120)
+        let data = RecordSummaryPDF.render(.init(profile: profile, hero: nil, ledger: nil, leaveText: nil,
+                                                events: events, generatedOn: CivilDate("2026-10-14")!))
+        let pdf = try #require(PDFDocument(data: data))
+        #expect(pdf.pageCount >= 2)
+        let text = (0..<pdf.pageCount).compactMap { pdf.page(at: $0)?.string }.joined(separator: "\n")
+        #expect(text.contains("공식 증명서가 아니며"))
+        #expect(text.contains("공식 문서 아님"))
+        #expect(text.contains("기록 120건"))
+        #expect(!text.contains("병원 진료 메모"))
+        #expect(RecordSummaryPDF.fileName(CivilDate("2026-10-14")!) == "슈퍼공익-복무기록요약-2026-10-14.pdf")
     }
 }
