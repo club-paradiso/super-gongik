@@ -144,3 +144,39 @@ struct ThemePreferenceTests {
         }
     }
 }
+
+@Suite("홈 milestone strip (Stitch route)")
+struct MilestoneRouteTests {
+    private func item(_ kind: String, _ value: Double, _ date: String) -> ServiceMilestoneItem {
+        ServiceMilestoneItem(kind: kind, date: CivilDate(date)!, value: value, label: "")
+    }
+
+    private var list: [ServiceMilestoneItem] {
+        [item("CALL_UP", 0, "2025-12-17"), item("DAYS_REMAINING", 500, "2026-05-04"),
+         item("PERCENT", 25, "2026-05-20"), item("DAYS_REMAINING", 300, "2026-11-20"),
+         item("PERCENT", 50, "2026-11-01"), item("DAYS_REMAINING", 200, "2027-02-28"),
+         item("SERVICE_DAY", 100, "2026-03-27"), item("DISCHARGE", 0, "2027-09-16")]
+            .sorted { $0.date.dayNumber < $1.date.dayNumber }
+    }
+
+    @Test("shows the last passed, the next and the one after; skips milestones off the route")
+    func passedNextLater() throws {
+        let route = try #require(MilestoneRoute(list, today: CivilDate("2026-10-13")!))
+        #expect(route.entries.map(\.title) == ["25%", "50%", "D-300"])
+        #expect(route.entries.map(\.state) == [.passed, .next, .later])
+        #expect(route.daysToNext == 19)
+    }
+
+    @Test("before call-up the next milestone is 소집 and nothing is passed")
+    func preService() throws {
+        let route = try #require(MilestoneRoute(list, today: CivilDate("2025-12-01")!))
+        #expect(route.entries.first?.title == "소집")
+        #expect(route.entries.first?.state == .next)
+        #expect(route.entries.count == 3)
+    }
+
+    @Test("after discharge there is nothing left to show")
+    func completed() {
+        #expect(MilestoneRoute(list, today: CivilDate("2027-09-17")!) == nil)
+    }
+}

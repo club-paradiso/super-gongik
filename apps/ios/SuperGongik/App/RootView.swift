@@ -1,27 +1,37 @@
 import SGDesignSystem
 import SwiftUI
 
+/// Stitch Civic Codex navigation: exactly four destinations. 연가 내역 is
+/// pushed from 홈 and 캘린더; 더보기 became 내 정보.
 enum AppTab: Hashable {
-    case today, records, leave, pay, more
+    case home, calendar, pay, profile
 }
 
 struct RootView: View {
     @Environment(AppModel.self) private var model
     @State private var tab: AppTab = Self.initialTab
 
-    /// DEBUG-only screenshot hook: `-SGInitialTab records` opens that tab.
-    /// Compiled out of release builds.
+    /// DEBUG-only screenshot hook: `-SGInitialTab records` opens that tab;
+    /// `leave` opens 홈 with 연가 내역 pushed. The old tab names still work so
+    /// existing screenshot matrices keep running. Compiled out of release.
     private static var initialTab: AppTab {
         #if DEBUG
         switch UserDefaults.standard.string(forKey: "SGInitialTab") {
-        case "records": return .records
-        case "leave": return .leave
+        case "records", "calendar": return .calendar
         case "pay": return .pay
-        case "more": return .more
-        default: return .today
+        case "more", "profile": return .profile
+        default: return .home
         }
         #else
-        return .today
+        return .home
+        #endif
+    }
+
+    static var opensLedgerOnLaunch: Bool {
+        #if DEBUG
+        UserDefaults.standard.string(forKey: "SGInitialTab") == "leave"
+        #else
+        false
         #endif
     }
 
@@ -51,19 +61,16 @@ private struct MainTabs: View {
 
     var body: some View {
         TabView(selection: $tab) {
-            Tab("오늘", systemImage: "sun.horizon", value: AppTab.today) {
-                TodayView(openTab: { tab = $0 })
+            Tab("홈", systemImage: "sun.horizon", value: AppTab.home) {
+                TodayView(openTab: { tab = $0 }, showsLedgerInitially: RootView.opensLedgerOnLaunch)
             }
-            Tab("기록", systemImage: "calendar", value: AppTab.records) {
+            Tab("캘린더", systemImage: "calendar", value: AppTab.calendar) {
                 RecordsView()
-            }
-            Tab("휴가", systemImage: "list.clipboard", value: AppTab.leave) {
-                LeaveView()
             }
             Tab("급여", systemImage: "wonsign.circle", value: AppTab.pay) {
                 PayView(openTab: { tab = $0 })
             }
-            Tab("더보기", systemImage: "ellipsis.circle", value: AppTab.more) {
+            Tab("내 정보", systemImage: "person.crop.circle", value: AppTab.profile) {
                 MoreView()
             }
         }

@@ -13,41 +13,42 @@ struct LeaveView: View {
     @State private var addingCorrection = false
     @State private var message: String?
 
+    /// 연가 내역 is no longer a tab (Stitch Civic Codex: 홈 · 캘린더 · 급여 ·
+    /// 내 정보). It is pushed from the 홈 leave card and from 캘린더, inside
+    /// their navigation stacks, so it does not bring its own.
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                if let ledger = model.projection?.ledger, let text = model.projection?.leaveText {
-                    VStack(alignment: .leading, spacing: SGSpacing.md) {
-                        BalanceCard(ledger: ledger, text: text)
-                        if !ledger.warnings.isEmpty {
-                            VStack(spacing: SGSpacing.xs) {
-                                ForEach(ledger.warnings, id: \.self) { SGNotice(.warning, title: $0) }
-                            }
+        ScrollView {
+            if let ledger = model.projection?.ledger, let text = model.projection?.leaveText {
+                VStack(alignment: .leading, spacing: SGSpacing.md) {
+                    BalanceCard(ledger: ledger, text: text)
+                    if !ledger.warnings.isEmpty {
+                        VStack(spacing: SGSpacing.xs) {
+                            ForEach(ledger.warnings, id: \.self) { SGNotice(.warning, title: $0) }
                         }
-                        if let message { SGNotice(.success, title: message) }
-                        CreditsCard(ledger: ledger, text: text, onConfirm: { confirming = $0 })
-                        ReconciliationCard(ledger: ledger, text: text, onApply: applyReconciliation)
-                        CorrectionsCard(adjustments: corrections, onAdd: { addingCorrection = true }, onDelete: deleteAdjustment)
-                        UsageCard(ledger: ledger, text: text)
-                        AssumptionsCard(items: ledger.assumptions + (ledger.reconciliation.assumptions ?? []))
                     }
-                    .padding(.horizontal, SGSpacing.gutter)
-                    .padding(.bottom, SGSpacing.xxl)
-                    .frame(maxWidth: SGLayout.readableWidth)
-                    .frame(maxWidth: .infinity)
-                } else {
-                    SGLoadingState()
+                    if let message { SGNotice(.success, title: message) }
+                    CreditsCard(ledger: ledger, text: text, onConfirm: { confirming = $0 })
+                    ReconciliationCard(ledger: ledger, text: text, onApply: applyReconciliation)
+                    CorrectionsCard(adjustments: corrections, onAdd: { addingCorrection = true }, onDelete: deleteAdjustment)
+                    UsageCard(ledger: ledger, text: text)
+                    AssumptionsCard(items: ledger.assumptions + (ledger.reconciliation.assumptions ?? []))
                 }
+                .padding(.horizontal, SGSpacing.gutter)
+                .padding(.bottom, SGSpacing.xxl)
+                .frame(maxWidth: SGLayout.readableWidth)
+                .frame(maxWidth: .infinity)
+            } else {
+                SGLoadingState()
             }
-            .background(.sg(SGColor.background))
-            .sgScreenChrome()
-            .navigationTitle("휴가")
-            .sheet(item: $confirming) { credit in
-                ConfirmCreditSheet(credit: credit) { message = "\(credit.label) 부여 일수를 저장했어요." }
-            }
-            .sheet(isPresented: $addingCorrection) {
-                CorrectionSheet { message = "보정을 저장했어요." }
-            }
+        }
+        .background(.sg(SGColor.background))
+        .sgScreenChrome()
+        .navigationTitle("연가 내역")
+        .sheet(item: $confirming) { credit in
+            ConfirmCreditSheet(credit: credit) { message = "\(credit.label) 부여 일수를 저장했어요." }
+        }
+        .sheet(isPresented: $addingCorrection) {
+            CorrectionSheet { message = "보정을 저장했어요." }
         }
     }
 

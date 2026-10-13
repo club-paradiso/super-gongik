@@ -3,9 +3,12 @@ import SGDesignSystem
 import SGFoundation
 import SwiftUI
 
-/// 기록: the service calendar. Month grid and agenda over the same live
-/// records; create, edit, delete (soft, with undo) and restore all go through
-/// the shared store commands.
+/// 캘린더 (Stitch Civic Codex "QUEST LOG"): month switcher, this month's
+/// summary, the grid, the selected day, upcoming records and a summary strip;
+/// or the agenda list. Create, edit, delete (soft, with undo) and restore all
+/// go through the shared store commands. The Stitch source also showed
+/// approval states ("결재 완료"), approval numbers and "자동 동기화 완료": the
+/// app cannot know any of them, so they are not drawn.
 struct RecordsView: View {
     enum Mode: String, CaseIterable { case month = "월간", agenda = "목록" }
 
@@ -16,6 +19,7 @@ struct RecordsView: View {
     @State private var editing: EditorTarget?
     @State private var filter: SGEventCategory?
     @State private var undo: ServiceEvent?
+    @State private var milestones: [ServiceMilestoneItem] = []
 
     struct EditorTarget: Identifiable {
         let event: ServiceEvent?
@@ -25,10 +29,16 @@ struct RecordsView: View {
 
     private var events: [ServiceEvent] { model.document?.liveEvents ?? [] }
 
+    /// "D-300", "50%", … from the same route as the 홈 strip.
+    private var nextMilestone: String? {
+        MilestoneRoute(milestones, today: model.today)?.entries.first { $0.state == .next }?.title
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: SGSpacing.md) {
+                    SGWorldEyebrow("QUEST LOG")
                     Picker("보기", selection: $mode) {
                         ForEach(Mode.allCases, id: \.self) { Text($0.rawValue) }
                     }
@@ -36,10 +46,21 @@ struct RecordsView: View {
 
                     switch mode {
                     case .month:
+                        MonthSwitcher(month: $month, selected: $selected)
+                        MonthSummary(month: month, events: events, display: display, next: nextMilestone)
                         MonthCalendar(month: $month, selected: $selected, events: events, display: display)
                         DayPanel(date: selected, events: events.filter { $0.covers(selected) }, display: display,
                                  onAdd: { editing = EditorTarget(event: nil, date: selected) },
                                  onOpen: { editing = EditorTarget(event: $0, date: $0.startDate) })
+                        if let home = model.projection?.home {
+                            UpcomingSection(items: home.upcoming, display: { model.projection?.eventDisplay?[$0.id] },
+                                            readOnly: model.isReadOnly,
+                                            onAdd: { editing = EditorTarget(event: nil, date: model.today) },
+                                            onOpen: { editing = EditorTarget(event: $0, date: $0.startDate) })
+                            if !home.completed {
+                                InventoryStrip(leave: home.leave, next: nextMilestone, headline: home.hero.headline)
+                            }
+                        }
                     case .agenda:
                         AgendaList(events: filtered, display: display, today: model.today,
                                    onOpen: { editing = EditorTarget(event: $0, date: $0.startDate) },
@@ -57,10 +78,18 @@ struct RecordsView: View {
             }
             .background(.sg(SGColor.background))
             .sgScreenChrome()
-            .navigationTitle("기록")
+            .navigationTitle("캘린더")
             .toolbar {
                 if mode == .agenda {
                     ToolbarItem(placement: .topBarLeading) { filterMenu }
+                }
+                // 연가 내역 left the tab bar (Stitch: four destinations).
+                ToolbarItem(placement: .secondaryAction) {
+                    NavigationLink {
+                        LeaveView()
+                    } label: {
+                        Label("연가 내역", systemImage: "list.clipboard")
+                    }
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button {
@@ -69,6 +98,11 @@ struct RecordsView: View {
                         Label("기록 추가", systemImage: "plus")
                     }
                     .disabled(model.isReadOnly)
+                }
+            }
+            .task(id: model.projection?.profile?.period) {
+                if let period = model.projection?.profile?.period {
+                    milestones = await model.serviceMilestones(period)
                 }
             }
             .sheet(item: $editing) { target in
@@ -152,26 +186,6 @@ private struct MonthCalendar: View {
     var body: some View {
         SGCard(padding: SGSpacing.sm) {
             VStack(spacing: SGSpacing.xs) {
-                HStack {
-                    Button { shift(-1) } label: { Image(systemName: "chevron.left").frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget) }
-                        .accessibilityLabel("이전 달")
-                    Spacer()
-                    Text(Formatters.month(month)).font(SGTypography.cardTitle).monospacedDigit()
-                    Spacer()
-                    Button { shift(1) } label: { Image(systemName: "chevron.right").frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget) }
-                        .accessibilityLabel("다음 달")
-                }
-                .overlay(alignment: .trailing) {
-                    if month.year != model.today.year || month.month != model.today.month {
-                        Button("오늘") {
-                            month = model.today
-                            selected = model.today
-                        }
-                        .font(SGTypography.label)
-                        .padding(.trailing, 48)
-                    }
-                }
-
                 HStack(spacing: 0) {
                     ForEach(Array(Formatters.weekdays.enumerated()), id: \.offset) { index, name in
                         Text(name)
@@ -197,8 +211,38 @@ private struct MonthCalendar: View {
                 .gesture(DragGesture(minimumDistance: 30).onEnded { value in
                     if value.translation.width < -50 { shift(1) } else if value.translation.width > 50 { shift(-1) }
                 })
+                if !legend.isEmpty {
+                    // Only the categories recorded this month, with the
+                    // shared labels; the mark's shape carries the category
+                    // as well as its color.
+                    HStack(spacing: SGSpacing.sm) {
+                        ForEach(legend, id: \.0) { category, label in
+                            HStack(spacing: SGSpacing.iconGap) {
+                                SGCategoryMark(category, size: 8)
+                                Text(label).font(SGTypography.micro).foregroundStyle(.sg(SGColor.textSecondary))
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, SGSpacing.xxs)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("범례")
+                }
             }
         }
+    }
+
+    private var legend: [(SGEventCategory, String)] {
+        var seen: [(SGEventCategory, String)] = []
+        for date in cells.compactMap({ $0 }) {
+            for event in events where event.covers(date) {
+                if let shown = display(event), let category = SGEventCategory(rawValue: shown.category),
+                   !seen.contains(where: { $0.0 == category }) {
+                    seen.append((category, shown.categoryLabel))
+                }
+            }
+        }
+        return seen.sorted { SGEventCategory.allCases.firstIndex(of: $0.0)! < SGEventCategory.allCases.firstIndex(of: $1.0)! }
     }
 
     private func categories(on date: CivilDate) -> [SGEventCategory] {
@@ -268,7 +312,16 @@ private struct DayPanel: View {
     var body: some View {
         SGCard {
             VStack(alignment: .leading, spacing: SGSpacing.sm) {
-                SGSectionHeader(Formatters.longDate(date))
+                HStack(spacing: SGSpacing.xs) {
+                    RoundedRectangle(cornerRadius: 2).fill(.sg(SGColor.accent))
+                        .frame(width: 4, height: 20)
+                        .accessibilityHidden(true)
+                    Text(Formatters.longDate(date))
+                        .font(SGTypography.cardTitle)
+                        .foregroundStyle(.sg(SGColor.textPrimary))
+                    SGWorldEyebrow("DAILY LOG")
+                }
+                .accessibilityAddTraits(.isHeader)
                 if events.isEmpty {
                     Text("이 날의 기록이 없어요.")
                         .font(SGTypography.body)
@@ -288,6 +341,197 @@ private struct DayPanel: View {
                 .buttonStyle(SGSecondaryButtonStyle())
                 .disabled(model.isReadOnly)
             }
+        }
+    }
+}
+
+// MARK: Civic Codex sections
+
+/// Month switcher card (Stitch: chevrons in tinted tiles, the month, and 오늘
+/// when another month is shown).
+private struct MonthSwitcher: View {
+    @Binding var month: CivilDate
+    @Binding var selected: CivilDate
+    @Environment(AppModel.self) private var model
+
+    private var firstOfMonth: CivilDate { CivilDate(year: month.year, month: month.month, day: 1)! }
+    private var isCurrent: Bool { month.year == model.today.year && month.month == model.today.month }
+
+    var body: some View {
+        SGCard(padding: SGSpacing.sm) {
+            HStack {
+                tile("chevron.left", label: "이전 달") { shift(-1) }
+                Spacer()
+                VStack(spacing: SGSpacing.xxxs) {
+                    Text(Formatters.month(month)).font(SGTypography.title3).monospacedDigit()
+                        .foregroundStyle(.sg(SGColor.textPrimary))
+                    SGWorldEyebrow("OPERATION CYCLE")
+                    if !isCurrent {
+                        Button("오늘") {
+                            month = model.today
+                            selected = model.today
+                        }
+                        .font(SGTypography.label)
+                    }
+                }
+                Spacer()
+                tile("chevron.right", label: "다음 달") { shift(1) }
+            }
+        }
+    }
+
+    private func tile(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(SGTypography.label)
+                .foregroundStyle(.sg(SGColor.accent))
+                .frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget)
+                .background(.sg(SGColor.selectedBackground), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+    }
+
+    private func shift(_ amount: Int) {
+        month = firstOfMonth.adding(months: amount)
+        selected = month.year == model.today.year && month.month == model.today.month ? model.today : month
+    }
+}
+
+/// This month at a glance. Counts are records, not days: day totals (half
+/// days, hours) belong to the leave ledger's own calculation.
+private struct MonthSummary: View {
+    let month: CivilDate
+    let events: [ServiceEvent]
+    let display: (ServiceEvent) -> EventDisplay?
+    let next: String?
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    private var inMonth: [ServiceEvent] {
+        let first = CivilDate(year: month.year, month: month.month, day: 1)!
+        let last = first.adding(days: CivilDate.daysInMonth(year: month.year, month: month.month) - 1)
+        return events.filter { $0.startDate.dayNumber <= last.dayNumber && $0.endDate.dayNumber >= first.dayNumber }
+    }
+
+    private func count(_ category: SGEventCategory) -> Int {
+        inMonth.filter { display($0)?.category == category.rawValue }.count
+    }
+
+    private var layout: AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: SGSpacing.xxs))
+            : AnyLayout(HStackLayout(spacing: SGSpacing.xxs))
+    }
+
+    var body: some View {
+        layout {
+            cell("이번 달 기록", "\(inMonth.count)", unit: "건")
+            cell("연가 기록", "\(count(.leave))", unit: "건", highlighted: true)
+            cell("병가 기록", "\(count(.sick))", unit: "건")
+            cell("다음 이정표", next ?? "—", unit: nil, accent: true)
+        }
+        .padding(SGSpacing.xs)
+        .background(.sg(SGColor.surfaceRaised), in: RoundedRectangle(cornerRadius: SGRadius.card, style: .continuous))
+    }
+
+    private func cell(_ title: String, _ value: String, unit: String?, highlighted: Bool = false, accent: Bool = false) -> some View {
+        VStack(spacing: SGSpacing.xxxs) {
+            Text(title).font(SGTypography.micro).foregroundStyle(.sg(SGColor.textSecondary))
+            HStack(alignment: .lastTextBaseline, spacing: 1) {
+                Text(value).font(SGTypography.title3).monospacedDigit()
+                    .foregroundStyle(.sg(accent ? SGColor.accent : SGColor.textPrimary))
+                    .lineLimit(1).minimumScaleFactor(0.7)
+                if let unit { Text(unit).font(SGTypography.micro).foregroundStyle(.sg(SGColor.textSecondary)) }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, SGSpacing.xs)
+        .background(highlighted ? AnyShapeStyle(.sg(SGColor.surface)) : AnyShapeStyle(Color.clear),
+                    in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
+        .accessibilityElement(children: .combine)
+    }
+}
+
+/// "다가오는 일정" with the add button (Stitch "UPCOMING CIVIC AGENDAS").
+/// Stitch's "일정 신청" became 기록 추가: the app records, it files nothing.
+private struct UpcomingSection: View {
+    let items: [HomeModel.AgendaItem]
+    let display: (ServiceEvent) -> EventDisplay?
+    let readOnly: Bool
+    let onAdd: () -> Void
+    let onOpen: (ServiceEvent) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SGSpacing.sm) {
+            HStack(alignment: .center) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("다가오는 일정").font(SGTypography.sectionTitle).foregroundStyle(.sg(SGColor.textPrimary))
+                    SGWorldEyebrow("UPCOMING AGENDA")
+                }
+                .accessibilityAddTraits(.isHeader)
+                Spacer()
+                Button(action: onAdd) {
+                    Label("기록 추가", systemImage: "plus")
+                        .font(SGTypography.label)
+                        .padding(.horizontal, SGSpacing.sm)
+                        .frame(minHeight: SGSpacing.minimumHitTarget)
+                        .foregroundStyle(.sg(SGColor.onAccent))
+                        .background(.sg(SGColor.accent), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .disabled(readOnly)
+            }
+            if items.isEmpty {
+                SGCard {
+                    SGEmptyState(symbol: "sunrise", title: "예정된 일정이 없어요",
+                                 message: "휴가를 정했다면 미리 기록해 두세요.")
+                }
+            } else {
+                ForEach(items) { item in
+                    Button { onOpen(item.event) } label: {
+                        SGCard(padding: SGSpacing.sm) {
+                            AgendaRow(item: item, display: display(item.event))
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+}
+
+/// Stitch "CIVIC INVENTORY": what is left, at the bottom of the calendar.
+private struct InventoryStrip: View {
+    let leave: HomeModel.Leave
+    let next: String?
+    let headline: String
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    var body: some View {
+        let layout = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: SGSpacing.xs))
+            : AnyLayout(HStackLayout(spacing: SGSpacing.sm))
+        layout {
+            VStack(alignment: .leading, spacing: 0) {
+                SGWorldEyebrow("CIVIC INVENTORY", tint: SGColor.heroForeground3)
+                Text("한눈에 보기").font(SGTypography.label).foregroundStyle(.sg(SGColor.heroForeground))
+            }
+            if !typeSize.isAccessibilitySize { Spacer(minLength: SGSpacing.xs) }
+            item("남은 연가", leave.kind == "READY" ? (leave.remaining ?? "—") : "확인 필요")
+            if let next { item("다음 이정표", next) }
+            item("소집해제", headline)
+        }
+        .padding(SGSpacing.md)
+        .background { SGHeroBackground(celebrate: false) }
+        .clipShape(RoundedRectangle(cornerRadius: SGRadius.card, style: .continuous))
+        .environment(\.colorScheme, .dark)
+        .accessibilityElement(children: .combine)
+    }
+
+    private func item(_ title: String, _ value: String) -> some View {
+        VStack(alignment: typeSize.isAccessibilitySize ? .leading : .trailing, spacing: 0) {
+            Text(title).font(SGTypography.micro).foregroundStyle(.sg(SGColor.heroForeground3))
+            Text(value).font(SGTypography.bodyStrong).monospacedDigit().foregroundStyle(.sg(SGColor.heroAccent))
         }
     }
 }

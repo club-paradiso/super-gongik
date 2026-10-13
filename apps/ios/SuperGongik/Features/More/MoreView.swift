@@ -3,7 +3,11 @@ import SGDesignSystem
 import SGFoundation
 import SwiftUI
 
-/// 더보기: settings, data, privacy and sources. Native grouped list.
+/// 내 정보 (Stitch Civic Codex "CHARACTER"): a service summary card, then
+/// settings, data, privacy and sources as a native grouped list. The Stitch
+/// source's name, photo, rank, level, ID code and institution contacts are
+/// not drawn: the app does not hold them, and ranks do not exist for social
+/// service personnel.
 struct MoreView: View {
     @Environment(AppModel.self) private var model
     @Environment(PrivacyLock.self) private var lock
@@ -24,8 +28,15 @@ struct MoreView: View {
         NavigationStack {
             List {
                 Group {
+                    if let profile = model.profile, let hero = model.projection?.home?.hero {
+                        Section {
+                            CharacterCard(profile: profile, hero: hero)
+                        }
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                    }
                     if let profile = model.profile {
-                        Section("복무") {
+                        Section {
                             Button {
                                 showingProfile = true
                             } label: {
@@ -44,6 +55,8 @@ struct MoreView: View {
                                 get: { profile.liveProgressEnabled ?? false },
                                 set: { value in Task { await model.editProfile(["liveProgressEnabled": .bool(value)]) } }))
                             .disabled(model.isReadOnly)
+                        } header: {
+                            header("복무", world: "PROFILE")
                         }
                     }
 
@@ -85,7 +98,7 @@ struct MoreView: View {
                             }
                         }
                     } header: {
-                        Text("저장")
+                        header("저장", world: "DATA ARCHIVE")
                     } footer: {
                         Text(model.cloud.isConfigured
                              ? "기록은 이 기기에 먼저 저장돼요. 로그인하고 동기화를 켜야만 클라우드에 올라가요. 로그인하지 않으면 네트워크를 쓰지 않아요."
@@ -145,21 +158,93 @@ struct MoreView: View {
                         }
                     }
 
-                    Section("정보") {
+                    Section {
                         NavigationLink("계산 기준과 출처") { AboutView() }
                         LabeledContent("버전", value: Bundle.main.versionText)
+                    } header: {
+                        header("정보", world: "CIVIC CODEX")
                     }
                 }
                 .sgListRowSurface()
             }
             .sgGroupedChrome()
             .sgScreenChrome()
-            .navigationTitle("더보기")
+            .navigationTitle("내 정보")
             .navigationDestination(isPresented: $showingCloud) { CloudSyncView() }
             .sheet(isPresented: $showingProfile) {
                 NavigationStack { ProfileEditView() }
             }
         }
+    }
+}
+
+extension MoreView {
+    private func header(_ title: String, world: String) -> some View {
+        HStack(spacing: SGSpacing.xs) {
+            Text(title)
+            SGWorldEyebrow(world)
+        }
+    }
+}
+
+/// Stitch "CHARACTER" card, limited to what the app knows: the service
+/// category, progress, dates and days left (shared home model values).
+private struct CharacterCard: View {
+    let profile: ServiceProfile
+    let hero: HomeModel.Hero
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    private var columns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: SGSpacing.xs, alignment: .topLeading),
+              count: typeSize.isAccessibilitySize ? 1 : 2)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SGSpacing.sm) {
+            HStack(spacing: SGSpacing.sm) {
+                Image("BrandMark")
+                    .resizable()
+                    .frame(width: 52, height: 52)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
+                    SGWorldEyebrow("CHARACTER", tint: SGColor.heroAccent)
+                    Text("내 복무")
+                        .font(SGTypography.cardTitle)
+                        .foregroundStyle(.sg(SGColor.heroForeground))
+                    Text(profile.serviceCategory.map { "사회복무요원 · \($0)" } ?? "사회복무요원")
+                        .font(SGTypography.caption)
+                        .foregroundStyle(.sg(SGColor.heroForeground2))
+                }
+                Spacer(minLength: 0)
+                Text(hero.percentLabel)
+                    .font(SGTypography.title3).monospacedDigit()
+                    .foregroundStyle(.sg(SGColor.heroAccent))
+            }
+            SGProgressBar(fraction: hero.percent / 100)
+            LazyVGrid(columns: columns, alignment: .leading, spacing: SGSpacing.xs) {
+                stat("소집일", profile.callUpDate.description.replacingOccurrences(of: "-", with: "."))
+                stat("소집해제 예정", profile.expectedDischargeDate.description.replacingOccurrences(of: "-", with: "."))
+                stat("남은 복무일", "\(KoreanNumber.grouped(hero.remainingDays))일")
+                stat("지난 복무일", "\(KoreanNumber.grouped(hero.elapsedDays))일")
+            }
+        }
+        .padding(SGSpacing.lg)
+        .background { SGHeroBackground(celebrate: false) }
+        .clipShape(RoundedRectangle(cornerRadius: SGRadius.hero, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: SGRadius.hero, style: .continuous).strokeBorder(.sg(SGColor.heroBorder)))
+        .environment(\.colorScheme, .dark)
+        .accessibilityElement(children: .combine)
+    }
+
+    private func stat(_ title: String, _ value: String) -> some View {
+        VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
+            Text(title).font(SGTypography.micro).foregroundStyle(.sg(SGColor.heroForeground3))
+            Text(value).font(SGTypography.bodyStrong).monospacedDigit().foregroundStyle(.sg(SGColor.heroForeground))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(SGSpacing.xs)
+        .background(.sg(SGColor.heroTrack), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
     }
 }
 
