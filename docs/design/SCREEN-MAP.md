@@ -56,16 +56,16 @@ Spec and QA record: page 55 "Warrior — Spec & QA" (`125:8485`). Component revi
 
 Direction B from page 40 (`49:290`), drawn per [STITCH-IMPLEMENTATION-PLAN.md](./STITCH-IMPLEMENTATION-PLAN.md). Four-tab bar: page 51 `AppTabBar · 4` (`201:610`). World labels appear only in Warrior frames (`theme/world-language`, code `SGWorldEyebrow`).
 
-| Phase                | Figma (page 52)                                                                     | SwiftUI                                                                                                       | Status |
-| -------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------ |
-| 1 홈                 | `202:3614` Light, `202:3847` Warrior Light, `202:3956` Warrior Dark                 | `App/RootView.swift`, `Features/Today/TodayView.swift`                                                        | MATCH  |
-| 2 캘린더             | `204:3938` Light, `204:4256` Warrior Light, `204:4469` Warrior Dark                 | `Features/Records/RecordsView.swift`, `Features/Leave/LeaveView.swift`                                        | MATCH  |
-| 3 급여               | `206:4205` Light, `206:4424` Warrior Light, `206:4539` Warrior Dark                 | `Features/Pay/PayView.swift`                                                                                  | MATCH  |
-| 4 내 정보            | `207:4469` Light, `207:4633` Warrior Light, `207:4728` Warrior Dark                 | `Features/More/MoreView.swift`                                                                                | MATCH  |
-| 5 온보딩             | `208:4628` Step 1, `208:4655` Step 2, `208:4683` Step 3, `208:4721` Step 4 (Light)  | `Features/Onboarding/OnboardingView.swift`                                                                    | MATCH  |
-| 6 복무 기록 요약 PDF | `209:4634` A4 1쪽                                                                   | `Features/More/RecordSummaryPDF.swift`                                                                        | MATCH  |
-| 7 라이브 액티비티    | `210:4634` 잠금 화면, `210:4646` Dynamic Island compact, `210:4650` expanded        | `SuperGongikWidgets/DutyLiveActivity.swift`, `Shared/DutyActivity.swift`, `Core/DutyActivityController.swift` | REFINE |
-| 8 복무 기념 카드     | `210:4664` 앞면, `210:4672` 뒷면                                                    | `Features/More/MemorialCardView.swift`                                                                        | MATCH  |
+| Phase                | Figma (page 52)                                                                    | SwiftUI                                                                                                       | Status |
+| -------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------ |
+| 1 홈                 | `202:3614` Light, `202:3847` Warrior Light, `202:3956` Warrior Dark                | `App/RootView.swift`, `Features/Today/TodayView.swift`                                                        | MATCH  |
+| 2 캘린더             | `204:3938` Light, `204:4256` Warrior Light, `204:4469` Warrior Dark                | `Features/Records/RecordsView.swift`, `Features/Leave/LeaveView.swift`                                        | MATCH  |
+| 3 급여               | `206:4205` Light, `206:4424` Warrior Light, `206:4539` Warrior Dark                | `Features/Pay/PayView.swift`                                                                                  | MATCH  |
+| 4 내 정보            | `207:4469` Light, `207:4633` Warrior Light, `207:4728` Warrior Dark                | `Features/More/MoreView.swift`                                                                                | MATCH  |
+| 5 온보딩             | `208:4628` Step 1, `208:4655` Step 2, `208:4683` Step 3, `208:4721` Step 4 (Light) | `Features/Onboarding/OnboardingView.swift`                                                                    | MATCH  |
+| 6 복무 기록 요약 PDF | `209:4634` A4 1쪽                                                                  | `Features/More/RecordSummaryPDF.swift`                                                                        | MATCH  |
+| 7 라이브 액티비티    | `210:4634` 잠금 화면, `210:4646` Dynamic Island compact, `210:4650` expanded       | `SuperGongikWidgets/DutyLiveActivity.swift`, `Shared/DutyActivity.swift`, `Core/DutyActivityController.swift` | REFINE |
+| 8 복무 기념 카드     | `210:4664` 앞면, `210:4672` 뒷면                                                   | `Features/More/MemorialCardView.swift`                                                                        | MATCH  |
 
 Phase 7 stays `REFINE` until the expanded island and lock screen are captured (compact island seen); the plan's status table records what was checked.
 
