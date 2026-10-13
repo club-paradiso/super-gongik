@@ -50,22 +50,19 @@ or a device that an agent session does not have.
    paid Apple Developer Program, confirm the bundle id and App Group, replace
    the 1024 px icon master, and record the real-device QA checklist in
    `docs/ios/RELEASE.md`. The local-only checks do not depend on item 1.
-3. **Correct stale docs.** `README.md` still says totals and partial-month pay
-   are never calculated; `docs/ios/RELEASE.md` Phase 1 still says iOS CI has
-   not run. Both contradict `main`.
-4. **Close Phase 9.** Web account deletion (CORS and an origin allowlist on
+3. **Close Phase 9.** Web account deletion (CORS and an origin allowlist on
    `delete-account`), compensation CSV export, and a web privacy disclosure.
-5. **Verify the MMA HWPX bytes (#19)** (human for a network that reaches
+4. **Verify the MMA HWPX bytes (#19)** (human for a network that reaches
    open.mma.go.kr). Download, hash, compare with `docs/sources/2026/SHA256SUMS`,
    record the result. Small, and it upgrades the provenance of every
    compensation number.
-6. **Leave-rule gaps, source first.** Service-length effect of ordinary sick
+5. **Leave-rule gaps, source first.** Service-length effect of ordinary sick
    leave over 30 days, and conditional bonus leave eligibility. Only from
    verified rule text; keep both gated until then.
-7. **Quality pass.** Choose a privacy-preserving, opt-in error-reporting
+6. **Quality pass.** Choose a privacy-preserving, opt-in error-reporting
    approach (none exists today), run a web performance audit and iOS
    Instruments profiling.
-8. **iOS import parity.** XLSX/HWP/PDF import and the share extension, after
+7. **iOS import parity.** XLSX/HWP/PDF import and the share extension, after
    moving web PDF table reconstruction into `packages/importer`.
 
 Deferred until the above land: E2EE and tombstone GC (Phase 8), recurring
