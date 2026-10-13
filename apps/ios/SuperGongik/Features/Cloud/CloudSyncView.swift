@@ -15,6 +15,7 @@ struct CloudSyncView: View {
     @State private var previewText: String?
     @State private var choices: [String: String] = [:]
     @State private var backups: [JSONValue] = []
+    @State private var backupsLoaded = false
     @State private var restoreText: IdentifiedText?
     @State private var confirmDelete = false
     @State private var confirmAccountDeletion = false
@@ -42,11 +43,15 @@ struct CloudSyncView: View {
                         .foregroundStyle(.sg(tone(view.label.tone)))
                         .accessibilityElement(children: .combine)
                         if view.state.phase == "SIGNED_IN" {
-                            LabeledContent("계정", value: view.state.email ?? "로그인됨")
+                            LabeledContent("계정", value: cloud.accountName)
                             LabeledContent("마지막 동기화", value: view.lastSynced)
                         }
                     } footer: {
-                        Text("로그인해도 기록을 바로 올리지 않아요. 이 기기에서 동기화를 켤 때 무엇이 바뀌는지 먼저 보여 드려요. 클라우드에 저장된 기록은 종단간 암호화되지 않아요.")
+                        // The reassurance belongs to the signed-out screen;
+                        // once signed in the preview below says it again.
+                        Text(view.state.phase == "SIGNED_IN"
+                             ? "클라우드에 저장된 기록은 종단간 암호화되지 않아요."
+                             : "로그인해도 기록을 바로 올리지 않아요. 이 기기에서 동기화를 켤 때 무엇이 바뀌는지 먼저 보여 드려요. 클라우드에 저장된 기록은 종단간 암호화되지 않아요.")
                     }
 
                     switch view.state.phase {
@@ -80,30 +85,39 @@ struct CloudSyncView: View {
 
     @ViewBuilder
     private func signIn(_ view: CloudModel.View) -> some View {
-        Section {
-            if view.state.phase == "CODE_SENT" {
-                Text("\(view.state.email ?? "")로 보낸 6자리 코드를 입력하세요.")
-                    .font(SGTypography.caption)
-                TextField("인증 코드", text: $code)
-                    .keyboardType(.numberPad)
-                    .textContentType(.oneTimeCode)
-                Button("로그인") { Task { await cloud.verifyCode(code) } }
-                    .disabled(code.count < 6)
-                Button("다른 이메일로", role: .cancel) { Task { await cloud.cancelCode() } }
-            } else {
-                TextField("이메일", text: $email)
-                    .keyboardType(.emailAddress)
-                    .textContentType(.emailAddress)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                Button("인증 코드 받기") { Task { await cloud.sendCode(email.trimmingCharacters(in: .whitespaces)) } }
-                    .disabled(!email.contains("@"))
+        if cloud.signInFailed {
+            Section {
+                SGNotice(.danger, title: "로그인하지 못했어요", message: "잠시 후 다시 시도해 주세요. 기록은 그대로 있어요.")
             }
-            if let error = view.authError {
-                Text(error).font(SGTypography.caption).foregroundStyle(.sg(SGColor.danger))
+            .listRowBackground(Color.clear).listRowInsets(EdgeInsets())
+        }
+
+        if model.config.signInWithEmail {
+            Section {
+                if view.state.phase == "CODE_SENT" {
+                    Text("\(view.state.email ?? "")로 보낸 6자리 코드를 입력하세요.")
+                        .font(SGTypography.caption)
+                    TextField("인증 코드", text: $code)
+                        .keyboardType(.numberPad)
+                        .textContentType(.oneTimeCode)
+                    Button("로그인") { Task { await cloud.verifyCode(code) } }
+                        .disabled(code.count < 6)
+                    Button("다른 이메일로", role: .cancel) { Task { await cloud.cancelCode() } }
+                } else {
+                    TextField("이메일", text: $email)
+                        .keyboardType(.emailAddress)
+                        .textContentType(.emailAddress)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    Button("인증 코드 받기") { Task { await cloud.sendCode(email.trimmingCharacters(in: .whitespaces)) } }
+                        .disabled(!email.contains("@"))
+                }
+                if let error = view.authError {
+                    Text(error).font(SGTypography.caption).foregroundStyle(.sg(SGColor.danger))
+                }
+            } header: {
+                Text("이메일로 로그인")
             }
-        } header: {
-            Text("이메일로 로그인")
         }
 
         Section {
@@ -115,7 +129,7 @@ struct CloudSyncView: View {
                 }
                 .frame(height: SGSpacing.minimumHitTarget)
             }
-            ForEach([("google", "Google로 계속하기"), ("kakao", "카카오로 계속하기"), ("custom:naver", "네이버로 계속하기")], id: \.0) { provider, title in
+            ForEach(socialProviders, id: \.0) { provider, title in
                 Button(title) {
                     Task {
                         guard let anchor = UIApplication.shared.connectedScenes
@@ -125,8 +139,16 @@ struct CloudSyncView: View {
                 }
             }
         } header: {
-            Text("다른 계정으로 로그인")
+            Text(model.config.signInWithEmail ? "다른 계정으로 로그인" : "계정으로 로그인")
         }
+    }
+
+    /// Kakao first (most users), then Google. NAVER only once Supabase has
+    /// the custom:naver provider (SG_SIGN_IN_NAVER).
+    private var socialProviders: [(String, String)] {
+        var list = [("kakao", "카카오로 계속하기"), ("google", "Google로 계속하기")]
+        if model.config.signInWithNaver { list.append(("custom:naver", "네이버로 계속하기")) }
+        return list
     }
 
     // MARK: Signed in
@@ -138,7 +160,10 @@ struct CloudSyncView: View {
             Section { blockNotice(block.reason, view) }
         } else if sync == nil || sync?.phase == "DISABLED" {
             Section {
-                if let previewText {
+                if let previewText, let shown = preview {
+                    SyncScale(local: shown["localRecords"]?.numberValue ?? 0,
+                              cloud: shown["remoteRecords"]?.numberValue ?? 0,
+                              direction: shown["case"]?.stringValue ?? "NOTHING")
                     Text(previewText).font(SGTypography.body)
                     Button("이대로 동기화 켜기") {
                         Task {
@@ -153,11 +178,19 @@ struct CloudSyncView: View {
                             }
                         }
                     }
+                    .fontWeight(.medium)
+                    Button("취소", role: .cancel) {
+                        self.preview = nil
+                        self.previewText = nil
+                    }
+                    .foregroundStyle(.sg(SGColor.textSecondary))
                 } else {
                     Button("이 기기에서 동기화 켜기") { Task { await loadPreview() } }
                 }
+            } header: {
+                if previewText != nil { Text("이 기기에서 동기화 켜기") }
             } footer: {
-                Text("켜기 전에 올릴 기록과 가져올 기록을 보여 드려요. 다른 복무 프로필의 기록과는 합치지 않아요.")
+                Text("켜기 전에는 아무것도 올리거나 받지 않아요. 어느 쪽도 통째로 덮어쓰지 않고, 다른 복무 프로필의 기록과는 합치지 않아요.")
             }
         } else {
             Section {
@@ -199,6 +232,9 @@ struct CloudSyncView: View {
         }
 
         Section {
+            if backupsLoaded && backups.isEmpty {
+                Text("클라우드 백업이 아직 없어요.").foregroundStyle(.sg(SGColor.textTertiary))
+            }
             ForEach(backups, id: \.self) { backup in
                 HStack {
                     VStack(alignment: .leading) {
@@ -236,7 +272,10 @@ struct CloudSyncView: View {
         } footer: {
             Text("최근 10개까지 보관해요. 복원하면 파일과 같은 미리보기를 거쳐요.")
         }
-        .task { backups = await cloud.listBackups() }
+        .task {
+            backups = await cloud.listBackups()
+            backupsLoaded = true
+        }
 
         Section {
             Button("로그아웃") { Task { await cloud.signOut() } }
@@ -323,6 +362,64 @@ struct CloudSyncView: View {
         case "ok": SGColor.success
         case "attention": SGColor.warning
         default: SGColor.textSecondary
+        }
+    }
+}
+
+/// The enable preview's 저울: this device's records, the direction, the
+/// cloud's records. The sentence under it comes from the shared core.
+private struct SyncScale: View {
+    let local: Double
+    let cloud: Double
+    /// The preview's `case`: UPLOAD, DOWNLOAD, MERGE or NOTHING.
+    let direction: String
+
+    private var arrow: (symbol: String, verb: String)? {
+        switch direction {
+        case "UPLOAD": ("arrow.right", "올려요")
+        case "DOWNLOAD": ("arrow.left", "가져와요")
+        case "MERGE": ("arrow.left.arrow.right", "합쳐요")
+        default: nil
+        }
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .center) {
+                side("이 기기", local, alignment: .leading)
+                Spacer(minLength: SGSpacing.sm)
+                middle
+                Spacer(minLength: SGSpacing.sm)
+                side("클라우드", cloud, alignment: .trailing)
+            }
+            // Accessibility sizes: stack the two counts.
+            VStack(alignment: .leading, spacing: SGSpacing.sm) {
+                side("이 기기", local, alignment: .leading)
+                middle
+                side("클라우드", cloud, alignment: .leading)
+            }
+        }
+        .padding(.vertical, SGSpacing.xs)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("이 기기 기록 \(Int(local))건, 클라우드 기록 \(Int(cloud))건" + (arrow.map { ", \($0.verb)" } ?? ""))
+    }
+
+    @ViewBuilder
+    private var middle: some View {
+        if let arrow {
+            VStack(spacing: SGSpacing.xxs) {
+                Image(systemName: arrow.symbol).font(SGTypography.title3)
+                Text(arrow.verb).font(SGTypography.caption)
+            }
+            .foregroundStyle(.sg(SGColor.accent))
+        }
+    }
+
+    private func side(_ title: String, _ count: Double, alignment: HorizontalAlignment) -> some View {
+        VStack(alignment: alignment, spacing: SGSpacing.xxs) {
+            Text(title).font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+            Text("\(Int(count))건").font(SGTypography.statValue).monospacedDigit()
+                .foregroundStyle(.sg(SGColor.textPrimary))
         }
     }
 }

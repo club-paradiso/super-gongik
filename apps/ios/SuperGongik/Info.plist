@@ -26,6 +26,10 @@
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>앱 잠금을 켜면 Face ID로 슈퍼공익 기록을 열어요.</string>
+	<key>SGSignInEmail</key>
+	<string>$(SG_SIGN_IN_EMAIL)</string>
+	<key>SGSignInNaver</key>
+	<string>$(SG_SIGN_IN_NAVER)</string>
 	<key>SGSignInWithApple</key>
 	<string>$(SG_SIGN_IN_WITH_APPLE)</string>
 	<key>SGSupabaseAnonKey</key>

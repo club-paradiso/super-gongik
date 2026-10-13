@@ -74,6 +74,8 @@ targets:
         SGSupabaseURL: $(SG_SUPABASE_URL)
         SGSupabaseAnonKey: $(SG_SUPABASE_ANON_KEY)
         SGSignInWithApple: $(SG_SIGN_IN_WITH_APPLE)
+        SGSignInEmail: $(SG_SIGN_IN_EMAIL)
+        SGSignInNaver: $(SG_SIGN_IN_NAVER)
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(SG_BUNDLE_ID)

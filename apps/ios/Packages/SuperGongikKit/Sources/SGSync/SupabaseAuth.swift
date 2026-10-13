@@ -22,8 +22,26 @@ public struct StoredSession: Codable, Sendable, Equatable {
     public var expiresAt: Double
     public var userId: String
     public var email: String?
+    /// GoTrue's `app_metadata.provider` ("kakao", "google", "apple",
+    /// "custom:naver", "email"). Optional so sessions stored before it
+    /// existed still decode.
+    public var provider: String?
 
     var core: CoreSession { CoreSession(userId: userId, email: email, accessToken: accessToken) }
+}
+
+/// What the cloud screen shows on the 계정 row. Kakao accounts have no email
+/// (the app asks Kakao for nickname and profile image only), so the provider
+/// name stands in for it.
+public func accountDisplayName(email: String?, provider: String?) -> String {
+    if let email, !email.isEmpty { return email }
+    switch provider {
+    case "kakao": return "카카오 계정"
+    case "google": return "Google 계정"
+    case "apple": return "Apple 계정"
+    case "custom:naver", "naver": return "네이버 계정"
+    default: return "로그인됨"
+    }
 }
 
 public protocol SessionStoring: Sendable {
@@ -121,6 +139,9 @@ public actor SupabaseAuth {
     }
 
     public nonisolated var hasStoredSession: Bool { store.load() != nil }
+    /// The signed-in account's provider, read from the Keychain without a
+    /// refresh or a request.
+    public nonisolated var storedProvider: String? { store.load()?.provider }
 
     private func request(_ path: String, query: [URLQueryItem] = [], body: [String: Any]?, bearer: String? = nil) -> URLRequest {
         var components = URLComponents(url: config.url.appendingPathComponent(path), resolvingAgainstBaseURL: false)!
@@ -154,8 +175,10 @@ public actor SupabaseAuth {
         else { return nil }
         let expiresAt = (object["expires_at"] as? Double)
             ?? now.timeIntervalSince1970 + ((object["expires_in"] as? Double) ?? 3600)
+        let email = (user["email"] as? String).flatMap { $0.isEmpty ? nil : $0 }
+        let provider = (user["app_metadata"] as? [String: Any])?["provider"] as? String
         return StoredSession(accessToken: access, refreshToken: refresh, expiresAt: expiresAt,
-                             userId: id, email: user["email"] as? String)
+                             userId: id, email: email, provider: provider)
     }
 
     private func adopt(_ session: StoredSession) {

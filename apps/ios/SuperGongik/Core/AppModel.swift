@@ -62,6 +62,7 @@ final class AppModel {
             #endif
             phase = .ready
             scheduleMidnightRefresh()
+            cloud.onStoreChange = { [weak self] in await self?.reloadAfterExternalWrite() }
             await cloud.attach(runtime)
         } catch {
             AppLog.error("core start failed: \(error)")
@@ -203,6 +204,10 @@ struct AppConfig: Sendable {
     /// "Apple로 로그인" is offered only when the build says the Apple
     /// provider is configured (SG_SIGN_IN_WITH_APPLE).
     let signInWithApple: Bool
+    /// Email code sign-in (SG_SIGN_IN_EMAIL) and NAVER (SG_SIGN_IN_NAVER) are
+    /// offered only once Supabase can serve them; see Base.xcconfig.
+    let signInWithEmail: Bool
+    let signInWithNaver: Bool
 
     /// Cloud features appear only when both values are configured, exactly
     /// like the web's NEXT_PUBLIC_SUPABASE_* rule.
@@ -218,6 +223,8 @@ struct AppConfig: Sendable {
         let url = value("SGSupabaseURL").flatMap(URL.init(string:)).flatMap { $0.scheme == "https" ? $0 : nil }
         return AppConfig(
             supabaseURL: url, supabaseAnonKey: value("SGSupabaseAnonKey"),
-            signInWithApple: value("SGSignInWithApple")?.uppercased() == "YES")
+            signInWithApple: value("SGSignInWithApple")?.uppercased() == "YES",
+            signInWithEmail: value("SGSignInEmail")?.uppercased() == "YES",
+            signInWithNaver: value("SGSignInNaver")?.uppercased() == "YES")
     }()
 }

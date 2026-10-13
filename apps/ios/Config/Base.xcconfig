@@ -23,4 +23,11 @@ SG_WIDGET_ENTITLEMENTS = SuperGongikWidgets/SuperGongikWidgets.entitlements
 // (needs the paid membership for the Services ID and key).
 SG_SIGN_IN_WITH_APPLE = NO
 
+// Email code sign-in needs custom SMTP in Supabase: the built-in sender only
+// reaches organization members, two messages an hour. NAVER needs the
+// custom:naver OIDC provider configured in Supabase. Both stay hidden until
+// then; Kakao and Google are always offered.
+SG_SIGN_IN_EMAIL = NO
+SG_SIGN_IN_NAVER = NO
+
 #include? "Local.xcconfig"
