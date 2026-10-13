@@ -76,6 +76,7 @@ targets:
         SGSignInWithApple: $(SG_SIGN_IN_WITH_APPLE)
         SGSignInEmail: $(SG_SIGN_IN_EMAIL)
         SGSignInNaver: $(SG_SIGN_IN_NAVER)
+        NSSupportsLiveActivities: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(SG_BUNDLE_ID)

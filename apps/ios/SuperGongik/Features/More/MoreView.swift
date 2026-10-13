@@ -14,6 +14,17 @@ struct MoreView: View {
     @AppStorage(ThemePreference.key, store: ThemePreference.store) private var theme: SGTheme = .standard
     @State private var showingProfile = false
     @State private var showingCloud = Self.debugOpenCloud
+    @State private var showingCard = Self.debugFlag("SGOpenMemorialCard")
+    @State private var activityOn = DutyActivityController.isRunning
+
+    /// DEBUG-only screenshot hook: `-SGOpenMemorialCard YES`.
+    private static func debugFlag(_ key: String) -> Bool {
+        #if DEBUG
+        UserDefaults.standard.bool(forKey: key)
+        #else
+        false
+        #endif
+    }
 
     /// DEBUG-only screenshot hook: `-SGOpenCloud YES`.
     private static var debugOpenCloud: Bool {
@@ -51,6 +62,7 @@ struct MoreView: View {
                                     Image(systemName: "chevron.right").font(.caption).foregroundStyle(.sg(SGColor.textTertiary))
                                 }
                             }
+                            NavigationLink("복무 기념 카드") { MemorialCardView() }
                             Toggle("초 단위 진행률", isOn: Binding(
                                 get: { profile.liveProgressEnabled ?? false },
                                 set: { value in Task { await model.editProfile(["liveProgressEnabled": .bool(value)]) } }))
@@ -105,6 +117,28 @@ struct MoreView: View {
                         Text(model.cloud.isConfigured
                              ? "기록은 이 기기에 먼저 저장돼요. 로그인하고 동기화를 켜야만 클라우드에 올라가요. 로그인하지 않으면 네트워크를 쓰지 않아요."
                              : "모든 기록은 이 기기에만 저장돼요. 기기를 바꿀 때는 백업 파일로 옮겨 주세요.")
+                    }
+
+                    if let profile = model.profile, let hero = model.projection?.home?.hero {
+                        Section {
+                            Toggle("잠금 화면에 오늘 근무 표시", isOn: Binding(
+                                get: { activityOn },
+                                set: { value in Task {
+                                    if value {
+                                        activityOn = await DutyActivityController.start(profile: profile, hero: hero)
+                                    } else {
+                                        await DutyActivityController.end()
+                                        activityOn = false
+                                    }
+                                } }))
+                            .disabled(!DutyActivityController.isAvailable && !activityOn)
+                        } header: {
+                            header("잠금 화면", world: "LIVE HUD")
+                        } footer: {
+                            Text(profile.workdayEndTime == nil
+                                 ? "다이내믹 아일랜드와 잠금 화면에 D-day와 진행률을 보여요. 복무 설정에 근무 종료 시각을 넣으면 퇴근까지 남은 시간도 보여요. 기록 내용은 나오지 않아요."
+                                 : "다이내믹 아일랜드와 잠금 화면에 퇴근까지 남은 시간, D-day, 진행률을 보여요. 기록 내용은 나오지 않아요.")
+                        }
                     }
 
                     Section {
@@ -173,6 +207,7 @@ struct MoreView: View {
             .sgScreenChrome()
             .navigationTitle("내 정보")
             .navigationDestination(isPresented: $showingCloud) { CloudSyncView() }
+            .navigationDestination(isPresented: $showingCard) { MemorialCardView() }
             .sheet(isPresented: $showingProfile) {
                 NavigationStack { ProfileEditView() }
             }

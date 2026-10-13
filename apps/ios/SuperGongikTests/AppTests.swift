@@ -205,3 +205,23 @@ struct RecordSummaryPDFTests {
         #expect(RecordSummaryPDF.fileName(CivilDate("2026-10-14")!) == "슈퍼공익-복무기록요약-2026-10-14.pdf")
     }
 }
+
+@Suite("오늘 근무 Live Activity")
+@MainActor
+struct DutyActivityTests {
+    private func seoul(_ text: String) -> Date {
+        let formatter = ISO8601DateFormatter()
+        return formatter.date(from: text)!
+    }
+
+    @Test("the work end time is today's time in Seoul, only while it is ahead")
+    func offDuty() {
+        let morning = seoul("2026-10-14T00:30:00Z") // 09:30 KST
+        #expect(DutyActivityController.offDuty("18:00", now: morning) == seoul("2026-10-14T09:00:00Z"))
+        let evening = seoul("2026-10-14T09:30:00Z") // 18:30 KST
+        #expect(DutyActivityController.offDuty("18:00", now: evening) == nil)
+        #expect(DutyActivityController.offDuty(nil, now: morning) == nil)
+        #expect(DutyActivityController.offDuty("25:00", now: morning) == nil)
+        #expect(DutyActivityController.offDuty("오후 6시", now: morning) == nil)
+    }
+}

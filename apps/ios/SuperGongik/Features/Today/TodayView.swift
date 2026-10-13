@@ -53,7 +53,15 @@ struct TodayView: View {
                     .padding(.bottom, SGSpacing.xl)
                     .frame(maxWidth: SGLayout.readableWidth)
                     .frame(maxWidth: .infinity)
-                    .task(id: profile.period) { await loadMilestones(profile.period) }
+                    .task(id: profile.period) {
+                        await loadMilestones(profile.period)
+                        #if DEBUG
+                        // Screenshot hook: `-SGStartLiveActivity YES`.
+                        if UserDefaults.standard.bool(forKey: "SGStartLiveActivity") {
+                            _ = await DutyActivityController.start(profile: profile, hero: home.hero)
+                        }
+                        #endif
+                    }
                 } else {
                     SGLoadingState()
                 }

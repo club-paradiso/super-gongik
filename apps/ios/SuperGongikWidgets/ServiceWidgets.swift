@@ -195,5 +195,6 @@ private struct WidgetBody: View {
 struct SuperGongikWidgetBundle: WidgetBundle {
     var body: some Widget {
         ServiceProgressWidget()
+        DutyLiveActivity()
     }
 }
