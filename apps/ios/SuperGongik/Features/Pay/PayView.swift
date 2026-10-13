@@ -134,6 +134,12 @@ private struct SummaryCard: View {
         return nil
     }
 
+    private var headerLayout: AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: SGSpacing.xxs))
+            : AnyLayout(HStackLayout(spacing: SGSpacing.xs))
+    }
+
     private var tileLayout: AnyLayout {
         typeSize.isAccessibilitySize
             ? AnyLayout(VStackLayout(spacing: SGSpacing.xs))
@@ -142,11 +148,10 @@ private struct SummaryCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SGSpacing.sm) {
-            HStack(spacing: SGSpacing.xs) {
-                Image(systemName: "wonsign.circle").foregroundStyle(.sg(SGColor.heroAccent)).accessibilityHidden(true)
-                Text(isCurrentMonth ? "이번 달 예상 보수" : "\(money.asOfDate.month)월 예상 보수")
+            headerLayout {
+                Label(isCurrentMonth ? "이번 달 예상 보수" : "\(money.asOfDate.month)월 예상 보수", systemImage: "wonsign.circle")
                     .font(SGTypography.bodyStrong).foregroundStyle(.sg(SGColor.heroForeground))
-                Spacer(minLength: SGSpacing.xs)
+                if !typeSize.isAccessibilitySize { Spacer(minLength: SGSpacing.xs) }
                 if let badge {
                     Text(badge)
                         .font(SGTypography.micro)
