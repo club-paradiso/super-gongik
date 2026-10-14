@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import "pretendard/dist/web/variable/PretendardVariable-VF.css";
 
+import { AuthReturnNotice } from "@/components/auth-return-notice";
 import { OfflineBanner } from "@/components/offline-banner";
 import { PwaRegistrar } from "@/components/pwa-registrar";
 import { environment } from "@/env";
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <PwaRegistrar />
         <OfflineBanner />
+        <AuthReturnNotice />
         {children}
       </body>
     </html>
