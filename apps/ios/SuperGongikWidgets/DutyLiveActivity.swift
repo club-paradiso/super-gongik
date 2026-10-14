@@ -67,7 +67,9 @@ private struct LockScreenView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline) {
+            // Last baselines: the percentage sits on the big number's line
+            // (Figma 210:4634).
+            HStack(alignment: .lastTextBaseline) {
                 if let offDuty = state.offDuty, offDuty > .now {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("퇴근까지").font(.caption).foregroundStyle(.white.opacity(0.7))

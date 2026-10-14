@@ -85,9 +85,11 @@ Run this check with one simulator booted and nothing else building.
 The expanded island (long press) and the lock screen were captured with the
 simulator control tool. On the expanded island the lower corner clipped the
 first glyph of the bottom line ("2027.09.17 소집해제"); that line is now inset
-8 pt. The demo profile has no work end time, so the 퇴근까지 countdown in the
-Figma frame (`210:4650`) was not shown; it uses the same inset line.
+8 pt. With `-SGSeedWorkday YES` (demo work hours 09:00–18:00) the 퇴근까지
+countdown shows on the expanded island and the lock screen and counts down
+to 18:00 Seoul time. On the lock screen the D-day and percentage now sit on
+the countdown's baseline, as in Figma `210:4634` (they were top-aligned).
 
 All 17 app tests pass (`xcodebuild test-without-building`, 7 suites,
-including 오늘 근무 Live Activity). DEBUG screenshot hook for the card's back
-face: `-SGMemorialCardBack YES`.
+including 오늘 근무 Live Activity). DEBUG screenshot hooks: `-SGMemorialCardBack YES` (card back face),
+`-SGSeedWorkday YES` (with `-SGSeedDemo`, adds work hours).
