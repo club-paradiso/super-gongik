@@ -12,6 +12,8 @@ struct ServiceEntry: TimelineEntry {
     let snapshot: WidgetSnapshot?
     /// The app's theme preference (App Group defaults), read-only here.
     var theme: SGTheme = ThemePreference.load()
+    /// 내 정보 › 위젯 스타일 (App Group defaults), read-only here.
+    var preset: WidgetPreset = WidgetPreset.load()
 }
 
 struct ServiceTimelineProvider: TimelineProvider {
@@ -37,45 +39,13 @@ struct ServiceTimelineProvider: TimelineProvider {
     }
 }
 
-private struct EmptyWidgetView: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Image("BrandMark").resizable().frame(width: 28, height: 28).clipShape(RoundedRectangle(cornerRadius: 7))
-            Text("슈퍼공익을 열어\n소집일을 입력해 주세요")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(.sg(SGColor.heroForeground))
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-    }
-}
-
+// The small and medium faces live in Shared/WidgetPreset.swift so the app's
+// 위젯 스타일 screen previews exactly what the widget draws.
 struct SmallServiceView: View {
     let entry: ServiceEntry
 
     var body: some View {
-        if let model = WidgetModel(snapshot: entry.snapshot, date: entry.date) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(model.caption)
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.sg(SGColor.heroForeground2))
-                Text(model.headline)
-                    .font(.system(size: 34, weight: .heavy))
-                    .monospacedDigit()
-                    .minimumScaleFactor(0.6)
-                    .lineLimit(1)
-                    .foregroundStyle(.sg(SGColor.heroForeground))
-                Spacer(minLength: 0)
-                Text(model.percentText)
-                    .font(.system(size: 15, weight: .bold))
-                    .monospacedDigit()
-                    .foregroundStyle(.sg(SGColor.heroAccent))
-                SGProgressBar(fraction: model.percent / 100, height: 6, markers: false)
-            }
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(model.caption) \(model.headline), 복무 \(model.percentText)")
-        } else {
-            EmptyWidgetView()
-        }
+        WidgetSmallFace(snapshot: entry.snapshot, date: entry.date, preset: entry.preset)
     }
 }
 
@@ -83,39 +53,7 @@ struct MediumServiceView: View {
     let entry: ServiceEntry
 
     var body: some View {
-        if let model = WidgetModel(snapshot: entry.snapshot, date: entry.date), let snapshot = entry.snapshot {
-            HStack(alignment: .top, spacing: 16) {
-                SmallServiceView(entry: entry)
-                VStack(alignment: .leading, spacing: 10) {
-                    if let leave = snapshot.leaveRemaining {
-                        info("남은 연가", leave)
-                    }
-                    if let date = snapshot.nextEventDate, let label = snapshot.nextEventLabel,
-                       date >= SeoulClock.today(at: entry.date) {
-                        info("다음 일정", "\(date.month)/\(date.day) \(label)")
-                    } else {
-                        info("다음 일정", "없음")
-                    }
-                    Spacer(minLength: 0)
-                    Text("\(KoreanNumber.grouped(model.progress.elapsedDays))일째 복무")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(.sg(SGColor.heroForeground3))
-                }
-                .privacySensitive()
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        } else {
-            EmptyWidgetView()
-        }
-    }
-
-    private func info(_ title: String, _ value: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title).font(.system(size: 11, weight: .semibold)).foregroundStyle(.sg(SGColor.heroForeground3))
-            Text(value).font(.system(size: 16, weight: .bold)).monospacedDigit()
-                .foregroundStyle(.sg(SGColor.heroForeground)).lineLimit(1).minimumScaleFactor(0.7)
-        }
-        .accessibilityElement(children: .combine)
+        WidgetMediumFace(snapshot: entry.snapshot, date: entry.date, preset: entry.preset)
     }
 }
 
@@ -181,7 +119,7 @@ private struct WidgetBody: View {
         }
         .containerBackground(for: .widget) {
             if family == .systemSmall || family == .systemMedium {
-                SGHeroBackground()
+                WidgetPresetBackground(preset: entry.preset)
             } else {
                 AccessoryWidgetBackground()
             }
