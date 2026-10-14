@@ -69,6 +69,8 @@ Direction B from page 40 (`49:290`), drawn per [STITCH-IMPLEMENTATION-PLAN.md](.
 
 The plan's status table records what was checked on the simulator for each phase.
 
+On 2026-10-14 the three 내 정보 frames (`207:4469`, `207:4633`, `207:4728`) gained the rows that phases 6–8 added in code: 복무 기념 카드 under 복무 설정, a 잠금 화면 section (잠금 화면에 오늘 근무 표시) before 알림, and a 복무 기록 요약 PDF section after the backup rows, each with the code's footer text.
+
 Stitch views marked DEPRECATE below are still not built as screens; the Warrior theme takes their palette and mood, not their layouts, sample data or out-of-scope features.
 
 ## 2. Stitch imported screens (page 40, 54 views)
