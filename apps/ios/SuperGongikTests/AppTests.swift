@@ -1,6 +1,7 @@
 import SGCore
 import SGDesignSystem
 import SGFoundation
+import PDFKit
 import UserNotifications
 import Testing
 @testable import SuperGongik
@@ -142,5 +143,85 @@ struct ThemePreferenceTests {
             store.set(theme.rawValue, forKey: ThemePreference.key)
             #expect(ThemePreference.load() == theme)
         }
+    }
+}
+
+@Suite("홈 milestone strip (Stitch route)")
+struct MilestoneRouteTests {
+    private func item(_ kind: String, _ value: Double, _ date: String) -> ServiceMilestoneItem {
+        ServiceMilestoneItem(kind: kind, date: CivilDate(date)!, value: value, label: "")
+    }
+
+    private var list: [ServiceMilestoneItem] {
+        [item("CALL_UP", 0, "2025-12-17"), item("DAYS_REMAINING", 500, "2026-05-04"),
+         item("PERCENT", 25, "2026-05-20"), item("DAYS_REMAINING", 300, "2026-11-20"),
+         item("PERCENT", 50, "2026-11-01"), item("DAYS_REMAINING", 200, "2027-02-28"),
+         item("SERVICE_DAY", 100, "2026-03-27"), item("DISCHARGE", 0, "2027-09-16")]
+            .sorted { $0.date.dayNumber < $1.date.dayNumber }
+    }
+
+    @Test("shows the last passed, the next and the one after; skips milestones off the route")
+    func passedNextLater() throws {
+        let route = try #require(MilestoneRoute(list, today: CivilDate("2026-10-13")!))
+        #expect(route.entries.map(\.title) == ["25%", "50%", "D-300"])
+        #expect(route.entries.map(\.state) == [.passed, .next, .later])
+        #expect(route.daysToNext == 19)
+    }
+
+    @Test("before call-up the next milestone is 소집 and nothing is passed")
+    func preService() throws {
+        let route = try #require(MilestoneRoute(list, today: CivilDate("2025-12-01")!))
+        #expect(route.entries.first?.title == "소집")
+        #expect(route.entries.first?.state == .next)
+        #expect(route.entries.count == 3)
+    }
+
+    @Test("after discharge there is nothing left to show")
+    func completed() {
+        #expect(MilestoneRoute(list, today: CivilDate("2027-09-17")!) == nil)
+    }
+}
+
+@Suite("복무 기록 요약 PDF")
+struct RecordSummaryPDFTests {
+    private func decode<T: Decodable>(_ json: String) throws -> T {
+        try JSONDecoder().decode(T.self, from: Data(json.utf8))
+    }
+
+    @Test("says on the page that it is not an official document and leaves notes out")
+    func disclaimerAndNoNotes() throws {
+        let profile: ServiceProfile = try decode(#"{"id":"p1","callUpDate":"2025-12-17","expectedDischargeDate":"2027-09-16","serviceCategory":"행정"}"#)
+        let event: ServiceEvent = try decode(#"{"id":"e1","eventType":"ANNUAL_LEAVE","startDate":"2026-10-19","endDate":"2026-10-19","timing":{"kind":"ALL_DAY","dayCount":1},"note":"병원 진료 메모","updatedAt":"2026-10-13T00:00:00Z","source":{"kind":"MANUAL"}}"#)
+        let events = Array(repeating: (event: event, display: EventDisplay?.none), count: 120)
+        let data = RecordSummaryPDF.render(.init(profile: profile, hero: nil, ledger: nil, leaveText: nil,
+                                                events: events, generatedOn: CivilDate("2026-10-14")!))
+        let pdf = try #require(PDFDocument(data: data))
+        #expect(pdf.pageCount >= 2)
+        let text = (0..<pdf.pageCount).compactMap { pdf.page(at: $0)?.string }.joined(separator: "\n")
+        #expect(text.contains("공식 증명서가 아니며"))
+        #expect(text.contains("공식 문서 아님"))
+        #expect(text.contains("기록 120건"))
+        #expect(!text.contains("병원 진료 메모"))
+        #expect(RecordSummaryPDF.fileName(CivilDate("2026-10-14")!) == "슈퍼공익-복무기록요약-2026-10-14.pdf")
+    }
+}
+
+@Suite("오늘 근무 Live Activity")
+@MainActor
+struct DutyActivityTests {
+    private func seoul(_ text: String) -> Date {
+        let formatter = ISO8601DateFormatter()
+        return formatter.date(from: text)!
+    }
+
+    @Test("the work end time is today's time in Seoul, only while it is ahead")
+    func offDuty() {
+        let morning = seoul("2026-10-14T00:30:00Z") // 09:30 KST
+        #expect(DutyActivityController.offDuty("18:00", now: morning) == seoul("2026-10-14T09:00:00Z"))
+        let evening = seoul("2026-10-14T09:30:00Z") // 18:30 KST
+        #expect(DutyActivityController.offDuty("18:00", now: evening) == nil)
+        #expect(DutyActivityController.offDuty(nil, now: morning) == nil)
+        #expect(DutyActivityController.offDuty("25:00", now: morning) == nil)
+        #expect(DutyActivityController.offDuty("오후 6시", now: morning) == nil)
     }
 }

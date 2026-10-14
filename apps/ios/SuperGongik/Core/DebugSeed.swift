@@ -26,6 +26,15 @@ enum DebugSeed {
             "timezone": .string("Asia/Seoul"),
         ])])
         issues += await model.editProfile(["priorServiceCredit": .string("NONE")])
+        // `-SGSeedWorkday YES` adds 09:00–18:00 work hours, so the Live
+        // Activity can show its 퇴근까지 countdown. Off by default: the other
+        // screenshots keep the profile without work hours.
+        if UserDefaults.standard.bool(forKey: "SGSeedWorkday") {
+            issues += await model.editProfile([
+                "workdayStartTime": .string("09:00"),
+                "workdayEndTime": .string("18:00"),
+            ])
+        }
         for (offset, days) in [(-40, 1), (6, 1), (20, 2)] {
             let start = today.adding(days: offset)
             issues += await model.run("createServiceEvent", [.object([

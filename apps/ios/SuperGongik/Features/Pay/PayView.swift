@@ -32,14 +32,11 @@ struct PayView: View {
                         }
                         .buttonStyle(SGSecondaryButtonStyle())
                         .disabled(model.isReadOnly)
-                        ComponentsCard(components: money.compensation.components)
-                        PayBandsCard(schedule: money.schedule)
+                        ComponentsSection(components: money.compensation.components)
+                        PayBandsCard(schedule: money.schedule, today: model.today)
                         AssumptionsCard(items: (money.compensation.assumptions ?? []) + (money.compensation.warnings ?? []),
                                         title: "계산 기준과 주의")
                         if let rule = money.compensation.rule { RuleCard(rule: rule) }
-                        Text("슈퍼공익의 금액은 공개된 기준으로 계산한 추정이에요. 실제 지급액은 복무기관의 지급 내역을 확인해 주세요.")
-                            .font(SGTypography.caption)
-                            .foregroundStyle(.sg(SGColor.textTertiary))
                     } else {
                         SGLoadingState()
                     }
@@ -78,16 +75,29 @@ struct PayView: View {
 
     private var isCurrentMonth: Bool { month.year == model.today.year && month.month == model.today.month }
 
+    /// Stitch "SUPPLY // 2026.03": the world label, then the month between
+    /// tinted chevron tiles.
     private var monthSwitcher: some View {
         HStack {
-            Button { shift(-1) } label: { Image(systemName: "chevron.left").frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget) }
-                .accessibilityLabel("이전 달")
+            SGWorldEyebrow(String(format: "SUPPLY // %04d.%02d", month.year, month.month), tint: SGColor.accent)
             Spacer()
+            tile("chevron.left", label: "이전 달") { shift(-1) }
             Text(Formatters.month(month)).font(SGTypography.title3).monospacedDigit()
-            Spacer()
-            Button { shift(1) } label: { Image(systemName: "chevron.right").frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget) }
-                .accessibilityLabel("다음 달")
+                .padding(.horizontal, SGSpacing.xs)
+            tile("chevron.right", label: "다음 달") { shift(1) }
         }
+    }
+
+    private func tile(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(SGTypography.label)
+                .foregroundStyle(.sg(SGColor.accent))
+                .frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget)
+                .background(.sg(SGColor.selectedBackground), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
     }
 
     private func shift(_ amount: Int) {
@@ -106,51 +116,139 @@ struct PayView: View {
     }
 }
 
+/// Stitch summary: month, state badge, amount, the three components as
+/// tiles, and the app's estimate disclaimer. The source's "검증 완료",
+/// payday and statute citation are not drawn: the app cannot know them.
 private struct SummaryCard: View {
     let money: MoneyMonth
     let isCurrentMonth: Bool
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     private var base: MonthlyCompensation.Component? {
         money.compensation.components.first { $0.key == "BASE_PAY" }
     }
 
+    private var badge: String? {
+        if money.compensation.total != nil { return "계산됨" }
+        if base?.status == "CALCULATED" { return "기본 보수만" }
+        return nil
+    }
+
+    private var headerLayout: AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: SGSpacing.xxs))
+            : AnyLayout(HStackLayout(spacing: SGSpacing.xs))
+    }
+
+    private var tileLayout: AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: SGSpacing.xs))
+            : AnyLayout(HStackLayout(alignment: .top, spacing: SGSpacing.xs))
+    }
+
     var body: some View {
-        SGCard(padding: SGSpacing.lg) {
-            VStack(alignment: .leading, spacing: SGSpacing.xs) {
-                Text(isCurrentMonth ? "이번 달 예상 급여" : "예상 급여")
-                    .font(SGTypography.label).foregroundStyle(.sg(SGColor.textSecondary))
-                if let total = money.compensation.total {
-                    Text(Formatters.won(total))
-                        .font(SGTypography.title1).monospacedDigit()
-                        .foregroundStyle(.sg(SGColor.textPrimary))
-                } else if let amount = base?.monthlyAmount, base?.status == "CALCULATED" {
-                    Text(Formatters.won(amount))
-                        .font(SGTypography.title1).monospacedDigit()
-                        .foregroundStyle(.sg(SGColor.textPrimary))
-                    // Warning tone: symbol and color agree, so the state is
-                    // never carried by color alone.
-                    Label("기본 보수만이에요. 합계는 모든 항목이 확인돼야 보여요.", systemImage: SGTone.warning.symbol)
-                        .font(SGTypography.caption).foregroundStyle(.sg(SGColor.warning))
-                } else {
-                    Label("계산에 필요한 정보가 있어요", systemImage: SGTone.warning.symbol)
-                        .font(SGTypography.title3)
-                        .foregroundStyle(.sg(SGColor.warning))
-                }
-                Text(money.compensation.headline)
-                    .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
-                    .fixedSize(horizontal: false, vertical: true)
-                if let rank = money.compensation.equivalentRank {
-                    HStack(spacing: SGSpacing.xs) {
-                        Text(rank)
-                        if let ordinal = money.compensation.serviceMonthOrdinal {
-                            Text("· 복무 \(ordinal)개월 차").monospacedDigit()
-                        }
-                    }
-                    .font(SGTypography.label)
-                    .foregroundStyle(.sg(SGColor.accent))
+        VStack(alignment: .leading, spacing: SGSpacing.sm) {
+            headerLayout {
+                Label(isCurrentMonth ? "이번 달 예상 보수" : "\(money.asOfDate.month)월 예상 보수", systemImage: "wonsign.circle")
+                    .font(SGTypography.bodyStrong).foregroundStyle(.sg(SGColor.heroForeground))
+                if !typeSize.isAccessibilitySize { Spacer(minLength: SGSpacing.xs) }
+                if let badge {
+                    Text(badge)
+                        .font(SGTypography.micro)
+                        .foregroundStyle(.sg(SGColor.heroAccent))
+                        .padding(.horizontal, SGSpacing.xs).padding(.vertical, SGSpacing.xxxs)
+                        .background(.sg(SGColor.heroTrack), in: Capsule())
                 }
             }
+            if let total = money.compensation.total {
+                amount(total)
+            } else if let value = base?.monthlyAmount, base?.status == "CALCULATED" {
+                amount(value)
+                Text("식비·교통비는 확인되면 합계에 더해요.")
+                    .font(SGTypography.caption).foregroundStyle(.sg(SGColor.heroForeground3))
+            } else {
+                Label("계산에 필요한 정보가 있어요", systemImage: SGTone.warning.symbol)
+                    .font(SGTypography.title3)
+                    .foregroundStyle(.sg(SGColor.heroAccent))
+            }
+            tileLayout {
+                ForEach(money.compensation.components) { component in
+                    ComponentTile(component: component, rank: component.key == "BASE_PAY" ? money.compensation.equivalentRank : nil)
+                }
+            }
+            if let rank = money.compensation.equivalentRank, let ordinal = money.compensation.serviceMonthOrdinal {
+                Text("\(rank) · 복무 \(ordinal)개월 차")
+                    .font(SGTypography.label).monospacedDigit()
+                    .foregroundStyle(.sg(SGColor.heroAccent))
+            }
+            Label {
+                Text("슈퍼공익의 금액은 공개된 기준으로 계산한 추정이에요. 실제 지급액은 복무기관의 지급 내역을 확인해 주세요.")
+                    .fixedSize(horizontal: false, vertical: true)
+            } icon: {
+                Image(systemName: "info.circle")
+            }
+            .font(SGTypography.caption)
+            .foregroundStyle(.sg(SGColor.heroForeground2))
+            .padding(SGSpacing.xs)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(.sg(SGColor.heroTrack), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
         }
+        .padding(SGSpacing.lg)
+        .background { SGHeroBackground(celebrate: false) }
+        .clipShape(RoundedRectangle(cornerRadius: SGRadius.hero, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: SGRadius.hero, style: .continuous).strokeBorder(.sg(SGColor.heroBorder)))
+        .sgShadow(.hero)
+        .environment(\.colorScheme, .dark)
+    }
+
+    private func amount(_ value: Double) -> some View {
+        HStack(alignment: .lastTextBaseline, spacing: SGSpacing.xxs) {
+            Text(KoreanNumber.grouped(Int(value.rounded())))
+                .font(SGTypography.font(34, .heavy, relativeTo: .title))
+                .monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
+                .foregroundStyle(.sg(SGColor.heroForeground))
+            Text("원").font(SGTypography.label).foregroundStyle(.sg(SGColor.heroForeground2))
+        }
+        .accessibilityElement(children: .combine)
+    }
+}
+
+/// One component as a tile inside the summary card.
+private struct ComponentTile: View {
+    let component: MonthlyCompensation.Component
+    let rank: String?
+
+    private var value: String {
+        switch component.status {
+        case "CALCULATED", "SUGGESTED": component.monthlyAmount.map(Formatters.won) ?? "—"
+        case "NEEDS_INPUT": "입력 필요"
+        case "UNSUPPORTED": "계산하지 않음"
+        default: "—"
+        }
+    }
+
+    private var detail: String? {
+        if let rank { return rank }
+        if component.status == "SUGGESTED" {
+            return "제안값" + (component.eligibleDays.map { " · \(Int($0))일" } ?? "")
+        }
+        return nil
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
+            Text(component.label).font(SGTypography.micro).foregroundStyle(.sg(SGColor.heroForeground3))
+            Text(value).font(SGTypography.bodyStrong).monospacedDigit()
+                .lineLimit(1).minimumScaleFactor(0.7)
+                .foregroundStyle(.sg(component.status == "NEEDS_INPUT" ? SGColor.heroAccent : SGColor.heroForeground))
+            if let detail {
+                Text(detail).font(SGTypography.micro).foregroundStyle(.sg(SGColor.heroForeground3))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(SGSpacing.xs)
+        .background(.sg(SGColor.heroTrack), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -177,20 +275,31 @@ private struct UnresolvedCard: View {
     }
 }
 
-private struct ComponentsCard: View {
+/// Stitch "항목별 세부 보급 명세": one card per component with its amount,
+/// rate and the shared explanation and basis.
+private struct ComponentsSection: View {
     let components: [MonthlyCompensation.Component]
 
     var body: some View {
-        SGCard {
-            VStack(alignment: .leading, spacing: SGSpacing.sm) {
-                SGSectionHeader("항목별", eyebrow: "SUPPLY LEDGER")
-                ForEach(components) { component in
-                    VStack(alignment: .leading, spacing: SGSpacing.xxs) {
-                        HStack(alignment: .firstTextBaseline) {
-                            Text(component.label).font(SGTypography.bodyStrong)
+        VStack(alignment: .leading, spacing: SGSpacing.sm) {
+            HStack(spacing: SGSpacing.xs) {
+                Image(systemName: "doc.text").foregroundStyle(.sg(SGColor.accent)).accessibilityHidden(true)
+                Text("항목별 명세").font(SGTypography.sectionTitle).foregroundStyle(.sg(SGColor.textPrimary))
+                Spacer()
+                SGWorldEyebrow("LEDGER // \(components.count) ITEMS")
+            }
+            .accessibilityAddTraits(.isHeader)
+            ForEach(components) { component in
+                SGCard {
+                    VStack(alignment: .leading, spacing: SGSpacing.xs) {
+                        HStack(alignment: .firstTextBaseline, spacing: SGSpacing.xs) {
+                            Circle().fill(.sg(tone(component.status).foreground))
+                                .frame(width: 8, height: 8)
+                                .accessibilityHidden(true)
+                            Text(component.label).font(SGTypography.cardTitle)
                             Spacer()
                             if let amount = component.monthlyAmount, component.status == "CALCULATED" {
-                                Text(Formatters.won(amount)).font(SGTypography.bodyStrong).monospacedDigit()
+                                Text(Formatters.won(amount)).font(SGTypography.cardTitle).monospacedDigit()
                             } else {
                                 statusLabel(component.status)
                             }
@@ -200,17 +309,30 @@ private struct ComponentsCard: View {
                                 .font(SGTypography.caption).monospacedDigit()
                                 .foregroundStyle(.sg(SGColor.textSecondary))
                         }
-                        Text(component.explanation)
-                            .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textSecondary))
-                            .fixedSize(horizontal: false, vertical: true)
-                        Text("근거: \(component.basis)")
-                            .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
-                            .fixedSize(horizontal: false, vertical: true)
+                        VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
+                            Text(component.explanation)
+                                .foregroundStyle(.sg(SGColor.textSecondary))
+                            Text("근거: \(component.basis)")
+                                .foregroundStyle(.sg(SGColor.textTertiary))
+                        }
+                        .font(SGTypography.caption)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(SGSpacing.xs)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.sg(SGColor.surfaceRaised), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
                     }
                     .accessibilityElement(children: .combine)
-                    if component.id != components.last?.id { Divider() }
                 }
             }
+        }
+    }
+
+    private func tone(_ status: String) -> SGTone {
+        switch status {
+        case "CALCULATED": .success
+        case "SUGGESTED": .info
+        case "NEEDS_INPUT": .warning
+        default: .neutral
         }
     }
 
@@ -228,44 +350,80 @@ private struct ComponentsCard: View {
     }
 }
 
+/// Stitch "복무 단계별 보수 로드맵": the pay bands as steps, from the shared
+/// schedule (verified rule amounts). Social service personnel hold no rank:
+/// "상당" only names the pay band, and the card says so.
 private struct PayBandsCard: View {
     let schedule: PayBandSchedule
+    let today: CivilDate
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    private var layout: AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: SGSpacing.xs))
+            : AnyLayout(HStackLayout(alignment: .top, spacing: SGSpacing.xs))
+    }
 
     var body: some View {
         SGCard {
             VStack(alignment: .leading, spacing: SGSpacing.sm) {
-                SGSectionHeader("급여 단계")
+                HStack(spacing: SGSpacing.xs) {
+                    Image(systemName: "flag").foregroundStyle(.sg(SGColor.accent)).accessibilityHidden(true)
+                    Text("복무 단계별 보수").font(SGTypography.cardTitle)
+                    Spacer()
+                    if let index = currentIndex { SGWorldEyebrow(String(format: "STEP %02d", index + 1)) }
+                }
+                .accessibilityAddTraits(.isHeader)
                 if schedule.status != "READY" {
                     Text(schedule.reason ?? "급여 단계를 계산할 수 없어요.")
                         .font(SGTypography.body).foregroundStyle(.sg(SGColor.textSecondary))
                 } else {
-                    ForEach(schedule.steps ?? []) { step in
-                        HStack {
-                            VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
-                                HStack(spacing: SGSpacing.iconGap) {
-                                    Text(step.label).font(SGTypography.bodyStrong)
-                                    if step.equivalentRank == schedule.current?.equivalentRank {
-                                        Text("지금")
-                                            .font(SGTypography.micro)
-                                            .foregroundStyle(.sg(SGColor.onAccent))
-                                            .padding(.horizontal, SGSpacing.iconGap).padding(.vertical, SGSpacing.xxxs)
-                                            .background(.sg(SGColor.accent), in: Capsule())
-                                    }
-                                }
-                                Text("\(Formatters.longDate(step.startDate))부터 · \(step.fromServiceMonthOrdinal)개월 차")
-                                    .font(SGTypography.caption).monospacedDigit()
-                                    .foregroundStyle(.sg(SGColor.textTertiary))
-                            }
-                            Spacer()
-                            Text(step.monthlyAmount.map(Formatters.won) ?? "확정 전")
-                                .font(SGTypography.body).monospacedDigit()
-                                .foregroundStyle(.sg(step.monthlyAmount == nil ? SGColor.textTertiary : SGColor.textPrimary))
+                    let steps = schedule.steps ?? []
+                    layout {
+                        ForEach(Array(steps.enumerated()), id: \.element.id) { index, step in
+                            stepView(step, index: index, steps: steps)
                         }
-                        .accessibilityElement(children: .combine)
                     }
                 }
+                Text("사회복무요원은 계급이 없어요. ‘상당’은 보수를 정하는 기준일 뿐이에요.")
+                    .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
+    }
+
+    private var currentIndex: Int? {
+        schedule.steps?.firstIndex { $0.equivalentRank == schedule.current?.equivalentRank }
+    }
+
+    private func stepView(_ step: PayBandSchedule.Step, index: Int, steps: [PayBandSchedule.Step]) -> some View {
+        let isCurrent = index == currentIndex
+        let isPassed = !isCurrent && step.startDate.dayNumber <= today.dayNumber
+        let next = index + 1 < steps.count ? steps[index + 1] : nil
+        let months = next.map { "\(step.fromServiceMonthOrdinal)~\($0.fromServiceMonthOrdinal - 1)개월" } ?? "\(step.fromServiceMonthOrdinal)개월~"
+        return VStack(spacing: SGSpacing.xxxs) {
+            Image(systemName: isCurrent ? "star.circle.fill" : isPassed ? "checkmark.circle" : "circle.dashed")
+                .foregroundStyle(.sg(isCurrent || isPassed ? SGColor.accent : SGColor.textTertiary))
+                .accessibilityHidden(true)
+            Text(step.label).font(SGTypography.micro).foregroundStyle(.sg(SGColor.textPrimary))
+            Text(months).font(SGTypography.micro).foregroundStyle(.sg(SGColor.textTertiary))
+            Text(step.monthlyAmount.map { KoreanNumber.grouped(Int($0 / 10_000)) + "만" } ?? "확정 전")
+                .font(SGTypography.bodyStrong).monospacedDigit()
+                .foregroundStyle(.sg(isCurrent ? SGColor.accent : SGColor.textPrimary))
+            Text(isCurrent ? "지금" : isPassed ? "지남" : Formatters.shortDate(step.startDate))
+                .font(SGTypography.micro).foregroundStyle(.sg(SGColor.textTertiary))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, SGSpacing.xs)
+        .background(.sg(isCurrent ? SGColor.selectedBackground : SGColor.surfaceRaised),
+                    in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
+        .overlay {
+            if isCurrent {
+                RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous).strokeBorder(.sg(SGColor.selectedBorder))
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(step.label), \(months), \(step.monthlyAmount.map(Formatters.won) ?? "확정 전")\(isCurrent ? ", 지금" : "")")
     }
 }
 
