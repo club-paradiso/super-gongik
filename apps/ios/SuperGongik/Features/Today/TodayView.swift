@@ -12,6 +12,7 @@ struct TodayView: View {
     @Environment(AppModel.self) private var model
     let openTab: (AppTab) -> Void
     @State private var editorDate: CivilDate?
+    @State private var editorType: String?
     @State private var showingLedger: Bool
     @State private var milestones: [ServiceMilestoneItem] = []
 
@@ -28,7 +29,7 @@ struct TodayView: View {
                     // phase → D-day → progress → discharge date → next
                     // milestone → leave → compensation → agenda → actions.
                     VStack(alignment: .leading, spacing: SGSpacing.md) {
-                        AppHeader(hero: home.hero)
+                        AppHeader(hero: home.hero, openProfile: { openTab(.profile) })
                         CountdownCard(hero: home.hero, profile: profile)
                         if !home.completed,
                            let strip = MilestoneRoute(milestones, today: model.today) {
@@ -42,8 +43,8 @@ struct TodayView: View {
                         if !home.completed {
                             QuickActions(
                                 readOnly: model.isReadOnly,
-                                recordLeave: { editorDate = model.today },
-                                openLedger: { showingLedger = true })
+                                addRecord: { editorType = nil; editorDate = model.today },
+                                useLeave: { editorType = "ANNUAL_LEAVE"; editorDate = model.today })
                         }
                         if let error = model.lastWriteError {
                             SGNotice(.warning, title: error)
@@ -73,7 +74,7 @@ struct TodayView: View {
             .navigationTitle("홈")
             .navigationDestination(isPresented: $showingLedger) { LeaveView() }
             .sheet(item: $editorDate) { date in
-                EventEditorSheet(event: nil, initialDate: date)
+                EventEditorSheet(event: nil, initialDate: date, initialType: editorType)
             }
         }
     }
@@ -111,9 +112,32 @@ struct ServiceMilestoneItem: Decodable, Sendable, Equatable {
 /// Brand mark, app name, service state and the D-day chip (Stitch header).
 private struct AppHeader: View {
     let hero: HomeModel.Hero
+    let openProfile: () -> Void
     @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
+        HStack(spacing: SGSpacing.sm) {
+            identity
+                .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(.isHeader)
+            // Stitch: the profile button at the trailing edge opens 내 정보.
+            // A generic glyph only: no photo or name (STITCH-IMPLEMENTATION-PLAN).
+            Button(action: openProfile) {
+                Image(systemName: "person.fill")
+                    .font(SGTypography.label)
+                    .foregroundStyle(.white)
+                    .frame(width: 36, height: 36)
+                    .background(.sg(SGColor.heroBackground), in: Circle())
+                    .frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("내 정보")
+        }
+        .padding(.top, SGSpacing.xs)
+    }
+
+    private var identity: some View {
         HStack(spacing: SGSpacing.sm) {
             Image("BrandMark")
                 .resizable()
@@ -138,11 +162,17 @@ private struct AppHeader: View {
             }
             Spacer(minLength: SGSpacing.xs)
             if !typeSize.isAccessibilitySize {
-            Text(hero.headline)
-                .font(SGTypography.label)
-                .monospacedDigit()
-                .lineLimit(1)
-                .foregroundStyle(.sg(SGColor.textPrimary))
+                // Stitch D-day pill: clock glyph + D-day.
+                HStack(spacing: SGSpacing.iconGap) {
+                    Image(systemName: "clock")
+                        .font(SGTypography.micro)
+                        .foregroundStyle(.sg(SGColor.accent))
+                    Text(hero.headline)
+                        .font(SGTypography.label)
+                        .monospacedDigit()
+                        .lineLimit(1)
+                        .foregroundStyle(.sg(SGColor.textPrimary))
+                }
                 .padding(.horizontal, SGSpacing.sm)
                 .padding(.vertical, SGSpacing.xxs)
                 .background(.sg(SGColor.surfaceRaised), in: Capsule())
@@ -150,9 +180,6 @@ private struct AppHeader: View {
                 .accessibilityHidden(true)
             }
         }
-        .padding(.top, SGSpacing.xs)
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isHeader)
     }
 }
 
@@ -399,11 +426,10 @@ private struct MilestoneStrip: View {
                     .frame(maxWidth: .infinity)
                     .background(.sg(entry.state == .next ? SGColor.selectedBackground : SGColor.surface),
                                 in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
+                    // Stitch: every milestone is its own bordered chip.
                     .overlay {
-                        if entry.state == .next {
-                            RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous)
-                                .strokeBorder(.sg(SGColor.selectedBorder))
-                        }
+                        RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous)
+                            .strokeBorder(.sg(entry.state == .next ? SGColor.selectedBorder : SGColor.border))
                     }
                     .accessibilityElement(children: .combine)
                     .accessibilityValue(entry.state == .next ? "다음 이정표" : entry.state == .passed ? "지난 이정표" : "")
@@ -651,10 +677,12 @@ struct AgendaRow: View {
 
 /// Stitch's two actions: 연가 내역 (secondary) and 휴가·근태 기록 (primary).
 /// 기관 기록 가져오기 lives in 내 정보. Hidden after discharge.
+/// Stitch: 근무기록 추가 (secondary) and 연가 사용 (primary). 연가 내역 stays
+/// one tap away on the leave card and the 캘린더 menu.
 private struct QuickActions: View {
     let readOnly: Bool
-    let recordLeave: () -> Void
-    let openLedger: () -> Void
+    let addRecord: () -> Void
+    let useLeave: () -> Void
     @Environment(\.dynamicTypeSize) private var typeSize
 
     private var layout: AnyLayout {
@@ -665,12 +693,13 @@ private struct QuickActions: View {
 
     var body: some View {
         layout {
-            Button(action: openLedger) {
-                Label("연가 내역", systemImage: "list.clipboard")
+            Button(action: addRecord) {
+                Label("근무기록 추가", systemImage: "calendar.badge.plus")
             }
             .buttonStyle(SGSecondaryButtonStyle())
-            Button(action: recordLeave) {
-                Label("휴가·근태 기록", systemImage: "calendar.badge.plus")
+            .disabled(readOnly)
+            Button(action: useLeave) {
+                Label("연가 사용", systemImage: "airplane.departure")
             }
             .buttonStyle(SGPrimaryButtonStyle())
             .disabled(readOnly)

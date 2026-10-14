@@ -15,6 +15,8 @@ struct MoreView: View {
     @State private var showingProfile = false
     @State private var showingCloud = Self.debugOpenCloud
     @State private var showingCard = Self.debugFlag("SGOpenMemorialCard")
+    @State private var showingWidgetStyle = Self.debugFlag("SGOpenWidgetStyle")
+    @AppStorage(WidgetPreset.key, store: ThemePreference.store) private var widgetPreset = WidgetPreset.twilight.rawValue
     @State private var activityOn = DutyActivityController.isRunning
 
     /// DEBUG-only screenshot hook: `-SGOpenMemorialCard YES`.
@@ -142,6 +144,16 @@ struct MoreView: View {
                     }
 
                     Section {
+                        NavigationLink {
+                            WidgetStyleView()
+                        } label: {
+                            LabeledContent("위젯 스타일", value: (WidgetPreset(rawValue: widgetPreset) ?? .twilight).title)
+                        }
+                    } header: {
+                        header("홈 화면 위젯", world: "WIDGET HUD")
+                    }
+
+                    Section {
                         ForEach(ReminderScheduler.Category.allCases) { category in
                             Toggle(isOn: Binding(
                                 get: { model.reminders.isEnabled(category) },
@@ -208,6 +220,7 @@ struct MoreView: View {
             .navigationTitle("내 정보")
             .navigationDestination(isPresented: $showingCloud) { CloudSyncView() }
             .navigationDestination(isPresented: $showingCard) { MemorialCardView() }
+            .navigationDestination(isPresented: $showingWidgetStyle) { WidgetStyleView() }
             .sheet(isPresented: $showingProfile) {
                 NavigationStack { ProfileEditView() }
             }

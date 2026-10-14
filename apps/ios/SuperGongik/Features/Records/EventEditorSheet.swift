@@ -13,6 +13,8 @@ struct EventEditorSheet: View {
 
     let event: ServiceEvent?
     let initialDate: CivilDate
+    /// A new record's type when a button already names it (홈 "연가 사용").
+    var initialType: String? = nil
 
     @State private var form: EventFormState?
     @State private var evaluation: EventFormEvaluation?
@@ -247,6 +249,11 @@ struct EventEditorSheet: View {
     private func load() async {
         guard let runtime = model.core else { return }
         form = try? await runtime.eventFormInitial(eventId: event?.id, date: initialDate)
+        if event == nil, let initialType, let current = form, let json = try? JSONValue.from(current),
+           let typed = await model.pure("eventFormPatch", [json, .object(["eventType": .string(initialType)])],
+                                        as: EventFormState.self) {
+            form = typed
+        }
         await evaluate()
     }
 

@@ -91,6 +91,19 @@ struct RecordsView: View {
                         Label("연가 내역", systemImage: "list.clipboard")
                     }
                 }
+                // Stitch: a "오늘" button at the top trailing edge.
+                if mode == .month {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            month = model.today
+                            selected = model.today
+                        } label: {
+                            // Text, not a glyph: an iOS 26 toolbar shows a Label as its icon only.
+                            Text("오늘")
+                        }
+                        .accessibilityLabel("오늘로 이동")
+                    }
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         editing = EditorTarget(event: nil, date: mode == .month ? selected : model.today)
@@ -175,12 +188,16 @@ private struct MonthCalendar: View {
 
     private var firstOfMonth: CivilDate { CivilDate(year: month.year, month: month.month, day: 1)! }
 
-    private var cells: [CivilDate?] {
+    /// Whole weeks: this month's days plus the neighbouring months' days that
+    /// fill the first and last week (Stitch draws them muted).
+    private var cells: [(date: CivilDate, inMonth: Bool)] {
         let leading = firstOfMonth.weekday
         let count = CivilDate.daysInMonth(year: month.year, month: month.month)
-        let days = (0..<count).map { firstOfMonth.adding(days: $0) }
-        let all: [CivilDate?] = Array(repeating: nil, count: leading) + days
-        return all + Array(repeating: nil, count: (7 - all.count % 7) % 7)
+        let total = leading + count + (7 - (leading + count) % 7) % 7
+        return (0..<total).map { index in
+            let date = firstOfMonth.adding(days: index - leading)
+            return (date, index >= leading && index < leading + count)
+        }
     }
 
     var body: some View {
@@ -190,21 +207,31 @@ private struct MonthCalendar: View {
                     ForEach(Array(Formatters.weekdays.enumerated()), id: \.offset) { index, name in
                         Text(name)
                             .font(SGTypography.micro)
-                            .foregroundStyle(.sg(index == 0 ? SGColor.danger : SGColor.textTertiary))
+                            .foregroundStyle(.sg(index == 0 ? SGColor.danger : index == 6 ? SGColor.info : SGColor.textTertiary))
                             .frame(maxWidth: .infinity)
                     }
                 }
                 .accessibilityHidden(true)
 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 2), count: 7), spacing: 2) {
-                    ForEach(Array(cells.enumerated()), id: \.offset) { _, date in
-                        if let date {
-                            DayCell(date: date, isToday: date == model.today, isSelected: date == selected,
-                                    categories: categories(on: date))
-                                .onTapGesture { selected = date }
-                                .accessibilityAddTraits(date == selected ? [.isButton, .isSelected] : .isButton)
+                    ForEach(cells, id: \.date.dayNumber) { cell in
+                        if cell.inMonth {
+                            DayCell(date: cell.date, isToday: cell.date == model.today, isSelected: cell.date == selected,
+                                    categories: categories(on: cell.date))
+                                .onTapGesture { selected = cell.date }
+                                .accessibilityAddTraits(cell.date == selected ? [.isButton, .isSelected] : .isButton)
                         } else {
-                            Color.clear.frame(height: SGSize.rowMinHeight)
+                            VStack(spacing: 4) {
+                                Text("\(cell.date.day)")
+                                    .font(SGTypography.font(15, .medium, relativeTo: .body))
+                                    .monospacedDigit()
+                                    .foregroundStyle(.sg(SGColor.textTertiary))
+                                    .opacity(0.45)
+                                    .frame(width: 32, height: 32)
+                                Color.clear.frame(height: 6)
+                            }
+                            .frame(maxWidth: .infinity, minHeight: SGSize.rowMinHeight)
+                            .accessibilityHidden(true)
                         }
                     }
                 }
@@ -234,7 +261,7 @@ private struct MonthCalendar: View {
 
     private var legend: [(SGEventCategory, String)] {
         var seen: [(SGEventCategory, String)] = []
-        for date in cells.compactMap({ $0 }) {
+        for date in cells.filter(\.inMonth).map(\.date) {
             for event in events where event.covers(date) {
                 if let shown = display(event), let category = SGEventCategory(rawValue: shown.category),
                    !seen.contains(where: { $0.0 == category }) {
@@ -268,24 +295,43 @@ private struct DayCell: View {
     let isSelected: Bool
     let categories: [SGEventCategory]
 
+    private var tile: RoundedRectangle { RoundedRectangle(cornerRadius: 9, style: .continuous) }
+
+    /// Sunday red and Saturday blue, as in Stitch. Public holidays are not
+    /// marked: the shared core has no holiday calendar.
+    private var dayColor: SGToken {
+        switch date.weekday {
+        case 0: SGColor.danger
+        case 6: SGColor.info // blue in every theme (the Warrior accent is gold)
+        default: SGColor.textPrimary
+        }
+    }
+
     var body: some View {
         VStack(spacing: 4) {
             Text("\(date.day)")
                 .font(SGTypography.font(15, isToday ? .heavy : .medium, relativeTo: .body))
                 .monospacedDigit()
-                .foregroundStyle(.sg(isSelected ? SGColor.onAccent : (date.weekday == 0 ? SGColor.danger : SGColor.textPrimary)))
+                .foregroundStyle(.sg(isSelected ? SGColor.onAccent : dayColor))
                 .frame(width: 32, height: 32)
+                // Stitch: rounded tiles. Selected is filled, today is outlined,
+                // and a day with records is tinted with its first category.
                 .background {
                     if isSelected {
-                        Circle().fill(.sg(SGColor.accent))
-                    } else if isToday {
-                        Circle().strokeBorder(.sg(SGColor.accent), lineWidth: 1.5)
+                        tile.fill(.sg(SGColor.accent))
+                    } else if let first = categories.first {
+                        tile.fill(.sg(first.mark)).opacity(0.16)
                     }
                 }
-                // Warrior gilded ring around today (transparent in the standard theme).
+                .overlay {
+                    if isToday && !isSelected {
+                        tile.strokeBorder(.sg(SGColor.accent), lineWidth: 1.5)
+                    }
+                }
+                // Warrior gilded frame around today (transparent in the standard theme).
                 .overlay {
                     if isToday {
-                        Circle().strokeBorder(.sg(SGColor.ornament), lineWidth: 1.5).padding(-3.5)
+                        tile.strokeBorder(.sg(SGColor.ornament), lineWidth: 1.5).padding(-3.5)
                     }
                 }
             HStack(spacing: 2) {
@@ -347,15 +393,14 @@ private struct DayPanel: View {
 
 // MARK: Civic Codex sections
 
-/// Month switcher card (Stitch: chevrons in tinted tiles, the month, and 오늘
-/// when another month is shown).
+/// Month switcher card (Stitch: chevrons in tinted tiles and the month; 오늘
+/// lives in the toolbar).
 private struct MonthSwitcher: View {
     @Binding var month: CivilDate
     @Binding var selected: CivilDate
     @Environment(AppModel.self) private var model
 
     private var firstOfMonth: CivilDate { CivilDate(year: month.year, month: month.month, day: 1)! }
-    private var isCurrent: Bool { month.year == model.today.year && month.month == model.today.month }
 
     var body: some View {
         SGCard(padding: SGSpacing.sm) {
@@ -366,13 +411,6 @@ private struct MonthSwitcher: View {
                     Text(Formatters.month(month)).font(SGTypography.title3).monospacedDigit()
                         .foregroundStyle(.sg(SGColor.textPrimary))
                     SGWorldEyebrow("OPERATION CYCLE")
-                    if !isCurrent {
-                        Button("오늘") {
-                            month = model.today
-                            selected = model.today
-                        }
-                        .font(SGTypography.label)
-                    }
                 }
                 Spacer()
                 tile("chevron.right", label: "다음 달") { shift(1) }
