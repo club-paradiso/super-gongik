@@ -13841,10 +13841,94 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	function truncate(text, length) {
 		return text.length > length ? `${text.slice(0, length)}…` : text;
 	}
-	function conflictSides(conflict) {
+	const shown = (value) => typeof value === "string" && value.trim() ? truncate(value.trim(), 20) : "없음";
+	const won$1 = (value) => typeof value === "number" ? `${value.toLocaleString("ko-KR")}원` : "없음";
+	const minutes = (value) => typeof value === "number" ? `${Math.floor(value / 60)}시간 ${value % 60}분` : "없음";
+	/** Profile fields shown by value, named as on the 내 정보 form. */
+	const PROFILE_FIELD_COPY = [
+		[
+			"serviceCategory",
+			"복무 분야",
+			shown
+		],
+		[
+			"residenceRegion",
+			"거주 지역",
+			shown
+		],
+		[
+			"workdayMinutes",
+			"1일 근무시간",
+			minutes
+		],
+		[
+			"workdayStartTime",
+			"평소 근무 시작",
+			shown
+		],
+		[
+			"workdayEndTime",
+			"평소 근무 종료",
+			shown
+		],
+		[
+			"defaultMealAllowanceOverride",
+			"1일 중식비",
+			won$1
+		],
+		[
+			"defaultCommuteCost",
+			"1일 교통비",
+			won$1
+		]
+	];
+	/** Bookkeeping, or already in `describeRecord`'s profile line. */
+	const PROFILE_KEYS_NOT_COMPARED = /* @__PURE__ */ new Set([
+		"id",
+		"ownerId",
+		"localProfileId",
+		"createdAt",
+		"updatedAt",
+		"supersedes",
+		"callUpDate",
+		"expectedDischargeDate"
+	]);
+	/**
+	* The profile line names only the service dates, so two profiles that
+	* differ elsewhere (e.g. 복무 분야) read the same. Add what differs.
+	*/
+	function profileDifferences(local, cloud) {
+		const same = (key) => JSON.stringify(local[key] ?? null) === JSON.stringify(cloud[key] ?? null);
+		let localText = "";
+		let cloudText = "";
+		for (const [key, label, format] of PROFILE_FIELD_COPY) {
+			if (same(key)) continue;
+			localText += ` · ${label} ${format(local[key])}`;
+			cloudText += ` · ${label} ${format(cloud[key])}`;
+		}
+		const shownKeys = new Set(PROFILE_FIELD_COPY.map(([key]) => key));
+		const others = [.../* @__PURE__ */ new Set([...Object.keys(local), ...Object.keys(cloud)])].filter((key) => !PROFILE_KEYS_NOT_COMPARED.has(key) && !shownKeys.has(key)).filter((key) => !same(key)).length;
+		if (others > 0) {
+			const note = ` · 그 밖의 설정 ${others}개 다름`;
+			localText += note;
+			cloudText += note;
+		}
 		return {
-			local: describeRecord(conflict.collection, conflict.localRecord),
-			cloud: describeRecord(conflict.collection, conflict.cloudRecord)
+			local: localText,
+			cloud: cloudText
+		};
+	}
+	function conflictSides(conflict) {
+		const local = describeRecord(conflict.collection, conflict.localRecord);
+		const cloud = describeRecord(conflict.collection, conflict.cloudRecord);
+		if (conflict.collection !== "profile" || !conflict.localRecord || !conflict.cloudRecord) return {
+			local,
+			cloud
+		};
+		const extra = profileDifferences(conflict.localRecord, conflict.cloudRecord);
+		return {
+			local: local + extra.local,
+			cloud: cloud + extra.cloud
 		};
 	}
 	const HELD_REASON_COPY = {
