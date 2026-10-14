@@ -13,7 +13,9 @@ struct RecordsView: View {
     enum Mode: String, CaseIterable { case month = "월간", agenda = "목록" }
 
     @Environment(AppModel.self) private var model
+    var openTab: (AppTab) -> Void = { _ in }
     @State private var mode: Mode = .month
+    @State private var showingLedger = false
     @State private var month: CivilDate = SeoulClock.today(at: .now)
     @State private var selected: CivilDate = SeoulClock.today(at: .now)
     @State private var editing: EditorTarget?
@@ -38,7 +40,10 @@ struct RecordsView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: SGSpacing.md) {
-                    SGWorldEyebrow("QUEST LOG")
+                    // Stitch: the app header and the screen title replace the
+                    // navigation bar; its actions sit on the title row.
+                    AppHeader(hero: model.projection?.home?.hero, openProfile: { openTab(.profile) })
+                    ScreenTitle(title: "캘린더", world: "QUEST LOG") { titleActions }
                     Picker("보기", selection: $mode) {
                         ForEach(Mode.allCases, id: \.self) { Text($0.rawValue) }
                     }
@@ -79,40 +84,8 @@ struct RecordsView: View {
             .background(.sg(SGColor.background))
             .sgScreenChrome()
             .navigationTitle("캘린더")
-            .toolbar {
-                if mode == .agenda {
-                    ToolbarItem(placement: .topBarLeading) { filterMenu }
-                }
-                // 연가 내역 left the tab bar (Stitch: four destinations).
-                ToolbarItem(placement: .secondaryAction) {
-                    NavigationLink {
-                        LeaveView()
-                    } label: {
-                        Label("연가 내역", systemImage: "list.clipboard")
-                    }
-                }
-                // Stitch: a "오늘" button at the top trailing edge.
-                if mode == .month {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            month = model.today
-                            selected = model.today
-                        } label: {
-                            // Text, not a glyph: an iOS 26 toolbar shows a Label as its icon only.
-                            Text("오늘")
-                        }
-                        .accessibilityLabel("오늘로 이동")
-                    }
-                }
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        editing = EditorTarget(event: nil, date: mode == .month ? selected : model.today)
-                    } label: {
-                        Label("기록 추가", systemImage: "plus")
-                    }
-                    .disabled(model.isReadOnly)
-                }
-            }
+            .toolbar(.hidden, for: .navigationBar)
+            .navigationDestination(isPresented: $showingLedger) { LeaveView() }
             .task(id: model.projection?.profile?.period) {
                 if let period = model.projection?.profile?.period {
                     milestones = await model.serviceMilestones(period)
@@ -139,6 +112,62 @@ struct RecordsView: View {
     private var filtered: [ServiceEvent] {
         guard let filter else { return events }
         return events.filter { display($0)?.category == filter.rawValue }
+    }
+
+    /// 오늘 (month view) or the filter (list view), 기록 추가 and a menu with
+    /// 연가 내역 — what the toolbar held before.
+    private var titleActions: some View {
+        HStack(spacing: SGSpacing.xs) {
+            if mode == .month {
+                Button {
+                    month = model.today
+                    selected = model.today
+                } label: {
+                    Label("오늘", systemImage: "calendar")
+                        .font(SGTypography.label)
+                        .lineLimit(1)
+                        .fixedSize()
+                        .padding(.horizontal, SGSpacing.sm)
+                        .frame(height: 36)
+                        .background(.sg(SGColor.surfaceRaised), in: Capsule())
+                        .overlay(Capsule().strokeBorder(.sg(SGColor.border)))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.sg(SGColor.accent))
+                .accessibilityLabel("오늘로 이동")
+            } else {
+                filterMenu
+            }
+            Button {
+                editing = EditorTarget(event: nil, date: mode == .month ? selected : model.today)
+            } label: {
+                circle("plus")
+            }
+            .buttonStyle(.plain)
+            .disabled(model.isReadOnly)
+            .accessibilityLabel("기록 추가")
+            Menu {
+                Button {
+                    showingLedger = true
+                } label: {
+                    Label("연가 내역", systemImage: "list.clipboard")
+                }
+            } label: {
+                circle("ellipsis")
+            }
+            .accessibilityLabel("더 보기")
+        }
+    }
+
+    private func circle(_ symbol: String) -> some View {
+        Image(systemName: symbol)
+            .font(SGTypography.label)
+            .foregroundStyle(.sg(SGColor.accent))
+            .frame(width: 36, height: 36)
+            .background(.sg(SGColor.surfaceRaised), in: Circle())
+            .overlay(Circle().strokeBorder(.sg(SGColor.border)))
+            .frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget)
+            .contentShape(Rectangle())
     }
 
     private var filterMenu: some View {
@@ -394,7 +423,7 @@ private struct DayPanel: View {
 // MARK: Civic Codex sections
 
 /// Month switcher card (Stitch: chevrons in tinted tiles and the month; 오늘
-/// lives in the toolbar).
+/// sits on the title row).
 private struct MonthSwitcher: View {
     @Binding var month: CivilDate
     @Binding var selected: CivilDate

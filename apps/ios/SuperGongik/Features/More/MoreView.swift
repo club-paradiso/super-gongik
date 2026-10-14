@@ -41,6 +41,16 @@ struct MoreView: View {
         NavigationStack {
             List {
                 Group {
+                    // Stitch: the app header and the screen title replace the
+                    // navigation bar (no profile button on 내 정보 itself).
+                    Section {
+                        VStack(alignment: .leading, spacing: SGSpacing.md) {
+                            AppHeader(hero: model.projection?.home?.hero)
+                            ScreenTitle(title: "내 정보")
+                        }
+                    }
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                     if let profile = model.profile, let hero = model.projection?.home?.hero {
                         Section {
                             CharacterCard(profile: profile, hero: hero)
@@ -64,7 +74,7 @@ struct MoreView: View {
                                     Image(systemName: "chevron.right").font(.caption).foregroundStyle(.sg(SGColor.textTertiary))
                                 }
                             }
-                            NavigationLink("복무 기념 카드") { MemorialCardView() }
+                            NavigationLink { MemorialCardView() } label: { Label("복무 기념 카드", systemImage: "sparkles.rectangle.stack") }
                             Toggle("초 단위 진행률", isOn: Binding(
                                 get: { profile.liveProgressEnabled ?? false },
                                 set: { value in Task { await model.editProfile(["liveProgressEnabled": .bool(value)]) } }))
@@ -100,17 +110,17 @@ struct MoreView: View {
                     RecordSummarySection()
 
                     Section {
-                        NavigationLink("백업에서 복원") { BackupRestoreView() }
-                        NavigationLink("기관 기록 가져오기") { RecordImportView() }
+                        NavigationLink { BackupRestoreView() } label: { Label("백업에서 복원", systemImage: "arrow.counterclockwise") }
+                        NavigationLink { RecordImportView() } label: { Label("기관 기록 가져오기", systemImage: "tray.and.arrow.down") }
                     }
 
                     Section {
-                        LabeledContent("저장 위치", value: "이 기기")
+                        LabeledContent { Text("이 기기") } label: { Label("저장 위치", systemImage: "internaldrive") }
                         if model.cloud.isConfigured {
                             NavigationLink {
                                 CloudSyncView()
                             } label: {
-                                LabeledContent("클라우드 동기화", value: model.cloud.view?.label.text ?? "로컬 전용")
+                                LabeledContent { Text(model.cloud.view?.label.text ?? "로컬 전용") } label: { Label("클라우드 동기화", systemImage: "icloud") }
                             }
                         }
                     } header: {
@@ -147,7 +157,7 @@ struct MoreView: View {
                         NavigationLink {
                             WidgetStyleView()
                         } label: {
-                            LabeledContent("위젯 스타일", value: (WidgetPreset(rawValue: widgetPreset) ?? .twilight).title)
+                            LabeledContent { Text((WidgetPreset(rawValue: widgetPreset) ?? .twilight).title) } label: { Label("위젯 스타일", systemImage: "square.grid.2x2") }
                         }
                     } header: {
                         header("홈 화면 위젯", world: "WIDGET HUD")
@@ -207,7 +217,7 @@ struct MoreView: View {
                     }
 
                     Section {
-                        NavigationLink("계산 기준과 출처") { AboutView() }
+                        NavigationLink { AboutView() } label: { Label("계산 기준과 출처", systemImage: "book.closed") }
                         LabeledContent("버전", value: Bundle.main.versionText)
                     } header: {
                         header("정보", world: "CIVIC CODEX")
@@ -218,6 +228,7 @@ struct MoreView: View {
             .sgGroupedChrome()
             .sgScreenChrome()
             .navigationTitle("내 정보")
+            .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showingCloud) { CloudSyncView() }
             .navigationDestination(isPresented: $showingCard) { MemorialCardView() }
             .navigationDestination(isPresented: $showingWidgetStyle) { WidgetStyleView() }

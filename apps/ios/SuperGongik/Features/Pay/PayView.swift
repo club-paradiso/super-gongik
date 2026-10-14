@@ -19,7 +19,13 @@ struct PayView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: SGSpacing.md) {
-                    monthSwitcher
+                    // Stitch: the app header, then the title with the month
+                    // switcher on its row (the navigation bar is hidden).
+                    AppHeader(hero: model.projection?.home?.hero, openProfile: { openTab(.profile) })
+                    ScreenTitle(title: "급여",
+                                world: String(format: "SUPPLY // %04d.%02d PAYROLL", month.year, month.month)) {
+                        monthSwitcher
+                    }
                     if let money {
                         SummaryCard(money: money, isCurrentMonth: isCurrentMonth)
                         if !money.compensation.unresolved.isEmpty {
@@ -49,6 +55,7 @@ struct PayView: View {
             .background(.sg(SGColor.background))
             .sgScreenChrome()
             .navigationTitle("급여")
+            .toolbar(.hidden, for: .navigationBar)
             .task(id: TaskKey(month: month.description, revision: model.document?.documentRevision ?? 0, today: model.today)) {
                 await load()
             }
@@ -75,15 +82,13 @@ struct PayView: View {
 
     private var isCurrentMonth: Bool { month.year == model.today.year && month.month == model.today.month }
 
-    /// Stitch "SUPPLY // 2026.03": the world label, then the month between
-    /// tinted chevron tiles.
+    /// The month between tinted chevron tiles, on the title row.
     private var monthSwitcher: some View {
-        HStack {
-            SGWorldEyebrow(String(format: "SUPPLY // %04d.%02d", month.year, month.month), tint: SGColor.accent)
-            Spacer()
+        HStack(spacing: SGSpacing.xxs) {
             tile("chevron.left", label: "이전 달") { shift(-1) }
-            Text(Formatters.month(month)).font(SGTypography.title3).monospacedDigit()
-                .padding(.horizontal, SGSpacing.xs)
+            Text("\(month.month)월").font(SGTypography.title3).monospacedDigit()
+                .padding(.horizontal, SGSpacing.xxs)
+                .accessibilityLabel(Formatters.month(month))
             tile("chevron.right", label: "다음 달") { shift(1) }
         }
     }
@@ -93,8 +98,10 @@ struct PayView: View {
             Image(systemName: symbol)
                 .font(SGTypography.label)
                 .foregroundStyle(.sg(SGColor.accent))
-                .frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget)
+                .frame(width: 36, height: 36)
                 .background(.sg(SGColor.selectedBackground), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
+                .frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(label)
