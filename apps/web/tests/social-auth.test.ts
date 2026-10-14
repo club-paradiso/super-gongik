@@ -2,8 +2,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   SOCIAL_AUTH_OPTIONS,
+  hasAuthReturnError,
   socialProviderId,
   startSocialSignIn,
+  withoutAuthReturnError,
 } from "../src/lib/sync/social-auth";
 
 const { signInWithOAuth } = vi.hoisted(() => ({
@@ -60,5 +62,38 @@ describe("social auth provider mapping", () => {
       "google",
       "naver",
     ]);
+  });
+});
+
+describe("returning from a sign-in that did not finish", () => {
+  it("recognises GoTrue's error in the query (PKCE) and in the hash", () => {
+    expect(
+      hasAuthReturnError({
+        search: "?error=access_denied&error_description=User+denied",
+        hash: "",
+      }),
+    ).toBe(true);
+    expect(
+      hasAuthReturnError({ search: "", hash: "#error_description=denied" }),
+    ).toBe(true);
+  });
+
+  it("ignores a successful return and ordinary addresses", () => {
+    expect(hasAuthReturnError({ search: "?code=abc", hash: "" })).toBe(false);
+    expect(hasAuthReturnError({ search: "?tab=calendar", hash: "" })).toBe(
+      false,
+    );
+    expect(hasAuthReturnError({ search: "", hash: "" })).toBe(false);
+  });
+
+  it("removes only GoTrue's error parameters from the address", () => {
+    expect(
+      withoutAuthReturnError(
+        "https://app.example/?tab=profile&error=access_denied&error_code=x&error_description=denied",
+      ),
+    ).toBe("/?tab=profile");
+    expect(
+      withoutAuthReturnError("https://app.example/#error=server_error"),
+    ).toBe("/");
   });
 });
