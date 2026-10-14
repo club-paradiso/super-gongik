@@ -142,11 +142,86 @@ function truncate(text: string, length: number) {
   return text.length > length ? `${text.slice(0, length)}…` : text;
 }
 
+type Profile = NonNullable<UserData["profile"]>;
+
+const shown = (value: unknown) =>
+  typeof value === "string" && value.trim()
+    ? truncate(value.trim(), 20)
+    : "없음";
+const won = (value: unknown) =>
+  typeof value === "number" ? `${value.toLocaleString("ko-KR")}원` : "없음";
+const minutes = (value: unknown) =>
+  typeof value === "number"
+    ? `${Math.floor(value / 60)}시간 ${value % 60}분`
+    : "없음";
+
+/** Profile fields shown by value, named as on the 내 정보 form. */
+const PROFILE_FIELD_COPY: ReadonlyArray<
+  [keyof Profile, string, (value: unknown) => string]
+> = [
+  ["serviceCategory", "복무 분야", shown],
+  ["residenceRegion", "거주 지역", shown],
+  ["workdayMinutes", "1일 근무시간", minutes],
+  ["workdayStartTime", "평소 근무 시작", shown],
+  ["workdayEndTime", "평소 근무 종료", shown],
+  ["defaultMealAllowanceOverride", "1일 중식비", won],
+  ["defaultCommuteCost", "1일 교통비", won],
+];
+
+/** Bookkeeping, or already in `describeRecord`'s profile line. */
+const PROFILE_KEYS_NOT_COMPARED = new Set<string>([
+  "id",
+  "ownerId",
+  "localProfileId",
+  "createdAt",
+  "updatedAt",
+  "supersedes",
+  "callUpDate",
+  "expectedDischargeDate",
+]);
+
+/**
+ * The profile line names only the service dates, so two profiles that
+ * differ elsewhere (e.g. 복무 분야) read the same. Add what differs.
+ */
+function profileDifferences(local: Profile, cloud: Profile) {
+  const same = (key: string) =>
+    JSON.stringify(local[key as keyof Profile] ?? null) ===
+    JSON.stringify(cloud[key as keyof Profile] ?? null);
+  let localText = "";
+  let cloudText = "";
+  for (const [key, label, format] of PROFILE_FIELD_COPY) {
+    if (same(key)) continue;
+    localText += ` · ${label} ${format(local[key])}`;
+    cloudText += ` · ${label} ${format(cloud[key])}`;
+  }
+  const shownKeys = new Set<string>(PROFILE_FIELD_COPY.map(([key]) => key));
+  const others = [...new Set([...Object.keys(local), ...Object.keys(cloud)])]
+    .filter((key) => !PROFILE_KEYS_NOT_COMPARED.has(key) && !shownKeys.has(key))
+    .filter((key) => !same(key)).length;
+  if (others > 0) {
+    const note = ` · 그 밖의 설정 ${others}개 다름`;
+    localText += note;
+    cloudText += note;
+  }
+  return { local: localText, cloud: cloudText };
+}
+
 export function conflictSides(conflict: SyncConflict) {
-  return {
-    local: describeRecord(conflict.collection, conflict.localRecord),
-    cloud: describeRecord(conflict.collection, conflict.cloudRecord),
-  };
+  const local = describeRecord(conflict.collection, conflict.localRecord);
+  const cloud = describeRecord(conflict.collection, conflict.cloudRecord);
+  if (
+    conflict.collection !== "profile" ||
+    !conflict.localRecord ||
+    !conflict.cloudRecord
+  ) {
+    return { local, cloud };
+  }
+  const extra = profileDifferences(
+    conflict.localRecord as Profile,
+    conflict.cloudRecord as Profile,
+  );
+  return { local: local + extra.local, cloud: cloud + extra.cloud };
 }
 
 export const HELD_REASON_COPY: Record<RejectReason, string> = {
