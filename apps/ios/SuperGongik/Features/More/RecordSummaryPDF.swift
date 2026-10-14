@@ -137,7 +137,7 @@ struct RecordSummarySection: View {
 
     var body: some View {
         Section {
-            Button("복무 기록 요약 PDF") { prepare() }
+            Button { prepare() } label: { Label("복무 기록 요약 PDF", systemImage: "doc.richtext") }
                 .disabled(model.profile == nil)
         } footer: {
             Text("개인 보관용 요약이에요. 공식 증명서가 아니라 기관 제출용으로 쓸 수 없어요. 메모는 넣지 않아요.")

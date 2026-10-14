@@ -65,7 +65,7 @@ private struct MainTabs: View {
                 TodayView(openTab: { tab = $0 }, showsLedgerInitially: RootView.opensLedgerOnLaunch)
             }
             Tab("캘린더", systemImage: "calendar", value: AppTab.calendar) {
-                RecordsView()
+                RecordsView(openTab: { tab = $0 })
             }
             Tab("급여", systemImage: "wonsign.circle", value: AppTab.pay) {
                 PayView(openTab: { tab = $0 })

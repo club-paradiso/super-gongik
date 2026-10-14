@@ -41,6 +41,16 @@ struct MoreView: View {
         NavigationStack {
             List {
                 Group {
+                    // Stitch: the app header and the screen title replace the
+                    // navigation bar (no profile button on 내 정보 itself).
+                    Section {
+                        VStack(alignment: .leading, spacing: SGSpacing.md) {
+                            AppHeader(hero: model.projection?.home?.hero)
+                            ScreenTitle(title: "내 정보")
+                        }
+                    }
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                     if let profile = model.profile, let hero = model.projection?.home?.hero {
                         Section {
                             CharacterCard(profile: profile, hero: hero)
@@ -54,20 +64,24 @@ struct MoreView: View {
                                 showingProfile = true
                             } label: {
                                 HStack {
-                                    VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
-                                        Text("복무 설정").foregroundStyle(.sg(SGColor.textPrimary))
-                                        Text("\(Formatters.longDate(profile.callUpDate)) ~ \(Formatters.longDate(profile.expectedDischargeDate))")
-                                            .font(SGTypography.caption).monospacedDigit()
-                                            .foregroundStyle(.sg(SGColor.textTertiary))
+                                    Label {
+                                        VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
+                                            Text("복무 설정").foregroundStyle(.sg(SGColor.textPrimary))
+                                            Text("\(Formatters.longDate(profile.callUpDate)) ~ \(Formatters.longDate(profile.expectedDischargeDate))")
+                                                .font(SGTypography.caption).monospacedDigit()
+                                                .foregroundStyle(.sg(SGColor.textTertiary))
+                                        }
+                                    } icon: {
+                                        Image(systemName: "slider.horizontal.3").foregroundStyle(.sg(SGColor.accent))
                                     }
                                     Spacer()
                                     Image(systemName: "chevron.right").font(.caption).foregroundStyle(.sg(SGColor.textTertiary))
                                 }
                             }
-                            NavigationLink("복무 기념 카드") { MemorialCardView() }
-                            Toggle("초 단위 진행률", isOn: Binding(
+                            NavigationLink { MemorialCardView() } label: { Label("복무 기념 카드", systemImage: "sparkles.rectangle.stack") }
+                            Toggle(isOn: Binding(
                                 get: { profile.liveProgressEnabled ?? false },
-                                set: { value in Task { await model.editProfile(["liveProgressEnabled": .bool(value)]) } }))
+                                set: { value in Task { await model.editProfile(["liveProgressEnabled": .bool(value)]) } })) { Label("초 단위 진행률", systemImage: "timer") }
                             .disabled(model.isReadOnly)
                         } header: {
                             header("복무", world: "PROFILE")
@@ -100,17 +114,17 @@ struct MoreView: View {
                     RecordSummarySection()
 
                     Section {
-                        NavigationLink("백업에서 복원") { BackupRestoreView() }
-                        NavigationLink("기관 기록 가져오기") { RecordImportView() }
+                        NavigationLink { BackupRestoreView() } label: { Label("백업에서 복원", systemImage: "arrow.counterclockwise") }
+                        NavigationLink { RecordImportView() } label: { Label("기관 기록 가져오기", systemImage: "tray.and.arrow.down") }
                     }
 
                     Section {
-                        LabeledContent("저장 위치", value: "이 기기")
+                        LabeledContent { Text("이 기기") } label: { Label("저장 위치", systemImage: "internaldrive") }
                         if model.cloud.isConfigured {
                             NavigationLink {
                                 CloudSyncView()
                             } label: {
-                                LabeledContent("클라우드 동기화", value: model.cloud.view?.label.text ?? "로컬 전용")
+                                LabeledContent { Text(model.cloud.view?.label.text ?? "로컬 전용") } label: { Label("클라우드 동기화", systemImage: "icloud") }
                             }
                         }
                     } header: {
@@ -123,7 +137,7 @@ struct MoreView: View {
 
                     if let profile = model.profile, let hero = model.projection?.home?.hero {
                         Section {
-                            Toggle("잠금 화면에 오늘 근무 표시", isOn: Binding(
+                            Toggle(isOn: Binding(
                                 get: { activityOn },
                                 set: { value in Task {
                                     if value {
@@ -132,7 +146,7 @@ struct MoreView: View {
                                         await DutyActivityController.end()
                                         activityOn = false
                                     }
-                                } }))
+                                } })) { Label("잠금 화면에 오늘 근무 표시", systemImage: "lock.display") }
                             .disabled(!DutyActivityController.isAvailable && !activityOn)
                         } header: {
                             header("잠금 화면", world: "LIVE HUD")
@@ -147,7 +161,7 @@ struct MoreView: View {
                         NavigationLink {
                             WidgetStyleView()
                         } label: {
-                            LabeledContent("위젯 스타일", value: (WidgetPreset(rawValue: widgetPreset) ?? .twilight).title)
+                            LabeledContent { Text((WidgetPreset(rawValue: widgetPreset) ?? .twilight).title) } label: { Label("위젯 스타일", systemImage: "square.grid.2x2") }
                         }
                     } header: {
                         header("홈 화면 위젯", world: "WIDGET HUD")
@@ -178,13 +192,13 @@ struct MoreView: View {
                     }
 
                     Section {
-                        Toggle("\(lock.methodName)로 앱 잠금", isOn: Binding(
+                        Toggle(isOn: Binding(
                             get: { lock.lockEnabled },
-                            set: { value in Task { await lock.setLockEnabled(value) } }))
+                            set: { value in Task { await lock.setLockEnabled(value) } })) { Label("\(lock.methodName)로 앱 잠금", systemImage: "lock") }
                         .disabled(!lock.isAvailable && !lock.lockEnabled)
-                        Toggle("앱 전환 화면에서 내용 가리기", isOn: Binding(
+                        Toggle(isOn: Binding(
                             get: { lock.coverEnabled || lock.lockEnabled },
-                            set: { lock.coverEnabled = $0 }))
+                            set: { lock.coverEnabled = $0 })) { Label("앱 전환 화면에서 내용 가리기", systemImage: "eye.slash") }
                         .disabled(lock.lockEnabled)
                         if let error = lock.lastError {
                             Text(error).font(SGTypography.caption).foregroundStyle(.sg(SGColor.warning))
@@ -207,8 +221,8 @@ struct MoreView: View {
                     }
 
                     Section {
-                        NavigationLink("계산 기준과 출처") { AboutView() }
-                        LabeledContent("버전", value: Bundle.main.versionText)
+                        NavigationLink { AboutView() } label: { Label("계산 기준과 출처", systemImage: "book.closed") }
+                        LabeledContent { Text(Bundle.main.versionText) } label: { Label("버전", systemImage: "info.circle") }
                     } header: {
                         header("정보", world: "CIVIC CODEX")
                     }
@@ -218,6 +232,7 @@ struct MoreView: View {
             .sgGroupedChrome()
             .sgScreenChrome()
             .navigationTitle("내 정보")
+            .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showingCloud) { CloudSyncView() }
             .navigationDestination(isPresented: $showingCard) { MemorialCardView() }
             .navigationDestination(isPresented: $showingWidgetStyle) { WidgetStyleView() }

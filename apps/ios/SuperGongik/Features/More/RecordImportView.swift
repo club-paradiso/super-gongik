@@ -268,9 +268,9 @@ struct CSVExportSection: View {
 
     var body: some View {
         Section {
-            Button("복무기록 CSV") { Task { await prepare("events", "super-gongik-events") } }
+            Button { Task { await prepare("events", "super-gongik-events") } } label: { Label("복무기록 CSV", systemImage: "tablecells") }
                 .disabled(model.document?.events.isEmpty ?? true)
-            Button("연가 내역 CSV") { Task { await prepare("leave", "super-gongik-leave-ledger") } }
+            Button { Task { await prepare("leave", "super-gongik-leave-ledger") } } label: { Label("연가 내역 CSV", systemImage: "list.bullet.rectangle") }
                 .disabled(model.projection?.ledger?.entries.isEmpty ?? true)
         } footer: {
             Text("표 계산 앱에서 열어 볼 수 있는 파일이에요. 복원에는 전체 백업(JSON)을 쓰세요.")
