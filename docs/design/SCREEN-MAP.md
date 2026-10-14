@@ -64,10 +64,10 @@ Direction B from page 40 (`49:290`), drawn per [STITCH-IMPLEMENTATION-PLAN.md](.
 | 4 내 정보            | `207:4469` Light, `207:4633` Warrior Light, `207:4728` Warrior Dark                | `Features/More/MoreView.swift`                                                                                | MATCH  |
 | 5 온보딩             | `208:4628` Step 1, `208:4655` Step 2, `208:4683` Step 3, `208:4721` Step 4 (Light) | `Features/Onboarding/OnboardingView.swift`                                                                    | MATCH  |
 | 6 복무 기록 요약 PDF | `209:4634` A4 1쪽                                                                  | `Features/More/RecordSummaryPDF.swift`                                                                        | MATCH  |
-| 7 라이브 액티비티    | `210:4634` 잠금 화면, `210:4646` Dynamic Island compact, `210:4650` expanded       | `SuperGongikWidgets/DutyLiveActivity.swift`, `Shared/DutyActivity.swift`, `Core/DutyActivityController.swift` | REFINE |
+| 7 라이브 액티비티    | `210:4634` 잠금 화면, `210:4646` Dynamic Island compact, `210:4650` expanded       | `SuperGongikWidgets/DutyLiveActivity.swift`, `Shared/DutyActivity.swift`, `Core/DutyActivityController.swift` | MATCH  |
 | 8 복무 기념 카드     | `210:4664` 앞면, `210:4672` 뒷면                                                   | `Features/More/MemorialCardView.swift`                                                                        | MATCH  |
 
-Phase 7 stays `REFINE` until the expanded island and lock screen are captured (compact island seen); the plan's status table records what was checked.
+The plan's status table records what was checked on the simulator for each phase.
 
 Stitch views marked DEPRECATE below are still not built as screens; the Warrior theme takes their palette and mood, not their layouts, sample data or out-of-scope features.
 

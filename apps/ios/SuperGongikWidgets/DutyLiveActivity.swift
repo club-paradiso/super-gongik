@@ -30,15 +30,20 @@ struct DutyLiveActivity: Widget {
                 DynamicIslandExpandedRegion(.bottom) {
                     VStack(alignment: .leading, spacing: 6) {
                         ProgressView(value: context.state.percent, total: 100).tint(gold)
-                        if let offDuty = context.state.offDuty, offDuty > .now {
-                            HStack {
-                                Text("퇴근까지").font(.caption).foregroundStyle(.white.opacity(0.7))
-                                Text(timerInterval: Date.now...offDuty, countsDown: true)
-                                    .font(.caption.weight(.semibold)).monospacedDigit()
+                        Group {
+                            if let offDuty = context.state.offDuty, offDuty > .now {
+                                HStack {
+                                    Text("퇴근까지").font(.caption).foregroundStyle(.white.opacity(0.7))
+                                    Text(timerInterval: Date.now...offDuty, countsDown: true)
+                                        .font(.caption.weight(.semibold)).monospacedDigit()
+                                }
+                            } else {
+                                Text(context.attributes.dischargeLine).font(.caption).foregroundStyle(.white.opacity(0.7))
                             }
-                        } else {
-                            Text(context.attributes.dischargeLine).font(.caption).foregroundStyle(.white.opacity(0.7))
                         }
+                        // The island's lower corners clip the first glyph of
+                        // the last line (seen on iPhone 16, iOS 26.3).
+                        .padding(.leading, 8)
                     }
                 }
             } compactLeading: {
