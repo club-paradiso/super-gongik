@@ -97,7 +97,17 @@ confirm) and the static intro are the implementation.
     cannot read the app's data or the preset (as before), and only the
     in-app preview changes.
 
+## Second pass (2026-10-14)
+
+- The app header (mark, SUPER GONGIK, state, D-day pill, profile button) is
+  now on 캘린더, 급여 and 내 정보 too, with the screen title under it, as in
+  Stitch. The navigation bar is hidden on those roots; 캘린더's 오늘, 기록
+  추가 and 연가 내역 moved to the title row, and 급여's month switcher sits on
+  its title row under "SUPPLY // yyyy.mm PAYROLL" (Warrior only).
+- 내 정보 rows carry leading icons, like the Stitch character sheet.
+
 ## Remaining gaps
 
-1. The profile button on 캘린더, 급여 and 내 정보: those tabs use native
-   navigation titles, so Stitch's custom header is only on 홈.
+- Tab bar glyphs: Stitch uses Material icons (crossed swords, wallet,
+  trophy) with no SF Symbols equivalent; the Figma `AppTabBar · 4` glyphs
+  stay (native).
