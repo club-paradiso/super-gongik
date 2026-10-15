@@ -131,5 +131,4 @@ Source: the Stitch export zip itself (`stitch_super_gongik_rpg_redesign`,
 
 ## Remaining gaps
 
-- Tab bar: Stitch's own bar and glyphs since the third pass. Figma page 52
-  still shows `AppTabBar · 4` and needs redrawing.
+None open. Figma page 52 was redrawn to the third pass on 2026-10-15.

@@ -1,6 +1,6 @@
 # Screen map — Figma ↔ iOS
 
-- Updated: 2026-10-14 · Figma file `hy0KYmsJxVzj2JwJtbfIpS` · see [FIGMA-SOURCE-OF-TRUTH.md](./FIGMA-SOURCE-OF-TRUTH.md)
+- Updated: 2026-10-15 · Figma file `hy0KYmsJxVzj2JwJtbfIpS` · see [FIGMA-SOURCE-OF-TRUTH.md](./FIGMA-SOURCE-OF-TRUTH.md)
 - Status: `MATCH` Figma = code · `REFINE` code or Figma adjusted in this sync / small gap noted · `MERGE` Stitch idea folded into a canonical screen · `DEPRECATE` reference only, not built · `FUTURE` needs core/domain work first · `MISSING_IN_CODE` · `MISSING_IN_FIGMA`
 
 ## 1. Canonical production screens (page 52)
@@ -54,7 +54,7 @@ Spec and QA record: page 55 "Warrior — Spec & QA" (`125:8485`). Component revi
 
 ### Stitch · Civic Codex (page 52, rows "Civic Codex 1" … "7-8") — 2026-10-13/14
 
-Direction B from page 40 (`49:290`), drawn per [STITCH-IMPLEMENTATION-PLAN.md](./STITCH-IMPLEMENTATION-PLAN.md). Four-tab bar: page 51 `AppTabBar · 4` (`201:610`). World labels appear only in Warrior frames (`theme/world-language`, code `SGWorldEyebrow`).
+Direction B from page 40 (`49:290`), drawn per [STITCH-IMPLEMENTATION-PLAN.md](./STITCH-IMPLEMENTATION-PLAN.md). Since PR #68 (2026-10-15) every frame uses the app's own chrome from page 51: `AppHeader` (`241:663`, Profile=Off on 내 정보) and the bottom bar `StitchTabBar · 4` (`241:626`), built from the Material Symbols in `Stitch Icon / …` (`239:542`, the asset catalog's `ms.*` SVGs). `AppTabBar · 4` (`201:610`) is no longer used here. World labels show in both themes: `theme/world-language` is true for Standard too.
 
 | Phase                | Figma (page 52)                                                                    | SwiftUI                                                                                                       | Status |
 | -------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------ |
@@ -68,6 +68,8 @@ Direction B from page 40 (`49:290`), drawn per [STITCH-IMPLEMENTATION-PLAN.md](.
 | 8 복무 기념 카드     | `210:4664` 앞면, `210:4672` 뒷면                                                   | `Features/More/MemorialCardView.swift`                                                                        | MATCH  |
 
 The plan's status table records what was checked on the simulator for each phase.
+
+On 2026-10-15 the twelve 홈 / 캘린더 / 급여 / 내 정보 frames were redrawn to the PR #68 app, checked against `-SGSeedDemo YES` simulator screenshots (iPhone 16; standard light, warrior light, warrior dark). 홈: gold COUNTDOWN PROTOCOL tag, percent pill, `// TIME TO DISCHARGE`, lavender → gold → ivory horizon gauge; milestone chips with 지남 / NEXT and no dates; borderless cards with plain glyphs and chevrons; the leave card keeps "remaining / granted" with its bar and 확정; agenda uses `SGAgendaRow` plus 캘린더 보기; actions read 근무기록 추가 / 연가 사용. The frames keep their own sample values (D-306, March), not the demo seed's. Not redrawn: 캘린더's 월간 / 목록 control and its + / … buttons, and 내 정보's cell glyphs and section world labels, which predate PR #68.
 
 On 2026-10-14 the three 내 정보 frames (`207:4469`, `207:4633`, `207:4728`) gained the rows that phases 6–8 added in code: 복무 기념 카드 under 복무 설정, a 잠금 화면 section (잠금 화면에 오늘 근무 표시) before 알림, and a 복무 기록 요약 PDF section after the backup rows, each with the code's footer text.
 
@@ -165,7 +167,7 @@ Evidence: CI job "iOS · app tests and simulator screenshot QA", artifact `ios-s
 
 | Finding                                                                                               | Class                         | Action                                                                                                    |
 | ----------------------------------------------------------------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------- |
-| Tab bar renders as the iOS 26 floating Liquid Glass bar; Figma `AppTabBar` is a full-width bar        | INTENTIONAL_NATIVE_DIFFERENCE | Figma page 52 header and `AppTabBar` description say the bar is system-owned                              |
+| Tab bar renders as the iOS 26 floating Liquid Glass bar; Figma `AppTabBar` is a full-width bar        | INTENTIONAL_NATIVE_DIFFERENCE | Superseded 2026-10-15: the app draws `StitchTabBar` (PR #68); page 52 shows it                            |
 | 기록 segmented control reads 월간 / 목록 in the app; Figma said 달력 / 목록                           | MINOR                         | Figma updated to 월간 / 목록                                                                              |
 | 급여 rank line ("상병 상당 · 복무 11개월 차") can wrap inside "11개월" at Accessibility XXL           | MINOR                         | Left as is: native Korean line breaking, nothing clipped. Revisit with a stacked layout if it is reported |
 | Warrior light differs from standard light mostly in accent and canvas tint                            | INTENTIONAL                   | Matches Stitch's light screens; the Warrior identity is strongest in the hero and in dark mode            |
