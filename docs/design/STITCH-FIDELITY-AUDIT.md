@@ -106,8 +106,30 @@ confirm) and the static intro are the implementation.
   its title row under "SUPPLY // yyyy.mm PAYROLL" (Warrior only).
 - 내 정보 rows carry leading icons, like the Stitch character sheet.
 
+## Third pass (2026-10-15)
+
+Source: the Stitch export zip itself (`stitch_super_gongik_rpg_redesign`,
+`direction_b_civic_codex/code.html`), not only Figma page 40.
+
+- World labels now show in both themes (owner decision): CIVIC OS, ACTIVE //
+  DUTY_SYNC, COUNTDOWN PROTOCOL, // TIME TO DISCHARGE, MILESTONES //, LEAVE
+  LEDGER, COMPENSATION, AGENDA, QUEST LOG, SUPPLY, CHARACTER, the legend's
+  (REST) and (RECOVERY). Warrior keeps its palette and ornaments.
+- Stitch fonts are bundled for digits and Latin text: Plus Jakarta Sans
+  (D-days, amounts, dates, SUPER GONGIK) and Space Grotesk (world labels,
+  pills). Both are OFL; Korean stays in Pretendard.
+- Stitch's Material Symbols (Apache 2.0) are in the asset catalog under
+  `Stitch/ms.*` and drawn with `StitchIcon`.
+- The system tab bar is replaced by Stitch's bar: swords, calendar, wallet
+  and medal glyphs, the Korean name and the world label, and a soft plate on
+  the current tab.
+- 홈: the hero has the gold COUNTDOWN PROTOCOL tag, the percent pill and the
+  Horizon Gauge (lavender → gold → ivory). Milestone chips carry 지남 /
+  NEXT. Cards use Stitch's plain glyphs, no border, 12 pt corners. The leave
+  card shows "remaining / granted" with a bar once the grant is confirmed
+  (`확정`). 연가 사용 is navy.
+
 ## Remaining gaps
 
-- Tab bar glyphs: Stitch uses Material icons (crossed swords, wallet,
-  trophy) with no SF Symbols equivalent; the Figma `AppTabBar · 4` glyphs
-  stay (native).
+- Tab bar: Stitch's own bar and glyphs since the third pass. Figma page 52
+  still shows `AppTabBar · 4` and needs redrawing.

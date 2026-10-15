@@ -152,30 +152,57 @@ public struct SGProgressBar: View {
     let height: CGFloat
     let track: SGToken
     let markers: Bool
+    let style: Style
+
+    /// `ember`: the HORIZON sunset fill. `horizon`: Stitch Civic Codex's
+    /// "Horizon Gauge" (lavender → gold → ivory on a translucent inset
+    /// track, no quarter marks).
+    public enum Style: Sendable { case ember, horizon }
 
     /// Quarter milestones, as fractions.
     static let markerFractions: [Double] = [0.25, 0.5, 0.75]
 
-    public init(fraction: Double, height: CGFloat = 8, track: SGToken = SGColor.heroTrack, markers: Bool = true) {
+    public init(fraction: Double, height: CGFloat = 8, track: SGToken = SGColor.heroTrack, markers: Bool = true,
+                style: Style = .ember) {
         self.fraction = min(1, max(0, fraction))
         self.height = height
         self.track = track
-        self.markers = markers
+        self.markers = markers && style == .ember
+        self.style = style
+    }
+
+    private var stops: [Gradient.Stop] {
+        switch style {
+        case .ember:
+            [.init(color: SGBrand.ivory.color, location: 0),
+             .init(color: SGBrand.sun.color, location: 0.55),
+             .init(color: SGBrand.ember.color, location: 0.82),
+             .init(color: SGBrand.coral.color, location: 1)]
+        case .horizon:
+            [.init(color: RGB(0xE3DFFF).color, location: 0),
+             .init(color: RGB(0xFFDEA7).color, location: 0.5),
+             .init(color: RGB(0xFEF1D3).color, location: 1)]
+        }
     }
 
     public var body: some View {
+        if style == .horizon {
+            bar(height - 4)
+                .padding(2)
+                .background(Color.white.opacity(0.2), in: Capsule())
+                .frame(height: height)
+                .accessibilityHidden(true)
+        } else {
+            bar(height)
+        }
+    }
+
+    private func bar(_ height: CGFloat) -> some View {
         GeometryReader { proxy in
             ZStack(alignment: .leading) {
-                Capsule().fill(.sg(track))
+                if style == .ember { Capsule().fill(.sg(track)) }
                 Capsule()
-                    .fill(LinearGradient(
-                        stops: [
-                            .init(color: SGBrand.ivory.color, location: 0),
-                            .init(color: SGBrand.sun.color, location: 0.55),
-                            .init(color: SGBrand.ember.color, location: 0.82),
-                            .init(color: SGBrand.coral.color, location: 1),
-                        ],
-                        startPoint: .leading, endPoint: .trailing))
+                    .fill(LinearGradient(stops: stops, startPoint: .leading, endPoint: .trailing))
                     // The gradient spans the full track and is revealed by
                     // the fill, so coral appears only near the end.
                     .frame(width: proxy.size.width)

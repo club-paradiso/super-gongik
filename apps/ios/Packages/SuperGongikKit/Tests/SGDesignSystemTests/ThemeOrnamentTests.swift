@@ -42,9 +42,9 @@ struct ThemeOrnamentTests {
         #expect(SGColor.surface.rgb(theme: .warrior, dark: false).luminance > warrior.luminance)
     }
 
-    @Test("only Warrior shows layout-affecting ornaments and world language")
+    @Test("only Warrior shows layout-affecting ornaments; world language shows in both (Stitch)")
     func themeFlags() {
-        #expect(SGTheme.warrior.showsOrnaments && SGTheme.warrior.showsWorldLanguage)
-        #expect(!SGTheme.standard.showsOrnaments && !SGTheme.standard.showsWorldLanguage)
+        #expect(SGTheme.warrior.showsOrnaments && !SGTheme.standard.showsOrnaments)
+        #expect(SGTheme.warrior.showsWorldLanguage && SGTheme.standard.showsWorldLanguage)
     }
 }

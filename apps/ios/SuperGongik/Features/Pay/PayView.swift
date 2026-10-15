@@ -22,9 +22,11 @@ struct PayView: View {
                     // Stitch: the app header, then the title with the month
                     // switcher on its row (the navigation bar is hidden).
                     AppHeader(hero: model.projection?.home?.hero, openProfile: { openTab(.profile) })
-                    ScreenTitle(title: "급여",
-                                world: String(format: "SUPPLY // %04d.%02d PAYROLL", month.year, month.month)) {
-                        monthSwitcher
+                    // Stitch: "SUPPLY // yyyy.mm PAYROLL" sits above the title.
+                    VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
+                        SGWorldEyebrow(String(format: "SUPPLY // %04d.%02d PAYROLL", month.year, month.month),
+                                       tint: SGColor.accent)
+                        ScreenTitle(title: "급여") { monthSwitcher }
                     }
                     if let money {
                         SummaryCard(money: money, isCurrentMonth: isCurrentMonth)
