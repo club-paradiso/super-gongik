@@ -241,6 +241,8 @@ public struct LeaveLedger: Decodable, Sendable {
 
     public struct Balance: Decodable, Sendable {
         public let asOf: CivilDate
+        public let granted: LeaveQuantity?
+        public let remainingAfterScheduled: LeaveQuantity?
         public let status: String
         public let unresolvedEventIds: [String]
         public let pendingCreditKeys: [String]

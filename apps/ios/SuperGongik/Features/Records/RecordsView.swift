@@ -276,6 +276,12 @@ private struct MonthCalendar: View {
                             HStack(spacing: SGSpacing.iconGap) {
                                 SGCategoryMark(category, size: 8)
                                 Text(label).font(SGTypography.micro).foregroundStyle(.sg(SGColor.textSecondary))
+                                // Stitch legend: "연가 (REST)", "병가 (RECOVERY)".
+                                switch category {
+                                case .leave: SGWorldEyebrow("(REST)")
+                                case .sick: SGWorldEyebrow("(RECOVERY)")
+                                default: EmptyView()
+                                }
                             }
                         }
                     }

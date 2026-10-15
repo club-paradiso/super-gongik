@@ -36,7 +36,9 @@ struct TodayView: View {
                             MilestoneStrip(model: strip)
                         }
                         if !home.completed {
-                            LeaveCard(leave: home.leave) { showingLedger = true }
+                            LeaveCard(leave: home.leave,
+                                      granted: projection.leaveText?.balance.granted,
+                                      remainingFraction: Self.remainingFraction(projection.ledger)) { showingLedger = true }
                             PayCard(pay: home.pay, phase: home.hero.phase) { openTab(.pay) }
                         }
                         AgendaCard(home: home, projection: projection, openCalendar: { openTab(.calendar) })
@@ -77,6 +79,19 @@ struct TodayView: View {
                 EventEditorSheet(event: nil, initialDate: date, initialType: editorType)
             }
         }
+    }
+
+    /// Share of the granted leave still left after scheduled use. Minutes
+    /// count against the institution's workday (8 h when unknown); only the
+    /// bar uses this, the numbers stay the core's strings.
+    static func remainingFraction(_ ledger: LeaveLedger?) -> Double? {
+        guard let ledger, ledger.balance.status == "RESOLVED",
+              let granted = ledger.balance.granted, let left = ledger.balance.remainingAfterScheduled
+        else { return nil }
+        let day = Double(ledger.workdayMinutes ?? 480)
+        let total = Double(granted.halfDays) / 2 + Double(granted.minutes) / day
+        guard total > 0 else { return nil }
+        return (Double(left.halfDays) / 2 + Double(left.minutes) / day) / total
     }
 
     private func loadMilestones(_ period: ServicePeriod) async {
@@ -138,32 +153,45 @@ private struct CountdownCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SGSpacing.sm) {
+            // Stitch row 1: the gold protocol tag and the percent pill.
+            HStack(spacing: SGSpacing.xs) {
+                SGWorldTag(celebrates ? "FINAL QUEST" : "COUNTDOWN PROTOCOL",
+                           tint: SGColor.heroAccent, fill: SGColor.heroTagFill)
+                Spacer(minLength: SGSpacing.xs)
+                if !showsLive {
+                    HStack(spacing: 6) {
+                        if celebrates {
+                            Image(systemName: "flag.fill").font(.system(size: 9, weight: .bold))
+                        } else {
+                            Circle().frame(width: 6, height: 6)
+                        }
+                        Text(hero.percentLabel)
+                            .font(SGTypography.latinLabel)
+                            .monospacedDigit()
+                            .lineLimit(1)
+                            .fixedSize()
+                    }
+                    .foregroundStyle(.sg(SGColor.heroAccent))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Color.white.opacity(0.15), in: Capsule())
+                    .accessibilityElement(children: .combine)
+                }
+            }
+
             topLayout {
-                SGWorldEyebrow(celebrates ? "FINAL QUEST" : "COUNTDOWN PROTOCOL", tint: SGColor.heroAccent)
                 Text(hero.eyebrow)
                     .font(SGTypography.label)
                     .foregroundStyle(.sg(SGColor.heroForeground2))
-                if !typeSize.isAccessibilitySize { Spacer(minLength: SGSpacing.xs) }
-                if !showsLive {
-                    Label(hero.percentLabel, systemImage: celebrates ? "flag.fill" : "circle.fill")
-                        .labelStyle(.titleAndIcon)
-                        .font(SGTypography.micro)
-                        .monospacedDigit()
-                        .lineLimit(1)
-                        .fixedSize()
-                        .foregroundStyle(.sg(SGColor.heroAccent))
-                        .padding(.horizontal, SGSpacing.xs)
-                        .padding(.vertical, SGSpacing.xxxs)
-                        .background(.sg(SGColor.heroTrack), in: Capsule())
-                }
+                SGWorldEyebrow(celebrates ? "// RELEASED" : "// TIME TO DISCHARGE", tint: SGColor.heroForeground3)
             }
 
             mainLayout {
                 HStack(alignment: .lastTextBaseline, spacing: SGSpacing.xxs) {
                     Text(hero.headline)
-                        .font(SGTypography.font(44, .heavy, relativeTo: .largeTitle))
+                        .font(SGTypography.stat(hero.headline, 40, .heavy, relativeTo: .largeTitle))
                         .monospacedDigit()
-                        .tracking(-1)
+                        .tracking(-1.2)
                         .foregroundStyle(.sg(SGColor.heroForeground))
                         .minimumScaleFactor(0.6)
                         .lineLimit(1)
@@ -182,7 +210,7 @@ private struct CountdownCard: View {
                         .font(SGTypography.caption)
                         .foregroundStyle(.sg(SGColor.heroForeground3))
                     Text(profile.expectedDischargeDate.description.replacingOccurrences(of: "-", with: "."))
-                        .font(SGTypography.title3)
+                        .font(SGTypography.latin(.display, 18, .bold, relativeTo: .title3))
                         .monospacedDigit()
                         .foregroundStyle(.sg(SGColor.heroForeground))
                 }
@@ -193,7 +221,7 @@ private struct CountdownCard: View {
                 LiveReadout(period: profile.period)
             }
 
-            SGProgressBar(fraction: hero.percent / 100)
+            SGProgressBar(fraction: hero.percent / 100, style: .horizon)
                 .animation(SGMotion.animation(SGMotion.slow, reduceMotion: reduceMotion), value: hero.percent)
                 .accessibilityLabel("복무 진행률")
                 .accessibilityValue("\(hero.percentLabel), \(KoreanNumber.grouped(hero.elapsedDays))일 지남, \(KoreanNumber.grouped(hero.remainingDays))일 남음")
@@ -204,10 +232,10 @@ private struct CountdownCard: View {
                     .foregroundStyle(.sg(SGColor.heroAccent))
             }
         }
-        .padding(SGSpacing.lg)
+        .padding(SGSpacing.md)
         .background { SGHeroBackground(celebrate: celebrates) }
-        .clipShape(RoundedRectangle(cornerRadius: SGRadius.hero, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: SGRadius.hero, style: .continuous).strokeBorder(.sg(SGColor.heroBorder)))
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(.sg(SGColor.heroBorder)))
         .overlay { SGHeroCrest() }
         .sgShadow(.hero)
         .environment(\.colorScheme, .dark)
@@ -320,59 +348,75 @@ private struct MilestoneStrip: View {
     var body: some View {
         VStack(alignment: .leading, spacing: SGSpacing.sm) {
             headerLayout {
-                SGWorldEyebrow("MILESTONES")
-                Text("복무 이정표")
-                    .font(SGTypography.label)
-                    .foregroundStyle(.sg(SGColor.textSecondary))
+                HStack(spacing: 4) {
+                    SGWorldEyebrow("MILESTONES //", tint: SGColor.textSecondary)
+                    Text("복무 이정표")
+                        .font(SGTypography.micro)
+                        .foregroundStyle(.sg(SGColor.textSecondary))
+                }
                 if !typeSize.isAccessibilitySize { Spacer(minLength: SGSpacing.xs) }
                 Text("다음 이정표: \(relative(model.daysToNext))")
                     .font(SGTypography.micro)
                     .foregroundStyle(.sg(SGColor.accent))
             }
+            .padding(.horizontal, 4)
             rowLayout {
                 ForEach(model.entries) { entry in
-                    HStack(spacing: SGSpacing.xs) {
-                        Image(systemName: symbol(entry.state))
-                            .font(SGTypography.label)
-                            .foregroundStyle(.sg(entry.state == .later ? SGColor.textTertiary : SGColor.accent))
-                            .accessibilityHidden(true)
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text(entry.title)
-                                .font(SGTypography.bodyStrong)
-                                .monospacedDigit()
-                                .foregroundStyle(.sg(entry.state == .later ? SGColor.textSecondary : SGColor.textPrimary))
-                            Text(entry.detail)
-                                .font(SGTypography.micro)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.8)
-                                .foregroundStyle(.sg(SGColor.textTertiary))
+                    // Stitch chip: glyph + title on the leading side, the
+                    // state word (지남 / NEXT / date) on the trailing side.
+                    HStack(spacing: 6) {
+                        Group {
+                            switch entry.state {
+                            case .passed: StitchIcon("check_circle", size: 16, filled: true)
+                            case .next: StitchIcon("flag", size: 16)
+                            case .later: Image(systemName: "circle.dashed").font(.system(size: 13, weight: .semibold))
+                            }
                         }
-                        Spacer(minLength: 0)
+                        .foregroundStyle(.sg(entry.state == .later ? SGColor.textTertiary : SGColor.accent))
+                        .accessibilityHidden(true)
+                        Text(entry.title)
+                            .font(SGTypography.stat(entry.title, 14, .bold, relativeTo: .subheadline))
+                            .monospacedDigit()
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                            .foregroundStyle(.sg(entry.state == .later ? SGColor.textSecondary : SGColor.textPrimary))
+                            .layoutPriority(1)
+                        Spacer(minLength: 2)
+                        // Stitch: 완료/도달 on passed chips, NEXT on the next
+                        // one. The dates stay in VoiceOver and in 캘린더.
+                        switch entry.state {
+                        case .passed:
+                            Text(entry.detail)
+                                .font(SGTypography.font(10, .bold, relativeTo: .caption2))
+                                .lineLimit(1)
+                                .fixedSize()
+                                .foregroundStyle(.sg(SGColor.textSecondary))
+                        case .next:
+                            Text("NEXT")
+                                .font(SGTypography.eyebrow)
+                                .foregroundStyle(.sg(SGColor.accentSecondary))
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 2)
+                                .background(.sg(SGColor.surfaceInteractive), in: RoundedRectangle(cornerRadius: 4, style: .continuous))
+                                .fixedSize()
+                                .accessibilityHidden(true)
+                        case .later:
+                            EmptyView()
+                        }
                     }
-                    .padding(SGSpacing.sm)
-                    .frame(maxWidth: .infinity)
+                    .padding(SGSpacing.xs)
+                    .frame(maxWidth: .infinity, minHeight: 44)
                     .background(.sg(entry.state == .next ? SGColor.selectedBackground : SGColor.surface),
-                                in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
-                    // Stitch: every milestone is its own bordered chip.
-                    .overlay {
-                        RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous)
-                            .strokeBorder(.sg(entry.state == .next ? SGColor.selectedBorder : SGColor.border))
-                    }
+                                in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .sgShadow(.small)
                     .accessibilityElement(children: .combine)
-                    .accessibilityValue(entry.state == .next ? "다음 이정표" : entry.state == .passed ? "지난 이정표" : "")
+                    .accessibilityValue(entry.state == .next ? "다음 이정표, \(entry.detail)"
+                                        : entry.state == .passed ? "지난 이정표" : entry.detail)
                 }
             }
         }
         .padding(SGSpacing.sm)
-        .background(.sg(SGColor.surfaceRaised), in: RoundedRectangle(cornerRadius: SGRadius.card, style: .continuous))
-    }
-
-    private func symbol(_ state: MilestoneRoute.State) -> String {
-        switch state {
-        case .passed: "checkmark.circle"
-        case .next: "flag"
-        case .later: "circle.dashed"
-        }
+        .background(.sg(SGColor.surfaceInteractive).opacity(0.6), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     private func relative(_ days: Int) -> String {
@@ -391,6 +435,7 @@ private struct MilestoneStrip: View {
 private struct CodexCard<Content: View>: View {
     let title: String
     let eyebrow: String
+    /// Material Symbols name (`StitchIcon`).
     let symbol: String
     var badge: (SGTone, String)?
     var action: (() -> Void)?
@@ -407,12 +452,12 @@ private struct CodexCard<Content: View>: View {
     }
 
     private var card: some View {
-        SGCard {
-            VStack(alignment: .leading, spacing: SGSpacing.sm) {
-                HStack(spacing: SGSpacing.xs) {
-                    SGIconTile(symbol)
+        VStack(alignment: .leading, spacing: SGSpacing.xs) {
+                HStack(spacing: 6) {
+                    StitchIcon(symbol, size: 18)
+                        .foregroundStyle(.sg(SGColor.accent))
                     Text(title)
-                        .font(SGTypography.cardTitle)
+                        .font(SGTypography.font(17, .bold, relativeTo: .headline))
                         .foregroundStyle(.sg(SGColor.textPrimary))
                     SGWorldEyebrow(eyebrow)
                     Spacer(minLength: SGSpacing.xs)
@@ -425,8 +470,11 @@ private struct CodexCard<Content: View>: View {
                     }
                 }
                 content
-            }
         }
+        .padding(SGSpacing.md)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.sg(SGColor.surface), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .sgShadow(.small)
     }
 }
 
@@ -445,12 +493,13 @@ private struct BigValue: View {
                     .accessibilityHidden(true)
             }
             Text(text)
-                .font(SGTypography.font(34, .heavy, relativeTo: .title))
+                .font(SGTypography.stat(text, 30, .heavy, relativeTo: .title))
                 .monospacedDigit()
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
             if let unit {
-                Text(unit).font(SGTypography.label).foregroundStyle(.sg(SGColor.textSecondary))
+                Text(unit).font(SGTypography.font(15, .medium, relativeTo: .subheadline))
+                    .foregroundStyle(.sg(SGColor.textSecondary))
             }
         }
         .foregroundStyle(.sg(color))
@@ -467,14 +516,40 @@ private struct BigValue: View {
 
 private struct LeaveCard: View {
     let leave: HomeModel.Leave
+    /// Granted leave and its share still left, from the core's ledger, for
+    /// Stitch's "9.5 / 15일" line and bar. Nil until the grant is confirmed.
+    let granted: String?
+    let remainingFraction: Double?
     let action: () -> Void
 
     var body: some View {
-        // The value line already says 확인 필요 when it applies; no badge.
-        CodexCard(title: "남은 연가", eyebrow: "LEAVE LEDGER", symbol: "list.clipboard", action: action) {
+        // Stitch shows 확정 once the balance is resolved; otherwise the value
+        // line already says 확인 필요.
+        CodexCard(title: "남은 연가", eyebrow: "LEAVE LEDGER", symbol: "event_available",
+                  badge: leave.kind == "READY" ? (.info, "확정") : nil, action: action) {
             // Copy mirrors the web stat card (`home-tab.tsx` HomeStats).
             switch leave.kind {
-            case "READY": BigValue(text: leave.remaining ?? "–", emphasis: .value)
+            case "READY":
+                HStack(alignment: .lastTextBaseline, spacing: SGSpacing.xxs) {
+                    BigValue(text: leave.remaining ?? "–", emphasis: .value)
+                    if let granted {
+                        Text("/ \(granted)")
+                            .font(SGTypography.font(15, .medium, relativeTo: .subheadline))
+                            .foregroundStyle(.sg(SGColor.textSecondary))
+                    }
+                }
+                if let remainingFraction {
+                    GeometryReader { proxy in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(.sg(SGColor.surfaceInteractive))
+                            Capsule().fill(.sg(SGColor.accent))
+                                .frame(width: max(6, proxy.size.width * min(1, max(0, remainingFraction))))
+                        }
+                    }
+                    .frame(height: 6)
+                    .padding(.top, SGSpacing.xxxs)
+                    .accessibilityHidden(true)
+                }
             case "BEFORE_SERVICE": BigValue(text: "소집 후", emphasis: .muted)
             default: BigValue(text: "확인 필요", emphasis: .attention)
             }
@@ -500,7 +575,7 @@ private struct PayCard: View {
     }
 
     var body: some View {
-        CodexCard(title: "이번 달 급여", eyebrow: "COMPENSATION", symbol: "wonsign.circle", badge: badge, action: action) {
+        CodexCard(title: "이번 달 급여", eyebrow: "COMPENSATION", symbol: "payments", badge: badge, action: action) {
             switch pay.kind {
             case "TOTAL", "BASE_ONLY":
                 BigValue(text: KoreanNumber.grouped(Int((pay.amount ?? 0).rounded())), unit: "원", emphasis: .value)
@@ -509,12 +584,14 @@ private struct PayCard: View {
             }
             // The shared home model's caption already says when only base pay
             // is known ("기본 보수 · 식비·교통비는 확인 후 더해요").
-            Text(pay.caption)
-                .font(SGTypography.caption)
+            // Stitch: the components on one tinted line, "•"-separated.
+            Text(pay.caption.replacingOccurrences(of: " + ", with: " • "))
+                .font(SGTypography.font(12, .regular, relativeTo: .caption))
                 .foregroundStyle(.sg(SGColor.textSecondary))
-                .padding(SGSpacing.xs)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.sg(SGColor.surfaceRaised), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
+                .background(.sg(SGColor.surfaceInteractive).opacity(0.6), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
             if let band = pay.band {
                 Text(band).font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
             }
@@ -530,7 +607,7 @@ private struct AgendaCard: View {
     let openCalendar: () -> Void
 
     var body: some View {
-        CodexCard(title: "다가오는 일정", eyebrow: "AGENDA", symbol: "calendar") {
+        CodexCard(title: "다가오는 일정", eyebrow: "AGENDA", symbol: "schedule") {
             if home.today.isEmpty && home.upcoming.isEmpty {
                 if home.completed {
                     SGEmptyState(symbol: "flag.checkered", title: "복무를 마쳤어요. 기록은 그대로 볼 수 있어요.")
@@ -621,15 +698,35 @@ private struct QuickActions: View {
     var body: some View {
         layout {
             Button(action: addRecord) {
-                Label("근무기록 추가", systemImage: "calendar.badge.plus")
+                Label { Text("근무기록 추가") } icon: {
+                    StitchIcon("edit_calendar", size: 18).foregroundStyle(.sg(SGColor.accent))
+                }
             }
             .buttonStyle(SGSecondaryButtonStyle())
             .disabled(readOnly)
             Button(action: useLeave) {
-                Label("연가 사용", systemImage: "airplane.departure")
+                Label { Text("연가 사용") } icon: {
+                    StitchIcon("flight_takeoff", size: 18).foregroundStyle(.sg(SGColor.heroAccent))
+                }
             }
-            .buttonStyle(SGPrimaryButtonStyle())
+            .buttonStyle(NavyButtonStyle())
             .disabled(readOnly)
         }
+    }
+}
+
+/// Stitch's primary action on 홈: the hero navy, not the accent.
+private struct NavyButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(SGTypography.bodyStrong)
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity, minHeight: SGSize.control)
+            .padding(.horizontal, SGSpacing.sm)
+            .background(.sg(SGColor.heroBackground), in: RoundedRectangle(cornerRadius: SGRadius.control, style: .continuous))
+            .opacity(isEnabled ? (configuration.isPressed ? 0.85 : 1) : 0.45)
+            .contentShape(Rectangle())
     }
 }

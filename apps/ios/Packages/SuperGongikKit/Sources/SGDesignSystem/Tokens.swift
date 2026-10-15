@@ -165,6 +165,36 @@ public enum SGTypography {
         return .system(style, design: .default, weight: weight.system)
     }
 
+    /// Stitch's Latin faces (OFL, bundled by the app): Plus Jakarta Sans for
+    /// numbers and headlines, Space Grotesk for labels. Neither has Hangul, so
+    /// they are only used for text that is digits or Latin (D-days, amounts,
+    /// dates, world labels); Korean stays in Pretendard. Widgets, which do not
+    /// register the fonts, fall back to `font(_:_:relativeTo:)`.
+    public enum Latin: String, Sendable {
+        case display = "PlusJakartaSans"
+        case label = "SpaceGrotesk"
+    }
+
+    public static func latin(_ family: Latin, _ size: CGFloat, _ weight: Weight, relativeTo style: Font.TextStyle) -> Font {
+        let available: [Weight] = family == .display ? [.semibold, .bold, .heavy] : [.medium, .bold]
+        let resolved = available.contains(weight) ? weight : (family == .display ? .bold : .bold)
+        let name = "\(family.rawValue)-\(resolved.rawValue)"
+        #if canImport(UIKit)
+        if UIFont(name: name, size: size) != nil {
+            return .custom(name, size: size, relativeTo: style)
+        }
+        #endif
+        return font(size, weight, relativeTo: style)
+    }
+
+    /// Text that is digits or Latin only gets the Stitch display face;
+    /// anything with Hangul keeps Pretendard.
+    public static func stat(_ text: String, _ size: CGFloat, _ weight: Weight = .heavy, relativeTo style: Font.TextStyle = .title) -> Font {
+        text.unicodeScalars.allSatisfy({ $0.isASCII })
+            ? latin(.display, size, weight, relativeTo: style)
+            : font(size, weight, relativeTo: style)
+    }
+
     /// Hero D-day number. Large but still scales (capped by the hero layout).
     public static let display = font(60, .heavy, relativeTo: .largeTitle)
     public static let title1 = font(26, .heavy, relativeTo: .title)
@@ -184,5 +214,8 @@ public enum SGTypography {
     public static let heroDetail = font(17, .semibold, relativeTo: .headline)
     /// Secondary world-language eyebrow ("AGENDA", "JOURNEY"). Decorative:
     /// never the only label, and hidden from VoiceOver.
-    public static let eyebrow = font(11, .bold, relativeTo: .caption2)
+    public static let eyebrow = latin(.label, 10, .bold, relativeTo: .caption2)
+    /// Stitch `label-md` / `label-lg` (Space Grotesk): pills, chips, D-day.
+    public static let latinLabel = latin(.label, 12, .bold, relativeTo: .caption)
+    public static let latinLabelLarge = latin(.label, 14, .bold, relativeTo: .subheadline)
 }

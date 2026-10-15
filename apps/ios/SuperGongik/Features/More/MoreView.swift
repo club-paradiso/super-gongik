@@ -46,7 +46,7 @@ struct MoreView: View {
                     Section {
                         VStack(alignment: .leading, spacing: SGSpacing.md) {
                             AppHeader(hero: model.projection?.home?.hero)
-                            ScreenTitle(title: "내 정보")
+                            ScreenTitle(title: "내 정보", world: "CHARACTER")
                         }
                     }
                     .listRowBackground(Color.clear)

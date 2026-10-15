@@ -60,6 +60,11 @@ targets:
           - Pretendard-SemiBold.otf
           - Pretendard-Bold.otf
           - Pretendard-ExtraBold.otf
+          - PlusJakartaSans-SemiBold.ttf
+          - PlusJakartaSans-Bold.ttf
+          - PlusJakartaSans-ExtraBold.ttf
+          - SpaceGrotesk-Medium.ttf
+          - SpaceGrotesk-Bold.ttf
         UILaunchScreen:
           UIColorName: LaunchBackground
           UIImageName: BrandMark

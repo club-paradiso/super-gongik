@@ -25,13 +25,14 @@ public enum SGTheme: String, CaseIterable, Identifiable, Sendable {
     public var summary: String {
         switch self {
         case .standard: "차분한 기본 화면"
-        case .warrior: "RPG 여정 분위기 · 세계관 라벨 표시"
+        case .warrior: "RPG 여정 분위기의 색과 장식"
         }
     }
 
-    /// World-language eyebrows are decorative and appear only here. They never
-    /// replace a Korean label and VoiceOver skips them.
-    public var showsWorldLanguage: Bool { self == .warrior }
+    /// World-language eyebrows are decorative and, as in Stitch, appear in
+    /// both themes (owner decision 2026-10-15). They never replace a Korean
+    /// label and VoiceOver skips them.
+    public var showsWorldLanguage: Bool { true }
 
     /// Layout-affecting ornaments (the section banner bar). Color-only
     /// ornaments use tokens that are transparent in the standard theme instead.
@@ -50,7 +51,7 @@ public extension EnvironmentValues {
 }
 
 /// A world-language tag from the Stitch direction ("JOURNEY", "AGENDA",
-/// "SUPPLY"). Renders only in the Warrior theme, always inline next to a
+/// "SUPPLY"). Renders in every theme, always inline next to a
 /// Korean label so both themes keep the same geometry, and VoiceOver skips it.
 /// Screens never branch on the theme themselves; they place this view.
 public struct SGWorldEyebrow: View {
@@ -80,5 +81,37 @@ public struct SGWorldEyebrow: View {
             .layoutPriority(-1)
             .accessibilityHidden(true)
         }
+    }
+}
+
+/// A boxed world-language tag (Stitch "COUNTDOWN PROTOCOL", "CIVIC OS",
+/// "NEXT"). Same rules as `SGWorldEyebrow`: decorative, next to Korean,
+/// skipped by VoiceOver, dropped when it does not fit.
+public struct SGWorldTag: View {
+    let text: String
+    let tint: SGToken
+    let fill: SGToken
+
+    public init(_ text: String, tint: SGToken = SGColor.accent, fill: SGToken = SGColor.surfaceInteractive) {
+        self.text = text
+        self.tint = tint
+        self.fill = fill
+    }
+
+    public var body: some View {
+        ViewThatFits(in: .horizontal) {
+            Text(text)
+                .font(SGTypography.eyebrow)
+                .tracking(0.8)
+                .foregroundStyle(.sg(tint))
+                .lineLimit(1)
+                .fixedSize()
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(.sg(fill), in: RoundedRectangle(cornerRadius: 4, style: .continuous))
+            Color.clear.frame(width: 0, height: 0)
+        }
+        .layoutPriority(-1)
+        .accessibilityHidden(true)
     }
 }
