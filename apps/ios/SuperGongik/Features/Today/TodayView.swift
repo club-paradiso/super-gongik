@@ -144,6 +144,7 @@ private struct JourneyHero: View {
     let trail: JourneyTrail?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.sgTheme) private var theme
 
     private var showsLive: Bool { hero.live && profile.liveProgressEnabled == true }
     private var celebrates: Bool { hero.phase == "DISCHARGE_DAY" || hero.phase == "COMPLETED" }
@@ -174,11 +175,18 @@ private struct JourneyHero: View {
                     .font(SGTypography.label)
                     .foregroundStyle(.sg(SGColor.heroForeground2))
                 Text(hero.headline)
-                    .font(SGTypography.stat(hero.headline, 64, .heavy, relativeTo: .largeTitle))
+                    .font(SGTypography.stat(hero.headline, theme == .warrior ? 70 : 64, .heavy, relativeTo: .largeTitle))
                     .monospacedDigit()
                     .tracking(-1.5)
-                    .foregroundStyle(.sg(SGColor.heroAccent))
-                    .shadow(color: RGB(0xFDCF7C).color.opacity(0.35), radius: 12, y: 4)
+                    // Warrior: Stitch's ivory → gold → amber D-day with a
+                    // wider glow and a sweep of light; standard: flat gold.
+                    .foregroundStyle(theme == .warrior
+                        ? AnyShapeStyle(LinearGradient(colors: [SGGlow.ivory, SGGlow.gold, SGGlow.amber],
+                                                       startPoint: .top, endPoint: .bottom))
+                        : AnyShapeStyle(.sg(SGColor.heroAccent)))
+                    .sgShimmer(period: 4.5)
+                    .shadow(color: SGGlow.gold.opacity(theme == .warrior ? 0.55 : 0.35),
+                            radius: theme == .warrior ? 22 : 12, y: 4)
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
                     .accessibilityLabel(hero.headlineSpoken)
@@ -234,12 +242,15 @@ private struct JourneyHero: View {
     private var topRow: some View {
         HStack(spacing: SGSpacing.xs) {
             HStack(spacing: 6) {
-                Circle().fill(.sg(SGColor.heroAccent)).frame(width: 7, height: 7)
+                SGPulseDot(SGGlow.gold)
                 SGWorldEyebrow(worldTag, tint: SGColor.heroAccent)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
             .background(Color.white.opacity(0.14), in: Capsule())
+            .overlay {
+                if theme == .warrior { Capsule().strokeBorder(SGGlow.gold.opacity(0.45)) }
+            }
             .accessibilityHidden(true)
             Spacer(minLength: SGSpacing.xs)
             HStack(spacing: 5) {
@@ -253,6 +264,9 @@ private struct JourneyHero: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
             .background(.sg(SGColor.heroBackground).opacity(0.55), in: Capsule())
+            .overlay {
+                if theme == .warrior { Capsule().strokeBorder(SGGlow.gold.opacity(0.3)) }
+            }
         }
     }
 
@@ -260,7 +274,7 @@ private struct JourneyHero: View {
     /// only when the per-second readout is on; otherwise it is today's value.
     private var progressPill: some View {
         HStack(spacing: SGSpacing.xs) {
-            Circle().fill(.sg(celebrates ? SGColor.heroAccent : SGColor.success)).frame(width: 7, height: 7)
+            SGPulseDot(celebrates ? SGGlow.gold : SGGlow.emerald)
             Text(hero.percentLabel)
                 .font(SGTypography.latin(.display, 15, .bold, relativeTo: .subheadline))
                 .monospacedDigit()
@@ -270,6 +284,9 @@ private struct JourneyHero: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 5)
         .background(.sg(SGColor.heroBackground).opacity(0.7), in: Capsule())
+        .overlay {
+            if theme == .warrior { Capsule().strokeBorder(SGGlow.emerald.opacity(0.35)) }
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("복무 진행률")
         .accessibilityValue(hero.percentLabel)
@@ -288,10 +305,17 @@ private struct JourneyHero: View {
 
 /// The hero sky: the theme's gradient, the brand artwork screened in, and a
 /// scrim that darkens toward the bottom so text and the trail stay readable.
+/// Warrior (Stitch `epic_duty_hero`) shows the artwork at near full
+/// strength with a slow drift and twinkling stars; standard keeps it a quiet
+/// 42 % backdrop.
 private struct HeroSky: View {
     let celebrate: Bool
+    @Environment(\.sgTheme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var drift = false
 
     var body: some View {
+        let warrior = theme == .warrior
         ZStack {
             SGHeroBackground(celebrate: celebrate)
             GeometryReader { proxy in
@@ -299,18 +323,30 @@ private struct HeroSky: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: proxy.size.width, height: proxy.size.height, alignment: .top)
-                    .scaleEffect(1.05)
+                    .scaleEffect(warrior && drift ? 1.14 : 1.05, anchor: .topTrailing)
+                    .offset(x: warrior && drift ? -10 : 0)
                     .clipped()
-                    .opacity(0.42)
-                    .blendMode(.screen)
+                    .opacity(warrior ? 0.78 : 0.42)
+                    .blendMode(warrior ? .normal : .screen)
             }
             LinearGradient(
                 stops: [
-                    .init(color: .clear, location: 0),
-                    .init(color: RGB(0x0C1446).color.opacity(0.55), location: 0.45),
-                    .init(color: RGB(0x0C1446).color.opacity(0.92), location: 1),
+                    .init(color: RGB(0x0C1446).color.opacity(warrior ? 0.15 : 0), location: 0),
+                    .init(color: RGB(0x0C1446).color.opacity(warrior ? 0.45 : 0.55), location: 0.42),
+                    .init(color: RGB(0x0C1446).color.opacity(warrior ? 0.9 : 0.92), location: 1),
                 ],
                 startPoint: .top, endPoint: .bottom)
+            if warrior {
+                // A warm horizon behind the D-day, as in the epic hero.
+                RadialGradient(colors: [SGGlow.gold.opacity(0.28), .clear],
+                               center: UnitPoint(x: 0.5, y: 0.34), startRadius: 0, endRadius: 190)
+                // Above the artwork, which hides the background's own stars.
+                SGStarfield()
+            }
+        }
+        .onAppear {
+            guard warrior, !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 18).repeatForever(autoreverses: true)) { drift = true }
         }
         .accessibilityHidden(true)
     }
@@ -372,6 +408,7 @@ struct JourneyTrail: Equatable {
 private struct TrailPanel: View {
     let trail: JourneyTrail
     @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.sgTheme) private var theme
 
     var body: some View {
         VStack(alignment: .leading, spacing: SGSpacing.sm) {
@@ -405,7 +442,8 @@ private struct TrailPanel: View {
         }
         .padding(SGSpacing.sm)
         .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.white.opacity(0.08)))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous)
+            .strokeBorder(theme == .warrior ? SGGlow.gold.opacity(0.35) : Color.white.opacity(0.08)))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("복무 이정표")
         .accessibilityValue(trail.nodes.map { node in
@@ -428,6 +466,8 @@ private struct TrailPanel: View {
                         .fill(LinearGradient(colors: [RGB(0x8D86F2).color, RGB(0xFDCF7C).color],
                                              startPoint: .leading, endPoint: .trailing))
                         .frame(width: max(4, width * trail.fill), height: 4)
+                        .sgShimmer()
+                        .shadow(color: SGGlow.gold.opacity(theme == .warrior ? 0.6 : 0), radius: 4)
                 }
                 .offset(x: inset, y: 14 - 2)
             }
@@ -444,6 +484,10 @@ private struct TrailPanel: View {
                                                  : node.state == .passed ? SGColor.heroForeground2 : SGColor.heroForeground3))
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
+                            // Six labels share one row; past xLarge the
+                            // labels would truncate, so they stop growing
+                            // (the panel's accessibility value has them all).
+                            .dynamicTypeSize(...DynamicTypeSize.xLarge)
                     }
                     .frame(maxWidth: .infinity)
                     .opacity(node.state == .upcoming ? 0.75 : 1)
@@ -467,7 +511,13 @@ private struct TrailPanel: View {
                 .foregroundStyle(.sg(SGColor.heroBackground))
                 .frame(width: 28, height: 28)
                 .background(.sg(SGColor.heroAccent), in: Circle())
-                .shadow(color: RGB(0xFDCF7C).color.opacity(0.6), radius: 8)
+                .shadow(color: SGGlow.gold.opacity(0.6), radius: 8)
+                .sgBreathingGlow(radius: 10)
+                .overlay {
+                    if theme == .warrior {
+                        Circle().strokeBorder(SGGlow.ivory.opacity(0.8), lineWidth: 1.5).padding(-4)
+                    }
+                }
         case .upcoming:
             Group {
                 if node.kind == "DISCHARGE" {
@@ -596,6 +646,7 @@ private struct Launchpad: View {
         .padding(SGSpacing.xs)
         .background(.sg(SGColor.surface), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .sgShadow(.card)
+        .sgWarriorFrame(cornerRadius: 18, emphasis: 1.2)
     }
 
     private var primary: some View {
@@ -603,7 +654,7 @@ private struct Launchpad: View {
             LaunchLabel(title: "연가 사용", world: "LEAVE DISPATCH", symbol: "flight_takeoff",
                         tint: SGColor.heroAccent, titleTint: nil)
         }
-        .buttonStyle(LaunchButtonStyle(fill: SGColor.heroBackground, foreground: .white))
+        .buttonStyle(LaunchButtonStyle(fill: SGColor.heroBackground, foreground: .white, gilded: true))
         .disabled(readOnly)
     }
 
@@ -659,13 +710,25 @@ private struct LaunchButtonStyle: ButtonStyle {
     let fill: SGToken
     let foreground: Color?
     var flexible = true
+    /// Warrior: gold edge and glow on the primary action.
+    var gilded = false
     @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.sgTheme) private var theme
 
     func makeBody(configuration: Configuration) -> some View {
+        let gold = gilded && theme == .warrior
         configuration.label
             .padding(.horizontal, flexible ? SGSpacing.sm : 0)
             .frame(maxWidth: flexible ? .infinity : nil, minHeight: 52)
             .background(.sg(fill), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .overlay {
+                if gold {
+                    RoundedRectangle(cornerRadius: 13, style: .continuous)
+                        .strokeBorder(LinearGradient(colors: [SGGlow.gold, SGGlow.gold.opacity(0.25)],
+                                                     startPoint: .top, endPoint: .bottom))
+                }
+            }
+            .shadow(color: SGGlow.gold.opacity(gold ? 0.35 : 0), radius: 10)
             .opacity(isEnabled ? (configuration.isPressed ? 0.85 : 1) : 0.45)
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .contentShape(Rectangle())
@@ -680,10 +743,16 @@ private struct CodexSectionHeader<Trailing: View>: View {
     let title: String
     let world: String
     @ViewBuilder var trailing: Trailing
+    @Environment(\.sgTheme) private var theme
 
     var body: some View {
         HStack(spacing: 6) {
-            Capsule().fill(.sg(SGColor.accent)).frame(width: 4, height: 15)
+            Capsule()
+                .fill(theme == .warrior
+                      ? AnyShapeStyle(LinearGradient(colors: [SGGlow.gold, SGGlow.amber], startPoint: .top, endPoint: .bottom))
+                      : AnyShapeStyle(.sg(SGColor.accent)))
+                .frame(width: 4, height: 15)
+                .shadow(color: SGGlow.gold.opacity(theme == .warrior ? 0.7 : 0), radius: 4)
                 .accessibilityHidden(true)
             Text(title)
                 .font(SGTypography.title3)
@@ -850,6 +919,7 @@ private struct LedgerTile<Value: View, Footer: View>: View {
         .frame(maxWidth: .infinity, minHeight: 150, alignment: .topLeading)
         .background(.sg(SGColor.surface), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         .sgShadow(.small)
+        .sgWarriorFrame(cornerRadius: 14)
         .accessibilityElement(children: .combine)
     }
 }
@@ -954,6 +1024,7 @@ private struct AgendaSection: View {
                         .padding(.vertical, SGSpacing.xxs)
                         .background(.sg(SGColor.surface), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                         .sgShadow(.small)
+                        .sgWarriorFrame(cornerRadius: 14, emphasis: 0.6)
                 }
             }
         }
@@ -1027,6 +1098,7 @@ private struct JourneyNote: View {
             Spacer(minLength: 0)
             StitchIcon("military_tech", size: 26, filled: true)
                 .foregroundStyle(.sg(SGColor.heroAccent))
+                .sgBreathingGlow(radius: 6)
                 .frame(width: 52, height: 52)
                 .background(Color.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
@@ -1037,6 +1109,7 @@ private struct JourneyNote: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .sgShadow(.card)
+        .sgWarriorFrame(cornerRadius: 18, emphasis: 1.4)
         .environment(\.colorScheme, .dark)
         .accessibilityElement(children: .combine)
     }

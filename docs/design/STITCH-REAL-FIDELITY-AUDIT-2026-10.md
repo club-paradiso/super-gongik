@@ -43,13 +43,18 @@ Evidence: [`qa-2026/stitch-real-fidelity/`](./qa-2026/stitch-real-fidelity/).
    the system Liquid Glass bar (sun / calendar / W / person glyphs) rendered
    **under** the Stitch bar — the pre-Stitch navigation look.
    ![system tab bar](./qa-2026/stitch-real-fidelity/system-tabbar-bug.png)
-4. **Standard vs Warrior was not the cause.** Since PR #68 both themes show
-   the world labels, fonts, icons and the Stitch tab bar; Warrior only adds
-   the gilded crest and section bars and shifts the palette. A fresh install
-   gets Standard (`ThemePreference.load`), which already had the full Civic
-   Codex structure. Nothing about the default theme needed migrating; an
-   explicit stored choice is left alone.
-5. **Version numbers could not show any of this.** Every build was
+4. **Standard vs Warrior did not hide the structure, but Warrior was too
+   mild.** Since PR #68 both themes show the world labels, fonts, icons and
+   the Stitch tab bar, and a fresh install gets Standard
+   (`ThemePreference.load`), so no default-theme migration was needed and an
+   explicit stored choice is left alone. Warrior, however, only shifted the
+   palette and added a gilded crest: none of the dark HUD's gold glows,
+   luminous card edges, pulsing live dots or vivid artwork. See "Owner review"
+   below.
+5. **Larger text sizes pushed every screen off both edges.** Fixed-size world
+   labels in the tab bar and the app header made them wider than the screen
+   from the XL text size up, and the whole tab container grew with them.
+6. **Version numbers could not show any of this.** Every build was
    `0.1.0 (1)`.
 
 ## Status by screen
@@ -146,3 +151,53 @@ was verified against the Figma frames, not against A. Treat them as
   a list, launchpad stacked, one-column ledger) that still need a screenshot
   check. CI's `screenshot-qa.sh` matrix covers SE, 16 Plus and XXL.
 - Figma page 52 still shows the old 홈; redraw it from A, not from C.
+
+## Owner review (2026-10-20): broken text and a mild Warrior
+
+After installing build 181 the owner reported text "breaking" in places and
+a Warrior theme that felt more static and mild than the Stitch screens.
+
+**Broken text — FUNCTIONAL_MISMATCH, fixed.** Reproduced at the XL and XXXL
+text sizes (iPhone 16, Warrior Dark): the tab bar's world labels
+(`.fixedSize()`, 1.2 pt tracking) and the header's CIVIC OS /
+ACTIVE // DUTY_SYNC labels made those bars wider than 393 pt, so the tab
+container grew, centred itself and clipped both edges ("UNTDOWN PROTOCOL",
+"린더", "정보"). Fixes:
+
+- Tab bar: world label is the whole word, else a scaled-down copy, never wider
+  than its item; labels stop growing at xxLarge, like the system tab bar
+  (`App/RootView.swift`).
+- Header: world labels show up to the default text size and drop out as a
+  whole beyond it (a `ViewThatFits` beside the Spacer collapsed even when
+  there was room); the header stops growing at xxLarge
+  (`Features/Common/AppHeader.swift`).
+- Journey trail labels stop growing at xLarge instead of truncating; the panel's
+  accessibility value carries every label.
+
+![text sizes](./qa-2026/stitch-real-fidelity/text-size-overflow.png)
+
+**Warrior intensity — VISUAL_MISMATCH, fixed** against
+`super_gongik_the_epic_duty_hero`, `calendar_quest_log_dark_hud` and
+`dark_hud_1` (their CSS: `shadow-[0_0_12px_rgba(253,207,124,…)]` gold glows,
+`animate-ping` / `animate-pulse`, gold-edged plates). New
+`SGDesignSystem/WarriorEffects.swift`:
+
+| Effect                                                                                             | Where                                                                  | Standard                              |
+| -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------- |
+| Artwork at 78 % (was 42 % screened), slow 18 s drift, warm horizon, twinkling stars                | 홈 hero; stars on every `SGHeroBackground` (급여, 내 정보, onboarding) | unchanged quiet backdrop              |
+| Ivory → gold → amber D-day, 70 pt, wider glow, light sweep                                         | 홈 hero                                                                | flat gold, 64 pt                      |
+| `SGPulseDot` live dots (Stitch `animate-ping`)                                                     | hero pills, header state                                               | yes — Stitch's light screens ping too |
+| Breathing glow on the current trail node and the journey-note medal; light sweep on the trail fill | 홈                                                                     | none                                  |
+| Luminous gold → lavender card edge with glow (`sgWarriorFrame`)                                    | launchpad, ledger tiles, agenda rows, journey note, every `SGCard`     | none                                  |
+| Gold-edged pills, gilded primary action, gold section bars                                         | 홈                                                                     | none                                  |
+| Gold-edged, glowing selected tab and a gilded top hairline                                         | tab bar                                                                | none                                  |
+| Gold-edged CIVIC OS chip                                                                           | header                                                                 | none                                  |
+
+Every animation rests with Reduce Motion (stars dim and still, no drift,
+sweep or breathing); none carries information and VoiceOver skips them.
+
+![Warrior before/after](./qa-2026/stitch-real-fidelity/warrior-before-after.png)
+
+Verified: `swift test` 53/53, `xcodebuild test` 20/20 (iPhone SE simulator);
+screenshots at the default, XL and XXXL text sizes on iPhone 16 and at the
+default size on iPhone SE, Standard and Warrior.

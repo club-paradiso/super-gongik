@@ -108,6 +108,7 @@ private struct MainTabs: View {
 private struct StitchTabBar: View {
     @Binding var selection: AppTab
     @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.sgTheme) private var theme
 
     private static let items: [(AppTab, String, String, String)] = [
         (.home, "홈", "JOURNEY", "swords"),
@@ -128,22 +129,42 @@ private struct StitchTabBar: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                         if !typeSize.isAccessibilitySize {
-                            Text(item.2)
-                                .font(SGTypography.latin(.label, 9, .bold, relativeTo: .caption2))
-                                .tracking(1.2)
-                                .foregroundStyle(.sg(selected ? SGColor.accent : SGColor.textTertiary))
-                                .lineLimit(1)
-                                .fixedSize()
-                                .accessibilityHidden(true)
+                            // Whole word or nothing, and never wider than the
+                            // item: a fixed-size label here once made the bar
+                            // wider than the screen at larger text sizes,
+                            // which pushed every tab off both edges.
+                            ViewThatFits(in: .horizontal) {
+                                Text(item.2)
+                                    .font(SGTypography.latin(.label, 9, .bold, relativeTo: .caption2))
+                                    .tracking(1.2)
+                                    .lineLimit(1)
+                                    .fixedSize()
+                                Text(item.2)
+                                    .font(SGTypography.latin(.label, 9, .bold, relativeTo: .caption2))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.6)
+                            }
+                            .foregroundStyle(.sg(selected ? SGColor.accent : SGColor.textTertiary))
+                            .accessibilityHidden(true)
                         }
                     }
                     .foregroundStyle(.sg(selected ? SGColor.accentSecondary : SGColor.textSecondary))
-                    .padding(.horizontal, SGSpacing.sm)
+                    .padding(.horizontal, SGSpacing.xxs)
                     .padding(.vertical, SGSpacing.xxs)
+                    .frame(maxWidth: .infinity)
                     .background {
                         if selected {
+                            // Warrior (Stitch dark HUD): the plate gets a gold
+                            // edge and glow; standard keeps the soft plate.
                             RoundedRectangle(cornerRadius: 12, style: .continuous)
                                 .fill(.sg(SGColor.selectedBackground))
+                                .overlay {
+                                    if theme == .warrior {
+                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                            .strokeBorder(SGGlow.gold.opacity(0.7), lineWidth: 1)
+                                    }
+                                }
+                                .shadow(color: SGGlow.gold.opacity(theme == .warrior ? 0.35 : 0), radius: 8)
                         }
                     }
                     .frame(maxWidth: .infinity, minHeight: 48)
@@ -161,9 +182,20 @@ private struct StitchTabBar: View {
             Rectangle()
                 .fill(.ultraThinMaterial)
                 .overlay(Rectangle().fill(.sg(SGColor.background)).opacity(0.85))
+                .overlay(alignment: .top) {
+                    // Warrior: a gilded hairline along the top edge.
+                    if theme == .warrior {
+                        LinearGradient(colors: [.clear, SGGlow.gold.opacity(0.55), .clear],
+                                       startPoint: .leading, endPoint: .trailing)
+                            .frame(height: 1)
+                    }
+                }
                 .shadow(color: Color(.sRGB, red: 8 / 255, green: 31 / 255, blue: 104 / 255, opacity: 0.06), radius: 10, y: -4)
                 .ignoresSafeArea(edges: .bottom)
         }
+        // Like the system tab bar, the labels stop growing at xxLarge; the
+        // Accessibility sizes drop the world label instead.
+        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
         .accessibilityElement(children: .contain)
         .accessibilityAddTraits(.isTabBar)
     }

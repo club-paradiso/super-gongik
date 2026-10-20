@@ -19,6 +19,7 @@ public struct SGCard<Content: View>: View {
                 RoundedRectangle(cornerRadius: SGRadius.card, style: .continuous)
                     .strokeBorder(.sg(SGColor.border), lineWidth: 1))
             .sgShadow(.small)
+            .sgWarriorFrame(cornerRadius: SGRadius.card, emphasis: 0.7)
     }
 }
 
@@ -268,6 +269,8 @@ public struct SGHeroBackground: View {
                     }
                     .position(x: proxy.size.width - 36, y: 104)
                 }
+                // Twinkling stars (Stitch dark HUD); still with Reduce Motion.
+                SGStarfield()
             }
         }
     }

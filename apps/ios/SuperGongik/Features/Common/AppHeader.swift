@@ -9,6 +9,7 @@ struct AppHeader: View {
     let hero: HomeModel.Hero?
     var openProfile: (() -> Void)? = nil
     @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.sgTheme) private var theme
 
     var body: some View {
         HStack(spacing: SGSpacing.xs) {
@@ -31,7 +32,16 @@ struct AppHeader: View {
             }
         }
         .padding(.top, SGSpacing.xs)
+        // The header is chrome, like a navigation bar: it stops growing at
+        // xxLarge so the brand, state and D-day pill keep one line.
+        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
     }
+
+    /// The world labels (CIVIC OS, ACTIVE // DUTY_SYNC) fit a 375 pt row up
+    /// to the default text size. Larger sizes drop them as a whole: a
+    /// ViewThatFits here collapsed even when there was room (it sits next to
+    /// a Spacer), and a fixed label pushed the header past the screen edge.
+    private var roomForWorld: Bool { typeSize <= .large }
 
     /// Stitch status line: "ACTIVE // DUTY_SYNC" while serving. The Korean
     /// state stays first; the world label follows it.
@@ -59,23 +69,28 @@ struct AppHeader: View {
                         .foregroundStyle(.sg(SGColor.textPrimary))
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
-                    if !typeSize.isAccessibilitySize {
+                    if roomForWorld {
                         WorldText("CIVIC OS", tint: SGColor.accent)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(.sg(SGColor.surfaceInteractive), in: RoundedRectangle(cornerRadius: 4, style: .continuous))
+                            .overlay {
+                                // Warrior: Stitch's gold-edged CIVIC OS chip.
+                                if theme == .warrior {
+                                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                        .strokeBorder(.sg(SGColor.ornament).opacity(0.7))
+                                }
+                            }
                     }
                 }
                 HStack(spacing: 6) {
-                    Circle().fill(.sg(SGColor.success))
-                        .frame(width: 6, height: 6)
-                        .accessibilityHidden(true)
+                    SGPulseDot(theme == .warrior ? SGGlow.emerald : RGB(0x2E9E7A).color, size: 6)
                     Text(hero?.stateLabel ?? "")
                         .font(SGTypography.micro)
                         .foregroundStyle(.sg(SGColor.textSecondary))
                         .lineLimit(1)
                         .fixedSize()
-                    if !typeSize.isAccessibilitySize {
+                    if roomForWorld {
                         WorldText(worldState, tint: SGColor.textSecondary)
                     }
                 }
@@ -104,8 +119,8 @@ struct AppHeader: View {
     }
 }
 
-/// A world label that never collapses (the header has room for it at
-/// every non-accessibility size). Decorative, so VoiceOver skips it.
+/// A header world label, shown only while `roomForWorld` holds.
+/// Decorative, so VoiceOver skips it.
 private struct WorldText: View {
     let text: String
     let tint: SGToken
