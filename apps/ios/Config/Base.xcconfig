@@ -31,3 +31,12 @@ SG_SIGN_IN_EMAIL = NO
 SG_SIGN_IN_NAVER = NO
 
 #include? "Local.xcconfig"
+
+// Build provenance, shown in 내 정보 › 앱 정보 so an installed build can be
+// told apart from the code on main. Scripts pass the real values on the
+// xcodebuild command line (apps/ios/scripts/install-device.sh):
+// SG_BUILD_NUMBER = `git rev-list --count HEAD`, SG_BUILD_COMMIT = short SHA,
+// SG_BUILD_CHANNEL = Debug / Beta / Release.
+SG_BUILD_NUMBER = 2
+SG_BUILD_COMMIT = local
+SG_BUILD_CHANNEL = Debug

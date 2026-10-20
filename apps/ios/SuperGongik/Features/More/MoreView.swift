@@ -223,6 +223,11 @@ struct MoreView: View {
                     Section {
                         NavigationLink { AboutView() } label: { Label("계산 기준과 출처", systemImage: "book.closed") }
                         LabeledContent { Text(Bundle.main.versionText) } label: { Label("버전", systemImage: "info.circle") }
+                        // Build provenance: which commit and channel this
+                        // install came from, so an old build on a phone is
+                        // never mistaken for the current design. No secrets.
+                        LabeledContent { Text(Bundle.main.buildText).monospaced() } label: { Label("빌드", systemImage: "hammer") }
+                        LabeledContent { Text(theme.title) } label: { Label("화면 테마", systemImage: "paintpalette") }
                     } header: {
                         header("정보", world: "CIVIC CODEX")
                     }
@@ -230,6 +235,9 @@ struct MoreView: View {
                 .sgListRowSurface()
             }
             .sgGroupedChrome()
+            // A grouped List starts ~35 pt lower than a ScrollView; without
+            // this the app header sat lower on 내 정보 than on the other tabs.
+            .contentMargins(.top, 0, for: .scrollContent)
             .sgScreenChrome()
             .navigationTitle("내 정보")
             .toolbar(.hidden, for: .navigationBar)
@@ -318,6 +326,14 @@ extension Bundle {
         let version = infoDictionary?["CFBundleShortVersionString"] as? String ?? "-"
         let build = infoDictionary?["CFBundleVersion"] as? String ?? "-"
         return "\(version) (\(build))"
+    }
+
+    /// "Beta · 9f86409": the build channel and the short Git SHA stamped at
+    /// build time (`SG_BUILD_CHANNEL`, `SG_BUILD_COMMIT`; Config/Base.xcconfig).
+    var buildText: String {
+        let channel = infoDictionary?["SGBuildChannel"] as? String ?? "-"
+        let commit = infoDictionary?["SGBuildCommit"] as? String ?? "-"
+        return "\(channel) · \(commit)"
     }
 }
 

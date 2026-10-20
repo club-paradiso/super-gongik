@@ -46,7 +46,7 @@ Apple, TestFlight, App Store.
    `SG_APP_ENTITLEMENTS = Config/PersonalTeam.entitlements`,
    `SG_WIDGET_ENTITLEMENTS = Config/PersonalTeam.entitlements`.
 3. Keep `SG_SIGN_IN_WITH_APPLE = NO` (default): the Apple button stays hidden.
-4. `cd apps/ios && xcodegen generate`, connect the iPhone, run.
+4. Use `cd apps/ios && scripts/install-device.sh <devicectl-identifier> <xcode-udid>` to create and install a beta stamped with its real Git commit and build number. A direct Xcode GUI Run still embeds placeholder metadata and is not evidence of the reviewed beta. Keep the existing app installed so its data remains intact.
 
 Widgets then show their empty state ("슈퍼공익을 열어 소집일을 입력해
 주세요") because the app cannot share data with them; that is expected, not
@@ -57,8 +57,7 @@ a bug.
 1. Register the app id, widget id and App Group in the developer portal.
 2. `cp apps/ios/Config/Local.xcconfig.example apps/ios/Config/Local.xcconfig`
    and set `SG_BUNDLE_ID`, `SG_DEVELOPMENT_TEAM`.
-3. `cd apps/ios && xcodegen generate`, open the project, let automatic
-   signing create profiles, archive (Product → Archive).
+3. Use `cd apps/ios && xcodegen generate`, then create the Release archive with an explicit, never-reused `SG_BUILD_NUMBER` (higher than the latest App Store Connect/TestFlight build) and `SG_BUILD_COMMIT` equal to the checked-out short Git SHA, with `-dirty` for tracked **or untracked** local app changes. Pass both values and `SG_BUILD_CHANNEL=Release` as `xcodebuild archive` overrides. Inspect the archive app's Info.plist values for CFBundleVersion, SGBuildCommit and SGBuildChannel before distribution. The default Xcode GUI Product → Archive uses placeholder `2`/`local` stamps and is not an eligible release artifact. The same commit archived twice must use two different SG_BUILD_NUMBER values.
 4. Upload to App Store Connect only after authorization.
 
 ## Before any submission

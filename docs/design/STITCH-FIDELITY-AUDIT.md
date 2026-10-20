@@ -1,5 +1,10 @@
 # Stitch fidelity audit (2026-10-14)
 
+> **Superseded for 홈 and the tab bar** by
+> [STITCH-REAL-FIDELITY-AUDIT-2026-10.md](./STITCH-REAL-FIDELITY-AUDIT-2026-10.md):
+> the "match" marks below compare against `direction_b_civic_codex`, not the
+> `master_synthesis` home the Stitch set converged on.
+
 The owner asked whether the app matches the Stitch project "Super Gongik RPG
 Redesign" exactly. Source: the 54 Stitch views exported to Figma page 40
 (`17:12`). The Stitch canvas itself only renders in a visible browser tab, so

@@ -59,38 +59,46 @@ private struct MainTabs: View {
     @Environment(AppModel.self) private var model
     @Binding var tab: AppTab
 
-    var body: some View {
-        // Stitch draws its own bottom bar (glyph, Korean label, world label),
-        // so the system tab bar is hidden and `StitchTabBar` is inset on each
-        // tab. The TabView still keeps every tab's state alive.
-        TabView(selection: $tab) {
-            Tab("홈", systemImage: "sun.horizon", value: AppTab.home) {
-                TodayView(openTab: { tab = $0 }, showsLedgerInitially: RootView.opensLedgerOnLaunch)
-                    .stitchTabBar($tab)
-            }
-            Tab("캘린더", systemImage: "calendar", value: AppTab.calendar) {
-                RecordsView(openTab: { tab = $0 })
-                    .stitchTabBar($tab)
-            }
-            Tab("급여", systemImage: "wonsign.circle", value: AppTab.pay) {
-                PayView(openTab: { tab = $0 })
-                    .stitchTabBar($tab)
-            }
-            Tab("내 정보", systemImage: "person.crop.circle", value: AppTab.profile) {
-                MoreView()
-                    .stitchTabBar($tab)
-            }
-        }
-        .safeAreaInset(edge: .top, spacing: 0) {
-            StorageNoticeBanner()
-        }
-    }
-}
+    /// Tabs opened at least once. A tab is built on its first visit and then
+    /// kept alive (scroll position, pushed screens), as a TabView would.
+    @State private var opened: Set<AppTab> = []
 
-private extension View {
-    func stitchTabBar(_ tab: Binding<AppTab>) -> some View {
-        toolbar(.hidden, for: .tabBar)
-            .safeAreaInset(edge: .bottom, spacing: 0) { StitchTabBar(selection: tab) }
+    var body: some View {
+        // Stitch draws its own bottom bar (glyph, Korean label, world label).
+        // A TabView with `.toolbar(.hidden, for: .tabBar)` still showed the
+        // iOS 26 system tab bar under the Stitch bar (seen on the Warrior
+        // Dark 홈, 2026-10-20), so the tabs are a plain container: there is
+        // no system tab bar left to reappear.
+        ZStack {
+            ForEach([AppTab.home, .calendar, .pay, .profile], id: \.self) { item in
+                if opened.contains(item) || item == tab {
+                    content(for: item)
+                        .opacity(item == tab ? 1 : 0)
+                        .allowsHitTesting(item == tab)
+                        .accessibilityHidden(item != tab)
+                }
+            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) { StitchTabBar(selection: $tab) }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            // Every tab hides its navigation bar behind the Stitch app header,
+            // so content scrolls under the status bar; this canvas strip keeps
+            // the clock readable over the 홈 hero and the cards.
+            StorageNoticeBanner()
+                .frame(maxWidth: .infinity)
+                .background(.sg(SGColor.background), ignoresSafeAreaEdges: .top)
+        }
+        .onChange(of: tab, initial: true) { _, new in opened.insert(new) }
+    }
+
+    @ViewBuilder
+    private func content(for item: AppTab) -> some View {
+        switch item {
+        case .home: TodayView(openTab: { tab = $0 }, showsLedgerInitially: RootView.opensLedgerOnLaunch)
+        case .calendar: RecordsView(openTab: { tab = $0 })
+        case .pay: PayView(openTab: { tab = $0 })
+        case .profile: MoreView()
+        }
     }
 }
 
@@ -100,6 +108,7 @@ private extension View {
 private struct StitchTabBar: View {
     @Binding var selection: AppTab
     @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.sgTheme) private var theme
 
     private static let items: [(AppTab, String, String, String)] = [
         (.home, "홈", "JOURNEY", "swords"),
@@ -120,22 +129,42 @@ private struct StitchTabBar: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                         if !typeSize.isAccessibilitySize {
-                            Text(item.2)
-                                .font(SGTypography.latin(.label, 9, .bold, relativeTo: .caption2))
-                                .tracking(1.2)
-                                .foregroundStyle(.sg(selected ? SGColor.accent : SGColor.textTertiary))
-                                .lineLimit(1)
-                                .fixedSize()
-                                .accessibilityHidden(true)
+                            // Whole word or nothing, and never wider than the
+                            // item: a fixed-size label here once made the bar
+                            // wider than the screen at larger text sizes,
+                            // which pushed every tab off both edges.
+                            ViewThatFits(in: .horizontal) {
+                                Text(item.2)
+                                    .font(SGTypography.latin(.label, 9, .bold, relativeTo: .caption2))
+                                    .tracking(1.2)
+                                    .lineLimit(1)
+                                    .fixedSize()
+                                Text(item.2)
+                                    .font(SGTypography.latin(.label, 9, .bold, relativeTo: .caption2))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.6)
+                            }
+                            .foregroundStyle(.sg(selected ? SGColor.accent : SGColor.textTertiary))
+                            .accessibilityHidden(true)
                         }
                     }
                     .foregroundStyle(.sg(selected ? SGColor.accentSecondary : SGColor.textSecondary))
-                    .padding(.horizontal, SGSpacing.sm)
+                    .padding(.horizontal, SGSpacing.xxs)
                     .padding(.vertical, SGSpacing.xxs)
+                    .frame(maxWidth: .infinity)
                     .background {
                         if selected {
+                            // Warrior (Stitch dark HUD): the plate gets a gold
+                            // edge and glow; standard keeps the soft plate.
                             RoundedRectangle(cornerRadius: 12, style: .continuous)
                                 .fill(.sg(SGColor.selectedBackground))
+                                .overlay {
+                                    if theme == .warrior {
+                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                            .strokeBorder(SGGlow.gold.opacity(0.7), lineWidth: 1)
+                                    }
+                                }
+                                .shadow(color: SGGlow.gold.opacity(theme == .warrior ? 0.35 : 0), radius: 8)
                         }
                     }
                     .frame(maxWidth: .infinity, minHeight: 48)
@@ -146,16 +175,29 @@ private struct StitchTabBar: View {
                 .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
             }
         }
-        .padding(.horizontal, SGSpacing.xxs)
+        // Even margins: the selected plate on the last tab used to touch
+        // the screen edge.
+        .padding(.horizontal, SGSpacing.sm)
         .padding(.top, SGSpacing.xxs)
         .padding(.bottom, 2)
         .background {
             Rectangle()
                 .fill(.ultraThinMaterial)
                 .overlay(Rectangle().fill(.sg(SGColor.background)).opacity(0.85))
+                .overlay(alignment: .top) {
+                    // Warrior: a gilded hairline along the top edge.
+                    if theme == .warrior {
+                        LinearGradient(colors: [.clear, SGGlow.gold.opacity(0.55), .clear],
+                                       startPoint: .leading, endPoint: .trailing)
+                            .frame(height: 1)
+                    }
+                }
                 .shadow(color: Color(.sRGB, red: 8 / 255, green: 31 / 255, blue: 104 / 255, opacity: 0.06), radius: 10, y: -4)
                 .ignoresSafeArea(edges: .bottom)
         }
+        // Like the system tab bar, the labels stop growing at xxLarge; the
+        // Accessibility sizes drop the world label instead.
+        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
         .accessibilityElement(children: .contain)
         .accessibilityAddTraits(.isTabBar)
     }

@@ -19,6 +19,7 @@ public struct SGCard<Content: View>: View {
                 RoundedRectangle(cornerRadius: SGRadius.card, style: .continuous)
                     .strokeBorder(.sg(SGColor.border), lineWidth: 1))
             .sgShadow(.small)
+            .sgWarriorFrame(cornerRadius: SGRadius.card, emphasis: 0.7)
     }
 }
 
@@ -257,9 +258,11 @@ public struct SGHeroBackground: View {
                 RadialGradient(
                     colors: [RGB(0x5952AD).color.opacity(0.6), .clear],
                     center: UnitPoint(x: 0.85, y: 0.05), startRadius: 0, endRadius: 280)
+                // Warm horizon, kept low: at 36 % it washed the lower half of
+                // card-sized heroes (내 정보, 급여) into a muddy mauve.
                 RadialGradient(
-                    colors: [RGB(0xFFDEA7).color.opacity(celebrate ? 0.5 : 0.36), SGBrand.ember.color.opacity(0.14), .clear],
-                    center: UnitPoint(x: 0.5, y: 1.25), startRadius: 0, endRadius: 340)
+                    colors: [RGB(0xFFDEA7).color.opacity(celebrate ? 0.34 : 0.18), SGBrand.ember.color.opacity(0.08), .clear],
+                    center: UnitPoint(x: 0.5, y: 1.3), startRadius: 0, endRadius: 300)
                 // Two halo arcs behind the D-day, upper trailing side. Static.
                 GeometryReader { proxy in
                     ZStack {
@@ -268,6 +271,15 @@ public struct SGHeroBackground: View {
                     }
                     .position(x: proxy.size.width - 36, y: 104)
                 }
+                // The arcs and stars stay in the sky above the content: on
+                // card-sized heroes they used to run through the stat tiles
+                // and read as cracks in the text.
+                .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.18),
+                                             .init(color: .clear, location: 0.42)],
+                                     startPoint: .top, endPoint: .bottom))
+                // Twinkling stars (Stitch dark HUD); still with Reduce Motion.
+                SGStarfield()
+                    .mask(LinearGradient(colors: [.black, .black, .clear], startPoint: .top, endPoint: .bottom))
             }
         }
     }
