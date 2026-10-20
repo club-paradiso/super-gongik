@@ -182,6 +182,53 @@ struct MilestoneRouteTests {
     }
 }
 
+@Suite("홈 journey trail (Stitch master synthesis)")
+struct JourneyTrailTests {
+    private func item(_ kind: String, _ value: Double, _ date: String) -> ServiceMilestoneItem {
+        ServiceMilestoneItem(kind: kind, date: CivilDate(date)!, value: value, label: "")
+    }
+
+    private var list: [ServiceMilestoneItem] {
+        [item("CALL_UP", 0, "2025-12-17"), item("DAYS_REMAINING", 500, "2026-05-04"),
+         item("PERCENT", 25, "2026-05-20"), item("PERCENT", 50, "2026-11-01"),
+         item("DAYS_REMAINING", 300, "2026-11-20"), item("SERVICE_DAY", 100, "2026-03-27"),
+         item("DISCHARGE", 0, "2027-09-16")]
+            .sorted { $0.date.dayNumber < $1.date.dayNumber }
+    }
+
+    private func hero(_ phase: String, headline: String = "D-338") throws -> HomeModel.Hero {
+        try JSONDecoder().decode(HomeModel.Hero.self, from: Data("""
+        {"phase":"\(phase)","eyebrow":"소집해제까지","headline":"\(headline)","headlineSpoken":"\(headline)",
+         "dateLine":"","stateLabel":"복무 중","percent":47,"percentLabel":"47.0%","elapsedDays":300,
+         "remainingDays":338,"totalServiceDays":638,"live":false,"next":null,"reachedToday":null}
+        """.utf8))
+    }
+
+    @Test("소집, two passed milestones, today, the next one and 소집해제")
+    func nodes() throws {
+        let trail = try #require(JourneyTrail(list, hero: hero("IN_SERVICE"), today: CivilDate("2026-10-13")!))
+        #expect(trail.nodes.map(\.title) == ["소집 '25.12", "D-500", "25%", "현재 D-338", "50%", "소집해제"])
+        #expect(trail.nodes.map(\.state) == [.passed, .passed, .passed, .current, .upcoming, .upcoming])
+        #expect(trail.fill == 3.0 / 5.0)
+        #expect(trail.next == "50% · 19일 후")
+    }
+
+    @Test("off-route milestones (SERVICE_DAY) never appear")
+    func offRoute() throws {
+        let trail = try #require(JourneyTrail(list, hero: hero("IN_SERVICE"), today: CivilDate("2026-04-01")!))
+        #expect(!trail.nodes.contains { $0.kind == "SERVICE_DAY" })
+        #expect(trail.nodes.first?.title == "소집 '25.12")
+        #expect(trail.nodes[1].state == .current)
+    }
+
+    @Test("only while in service")
+    func phases() throws {
+        for phase in ["PRE_SERVICE", "DISCHARGE_DAY", "COMPLETED"] {
+            #expect(JourneyTrail(list, hero: try hero(phase), today: CivilDate("2026-10-13")!) == nil)
+        }
+    }
+}
+
 @Suite("복무 기록 요약 PDF")
 struct RecordSummaryPDFTests {
     private func decode<T: Decodable>(_ json: String) throws -> T {

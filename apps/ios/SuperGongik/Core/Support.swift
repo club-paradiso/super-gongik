@@ -33,6 +33,11 @@ enum Formatters {
         "\(date.year)년 \(date.month)월 \(date.day)일 (\(weekdays[date.weekday]))"
     }
 
+    /// "2026. 01. 15 (목)" (Stitch hero and ledger dates)
+    static func dottedDateWithWeekday(_ date: CivilDate) -> String {
+        String(format: "%d. %02d. %02d", date.year, date.month, date.day) + " (\(weekdays[date.weekday]))"
+    }
+
     /// "2026년 10월"
     static func month(_ date: CivilDate) -> String { "\(date.year)년 \(date.month)월" }
 

@@ -59,38 +59,46 @@ private struct MainTabs: View {
     @Environment(AppModel.self) private var model
     @Binding var tab: AppTab
 
-    var body: some View {
-        // Stitch draws its own bottom bar (glyph, Korean label, world label),
-        // so the system tab bar is hidden and `StitchTabBar` is inset on each
-        // tab. The TabView still keeps every tab's state alive.
-        TabView(selection: $tab) {
-            Tab("홈", systemImage: "sun.horizon", value: AppTab.home) {
-                TodayView(openTab: { tab = $0 }, showsLedgerInitially: RootView.opensLedgerOnLaunch)
-                    .stitchTabBar($tab)
-            }
-            Tab("캘린더", systemImage: "calendar", value: AppTab.calendar) {
-                RecordsView(openTab: { tab = $0 })
-                    .stitchTabBar($tab)
-            }
-            Tab("급여", systemImage: "wonsign.circle", value: AppTab.pay) {
-                PayView(openTab: { tab = $0 })
-                    .stitchTabBar($tab)
-            }
-            Tab("내 정보", systemImage: "person.crop.circle", value: AppTab.profile) {
-                MoreView()
-                    .stitchTabBar($tab)
-            }
-        }
-        .safeAreaInset(edge: .top, spacing: 0) {
-            StorageNoticeBanner()
-        }
-    }
-}
+    /// Tabs opened at least once. A tab is built on its first visit and then
+    /// kept alive (scroll position, pushed screens), as a TabView would.
+    @State private var opened: Set<AppTab> = []
 
-private extension View {
-    func stitchTabBar(_ tab: Binding<AppTab>) -> some View {
-        toolbar(.hidden, for: .tabBar)
-            .safeAreaInset(edge: .bottom, spacing: 0) { StitchTabBar(selection: tab) }
+    var body: some View {
+        // Stitch draws its own bottom bar (glyph, Korean label, world label).
+        // A TabView with `.toolbar(.hidden, for: .tabBar)` still showed the
+        // iOS 26 system tab bar under the Stitch bar (seen on the Warrior
+        // Dark 홈, 2026-10-20), so the tabs are a plain container: there is
+        // no system tab bar left to reappear.
+        ZStack {
+            ForEach([AppTab.home, .calendar, .pay, .profile], id: \.self) { item in
+                if opened.contains(item) || item == tab {
+                    content(for: item)
+                        .opacity(item == tab ? 1 : 0)
+                        .allowsHitTesting(item == tab)
+                        .accessibilityHidden(item != tab)
+                }
+            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) { StitchTabBar(selection: $tab) }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            // Every tab hides its navigation bar behind the Stitch app header,
+            // so content scrolls under the status bar; this canvas strip keeps
+            // the clock readable over the 홈 hero and the cards.
+            StorageNoticeBanner()
+                .frame(maxWidth: .infinity)
+                .background(.sg(SGColor.background), ignoresSafeAreaEdges: .top)
+        }
+        .onChange(of: tab, initial: true) { _, new in opened.insert(new) }
+    }
+
+    @ViewBuilder
+    private func content(for item: AppTab) -> some View {
+        switch item {
+        case .home: TodayView(openTab: { tab = $0 }, showsLedgerInitially: RootView.opensLedgerOnLaunch)
+        case .calendar: RecordsView(openTab: { tab = $0 })
+        case .pay: PayView(openTab: { tab = $0 })
+        case .profile: MoreView()
+        }
     }
 }
 
