@@ -22,7 +22,9 @@ DERIVED="${DERIVED_DATA:-$PWD/build/DerivedData-device}"
 
 NUMBER="$(git rev-list --count HEAD)"
 COMMIT="$(git rev-parse --short HEAD)"
-git diff --quiet HEAD -- . || COMMIT="$COMMIT-dirty"
+if ! git diff --quiet HEAD -- . || [[ -n "$(git ls-files --others --exclude-standard -- .)" ]]; then
+  COMMIT="$COMMIT-dirty"
+fi
 echo "building 0.2.0 ($NUMBER) Beta · $COMMIT for $UDID"
 
 xcodegen generate --quiet
