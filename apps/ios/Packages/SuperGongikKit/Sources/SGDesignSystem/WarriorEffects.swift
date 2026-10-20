@@ -166,9 +166,10 @@ public extension View {
 /// independent fade per star; static (dimmer) with Reduce Motion.
 public struct SGStarfield: View {
     private static let stars: [(x: CGFloat, y: CGFloat, size: CGFloat, delay: Double)] = [
-        (0.08, 0.10, 2.2, 0.0), (0.22, 0.05, 1.6, 0.9), (0.36, 0.16, 1.4, 1.7), (0.58, 0.07, 2.0, 0.4),
-        (0.71, 0.18, 1.5, 2.3), (0.86, 0.09, 2.4, 1.1), (0.94, 0.27, 1.4, 0.2), (0.15, 0.31, 1.3, 2.8),
-        (0.48, 0.28, 1.2, 1.4), (0.79, 0.37, 1.6, 0.7), (0.05, 0.47, 1.4, 1.9), (0.92, 0.52, 1.2, 2.6),
+        // The upper third only: stars below that land on text.
+        (0.08, 0.08, 2.2, 0.0), (0.22, 0.04, 1.6, 0.9), (0.36, 0.13, 1.4, 1.7), (0.58, 0.05, 2.0, 0.4),
+        (0.71, 0.14, 1.5, 2.3), (0.86, 0.07, 2.4, 1.1), (0.94, 0.21, 1.4, 0.2), (0.15, 0.24, 1.3, 2.8),
+        (0.48, 0.20, 1.2, 1.4), (0.79, 0.27, 1.6, 0.7), (0.04, 0.30, 1.4, 1.9), (0.93, 0.33, 1.2, 2.6),
     ]
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var lit = false

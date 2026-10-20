@@ -103,8 +103,10 @@ struct AppHeader: View {
                 HStack(spacing: 6) {
                     StitchIcon("schedule", size: 16)
                         .foregroundStyle(.sg(SGColor.accent))
+                    // Plus Jakarta Sans: Space Grotesk's tabular "1" has a
+                    // slab foot and read as a broken glyph in "D-421".
                     Text(hero.headline)
-                        .font(SGTypography.latinLabel)
+                        .font(SGTypography.latin(.display, 13, .bold, relativeTo: .caption))
                         .monospacedDigit()
                         .lineLimit(1)
                         .foregroundStyle(.sg(SGColor.textPrimary))

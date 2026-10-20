@@ -235,6 +235,9 @@ struct MoreView: View {
                 .sgListRowSurface()
             }
             .sgGroupedChrome()
+            // A grouped List starts ~35 pt lower than a ScrollView; without
+            // this the app header sat lower on 내 정보 than on the other tabs.
+            .contentMargins(.top, 0, for: .scrollContent)
             .sgScreenChrome()
             .navigationTitle("내 정보")
             .toolbar(.hidden, for: .navigationBar)

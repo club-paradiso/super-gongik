@@ -175,7 +175,9 @@ private struct StitchTabBar: View {
                 .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
             }
         }
-        .padding(.horizontal, SGSpacing.xxs)
+        // Even margins: the selected plate on the last tab used to touch
+        // the screen edge.
+        .padding(.horizontal, SGSpacing.sm)
         .padding(.top, SGSpacing.xxs)
         .padding(.bottom, 2)
         .background {

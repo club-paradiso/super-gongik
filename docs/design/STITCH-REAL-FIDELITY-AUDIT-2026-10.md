@@ -201,3 +201,15 @@ sweep or breathing); none carries information and VoiceOver skips them.
 Verified: `swift test` 53/53, `xcodebuild test` 20/20 (iPhone SE simulator);
 screenshots at the default, XL and XXXL text sizes on iPhone 16 and at the
 default size on iPhone SE, Standard and Warrior.
+
+### Second owner review (build 184, Warrior Light 내 정보)
+
+From the owner's phone screenshot:
+
+| Seen                                                  | Cause                                                             | Fix                                                                                                         |
+| ----------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Lines "cracking" the 소집해제 예정 / 2027.12.15 tiles | Warrior halo arcs and stars sat behind the translucent stat tiles | Arcs fade out by 42 % of the hero's height, stars stay in the top third (`SGHeroBackground`, `SGStarfield`) |
+| Lower half of the character card a muddy mauve        | Warm Warrior horizon at 36 %                                      | 18 % (34 % on celebration days)                                                                             |
+| "D-421" digits looked broken                          | Space Grotesk's tabular "1" has a slab foot                       | Header D-day pill uses Plus Jakarta Sans                                                                    |
+| Selected 내 정보 plate touching the screen edge       | 4 pt bar margin                                                   | 12 pt margins                                                                                               |
+| 내 정보 header ~35 pt lower than on the other tabs    | grouped `List` top content margin                                 | `.contentMargins(.top, 0)`                                                                                  |
