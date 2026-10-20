@@ -270,8 +270,8 @@ private struct JourneyHero: View {
         }
     }
 
-    /// Stitch "51.927361 % LIVE RECORD": the percent on a dark pill. "LIVE"
-    /// only when the per-second readout is on; otherwise it is today's value.
+    /// The percent on a dark pill. No "LIVE RECORD" caption: the live
+    /// readout below already says it.
     private var progressPill: some View {
         HStack(spacing: SGSpacing.xs) {
             SGPulseDot(celebrates ? SGGlow.gold : SGGlow.emerald)
@@ -279,7 +279,6 @@ private struct JourneyHero: View {
                 .font(SGTypography.latin(.display, 15, .bold, relativeTo: .subheadline))
                 .monospacedDigit()
                 .foregroundStyle(.sg(SGColor.heroForeground))
-            SGWorldEyebrow(showsLive ? "LIVE RECORD" : "PROGRESS", tint: SGColor.heroForeground3)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 5)
@@ -543,13 +542,27 @@ private struct LiveReadout: View {
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
             let live = LiveServiceProgress.calculate(period, now: context.date)
-            VStack(spacing: SGSpacing.xxxs) {
-                Text(live.formattedPercentage())
-                    .font(SGTypography.heroMetric)
-                    .foregroundStyle(.sg(SGColor.heroAccent))
+            let percent = live.formattedPercentage()
+            VStack(spacing: 2) {
+                // Whole part at full weight, the ticking decimals quieter, so
+                // the eye reads the number and only feels the movement.
+                HStack(alignment: .firstTextBaseline, spacing: 0) {
+                    ForEach(Array(Self.split(percent).enumerated()), id: \.offset) { index, part in
+                        Text(part)
+                            .font(SGTypography.heroMetric)
+                            .foregroundStyle(.sg(SGColor.heroAccent).opacity(index == 0 ? 1 : 0.62))
+                    }
+                }
                 Text(live.formattedCountdown)
                     .font(SGTypography.heroDetail)
                     .foregroundStyle(.sg(SGColor.heroForeground2))
+            }
+            .padding(.horizontal, SGSpacing.md)
+            .padding(.vertical, SGSpacing.xs)
+            .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.14))
             }
             .monospacedDigit()
             .contentTransition(.identity)
@@ -557,6 +570,13 @@ private struct LiveReadout: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("실시간 진행률")
         .accessibilityValue(Text(LiveServiceProgress.calculate(period, now: .now).formattedPercentage()))
+    }
+
+    /// "51.927361 %" → ["51", ".927361 %"]; anything without a decimal point
+    /// stays whole.
+    private static func split(_ text: String) -> [String] {
+        guard let dot = text.firstIndex(of: ".") else { return [text] }
+        return [String(text[..<dot]), String(text[dot...])]
     }
 }
 
