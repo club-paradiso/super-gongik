@@ -547,28 +547,23 @@ private struct LiveReadout: View {
             let percent = live.formattedPercentage()
             VStack(spacing: 2) {
                 // Pulse dot + ticking percent; the countdown sits under it.
-                // Whole part at full weight, the ticking decimals quieter, so
-                // the eye reads the number and only feels the movement.
+                // Full-strength digits on the same dark glass as the pill.
                 HStack(spacing: SGSpacing.xs) {
                     SGPulseDot(dot)
-                    HStack(alignment: .firstTextBaseline, spacing: 0) {
-                        ForEach(Array(Self.split(percent).enumerated()), id: \.offset) { index, part in
-                            Text(part)
-                                .font(SGTypography.heroMetric)
-                                .foregroundStyle(.sg(SGColor.heroAccent).opacity(index == 0 ? 1 : 0.62))
-                        }
-                    }
+                    Text(percent)
+                        .font(SGTypography.heroMetric)
+                        .foregroundStyle(.sg(SGColor.heroAccent))
                 }
                 Text(live.formattedCountdown)
                     .font(SGTypography.heroDetail)
-                    .foregroundStyle(.sg(SGColor.heroForeground2))
+                    .foregroundStyle(.sg(SGColor.heroForeground))
             }
             .padding(.horizontal, SGSpacing.md)
             .padding(.vertical, SGSpacing.xs)
-            .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .background(.sg(SGColor.heroBackground).opacity(0.7), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.14))
+                    .strokeBorder(Color.white.opacity(0.2))
             }
             .monospacedDigit()
             .contentTransition(.identity)
@@ -576,13 +571,6 @@ private struct LiveReadout: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("실시간 진행률")
         .accessibilityValue(Text(LiveServiceProgress.calculate(period, now: .now).formattedPercentage()))
-    }
-
-    /// "51.927361 %" → ["51", ".927361 %"]; anything without a decimal point
-    /// stays whole.
-    private static func split(_ text: String) -> [String] {
-        guard let dot = text.firstIndex(of: ".") else { return [text] }
-        return [String(text[..<dot]), String(text[dot...])]
     }
 }
 
