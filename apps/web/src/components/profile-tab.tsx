@@ -244,6 +244,7 @@ function ProfileForm({
     profile.institutionName ?? "",
   );
   const [institutionFilled, setInstitutionFilled] = useState(false);
+  const [lastFareApplied, setLastFareApplied] = useState<string | null>(null);
   const [residenceRegion, setResidenceRegion] = useState(
     profile.residenceRegion ?? "",
   );
@@ -283,6 +284,9 @@ function ProfileForm({
   const [mealRate, setMealRate] = useState(
     profile.defaultMealAllowanceOverride?.toString() ?? "",
   );
+  const [customMeal, setCustomMeal] = useState(
+    profile.defaultMealAllowanceOverride !== null,
+  );
   const institutionRates = useMemo(
     () =>
       institutionName.trim() === ""
@@ -309,6 +313,7 @@ function ProfileForm({
     let filled = false;
     if (mealRate === "" && found.meal?.applicable && found.meal.amount > 9000) {
       setMealRate(String(found.meal.amount));
+      setCustomMeal(true);
       filled = true;
     }
     if (commuteCost === "" && found.transport?.applicable) {
@@ -717,7 +722,10 @@ function ProfileForm({
                           {" "}
                           <button
                             type="button"
-                            onClick={() => apply(String(amount.amount))}
+                            onClick={() => {
+                              apply(String(amount.amount));
+                              if (label === "중식비") setCustomMeal(true);
+                            }}
                           >
                             적용
                           </button>
@@ -794,21 +802,46 @@ function ProfileForm({
             ) : null}
           </div>
 
-          <label className="form-field">
-            <span>1일 중식비 (기관이 더 줄 때만)</span>
-            <input
-              inputMode="numeric"
-              min="0"
-              placeholder="비우면 최소기준 9,000원"
-              type="number"
-              value={mealRate}
-              onChange={(event) => setMealRate(event.target.value)}
-            />
+          <fieldset className="form-field">
+            <legend>중식비</legend>
+            <label>
+              <input
+                checked={!customMeal}
+                name="meal-mode"
+                type="radio"
+                onChange={() => {
+                  setCustomMeal(false);
+                  setMealRate("");
+                }}
+              />
+              기본 9,000원
+            </label>
+            <label>
+              <input
+                checked={customMeal}
+                name="meal-mode"
+                type="radio"
+                onChange={() => setCustomMeal(true)}
+              />
+              기관이 더 줘요
+            </label>
+            {customMeal ? (
+              <input
+                aria-label="기관 1일 중식비"
+                inputMode="numeric"
+                min="9000"
+                placeholder="기관 1일 중식비(원)"
+                type="number"
+                value={mealRate}
+                onChange={(event) => setMealRate(event.target.value)}
+              />
+            ) : null}
             <small>
-              병무청 2026년 지급 기준은 1일 9,000원이 최소이고, 기관이 예산
-              범위에서 더 줄 수 있어요. 더 받는 경우에만 그 금액을 넣으세요.
+              {customMeal
+                ? "기관이 주는 1일 중식비를 넣어 주세요. 9,000원보다 낮은 금액은 쓸 수 없어요."
+                : "병무청 기준 1일 9,000원으로 매달 자동 계산해요. 기관이 더 주는 경우에만 바꾸세요."}
             </small>
-          </label>
+          </fieldset>
 
           <label className="form-field">
             <span>
@@ -821,8 +854,13 @@ function ProfileForm({
                 const region = event.target.value;
                 setResidenceRegion(region);
                 const suggestion = regionalFareSuggestion(region || null);
-                if (suggestion) {
-                  setCommuteCost(String(suggestion.dailyRoundTripFare));
+                if (
+                  suggestion &&
+                  (commuteCost === "" || commuteCost === lastFareApplied)
+                ) {
+                  const applied = String(suggestion.dailyRoundTripFare);
+                  setCommuteCost(applied);
+                  setLastFareApplied(applied);
                 }
               }}
             >
@@ -835,7 +873,8 @@ function ProfileForm({
             </select>
             <small>
               지역 기본 시내버스 운임이 검증된 경우 1일 교통비를 자동으로
-              제안해요. 실제 통근 경로가 다르면 아래 금액을 직접 고치세요.
+              채워요. 직접 입력한 금액은 바꾸지 않아요. 한 번만 정해 두면 매달
+              자동으로 계산해요.
             </small>
           </label>
 

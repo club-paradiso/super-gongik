@@ -71,6 +71,8 @@ struct ProfileEditView: View {
     @State private var fare: FareSuggestion?
     @State private var rates: InstitutionRates?
     @State private var autoFilled = false
+    @State private var customMeal = false
+    @State private var lastFareApplied: String?
     @State private var issues: [EventIssue] = []
     @State private var loaded = false
 
@@ -183,9 +185,25 @@ struct ProfileEditView: View {
                 }
 
                 Section {
-                    LabeledContent("1일 중식비 (기관이 더 줄 때만)") {
-                        HStack(spacing: SGSpacing.xxs) { numberField("원", $draft.meal, width: 80); Text("원") }
+                    Picker("중식비", selection: Binding(get: { customMeal }, set: setCustomMeal)) {
+                        Text("기본 9,000원").tag(false)
+                        Text("기관이 더 줘요").tag(true)
                     }
+                    .pickerStyle(.segmented)
+                    if customMeal {
+                        LabeledContent("기관 1일 중식비") {
+                            HStack(spacing: SGSpacing.xxs) { numberField("원", $draft.meal, width: 80); Text("원") }
+                        }
+                    }
+                } header: {
+                    Text("중식비")
+                } footer: {
+                    Text(customMeal
+                        ? "기관이 주는 1일 중식비를 넣어 주세요. 9,000원보다 낮은 금액은 쓸 수 없어요."
+                        : "병무청 기준 1일 9,000원으로 매달 자동 계산해요. 기관이 더 주는 경우에만 바꾸세요.")
+                }
+
+                Section {
                     Picker("거주 지역", selection: $draft.region) {
                         Text("지역 선택").tag("")
                         ForEach(options?.residenceRegions ?? [], id: \.self) { Text($0).tag($0) }
@@ -193,20 +211,17 @@ struct ProfileEditView: View {
                     LabeledContent("1일 교통비") {
                         HStack(spacing: SGSpacing.xxs) { numberField("원", $draft.commute, width: 80); Text("원") }
                     }
-                    if let fare {
-                        Button("제안 금액 \(Formatters.won(fare.dailyRoundTripFare)) 넣기") {
-                            draft.commute = String(Int(fare.dailyRoundTripFare))
-                        }
-                        Text("\(fare.basis) · \(fare.verifiedAt) 확인").font(SGTypography.caption)
-                            .foregroundStyle(.sg(SGColor.textTertiary))
-                    } else if !draft.region.isEmpty {
-                        Text("이 지역은 현재 검증된 기본운임 자동값이 없어 직접 입력해야 해요.")
+                    if let fare, draft.commute == String(Int(fare.dailyRoundTripFare)) {
+                        Text("지역 기준(\(fare.basis))으로 채웠어요. 실제 요금이 다르면 고쳐 주세요.")
+                            .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+                    } else if !draft.region.isEmpty && fare == nil {
+                        Text("이 지역은 검증된 기본운임이 아직 없어요. 직접 입력해 주세요.")
                             .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
                     }
                 } header: {
-                    Text("중식비·교통비")
+                    Text("교통비")
                 } footer: {
-                    Text("병무청 2026년 지급 기준은 1일 중식비 9,000원이 최소이고, 기관이 예산 범위에서 더 줄 수 있어요. 더 받는 경우에만 그 금액을 넣으세요.")
+                    Text("한 번만 정해 두면 매달 자동으로 계산해요. 병무청 기준은 시내버스 왕복 현금요금이고, 환승·지하철 장거리는 교통카드 실비예요.")
                 }
 
                 Section {
@@ -247,6 +262,11 @@ struct ProfileEditView: View {
         .task(id: draft.region) {
             fare = draft.region.isEmpty ? nil
                 : await model.pure("regionalFareSuggestion", [.string(draft.region)], as: FareSuggestion?.self) ?? nil
+            // Fill the suggested fare, but never over an amount the user typed.
+            if let fare, draft.commute.isEmpty || draft.commute == lastFareApplied {
+                draft.commute = String(Int(fare.dailyRoundTripFare))
+                lastFareApplied = draft.commute
+            }
         }
     }
 
@@ -260,7 +280,7 @@ struct ProfileEditView: View {
                     Text(institution.scopeNote).font(SGTypography.caption)
                         .foregroundStyle(.sg(SGColor.textTertiary))
                 }
-                if let meal = rates.meal { amountRow("중식비", meal, apply: { draft.meal = String(Int(meal.amount)) }, applied: draft.meal) }
+                if let meal = rates.meal { amountRow("중식비", meal, apply: { draft.meal = String(Int(meal.amount)); customMeal = true }, applied: draft.meal) }
                 if let transport = rates.transport { amountRow("교통비", transport, apply: { draft.commute = String(Int(transport.amount)) }, applied: draft.commute) }
                 if rates.meal == nil && rates.transport == nil {
                     Text("이 기관의 중식비·교통비 금액 근거는 아직 없어요. 직접 입력해 주세요.")
@@ -350,7 +370,7 @@ struct ProfileEditView: View {
         guard let result, result.status == "MATCHED" else { return }
         var filled = false
         if draft.meal.isEmpty, let meal = result.meal, meal.applicable, meal.amount > 9000 {
-            draft.meal = String(Int(meal.amount)); filled = true
+            draft.meal = String(Int(meal.amount)); customMeal = true; filled = true
         }
         if draft.commute.isEmpty, let transport = result.transport, transport.applicable {
             draft.commute = String(Int(transport.amount)); filled = true
@@ -380,6 +400,15 @@ struct ProfileEditView: View {
             URLQueryItem(name: "labels", value: "institution-rules"),
         ]
         if let url = components.url { openURL(url) }
+    }
+
+    private func setCustomMeal(_ on: Bool) {
+        customMeal = on
+        if !on {
+            draft.meal = ""
+        } else if draft.meal.isEmpty, let meal = rates?.meal, meal.applicable, meal.amount > 9000 {
+            draft.meal = String(Int(meal.amount))
+        }
     }
 
     private func datePicker(_ title: String, _ value: Binding<Date>) -> some View {
@@ -440,6 +469,7 @@ struct ProfileEditView: View {
         draft.priorMonths = profile.priorServiceCreditedMonths.map(String.init) ?? ""
         draft.priorPartial = profile.priorServiceCreditHasPartialMonth ?? false
         draft.meal = profile.defaultMealAllowanceOverride.map { String(Int($0)) } ?? ""
+        customMeal = !draft.meal.isEmpty
         draft.region = profile.residenceRegion ?? ""
         draft.commute = profile.defaultCommuteCost.map { String(Int($0)) } ?? ""
         draft.live = profile.liveProgressEnabled ?? false
