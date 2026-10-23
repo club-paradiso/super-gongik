@@ -25,6 +25,7 @@ function profile(callUpDate: string, expectedDischargeDate: string) {
       expectedDischargeDate,
       serviceCategory: null,
       workplaceType: null,
+      institutionName: null,
       defaultCommuteCost: null,
       defaultMealAllowanceOverride: null,
       timezone: "Asia/Seoul",

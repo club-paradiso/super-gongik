@@ -190,9 +190,10 @@ private struct JourneyHero: View {
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
                     .accessibilityLabel(hero.headlineSpoken)
-                progressPill
                 if showsLive {
-                    LiveReadout(period: profile.period)
+                    LiveReadout(period: profile.period, dot: celebrates ? SGGlow.gold : SGGlow.emerald)
+                } else {
+                    progressPill
                 }
                 VStack(spacing: SGSpacing.xxxs) {
                     (Text("소집해제일 ") + Text(Formatters.dottedDateWithWeekday(profile.expectedDischargeDate))
@@ -270,8 +271,8 @@ private struct JourneyHero: View {
         }
     }
 
-    /// The percent on a dark pill. No "LIVE RECORD" caption: the live
-    /// readout below already says it.
+    /// Today's percent on a dark pill. With the per-second readout on,
+    /// `LiveReadout` replaces this pill, so the percent never shows twice.
     private var progressPill: some View {
         HStack(spacing: SGSpacing.xs) {
             SGPulseDot(celebrates ? SGGlow.gold : SGGlow.emerald)
@@ -538,31 +539,31 @@ private struct TrailPanel: View {
 /// (accuracy matters); only interpolation is off, as on the web.
 private struct LiveReadout: View {
     let period: ServicePeriod
+    let dot: Color
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
             let live = LiveServiceProgress.calculate(period, now: context.date)
             let percent = live.formattedPercentage()
             VStack(spacing: 2) {
-                // Whole part at full weight, the ticking decimals quieter, so
-                // the eye reads the number and only feels the movement.
-                HStack(alignment: .firstTextBaseline, spacing: 0) {
-                    ForEach(Array(Self.split(percent).enumerated()), id: \.offset) { index, part in
-                        Text(part)
-                            .font(SGTypography.heroMetric)
-                            .foregroundStyle(.sg(SGColor.heroAccent).opacity(index == 0 ? 1 : 0.62))
-                    }
+                // Pulse dot + ticking percent; the countdown sits under it.
+                // Full-strength digits on the same dark glass as the pill.
+                HStack(spacing: SGSpacing.xs) {
+                    SGPulseDot(dot)
+                    Text(percent)
+                        .font(SGTypography.heroMetric)
+                        .foregroundStyle(.sg(SGColor.heroAccent))
                 }
                 Text(live.formattedCountdown)
                     .font(SGTypography.heroDetail)
-                    .foregroundStyle(.sg(SGColor.heroForeground2))
+                    .foregroundStyle(.sg(SGColor.heroForeground))
             }
             .padding(.horizontal, SGSpacing.md)
             .padding(.vertical, SGSpacing.xs)
-            .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .background(.sg(SGColor.heroBackground).opacity(0.7), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.14))
+                    .strokeBorder(Color.white.opacity(0.2))
             }
             .monospacedDigit()
             .contentTransition(.identity)
@@ -570,13 +571,6 @@ private struct LiveReadout: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("실시간 진행률")
         .accessibilityValue(Text(LiveServiceProgress.calculate(period, now: .now).formattedPercentage()))
-    }
-
-    /// "51.927361 %" → ["51", ".927361 %"]; anything without a decimal point
-    /// stays whole.
-    private static func split(_ text: String) -> [String] {
-        guard let dot = text.firstIndex(of: ".") else { return [text] }
-        return [String(text[..<dot]), String(text[dot...])]
     }
 }
 

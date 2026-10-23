@@ -5651,7 +5651,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		return LEAVE_EVENT_TYPES.includes(type);
 	}
 	const serviceEventTypeSchema = _enum(SERVICE_EVENT_TYPES);
-	const dateOnlySchema$2 = string().refine(isDateOnly, "유효한 날짜가 아니에요.").transform((value) => value);
+	const dateOnlySchema$3 = string().refine(isDateOnly, "유효한 날짜가 아니에요.").transform((value) => value);
 	const CLOCK_PATTERN$1 = /^([01]\d|2[0-3]):([0-5]\d)$/;
 	const clockTimeSchema = string().regex(CLOCK_PATTERN$1, "HH:MM 형식의 시각이 필요해요.");
 	function clockToMinutes(value) {
@@ -5726,8 +5726,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	});
 	const serviceEventDraftShape = object({
 		eventType: serviceEventTypeSchema,
-		startDate: dateOnlySchema$2,
-		endDate: dateOnlySchema$2,
+		startDate: dateOnlySchema$3,
+		endDate: dateOnlySchema$3,
 		timing: eventTimingSchema,
 		title: string().trim().max(80).nullable(),
 		note: string().trim().max(500).nullable(),
@@ -5824,7 +5824,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	* a day can qualify for one but not the other (e.g. half-day leave).
 	*/
 	const attendanceDayOverrideSchema = object({
-		date: dateOnlySchema$2,
+		date: dateOnlySchema$3,
 		mealEligible: boolean(),
 		transportEligible: boolean()
 	});
@@ -5844,7 +5844,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	const attendanceMonthSchema = syncFieldsSchema.extend({
 		month: yearMonthSchema,
 		/** Scheduled weekdays that were not working days (공휴일, 기관 휴무 등). */
-		nonWorkingDates: array(dateOnlySchema$2),
+		nonWorkingDates: array(dateOnlySchema$3),
 		dayOverrides: array(attendanceDayOverrideSchema),
 		/**
 		* Legacy coarse flag. Existing backups may still contain only this signal.
@@ -5856,7 +5856,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		* Exact calendar dates whose base pay is not payable under 제41조⑥.
 		* Empty is meaningful only when nonPayableDatesConfirmed is true.
 		*/
-		nonPayableDates: array(dateOnlySchema$2).default([]),
+		nonPayableDates: array(dateOnlySchema$3).default([]),
 		nonPayableDatesConfirmed: boolean().default(false),
 		/**
 		* Explicit payer/accounting rule. null means unknown. Treasury truncation
@@ -6547,7 +6547,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		leaveType: literal("ANNUAL_LEAVE"),
 		kind: _enum(["GRANT_CONFIRMATION", "CORRECTION"]),
 		creditKey: string().min(1).nullable(),
-		effectiveDate: dateOnlySchema$2,
+		effectiveDate: dateOnlySchema$3,
 		amountHalfDays: number().int(),
 		amountMinutes: number().int(),
 		reason: string().trim().min(1).max(200)
@@ -6572,7 +6572,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		serviceProfileId: string().min(1),
 		importBatchId: string().min(1),
 		leaveType: serviceEventTypeSchema.nullable(),
-		asOfDate: dateOnlySchema$2.nullable(),
+		asOfDate: dateOnlySchema$3.nullable(),
 		grantedDays: number().nonnegative().nullable(),
 		grantedMinutes: number().int().nonnegative().nullable(),
 		usedDays: number().nonnegative().nullable(),
@@ -6601,7 +6601,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 //#endregion
 //#region ../domain/src/service/profile.ts
 	const STANDARD_SERVICE_MONTHS = 21;
-	const dateOnlySchema$1 = string().refine(isDateOnly, "유효한 날짜를 입력해 주세요.").transform((value) => value);
+	const dateOnlySchema$2 = string().refine(isDateOnly, "유효한 날짜를 입력해 주세요.").transform((value) => value);
 	const CLOCK_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
 	const workClockSchema = string().regex(CLOCK_PATTERN, "HH:MM 형식의 시각을 입력해 주세요.");
 	function clockMinutes(value) {
@@ -6634,10 +6634,16 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		ARTICLE_62_2_7_ALTERNATIVE_SERVICE: "제7호 대체역 편입 취소"
 	};
 	const serviceProfileInputSchema = object({
-		callUpDate: dateOnlySchema$1,
-		expectedDischargeDate: dateOnlySchema$1,
+		callUpDate: dateOnlySchema$2,
+		expectedDischargeDate: dateOnlySchema$2,
 		serviceCategory: string().trim().max(80).nullable().default(null),
 		workplaceType: string().trim().max(80).nullable().default(null),
+		/**
+		* 복무기관 이름 as the user typed it. Used only to look up cited
+		* institution rules (meal/transport suggestions); it never changes a
+		* calculation by itself and is not an identifier.
+		*/
+		institutionName: string().trim().max(80).nullable().default(null),
 		residenceRegion: string().trim().max(40).nullable().default(null),
 		defaultCommuteCost: number().nonnegative().nullable().default(null),
 		defaultMealAllowanceOverride: number().nonnegative().nullable().default(null),
@@ -11594,7 +11600,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		"LEAVE",
 		"COMPENSATION"
 	]);
-	const dateOnlySchema = string().refine(isDateOnly, "Rule dates must use a valid YYYY-MM-DD value.");
+	const dateOnlySchema$1 = string().refine(isDateOnly, "Rule dates must use a valid YYYY-MM-DD value.");
 	const ruleSourceSchema = object({
 		title: string().min(1),
 		authority: string().min(1),
@@ -11605,9 +11611,9 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		schemaVersion: string().min(1),
 		ruleId: string().min(1),
 		version: string().min(1),
-		effectiveFrom: dateOnlySchema,
-		effectiveUntil: dateOnlySchema.nullable(),
-		verifiedAt: dateOnlySchema,
+		effectiveFrom: dateOnlySchema$1,
+		effectiveUntil: dateOnlySchema$1.nullable(),
+		verifiedAt: dateOnlySchema$1,
 		status: ruleAutomationStatusSchema,
 		jurisdiction: literal("KR"),
 		sources: array(ruleSourceSchema).min(1)
@@ -11795,6 +11801,3519 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			},
 			assumptions: ["1일 교통비는 사용자가 입력한 금액이에요(병무청 기준: 시내버스 왕복 현금요금, 추가비용 시 교통카드 실비)."]
 		});
+	}
+
+//#endregion
+//#region ../rules/institutions/registry.json
+	var registry_default = {
+		schemaVersion: "1.0.0",
+		registryId: "kr.social-service.institution-rules",
+		retrievedFrom: "2026-10-22",
+		retrievedUntil: "2026-10-22",
+		sources: [
+			{
+				"id": "src-dge-school-2026",
+				"title": "2026학년도 공립학교 학교회계 예산편성 기본지침",
+				"publisher": "대구광역시교육청 (예산법무과)",
+				"sourceType": "BUDGET_GUIDELINE",
+				"url": "https://www.dge.go.kr/upload/main/na/bbs_1826/ntt_2172758/doc_f271v8e8c=0ev14=40v2b=a9v6c=a906v1025v721f_v3213.pdf",
+				"pageUrl": "https://www.dge.go.kr/main/na/ntt/selectNttInfo.do?nttSn=2172758&mi=6722",
+				"publishedDate": "2026-01-21",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "cfac857f4319f39ecd427119d4448ed9023e1178026b2b6bccf8a45e3278b1e3",
+					"bytes": 3213445,
+					"file": null
+				},
+				"extract": {
+					"file": "docs/sources/institutions/dge-school-2026/extract.txt",
+					"sha256": "c508c168e4a693303dc408e3f10f2b2f58faa5d6d45f69f7047256b73d9d05f1",
+					"pages": "103"
+				}
+			},
+			{
+				"id": "src-dje-std-2024",
+				"title": "(2024) 학교행정 업무처리 표준화 매뉴얼(교육공무직원 및 사회복무요원 관리)",
+				"publisher": "대전광역시교육청",
+				"sourceType": "INSTITUTION_GUIDELINE",
+				"url": "https://www.dje.go.kr/boardCnts/fileDown.do?m=030605&s=dje&fileSeq=7296a720bddfbf839e38b063296cfad5",
+				"pageUrl": "https://www.dje.go.kr/boardCnts/view.do?m=030605&s=dje&boardID=10138&boardSeq=3303297&lev=0&action=view&statusYN=W&page=1",
+				"publishedDate": "2024-12-26",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2024,
+				"original": {
+					"sha256": "39dca8e0d89f93562a2951e5afc4f8300f73f15135905352f7e959f6454d1fcc",
+					"bytes": 277100,
+					"file": "docs/sources/institutions/dje-std-2024/original.hwpx"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/dje-std-2024/extract.txt",
+					"sha256": "922f3e9b48e26129b0bd8082c2f432a632b7193a7ca17ab115abc8da28c99737",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-dongjak-2026-plan",
+				"title": "2026년도 사회복무요원 복무관리 계획 (결재문서본문)",
+				"publisher": "서울특별시 동작구 행정자치과",
+				"sourceType": "INSTITUTION_GUIDELINE",
+				"url": "https://opengov.seoul.go.kr/og/com/download.php?nid=35317830&dtype=basic&rid=F0000117110218&fid=",
+				"pageUrl": "https://opengov.seoul.go.kr/sanction/35317830",
+				"publishedDate": "2026-01-26",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "830661383c6ef5023626076e50eee1dc20bfa73b7716e07da1081d5497314e59",
+					"bytes": 92533,
+					"file": "docs/sources/institutions/dongjak-2026-plan/original.hwpx"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/dongjak-2026-plan/extract.txt",
+					"sha256": "cffc6beebf90c756965abe09e1c470a58b6b23825b2d8210209ab9d6c062ae19",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-gangdong-2025-08-pay",
+				"title": "2025년 8월 사회복무요원(보건복지분야) 보수 지급 (결재문서본문)",
+				"publisher": "서울특별시 강동구 복지정책과",
+				"sourceType": "PAYMENT_RECORD",
+				"url": "https://opengov.seoul.go.kr/og/com/download.php?nid=34276462&dtype=basic&rid=F0000114150214&fid=",
+				"pageUrl": "https://opengov.seoul.go.kr/sanction/34276462",
+				"publishedDate": "2025-09-05",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2025,
+				"original": {
+					"sha256": "f126df4dbba481931b7cf224c6899c2565e6152481dc00e835c0d658088d56fc",
+					"bytes": 46282,
+					"file": "docs/sources/institutions/gangdong-2025-08-pay/original.hwpx"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/gangdong-2025-08-pay/extract.txt",
+					"sha256": "e3f12571b614cbeb5b40b9e2ef77596787bc5c806f8add6f4a2b647dd7f52a05",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-gangnam-2022-plan",
+				"title": "2022년 사회복무요원 복무관리 계획 (결재문서본문)",
+				"publisher": "서울특별시 강남구 재난안전과",
+				"sourceType": "INSTITUTION_GUIDELINE",
+				"url": "https://opengov.seoul.go.kr/og/com/download.php?nid=25291344&dtype=basic&rid=F0000089346620&fid=",
+				"pageUrl": "https://opengov.seoul.go.kr/sanction/25291344",
+				"publishedDate": "2022-01-28",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2022,
+				"original": {
+					"sha256": "2cc1ce1753a57ccf49a763c09b32cf7fc0d1e769b02f6972abafe292f93708ba",
+					"bytes": 90642,
+					"file": "docs/sources/institutions/gangnam-2022-plan/original.hwpx"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/gangnam-2022-plan/extract.txt",
+					"sha256": "7e0451feea1789a326cf381a38d8ebd99e959d78a18f144b42b78f86f0e56ff4",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-geumcheon-2024-reserve",
+				"title": "(정책)보건복지분야 사회복무제도 지원 관련 예비비 사용 계획",
+				"publisher": "서울특별시 금천구 복지정책과",
+				"sourceType": "INSTITUTION_GUIDELINE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCT382A49537873502DD1EF692BC2507ECA, prdnDt=20241126155659, fileId=b44179ed3cf018c946a18efdc9106690; requires prior file-preparation step on the detail page)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCT382A49537873502DD1EF692BC2507ECA&prdnDt=20241126155659&nstSeCd=B",
+				"publishedDate": "2024-11-26",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2024,
+				"original": {
+					"sha256": "2e7d1d84d1ea050bea5a0447ef9d8e6ba44c366324155861caf90686ab4e4852",
+					"bytes": 444738,
+					"file": "docs/sources/institutions/geumcheon-2024-reserve/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/geumcheon-2024-reserve/extract.txt",
+					"sha256": "b17275e8cd6f27ff3b2b0f9babbfaba10836101047e32e5794b5a1c0993044be",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-goe-manual-2025",
+				"title": "경기도교육청 소속 사회복무요원 복무관리 매뉴얼 (2025. 6., 운영지원과)",
+				"publisher": "경기도교육청",
+				"sourceType": "INSTITUTION_GUIDELINE",
+				"url": "https://www.goe.go.kr/resource/goe/na/bbs_2675/2025/06/32f37514-4deb-40a6-a45d-3867a2d97209.pdf",
+				"pageUrl": "https://www.goe.go.kr/goe/na/ntt/selectNttInfo.do?nttSn=107496&mi=10961",
+				"publishedDate": "2025-06-30",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2025,
+				"original": {
+					"sha256": "5ff540474abf9bab06a6244cfc94c43899c339573a0b3fdabf9000fcf3f395c5",
+					"bytes": 1093275,
+					"file": null
+				},
+				"extract": {
+					"file": "docs/sources/institutions/goe-manual-2025/extract.txt",
+					"sha256": "3fcb99f420777f6b8094a85b032ffca365dace05816d5c1a0320748b68d44d70",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-goe-school-2026",
+				"title": "2026학년도 학교회계 예산편성 기본지침",
+				"publisher": "경기도교육청",
+				"sourceType": "BUDGET_GUIDELINE",
+				"url": "https://www.goe.go.kr/resource/goe/na/bbs_2675/2026/01/963f27ea-ce76-43e1-a1fc-046fa78c3a1d.pdf",
+				"pageUrl": "https://www.goe.go.kr/goe/na/ntt/selectNttInfo.do?nttSn=2337644&mi=10961",
+				"publishedDate": "2026-01-22",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "c5e5346beea3df2a406ba1eb6745d5e705c7d495c4b10e014972b2574033db51",
+					"bytes": 2470679,
+					"file": null
+				},
+				"extract": {
+					"file": "docs/sources/institutions/goe-school-2026/extract.txt",
+					"sha256": "d5a26fe9f16351d2e4d9d026641ee83f485aa95123e8f4edbfd9d662822a2dc3",
+					"pages": "198,202"
+				}
+			},
+			{
+				"id": "src-goheung-2026-budget",
+				"title": "사회복무요원 운영('26년 본예산)",
+				"publisher": "전라남도 고흥군 주민복지과",
+				"sourceType": "BUDGET_GUIDELINE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCT4B651B4104D0A070760E6ECA7395F494, fileId=4a3d6eed7bf63608b9f64afff08ba08c)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCT4B651B4104D0A070760E6ECA7395F494&prdnDt=20250910172124&nstSeCd=B",
+				"publishedDate": "2025-09-10",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "dcab53dd3227039ee6f5dbe2cb6a9bcc7d609134d16fa81f9b70ffab57c599a0",
+					"bytes": 80702,
+					"file": "docs/sources/institutions/goheung-2026-budget/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/goheung-2026-budget/extract.txt",
+					"sha256": "803c1e43f1b2bd8421a45e76cac41e800fc9f022efafb2fbfad3e6399a42a958",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-gumi-2025-meal-ocr",
+				"title": "사회복무요원 중식비 현실화 계획",
+				"publisher": "경상북도 구미시 안전재난과",
+				"sourceType": "INSTITUTION_GUIDELINE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCTCD86387158958BDCFD8C78FBAE159A9A, prdnDt=20250711175928, fileId=8ae0e35f835ca88da0a33aadbb45a9ff; requires prior file-preparation step on the detail page)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCTCD86387158958BDCFD8C78FBAE159A9A&prdnDt=20250711175928&nstSeCd=B",
+				"publishedDate": "2025-07-11",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2025,
+				"original": {
+					"sha256": "d19d6a9f9eaa26d32c8c326bdc0018481ccdd001e41ef3e48e37c0146682d919",
+					"bytes": 224566,
+					"file": "docs/sources/institutions/gumi-2025-meal-ocr/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/gumi-2025-meal-ocr/extract.txt",
+					"sha256": "d53f8bab5353ec5f7fc2c743568767cd4dc16a1ecfe5e2ed7d42662b4df1da01",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-gunsan-2026-01-pay",
+				"title": "2026년 1월분 사회복무요원 인건비 지급",
+				"publisher": "전북특별자치도 군산시 복지정책과",
+				"sourceType": "OFFICIAL_WEB_PAGE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCTEFEE775B340805059487AEDC121ACFAE, prdnDt=20260209134225, fileId=570116e416c14aef905c88ebbad57780; requires prior file-preparation step on the detail page)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCTEFEE775B340805059487AEDC121ACFAE&prdnDt=20260209134225&nstSeCd=B",
+				"publishedDate": "2026-02-09",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "871e6d4bd4787af9349700bec87933ea257826a68900799ba0f9cddaffc4d7cf",
+					"bytes": 128343,
+					"file": "docs/sources/institutions/gunsan-2026-01-pay/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/gunsan-2026-01-pay/extract.txt",
+					"sha256": "fe62eb44f0493e7d4c72018bd14f9f62583f63c694ce7aef68d9452a70a5fdf2",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-gwangju-seogu-2024-supp3",
+				"title": "보건복지분야 사회복무요원 인건비 제3회 추경예산 증액 계획(안)",
+				"publisher": "광주광역시 서구 복지정책과",
+				"sourceType": "BUDGET_GUIDELINE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCT477F82CEAFB710A2BB64DBCD301B5A76, prdnDt=20241016175804, fileId=6f7718f7d3e1508ea3f6e49714546874; requires prior file-preparation step on the detail page)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCT477F82CEAFB710A2BB64DBCD301B5A76&prdnDt=20241016175804&nstSeCd=B",
+				"publishedDate": "2024-10-16",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2024,
+				"original": {
+					"sha256": "2b49e101939fc313c5e3c8f4d256c9594883c92f3624ba674083457c9a5ab9b1",
+					"bytes": 213286,
+					"file": "docs/sources/institutions/gwangju-seogu-2024-supp3/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/gwangju-seogu-2024-supp3/extract.txt",
+					"sha256": "0a4f8e6b1a7d7f9bd3944f44b60dcc4b07d99e50d9c444eed038b159fc80d199",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-gwangmyeong-2024-supp2",
+				"title": "2024년 제2회 추가경정예산 반영 계획(안)-사회복무제도 지원 사업 [포털 PDF 변환본]",
+				"publisher": "경기도 광명시 복지정책과",
+				"sourceType": "BUDGET_GUIDELINE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCTCA05B8D54F5F7C516CA37297595405E6, prdnDt=20240425131543, fileId=200eb41ffd5a1f52523352898d0d8250; requires prior file-preparation step on the detail page)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCTCA05B8D54F5F7C516CA37297595405E6&prdnDt=20240425131543&nstSeCd=B",
+				"publishedDate": "2024-04-25",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2024,
+				"original": {
+					"sha256": "8e30db782797eec0fc4bd8c76c563b10d8abe44c8c61632cf2bf821e485ed76c",
+					"bytes": 92273,
+					"file": "docs/sources/institutions/gwangmyeong-2024-supp2/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/gwangmyeong-2024-supp2/extract.txt",
+					"sha256": "a231bc23237c61a1c8209fb9d36528ffcfe78d7196cc6fe7bc344cdf7495b0e0",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-gyeryong-2025-budget",
+				"title": "사회복무제도 지원 2025년도 본예산 증액 검토 보고",
+				"publisher": "충청남도 계룡시 사회복지과",
+				"sourceType": "BUDGET_GUIDELINE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCTC7A4C4DC90B96BA9CF2D711CBF0CEC6B, prdnDt=20240919172453, fileId=dbeab4f60cc76522c991972ed741c239; requires prior file-preparation step on the detail page)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCTC7A4C4DC90B96BA9CF2D711CBF0CEC6B&prdnDt=20240919172453&nstSeCd=B",
+				"publishedDate": "2024-09-19",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2025,
+				"original": {
+					"sha256": "685440b9ea9279ea13b943b972f4e8160eca2c7f6695a89828442723d1d5d383",
+					"bytes": 196431,
+					"file": "docs/sources/institutions/gyeryong-2025-budget/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/gyeryong-2025-budget/extract.txt",
+					"sha256": "1c0b043a88d98ae1c6577813c46050025ce8c26158d1faa9153c749764a7428a",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-humanrights",
+				"title": "국가인권위원회 사회복무요원 복무관리지침 (국가인권위원회예규 제104호)",
+				"publisher": "국가인권위원회",
+				"sourceType": "ADMINISTRATIVE_RULE",
+				"url": "https://www.law.go.kr/LSW/admRulLsInfoR.do?admRulSeq=2100000182873&admRulId=2085930&joTpYn=Y&languageType=KO",
+				"pageUrl": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000182873",
+				"publishedDate": "2019-10-11",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2019,
+				"original": {
+					"sha256": "ac0f9fad1a69158e3bedc394e168aa646878fc3b7bd0660e768be378b434c7e7",
+					"bytes": 72585,
+					"file": "docs/sources/institutions/humanrights/original.html"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/humanrights/extract.txt",
+					"sha256": "74e97b0d893e0fe225f796497a335384372f1712ed1c7c24ba984493509cd34e",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-ice-special-2026",
+				"title": "2026년도 인천광역시 교육비특별회계 예산편성 기본지침 (인천교육-2025-0311)",
+				"publisher": "인천광역시교육청",
+				"sourceType": "BUDGET_GUIDELINE",
+				"url": "https://hbm.ice.go.kr/upload/people/na/bbs_1656/2025/11/eb415349116a398231afa18b853d3308.pdf",
+				"pageUrl": null,
+				"publishedDate": null,
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "025c4530269edfd349b13f68512c769e6ae8f065f6b7e755355642f2822ec99d",
+					"bytes": 3301620,
+					"file": null
+				},
+				"extract": {
+					"file": "docs/sources/institutions/ice-special-2026/extract.txt",
+					"sha256": "07adf0d732eb9b8dedfcb4bf23ae933b3d293676d2ddab61e404f84704afb4fa",
+					"pages": "40,44"
+				}
+			},
+			{
+				"id": "src-jbe-2026-school",
+				"title": "2026학년도 학교회계 예산편성 및 운영지침(변경, 학교회계규칙 변경사항 반영)",
+				"publisher": "전북특별자치도교육청",
+				"sourceType": "BUDGET_GUIDELINE",
+				"url": "https://www.jbe.go.kr/office/board/download.jbe?boardId=BBS_0000191&menuCd=DOM_000000707003000000&paging=ok&startPage=1&categoryCode1=H&dataSid=1083684&command=update&fileSid=706157",
+				"pageUrl": "https://www.jbe.go.kr/board/view.jbe?boardId=BBS_0000191&menuCd=DOM_000000707003000000&categoryCode1=H&dataSid=1083684",
+				"publishedDate": "2026-05-10",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "f1cd4fcf58712089fc9961c95c166245f83aa836992f528599260f76583c574c",
+					"bytes": 3222956,
+					"file": null
+				},
+				"extract": {
+					"file": "docs/sources/institutions/jbe-2026-school/extract.txt",
+					"sha256": "34916050e9f0744c28abbe0b3ee43e7d91c56dbc3c86fa1a77032e63043a2af4",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-jeonju-2026-01-pay",
+				"title": "2026년 1월분 사회복무요원 급여 지급(급여 및 교통비)",
+				"publisher": "전북특별자치도 전주시 생활복지과",
+				"sourceType": "OFFICIAL_WEB_PAGE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCT3022876C723BABBF8D7689C685EEA589, prdnDt=20260205181844, fileId=d24133de894b2f875dc700ec2e0fb510; requires prior file-preparation step on the detail page)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCT3022876C723BABBF8D7689C685EEA589&prdnDt=20260205181844&nstSeCd=B",
+				"publishedDate": "2026-02-05",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "02a6cb370ea9258c8486968334216c1ebc1eeda7ed5cb780d95c9e64464bff50",
+					"bytes": 101246,
+					"file": "docs/sources/institutions/jeonju-2026-01-pay/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/jeonju-2026-01-pay/extract.txt",
+					"sha256": "95aefba25a7d4f1d4e63ec66bdad7f93f79fb6ed381beb1587f298ba0f6c383f",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-jeonju-2026-09-pay",
+				"title": "2026년 9월분 사회복무요원 급여 지급(급여 및 교통비)",
+				"publisher": "전북특별자치도 전주시 생활복지과",
+				"sourceType": "OFFICIAL_WEB_PAGE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCTDCBE047A2E31BDFD7C4D02E6F754370E, prdnDt=20261006165942, fileId=f96405b725a659c95e709db2ecaccba1; requires prior file-preparation step on the detail page)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCTDCBE047A2E31BDFD7C4D02E6F754370E&prdnDt=20261006165942&nstSeCd=B",
+				"publishedDate": "2026-10-06",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "de9a2b26047559fbf8427e3c77ea0b2dfdbb61bdf02f7a552ca7e503fd6044b0",
+					"bytes": 87755,
+					"file": "docs/sources/institutions/jeonju-2026-09-pay/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/jeonju-2026-09-pay/extract.txt",
+					"sha256": "696b533899acc8b32c14ad6a9a1402e40842144c1ef45945075db1889d03ac4f",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-jeonnam-2026-budget-standard",
+				"title": "2026년 사회복무요원 인건비 예산편성 기준(안) 알림 (전라남도 사회복지과-8200, 고흥군 문서 첨부)",
+				"publisher": "전라남도 사회복지과",
+				"sourceType": "BUDGET_GUIDELINE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCT4B651B4104D0A070760E6ECA7395F494, fileId=3b4fbd84dd8405a2f314628d03766373)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCT4B651B4104D0A070760E6ECA7395F494&prdnDt=20250910172124&nstSeCd=B",
+				"publishedDate": "2025-05-02",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "e84ba679d562f7a182b37c28f5442b21b3aa4f89e73be54bcf94fa0143b43ffe",
+					"bytes": 300323,
+					"file": "docs/sources/institutions/jeonnam-2026-budget-standard/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/jeonnam-2026-budget-standard/extract.txt",
+					"sha256": "6bbb446b0ae8afac55082b29bbfcb932b4e48e2180dca3014530625f094446d0",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-jne-2026-school",
+				"title": "2026학년도 학교회계 예산편성 기본지침",
+				"publisher": "전라남도교육청",
+				"sourceType": "BUDGET_GUIDELINE",
+				"url": "https://www.jne.go.kr/upload/openfinance/na/bbs_442/ntt_5160588/doc_3142ed88-2940-4a17-a0c6-6b7f329da3dd1764a2270b41773.pdf",
+				"pageUrl": "https://www.jne.go.kr/openfinance/na/ntt/selectNttInfo.do?mi=904&bbsId=442&nttSn=5160588",
+				"publishedDate": "2025-11-27",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "4ca38e26e16c47265d736637b5f4a29f2f75a2861995596a27caf0ac44b22e54",
+					"bytes": 6851488,
+					"file": null
+				},
+				"extract": {
+					"file": "docs/sources/institutions/jne-2026-school/extract.txt",
+					"sha256": "09552e6c2ca7d00dd2b3d2ce9702c05237e65eabe3de3675c5e9c273c616f64a",
+					"pages": "90,144"
+				}
+			},
+			{
+				"id": "src-juvenile",
+				"title": "소년원 및 소년분류심사원 사회복무요원 복무관리지침 (법무부훈령 제1566호)",
+				"publisher": "법무부",
+				"sourceType": "ADMINISTRATIVE_RULE",
+				"url": "https://www.law.go.kr/LSW/admRulLsInfoR.do?admRulSeq=2100000253738&admRulId=35573&joTpYn=Y&languageType=KO",
+				"pageUrl": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000253738",
+				"publishedDate": "2025-01-21",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2025,
+				"original": {
+					"sha256": "cf7cf47ea759ceb45c2c32802fdd39c061d9610663e582731b913ff64ac4a8ba",
+					"bytes": 130743,
+					"file": "docs/sources/institutions/juvenile/original.html"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/juvenile/extract.txt",
+					"sha256": "417fb18d000722221b908303aacfcdf099bb684b7a93446cb29d166c7ec48396",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-mma-bokmu",
+				"title": "사회복무요원 복무관리 규정 (병무청훈령 제2206호)",
+				"publisher": "병무청",
+				"sourceType": "ADMINISTRATIVE_RULE",
+				"url": "https://www.law.go.kr/LSW/admRulLsInfoR.do?admRulSeq=2100000284594&admRulId=36528&joTpYn=Y&languageType=KO",
+				"pageUrl": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000284594",
+				"publishedDate": "2026-04-23",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "3078d3e3b977969d211cfdab3060a58dcc9dbefbfb76be13ae834967b77e5c2c",
+					"bytes": 453219,
+					"file": "docs/sources/institutions/mma-bokmu/original.html"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/mma-bokmu/extract.txt",
+					"sha256": "e4b0a6166a964bee8ba8d84a0afff87a40f6680c1d6e646db98f153cd3f2e873",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-mma-edu",
+				"title": "사회복무요원의 복무기본교육 등 운영규정 (병무청훈령 제2120호)",
+				"publisher": "병무청",
+				"sourceType": "ADMINISTRATIVE_RULE",
+				"url": "https://www.law.go.kr/LSW/admRulLsInfoR.do?admRulSeq=2100000253564&joTpYn=Y&languageType=KO",
+				"pageUrl": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000253564",
+				"publishedDate": "2025-01-16",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2025,
+				"original": {
+					"sha256": "9a61f031b1dfe45fdcccf6425e3c4026fdd711b81cb834391cf404b4988fdb5d",
+					"bytes": 162596,
+					"file": "docs/sources/institutions/mma-edu/original.html"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/mma-edu/extract.txt",
+					"sha256": "e3855fa780e060b655d83e52eea3353f80189cb89a24a7fe18542112d7c20be4",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-mma-pay-page",
+				"title": "병역이행안내 > 사회복무요원 > 보수 및 권익보장",
+				"publisher": "병무청",
+				"sourceType": "OFFICIAL_WEB_PAGE",
+				"url": "https://www.mma.go.kr/contents.do?mc=mma0000910&mc1=usr0000179&num=7",
+				"pageUrl": null,
+				"publishedDate": null,
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "db9053bf17556858430fccd59db25b91bcc9df6064bfa4f3c41746e9fb72d3cb",
+					"bytes": 188295,
+					"file": "docs/sources/institutions/mma-pay-page/original.html"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/mma-pay-page/extract.txt",
+					"sha256": "1b106b11190219b57773610709daeac02752d5fd149945cedbe58b21ad96b7f1",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-mokpo-2024-03-pay",
+				"title": "2024년 3월 사회복지시설 사회복무요원 보수 지급",
+				"publisher": "전라남도 목포시 노인장애인과",
+				"sourceType": "OFFICIAL_WEB_PAGE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCT256A0A76E68C8810955067DB7B5048ED, prdnDt=20240404175410, fileId=e07d69a039b680a0f19029795a90d0da; requires prior file-preparation step on the detail page)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCT256A0A76E68C8810955067DB7B5048ED&prdnDt=20240404175410&nstSeCd=B",
+				"publishedDate": "2024-04-04",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2024,
+				"original": {
+					"sha256": "88bec13f241910dd669cdd659fc9f01c6c4088208cd53b15ac05af494043daec",
+					"bytes": 80625,
+					"file": "docs/sources/institutions/mokpo-2024-03-pay/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/mokpo-2024-03-pay/extract.txt",
+					"sha256": "161c960368b1191da6e1a71a8e5e5fe74257cb676b269b5321ae21dd38bfbba0",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-nec",
+				"title": "선거관리위원회 사회복무요원 복무관리규정 (중앙선거관리위원회훈령 제547호)",
+				"publisher": "중앙선거관리위원회",
+				"sourceType": "ADMINISTRATIVE_RULE",
+				"url": "https://www.law.go.kr/LSW/admRulLsInfoR.do?admRulSeq=1106011000&admRulId=110601&joTpYn=Y&languageType=KO",
+				"pageUrl": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=1106011000",
+				"publishedDate": "2024-11-29",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2025,
+				"original": {
+					"sha256": "ab20188fb86f74c717867650b70845b5bb70bd672833971c38e7a14aa5ce08b8",
+					"bytes": 39246,
+					"file": "docs/sources/institutions/nec/original.html"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/nec/extract.txt",
+					"sha256": "26553da0709c230e6e6256f5a35a5a1f64d18fde95b840a1a1732b44493558f8",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-osan-2025-supp4",
+				"title": "사회복무요원 인건비 추가편성 검토보고(2025년 4차 추경) [붙임, 포털 PDF 변환본]",
+				"publisher": "경기도 오산시 안전정책과",
+				"sourceType": "OFFICIAL_WEB_PAGE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCT100DDE93A1050842CD53BA7AAA70117C, prdnDt=20251021151534, fileId=e13b1990df15938ef01c47836ae5f6d3; requires prior file-preparation step on the detail page)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCT100DDE93A1050842CD53BA7AAA70117C&prdnDt=20251021151534&nstSeCd=B",
+				"publishedDate": "2025-10-21",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2025,
+				"original": {
+					"sha256": "d198b558b1f0f165ec33530471588b59922b4f176e20ead73d3158a3256177c3",
+					"bytes": 216576,
+					"file": "docs/sources/institutions/osan-2025-supp4/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/osan-2025-supp4/extract.txt",
+					"sha256": "066314fb0305c927c20f6a4a27379b1cee2a9db62f4b9878530522dff390da45",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-pen-school-2026",
+				"title": "2026학년도 공립 유·초·중·고·특수학교 학교회계 예산편성 기본지침 (부산교육 2025-128)",
+				"publisher": "부산광역시교육청 (copy hosted on school.busanedu.net, the Busan education school-homepage platform)",
+				"sourceType": "BUDGET_GUIDELINE",
+				"url": "https://school.busanedu.net/upload/bbs/files/2025/elesch/juyang-e/ntt/1021862/11/1da38265c09a0484297eab373ec233e9.pdf",
+				"pageUrl": null,
+				"publishedDate": null,
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "8ddb06d305b745471506dbe774ade330d03ac22215931bd78ae7b3a6531bf68b",
+					"bytes": 2142244,
+					"file": null
+				},
+				"extract": {
+					"file": "docs/sources/institutions/pen-school-2026/extract.txt",
+					"sha256": "7749f75b53456df6630b9621fe2190282e300a9fbab99a52fa40155b05f8e3dc",
+					"pages": "153"
+				}
+			},
+			{
+				"id": "src-pen-special-2026",
+				"title": "2026년도 부산광역시 교육비특별회계 예산편성 지침",
+				"publisher": "부산광역시교육청 (예산기획과)",
+				"sourceType": "BUDGET_GUIDELINE",
+				"url": "https://www.pen.go.kr/upload/main/na/bbs_2444/ntt_1151115/doc_72a1v46e2=92v3f=40vd6=84va0=ed70ve6f7vaa01_v3523.pdf",
+				"pageUrl": "https://www.pen.go.kr/main/na/ntt/selectNttInfo.do?nttSn=1151115&mi=30547",
+				"publishedDate": "2025-10-29",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "648e46f1c8653b58c081c310f8d4d05cbac0fefc5431186330c6620a44ef70cc",
+					"bytes": 4090755,
+					"file": null
+				},
+				"extract": {
+					"file": "docs/sources/institutions/pen-special-2026/extract.txt",
+					"sha256": "ea3cbe1f091f5ff094106c3677608924a5c85c5895818e86ec129440bb603aee",
+					"pages": "53"
+				}
+			},
+			{
+				"id": "src-pohang-2024-meal",
+				"title": "2024년 아동복지시설 사회복무요원 중식비 지급",
+				"publisher": "경상북도 포항시 교육청소년과",
+				"sourceType": "OFFICIAL_WEB_PAGE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCT68FEB778F749A2B31BF7B38CF4BE8BFE, prdnDt=20240105084318, fileId=52d493cdfe23ee552f4525357e56d9b7; requires prior file-preparation step on the detail page)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCT68FEB778F749A2B31BF7B38CF4BE8BFE&prdnDt=20240105084318&nstSeCd=B",
+				"publishedDate": "2024-01-05",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2024,
+				"original": {
+					"sha256": "b043dcef0afb9426a99cfe61b45faa81dd7be224a4519c8e1a1dc69a31bff310",
+					"bytes": 89322,
+					"file": "docs/sources/institutions/pohang-2024-meal/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/pohang-2024-meal/extract.txt",
+					"sha256": "5f413a5cb0459b43eacf345fced43d6d28ccb822633d8a4dcda04a4352d1dfda",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-pps",
+				"title": "조달청 사회복무요원 복무관리규정 (조달청훈령 제1690호)",
+				"publisher": "조달청",
+				"sourceType": "ADMINISTRATIVE_RULE",
+				"url": "https://www.law.go.kr/LSW/admRulLsInfoR.do?admRulSeq=2100000016626&admRulId=28586&joTpYn=Y&languageType=KO",
+				"pageUrl": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000016626",
+				"publishedDate": "2015-03-23",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2015,
+				"original": {
+					"sha256": "09e817ac42d35206ba58e1af9de1caa437af790f146cf54b9fec7fc45c2243d5",
+					"bytes": 124921,
+					"file": "docs/sources/institutions/pps/original.html"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/pps/extract.txt",
+					"sha256": "64bd8f9eaf63a45da9bba99b70ccfe6a38b9e0ee83ed1278348bebc335bbe2bb",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-railpolice",
+				"title": "철도특별사법경찰대 사회복무요원 복무관리 규정 (국토교통부훈령 제1937호)",
+				"publisher": "국토교통부",
+				"sourceType": "ADMINISTRATIVE_RULE",
+				"url": "https://www.law.go.kr/LSW/admRulLsInfoR.do?admRulSeq=2100000276086&admRulId=44083&joTpYn=Y&languageType=KO",
+				"pageUrl": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000276086",
+				"publishedDate": "2026-04-03",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "badbc78de5b41a41b78474d3636a4cbe66222776481e49334ecaddbb9f1de4bf",
+					"bytes": 36492,
+					"file": "docs/sources/institutions/railpolice/original.html"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/railpolice/extract.txt",
+					"sha256": "0a4714ccdd1de0f3ab889c1f50c6d78655e44995f34d50f06886f70f106069aa",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-seongbuk-2025-plan",
+				"title": "2025년도 사회복무요원 운영 계획 (결재문서본문)",
+				"publisher": "서울특별시 성북구 도시안전과",
+				"sourceType": "INSTITUTION_GUIDELINE",
+				"url": "https://opengov.seoul.go.kr/og/com/download.php?nid=32764746&dtype=basic&rid=F0000109895908&fid=",
+				"pageUrl": "https://opengov.seoul.go.kr/sanction/32764746",
+				"publishedDate": "2025-02-04",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2025,
+				"original": {
+					"sha256": "02502095367d9131c0b440d3ed89bd00006a118aa4421af8e2168e9eb190777b",
+					"bytes": 51732,
+					"file": "docs/sources/institutions/seongbuk-2025-plan/original.hwpx"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/seongbuk-2025-plan/extract.txt",
+					"sha256": "508b423a7dde2cfc323f2543518c6ee91772766c0e4eed61b55c638504ed0f14",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-seongdong-2026-plan",
+				"title": "2026년 성동구 사회복무요원 복무관리계획 (결재문서본문)",
+				"publisher": "서울특별시 성동구 안전관리과",
+				"sourceType": "INSTITUTION_GUIDELINE",
+				"url": "https://opengov.seoul.go.kr/og/com/download.php?nid=35317416&dtype=basic&rid=F0000117109048&fid=",
+				"pageUrl": "https://opengov.seoul.go.kr/sanction/35317416",
+				"publishedDate": "2026-01-26",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "9054c0ec1e09feb89be3d755015d3a8d577287821aa50c93c6400567f2007170",
+					"bytes": 90353,
+					"file": "docs/sources/institutions/seongdong-2026-plan/original.hwpx"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/seongdong-2026-plan/extract.txt",
+					"sha256": "365dae12eabf66836f486d104f5945fb35a6fef831e4d338c3f9299e81e9a041",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-seongju-2024-addcost",
+				"title": "복지분야사회복무요원 증가에 따른 인건비 추가 소요",
+				"publisher": "경상북도 성주군 주민복지과",
+				"sourceType": "OFFICIAL_WEB_PAGE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCT8403EA4F8B02C401E00B3F57FDE21CF7, prdnDt=20240603204711, fileId=f0289172c5fd02bdf9494183a2a619ea; requires prior file-preparation step on the detail page)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCT8403EA4F8B02C401E00B3F57FDE21CF7&prdnDt=20240603204711&nstSeCd=B",
+				"publishedDate": "2024-06-03",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2024,
+				"original": {
+					"sha256": "4626a53a077b2d1b1d19679dc8453826b73e7aac4a5c212a2a7c2222d3d8c075",
+					"bytes": 296844,
+					"file": "docs/sources/institutions/seongju-2024-addcost/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/seongju-2024-addcost/extract.txt",
+					"sha256": "edad221ae3d22faab3fc6b82ce04499c24c25c1660c230d61c47cca897c2c83b",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-seoul-fire-guideline-2026",
+				"title": "2026년 소방보조인력 양성 및 운영 예산 집행 지침 (소방행정과-2287, 결재문서 본문; 배포용 첨부는 비공개)",
+				"publisher": "서울특별시 소방재난본부 소방행정과",
+				"sourceType": "INSTITUTION_GUIDELINE",
+				"url": "https://opengov.seoul.go.kr/og/com/download.php?nid=35300488&dtype=basic&rid=F0000117068027&fid=",
+				"pageUrl": "https://opengov.seoul.go.kr/sanction/35300488",
+				"publishedDate": "2026-01-23",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "a589c77e9b77fd33a14c7d9dfbf6e9d4e5105d3dfed8fe7ffebc702385a4f7d2",
+					"bytes": 99142,
+					"file": "docs/sources/institutions/seoul-fire-guideline-2026/original.hwpx"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/seoul-fire-guideline-2026/extract.txt",
+					"sha256": "5c145e61ad21018bc66d36864033f70e16279261143e7742da7c21fa8868e8e6",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-seoul-hangang-pay-202609",
+				"title": "2026. 9월분 사회복무요원보상금 지급(일반회계 10.15. 지급)",
+				"publisher": "서울특별시 미래한강본부 운영부 운영총괄과",
+				"sourceType": "PAYMENT_RECORD",
+				"url": "https://opengov.seoul.go.kr/og/com/download.php?nid=37152854&dtype=basic&rid=F0000122271881&fid=",
+				"pageUrl": "https://opengov.seoul.go.kr/sanction/37152854",
+				"publishedDate": "2026-10-13",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2026,
+				"original": {
+					"sha256": "00b138107e74189e93efc48195e0e4fea2ccf6e55f03d3eb696a0711683c410b",
+					"bytes": 65465,
+					"file": "docs/sources/institutions/seoul-hangang-pay-202609/original.hwpx"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/seoul-hangang-pay-202609/extract.txt",
+					"sha256": "034c5ad797784d6e1792f9d527779b7f4cc3b34000aca9d3bab474e575eaeb56",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-seoulmetro-faq",
+				"title": "자주 묻는 질문: 지하철 사회복무요원은 어떠한 일을 하나요?",
+				"publisher": "서울교통공사 (비상계획처)",
+				"sourceType": "OFFICIAL_QNA",
+				"url": "http://www.seoulmetro.co.kr/kr/board.do?menuIdx=375&bbsIdx=2206706",
+				"pageUrl": "http://www.seoulmetro.co.kr/kr/board.do?menuIdx=375&bbsIdx=2206706",
+				"publishedDate": null,
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2024,
+				"original": {
+					"sha256": "2ede0b90cd96d6a7ccdb1dea3f5e51042a430ec6b8d69994dcf137157e951277",
+					"bytes": 153980,
+					"file": "docs/sources/institutions/seoulmetro-faq/original.html"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/seoulmetro-faq/extract.txt",
+					"sha256": "7372d6af0ea3817ef1282ec57b71222b00bf669692a22b38ce49ede853b6655d",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-sisul-rule",
+				"title": "사회복무요원복무관리규정 (전부개정 2016.7.12 규정 제804호)",
+				"publisher": "서울특별시시설관리공단",
+				"sourceType": "INSTITUTION_GUIDELINE",
+				"url": "https://www.sisul.or.kr/open_content/file/gujung_16.pdf",
+				"pageUrl": null,
+				"publishedDate": "2016-07-12",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2016,
+				"original": {
+					"sha256": "713dfe38dfe0b8d81c1e0d0e7277bedc38d4fa4b8a4e0ff3bb27e3e9aeb7674a",
+					"bytes": 235460,
+					"file": "docs/sources/institutions/sisul-rule/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/sisul-rule/extract.txt",
+					"sha256": "2fce1871fcf9c5879d71c1697b0e0f0d625cd41331eaefbcfbad8de679865fd3",
+					"pages": "all"
+				}
+			},
+			{
+				"id": "src-yeosu-2025-plan",
+				"title": "2025년 사회복무요원보상금 집행계획",
+				"publisher": "전라남도 여수시 사회복지과",
+				"sourceType": "INSTITUTION_GUIDELINE",
+				"url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down (POST prdnNstRgstNo=DCT485377A3C5DBC8B6E7A30D1B71009675, prdnDt=20241230175121, fileId=9e793fb53b27a42f52b96fb8b6d5916c; requires prior file-preparation step on the detail page)",
+				"pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCT485377A3C5DBC8B6E7A30D1B71009675&prdnDt=20241230175121&nstSeCd=B",
+				"publishedDate": "2024-12-30",
+				"retrievedAt": "2026-10-22",
+				"documentYear": 2025,
+				"original": {
+					"sha256": "e7797fbce159a924663c12e240eaeb4a73b518c8d32dd862fd87b4d7f1f6faae",
+					"bytes": 193032,
+					"file": "docs/sources/institutions/yeosu-2025-plan/original.pdf"
+				},
+				"extract": {
+					"file": "docs/sources/institutions/yeosu-2025-plan/extract.txt",
+					"sha256": "9a73cb50ae579ebf94010968ea6ad59cae6df15168f9cd209fd741f2676dcc3b",
+					"pages": "all"
+				}
+			}
+		],
+		institutions: [
+			{
+				"id": "local-gyeonggi-gwangmyeong",
+				"name": "경기도 광명시",
+				"type": "LOCAL_GOV",
+				"region": "경기",
+				"aliases": ["광명시"],
+				"scopeNote": "보건복지분야 사회복무요원 월평균 165명 (복지정책과), 2024년",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 3e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-gwangmyeong-2024-supp2",
+							"locator": "p.2 급여 지원 기준(2024년)",
+							"quote": "구  분 이병 일병 상병 병장 교통비\n1인당 \n단가 640,000 800,000 1,000,000 1,250,000 3,000"
+						}]
+					}],
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "매달 10일 급여 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-gwangmyeong-2024-supp2",
+							"locator": "p.1 1 사업 개요 사업내용",
+							"quote": "사업내용 : 매달 10일, 사회복무요원 급여 지급"
+						}]
+					}],
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			},
+			{
+				"id": "local-gyeonggi-osan",
+				"name": "경기도 오산시",
+				"type": "LOCAL_GOV",
+				"region": "경기",
+				"aliases": ["오산시"],
+				"scopeNote": "사회복지시설 지원 사회복무요원 인건비 계산 (안전정책과 추경 검토보고 붙임2)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 7e3,
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2025,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-osan-2025-supp4",
+							"locator": "p.4 붙임2 2025년 사회복무요원 인건비 계산 (중식비 F열)",
+							"quote": "교통비\n(E)\n중식비\n(F)\n25년소집\n인원수\n(G)\n피복비\n(H)\n12 75 1,171,430 22 3,000 7,000 75 309,840"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 3e3,
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2025,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-osan-2025-supp4",
+							"locator": "p.4 붙임2 2025년 사회복무요원 인건비 계산 (교통비 E열)",
+							"quote": "교통비\n(E)\n중식비\n(F)\n25년소집\n인원수\n(G)\n피복비\n(H)\n12 75 1,171,430 22 3,000 7,000 75 309,840"
+						}]
+					}],
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": [{
+						"status": "KNOWN",
+						"value": "교통비 예산 = 근무월수 × 인원 × 평균출근일수(22일) × 1일 교통비",
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2025,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-osan-2025-supp4",
+							"locator": "p.4 붙임2",
+							"quote": "  - 교통비: A x B x D x E = 금59,400,000원"
+						}]
+					}],
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			},
+			{
+				"id": "edu-gyeonggi",
+				"name": "경기도교육청",
+				"type": "EDUCATION_OFFICE",
+				"region": "경기",
+				"aliases": ["경기교육청"],
+				"scopeNote": "학교회계 지침 applies to 공립학교 (학교회계); 복무관리 매뉴얼 applies to 경기도교육청 소속 사회복무요원 근무지; 교육비특별회계 지침 applies to 본청·교육지원청·직속기관 budgets / 경기도교육청 소속 사회복무요원(학교 등). 금액은 학교회계 예산편성 기본지침을 따른다고 명시함. 2025년 6월 매뉴얼.",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 9e3,
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-goe-school-2026",
+							"locator": "p.202 (printed p.198) 사회복무요원 지급경비 편성기준",
+							"quote": "사회복무요원 지급경비\n    - 경비성격: 병역법 제26조~제33조에 의하여 사회복무요원에게 지급하는 경비\n    - 편성기준 \n구  분 단위 기준 단가 비  고2026년 2025년 증감\n 중식비\n 교통비(왕복기준)\n식\n1일\n9,000원\n3,400원\n좌동\n3,000원"
+						}]
+					}, {
+						"status": "KNOWN",
+						"value": 9e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.19 (printed p.17) 6 보수 지급 > 세부내용",
+							"quote": "중식비: 1일 9,000원 (학교회계 예산편성 기본지침 기준)"
+						}, {
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.19 (문서쪽 -17-) 6 보수 등 지급 > 세부내용",
+							"quote": "중식비: 1일 9,000원 (학교회계 예산편성 기본지침 기준)"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 3400,
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-goe-school-2026",
+							"locator": "p.202 (printed p.198) 사회복무요원 지급경비 편성기준 (2025: 3,000원, +400원)",
+							"quote": "중식비\n 교통비(왕복기준)\n식\n1일\n9,000원\n3,400원\n좌동\n3,000원\n-\n400원"
+						}]
+					}, {
+						"status": "KNOWN",
+						"value": 3e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.19 (printed p.17) 6 보수 지급 > 세부내용 (2025 manual follows that year's 학교회계 지침; the 2026 지침 raised the unit price to 3,400원)",
+							"quote": "교통비: 1일 3,000원 (학교회계 예산편성 기본지침 기준)"
+						}, {
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.19 (문서쪽 -17-) 6 보수 등 지급 > 세부내용",
+							"quote": "교통비: 1일 3,000원 (학교회계 예산편성 기본지침 기준)"
+						}]
+					}],
+					"TRANSPORT_METHOD": [
+						{
+							"status": "KNOWN",
+							"value": "왕복 기준 단가; 편성기준단가를 초과하는 경우 기관장(부서장)이 확인하여 실비 계상 가능",
+							"valueKind": "BUDGET_UNIT_PRICE",
+							"effectiveYear": 2026,
+							"confidence": "MEDIUM",
+							"evidence": [{
+								"sourceId": "src-goe-school-2026",
+								"locator": "p.202 사회복무요원 지급경비 비고",
+								"quote": "※ 교통비: 편성기준단가를 초과하는 경\n우는 기관장(부 서 장)이  확 인 하 여  실 비 \n계 상  가능"
+							}]
+						},
+						{
+							"status": "KNOWN",
+							"value": "1일 정액(학교회계 지침 기준)이 기본; 환승·지하철 장거리 이동 등 추가비용은 교통카드 금액 기준 실비 지급; 도보 출퇴근자도 지급",
+							"valueKind": "PAYMENT_RULE",
+							"effectiveYear": 2025,
+							"confidence": "HIGH",
+							"evidence": [{
+								"sourceId": "src-goe-manual-2025",
+								"locator": "p.19 6 보수 지급 > 세부내용",
+								"quote": "환승, 지하철 장거리 이동 등 추가비용 발생 시 교통카드 금액 기준 실비 지급\n    ▸ 도보 등으로 출·퇴근하는 경우에도 교통비 지급"
+							}]
+						},
+						{
+							"status": "KNOWN",
+							"value": "1일 3,000원 정액; 환승·지하철 장거리 등 추가비용은 교통카드 금액 기준 실비; 도보 출퇴근도 지급",
+							"valueKind": "PAYMENT_RULE",
+							"effectiveYear": 2025,
+							"confidence": "HIGH",
+							"evidence": [{
+								"sourceId": "src-goe-manual-2025",
+								"locator": "p.19 (문서쪽 -17-) 6 보수 등 지급 > 세부내용",
+								"quote": "환승, 지하철 장거리 이동 등 추가비용 발생 시 교통카드 금액 기준 실비 지급"
+							}]
+						}
+					],
+					"MEAL_ON_LEAVE": [{
+						"status": "KNOWN",
+						"value": "NOT_PAID",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.20 (printed p.18) 6 보수 지급 > 유의사항",
+							"quote": "휴가 및 교육 등 비근무일에는 교통비 및 중식비 미지급(정상근무일만 지급)"
+						}, {
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.20 (문서쪽 -18-) 《유의사항》 / 보수 지급 방법 정리표",
+							"quote": "휴가 및 교육 등 비근무일에는 교통비 및 중식비 미지급(정상근무일만 지급)"
+						}]
+					}],
+					"TRANSPORT_ON_LEAVE": [{
+						"status": "KNOWN",
+						"value": "NOT_PAID",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.20 (printed p.18) 6 보수 지급 > 유의사항",
+							"quote": "휴가 및 교육 등 비근무일에는 교통비 및 중식비 미지급(정상근무일만 지급)"
+						}, {
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.20 (문서쪽 -18-) 《유의사항》 / 보수 지급 방법 정리표",
+							"quote": "휴가 및 교육 등 비근무일에는 교통비 및 중식비 미지급(정상근무일만 지급)"
+						}]
+					}],
+					"MEAL_ON_ABSENCE": [{
+						"status": "KNOWN",
+						"value": "NOT_PAID",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.20 ♧정리♧ 보수 지급 방법 table (columns: 봉급, 교통비, 식비); also '교육기간, 연가·병가(30일 이내), 특별휴가 등 O X X'",
+							"quote": "교육기간, 연가·병가(30일 이내), 특별휴가 등 O X X\n연가·병가 초과 결근, 무단결근 X X X"
+						}, {
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.20 (문서쪽 -18-) 《유의사항》 / 보수 지급 방법 정리표 (표: 봉급/교통비/식비 모두 X)",
+							"quote": "연가·병가 초과 결근, 무단결근 X X X"
+						}]
+					}],
+					"TRANSPORT_ON_ABSENCE": [{
+						"status": "KNOWN",
+						"value": "NOT_PAID",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.20 ♧정리♧ 보수 지급 방법 table (columns: 봉급, 교통비, 식비)",
+							"quote": "연가·병가 초과 결근, 무단결근 X X X"
+						}, {
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.20 (문서쪽 -18-) 《유의사항》 / 보수 지급 방법 정리표 (표: 봉급/교통비/식비 모두 X)",
+							"quote": "연가·병가 초과 결근, 무단결근 X X X"
+						}]
+					}],
+					"MEAL_ON_PARTIAL_DAY": [{
+						"status": "KNOWN",
+						"value": "중식비는 근무시간에 중식시간이 포함될 경우에만 지급; 지각·조퇴·외출 시 중식시간이 포함되지 않으면 미지급(교통비는 지급)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.19 세부내용 + p.20 정리표 '지각·조퇴·외출' row (table layout is flattened in the extracted text)",
+							"quote": "지각·조퇴·외출\n연가, 병가 범위 내 O\nO\n중식시간 \n미포함 시 \n미지급"
+						}]
+					}, {
+						"status": "KNOWN",
+						"value": "근무시간에 중식시간이 포함될 경우에만 중식비 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.19 (문서쪽 -17-) 6 보수 등 지급 > 세부내용",
+							"quote": "중식비는 근무시간에 중식시간이 포함될 경우 지급"
+						}]
+					}],
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "보수지급 시기: 복무기관(근무지)에서 정한 날",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.20 6 보수 지급 > 세부내용",
+							"quote": "보수지급 시기: 복무기관(근무지)에서 정한 날"
+						}]
+					}, {
+						"status": "KNOWN",
+						"value": "복무기관(근무지)에서 정한 날",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.20 (문서쪽 -18-) 《유의사항》 / 보수 지급 방법 정리표",
+							"quote": "보수지급 시기: 복무기관(근무지)에서 정한 날"
+						}]
+					}],
+					"WORK_DAYS_RULE": [{
+						"status": "KNOWN",
+						"value": "격일제 야간 근무자는 근무일수의 2일분 교통비·중식비 지급; 군사교육소집 기간 봉급은 소급 지급하되 교통비·식비는 미지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.20 유의사항",
+							"quote": "격일제로 야간 근무하는 사람은 근무일수의 2일분의 교통비 및 중식비 지급"
+						}]
+					}, {
+						"status": "KNOWN",
+						"value": "격일제 야간 근무자는 근무일수의 2일분 교통비·중식비 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-goe-manual-2025",
+							"locator": "p.20 (문서쪽 -18-) 《유의사항》 / 보수 지급 방법 정리표",
+							"quote": "격일제로 야간 근무하는 사람은 근무일수의 2일분의 교통비 및 중식비 지급"
+						}]
+					}],
+					"OTHER": [
+						{
+							"status": "KNOWN",
+							"value": "Q&A: 교통비·중식비는 학교회계 예산편성 기본지침에 따라 각 3,000원, 9,000원 지급; 보수 일할계산은 해당 월 일수(28~31)로 나누어 출근일수만 계산",
+							"valueKind": "PAYMENT_RULE",
+							"effectiveYear": 2025,
+							"confidence": "HIGH",
+							"evidence": [{
+								"sourceId": "src-goe-manual-2025",
+								"locator": "p.67 (printed p.65) Q5. 사회복무요원 보수 등 지급 기준 및 일할계산 방법은?",
+								"quote": "교통비·중식비는 학교회계 예산편성 기본지침에 따라 \n각 3,000원, 9,000원을 지급합니다. 사회복무요원 보수 일할계산 방법은 \n보수를 해당 월의 일수로 나누고 출근일수만 계산하면 됩니다."
+							}]
+						},
+						{
+							"status": "KNOWN",
+							"value": "도보 등으로 출·퇴근하는 경우에도 교통비 지급",
+							"valueKind": "PAYMENT_RULE",
+							"effectiveYear": 2025,
+							"confidence": "HIGH",
+							"evidence": [{
+								"sourceId": "src-goe-manual-2025",
+								"locator": "p.19 (문서쪽 -17-) 6 보수 등 지급 > 세부내용",
+								"quote": "도보 등으로 출·퇴근하는 경우에도 교통비 지급"
+							}]
+						},
+						{
+							"status": "KNOWN",
+							"value": "Q&A: 교통비·중식비는 학교회계 예산편성 기본지침에 따라 각 3,000원, 9,000원",
+							"valueKind": "PAYMENT_RULE",
+							"effectiveYear": 2025,
+							"confidence": "HIGH",
+							"evidence": [{
+								"sourceId": "src-goe-manual-2025",
+								"locator": "p.67 부록 사회복무요원 복무관리 Q&A Q5",
+								"quote": "교통비·중식비는 학교회계 예산편성 기본지침에 따라"
+							}]
+						}
+					]
+				}
+			},
+			{
+				"id": "local-gyeongbuk-gumi",
+				"name": "경상북도 구미시",
+				"type": "LOCAL_GOV",
+				"region": "경북",
+				"aliases": ["구미시", "구미시청"],
+				"scopeNote": "구미시청(읍면동·부서) 및 사회복지시설 사회복무요원 299명; 2025.7월부터 중식비 8,000원, 2026년 보수표상 9,000원 / 구미시 전체 사회복무요원 299명(시청·읍면동·사회복지시설); 구미시 자체 값만 기록 (붙임 타 지자체 현황 제외)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 8e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-gumi-2025-meal-ocr",
+							"locator": "p.2 1 개요 / 지원내용 (2025. 7월~12월)",
+							"quote": "중식비1,000원 인상(7,000원→8,000원)"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "중식비는 예산 범위 내 지급; 급여 담당 부서별로 지급, 예산 부족 시 안전재난과 예산 재배정",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-gumi-2025-meal-ocr",
+							"locator": "p.2 지원내용 / 2 행정사항",
+							"quote": "예산 범위 내 지급"
+						}]
+					}]
+				}
+			},
+			{
+				"id": "local-gyeongbuk-seongju",
+				"name": "경상북도 성주군",
+				"type": "LOCAL_GOV",
+				"region": "경북",
+				"aliases": ["성주군"],
+				"scopeNote": "SECONDARY: 값은 구미시 '사회복무요원 중식비 현실화 계획'(2025.7.) 붙임 '타 지자체 중식비 현황'에 기재된 것으로, 해당 기관 자체 문서가 아님 / 복지분야(사회복지시설) 사회복무요원 35명, 2024년 자체 문서 (local 그룹의 구미시 조사표 2차자료와 별개)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 7e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-seongju-2024-addcost",
+							"locator": "p.2 Ⅰ 현황 지급단가(2024년 기준)",
+							"quote": "<tr><td>식비</td><td colspan=\"4\">1식7,000원</td></tr>"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 1e4,
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2024,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-seongju-2024-addcost",
+							"locator": "p.3 Ⅲ 추가예산 요구내역",
+							"quote": "교통비: 10,000원×10명×22일×12월= 26,400,000원"
+						}]
+					}],
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "대중교통(시내버스) 왕복 이용요금(현금 기준)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-seongju-2024-addcost",
+							"locator": "p.2 Ⅰ 현황 지급단가(2024년 기준)",
+							"quote": "<tr><td>교통비</td><td colspan=\"4\">대중교통(시내버스)왕복이용요금(현금기준)</td></tr>"
+						}]
+					}],
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			},
+			{
+				"id": "local-gyeongbuk-pohang",
+				"name": "경상북도 포항시",
+				"type": "LOCAL_GOV",
+				"region": "경북",
+				"aliases": ["포항시"],
+				"scopeNote": "SECONDARY: 값은 구미시 '사회복무요원 중식비 현실화 계획'(2025.7.) 붙임 '타 지자체 중식비 현황'에 기재된 것으로, 해당 기관 자체 문서가 아님 / 아동복지시설(지역아동센터) 사회복무요원 75명 중식비 (교육청소년과, 2024 자체 문서)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 8e3,
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2024,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-pohang-2024-meal",
+							"locator": "p.1 본문 2. 산출근거",
+							"quote": "2. 산출근거 : 8,000원 × 75명 × 21일 × 12월 = 151,200,000원"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			},
+			{
+				"id": "local-gwangju-seogu",
+				"name": "광주광역시 서구",
+				"type": "LOCAL_GOV",
+				"region": "광주",
+				"aliases": ["광주 서구"],
+				"scopeNote": "보건복지분야 사회복무요원 160명 (2024년 자료)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 7e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-gwangju-seogu-2024-supp3",
+							"locator": "p.2 지급항목",
+							"quote": "지급항목 : 봉급(복무기간에 따른 차등지급(2), 교통비(2,800원), 중식비(7,000원)"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 2800,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-gwangju-seogu-2024-supp3",
+							"locator": "p.2 지급항목",
+							"quote": "지급항목 : 봉급(복무기간에 따른 차등지급(2), 교통비(2,800원), 중식비(7,000원)"
+						}]
+					}],
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "복무한 달의 익월 10일 지급 (예: 1월 인건비 → 2.10. 지급), 12월은 예외",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-gwangju-seogu-2024-supp3",
+							"locator": "p.2 1.사회복무요원 인건비 개요 지급방식",
+							"quote": "지급방식: 해당 복무를 수행한 달의 의월10일 지급(241월인건비→2.10.지급 ※12월 예외)"
+						}]
+					}],
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			},
+			{
+				"id": "central-nhrck",
+				"name": "국가인권위원회",
+				"type": "CENTRAL_AGENCY",
+				"region": null,
+				"aliases": ["인권위"],
+				"scopeNote": "국가인권위원회(본부·인권사무소·출장소) 복무 사회복무요원. 2019년 개정본이 현행",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "중식비·교통비 실비 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2019,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-humanrights",
+							"locator": "제23조(보수지급) 제4항",
+							"quote": "운영지원과장은 제1항에 따른 보수 외에 중식비와 교통비를 실비로 지급하여야 한다."
+						}]
+					}],
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "매월 마지막 근무일에 지급 요청, 익월 5근무일 이내 일괄 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2019,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-humanrights",
+							"locator": "제23조(보수지급) 제1항",
+							"quote": "담당공무원은 매월 마지막 근무일에 해당 사회복무요원의 월보수 등의 지급을 운영지원과장에게 요청하고, 운영지원과장은 사회복무요원의 보수를 익월 5근무일 이내에 일괄 지급한다."
+						}]
+					}],
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "소집·소집해제 달 월보수는 월보수 기준액을 30등분한 금액 × 근무일수",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2019,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-humanrights",
+							"locator": "제23조(보수지급) 제2항",
+							"quote": "그 달 월보수 기준액을 30등분한 금액에 근무일수를 곱하여 산정 지급한다."
+						}]
+					}]
+				}
+			},
+			{
+				"id": "central-molit-railway-police",
+				"name": "국토교통부 철도특별사법경찰대",
+				"type": "CENTRAL_AGENCY",
+				"region": null,
+				"aliases": ["철도경찰대", "철도특별사법경찰대"],
+				"scopeNote": "철도특별사법경찰대 복무 사회복무요원",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "중식비·교통비 예산의 범위 내 지급; 야간근무자는 근무일수 2일 인정",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-railpolice",
+							"locator": "제8조(보수지급) 제3항",
+							"quote": "복무기관의 장은 제1항에 따른 보수 외에 중식비와 교통비를 예산의 범위 내에서 지급하여야 한다. 다만, 제7조제1항제2호 에 따라 야간근무를 하는 사람은 근무일수를 2일로 인정하여 지급하여야 한다."
+						}]
+					}],
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "그 기관의 월 보수지급일 또는 복무기관에서 정한 날",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-railpolice",
+							"locator": "제8조(보수지급) 제1항",
+							"quote": "그 기관의 월 보수지급일 또는 복무기관에서 정한 날에 지급하여야 한다."
+						}]
+					}],
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "시간외(초과·야간) 근무 시 급식 제공",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-railpolice",
+							"locator": "제7조 제4항",
+							"quote": "초과근무 또는 별도의 야간근무를 하는 사람에게는 급식을 제공하여야 하며"
+						}]
+					}]
+				}
+			},
+			{
+				"id": "edu-daegu",
+				"name": "대구광역시교육청",
+				"type": "EDUCATION_OFFICE",
+				"region": "대구",
+				"aliases": ["대구교육청"],
+				"scopeNote": "2026학년도 공립학교 학교회계 예산편성 기본지침; no 중식비/교통비 unit price found",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "업무추진비 현장 근무자 격려금품: 상근하는 사회복무요원은 지급 가능",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-dge-school-2026",
+							"locator": "p.103 업무추진비 > 라. 현장 근무자 격려금품",
+							"quote": "☞ 상근하는 사회복무요원은 지급 가능"
+						}]
+					}]
+				}
+			},
+			{
+				"id": "edu-daejeon",
+				"name": "대전광역시교육청",
+				"type": "EDUCATION_OFFICE",
+				"region": "대전",
+				"aliases": ["대전교육청"],
+				"scopeNote": "학교행정 업무처리 표준화 매뉴얼 (2024): 학교 소속 사회복무요원 관리; 2024 figures, no 2025/2026 Daejeon document found",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 7e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-dje-std-2024",
+							"locator": "Contents/section6.xml 사회복무요원 > 가. 보수지급 (7,000원 is a minimum; 복무기관 may pay more within budget)",
+							"quote": "‣ 1일 중식비:국가공무원 매식비 단가 7,000원(최소기준)\n  • 복무 기관별 예산범위 내에서 추가 지급 가능"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "대중교통(시내버스) 왕복이용요금(현금기준); 지하철 이용 가능 지역은 지하철·시내버스 중 낮은 금액으로 기준액 산정, 장거리·환승 추가비용은 실비; 도보 출퇴근자도 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-dje-std-2024",
+							"locator": "Contents/section6.xml 사회복무요원 > 가. 보수지급",
+							"quote": "‣ 1일 교통비: 대중교통(시내버스) 왕복이용요금(현금기준)\n  • 지하철 이용가능지역의 경우 지하철과 시내버스 중 낮은 금액으로 기준액을 산정하고 지하철 장거리 이동, 환승(지하철, 시내버스, 마을버스) 등 추가비용 발생 시 실비 지급\n  • 도보 등으로 출·퇴근하는 경우에도 대중교통 이용요금 기준 교통비를 지급"
+						}]
+					}],
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "복무중단일·복무이탈일·통산 연가일수 초과 결근일수·통산 30일 초과 병가일수의 보수는 미지급 (공무상 병가는 전액 지급) — this covers 보수 only; 중식비/교통비 on absence days is not stated",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-dje-std-2024",
+							"locator": "Contents/section6.xml 가. 보수지급 > 보수계산",
+							"quote": "사회복무요원의 복무중단일(분할복무 포함), 복무 이탈 일과 통산 연가일수를 초과한 결근일수 및 통산 30일을 초과하는 병가 일수에 대한 보수는 지급하지 아니한다."
+						}]
+					}]
+				}
+			},
+			{
+				"id": "central-moj-juvenile",
+				"name": "법무부 (소년원 및 소년분류심사원)",
+				"type": "CENTRAL_AGENCY",
+				"region": null,
+				"aliases": [
+					"법무부 소년보호기관",
+					"소년분류심사원",
+					"소년원"
+				],
+				"scopeNote": "법무부 소속 소년원·소년분류심사원 복무 사회복무요원",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "실비 (실제 근무일 기준)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-juvenile",
+							"locator": "제39조(보수지급) 제2항",
+							"quote": "실제 근무일에 대한 교통비와 중식비를"
+						}]
+					}],
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "그 기관의 월 보수 지급기일 또는 복무기관에서 정한 기일",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-juvenile",
+							"locator": "제39조(보수지급) 제1항",
+							"quote": "그 기관의 월 보수 지급기일 또는 복무기관에서 정한 기일에 지급하여야 하며"
+						}]
+					}],
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "주간 근무자: 실제 근무일에 대한 교통비·중식비 실비; 격일제 야간 근무자: 실제 근무일 교통비 + 근무일수 2일분 식비",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-juvenile",
+							"locator": "제39조(보수지급) 제2항",
+							"quote": "주간 근무자에게는 실제 근무일에 대한 교통비와 중식비를, 격일제 야간 근무자에게는 실제 근무일에 대한 교통비와 근무일수 2일분의 식비를 실비로 지급한다."
+						}]
+					}, {
+						"status": "KNOWN",
+						"value": "결근일수 및 30일 이내 병가일수 보수는 보수일액의 2/3 감액(공상 병가 전액); 복무이탈·30일 초과 병가 미지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-juvenile",
+							"locator": "제39조(보수지급) 제4항",
+							"quote": "사회복무요원의 결근일수 및 30일 이내의 병가일수에 대한 보수는 보수일액의 2/3 를 감하여 지급하되"
+						}]
+					}]
+				}
+			},
+			{
+				"id": "central-mma",
+				"name": "병무청 (전국 공통)",
+				"type": "CENTRAL_AGENCY",
+				"region": null,
+				"aliases": ["MMA", "병무청"],
+				"scopeNote": "병무청 훈령·안내: 모든 복무기관에 적용되는 공통 기준 (개별 복무기관 규정이 이를 구체화)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "실비 지급; 도보 등으로 출·퇴근해도 대중교통 이용요금 기준 교통비 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-mma-bokmu",
+							"locator": "제41조(보수지급) 제4항",
+							"quote": "복무기관의 장은 제1항에 따른 보수 외에 중식비와 교통비를 실비로 지급하여야 하며, 도보 등으로 출ㆍ퇴근하는 경우에도 대중교통 이용요금 기준 교통비를 지급한다."
+						}]
+					}],
+					"MEAL_ON_LEAVE": [{
+						"status": "KNOWN",
+						"value": "NOT_PAID",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-mma-pay-page",
+							"locator": "보수 및 권익보장 > 교통비,급식비",
+							"quote": "교통비,급식비 실제 근무일에 대해 실비 지급 휴가, 결근 등 비근무일 미지급"
+						}]
+					}],
+					"TRANSPORT_ON_LEAVE": [{
+						"status": "KNOWN",
+						"value": "NOT_PAID",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-mma-pay-page",
+							"locator": "보수 및 권익보장 > 교통비,급식비",
+							"quote": "교통비,급식비 실제 근무일에 대해 실비 지급 휴가, 결근 등 비근무일 미지급"
+						}]
+					}],
+					"MEAL_ON_ABSENCE": [{
+						"status": "KNOWN",
+						"value": "NOT_PAID",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-mma-pay-page",
+							"locator": "보수 및 권익보장 > 교통비,급식비",
+							"quote": "교통비,급식비 실제 근무일에 대해 실비 지급 휴가, 결근 등 비근무일 미지급"
+						}]
+					}],
+					"TRANSPORT_ON_ABSENCE": [{
+						"status": "KNOWN",
+						"value": "NOT_PAID",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-mma-pay-page",
+							"locator": "보수 및 권익보장 > 교통비,급식비",
+							"quote": "교통비,급식비 실제 근무일에 대해 실비 지급 휴가, 결근 등 비근무일 미지급"
+						}]
+					}],
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "그 기관의 월 보수지급일 또는 복무기관에서 정한 날",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-mma-bokmu",
+							"locator": "제41조(보수지급) 제1항",
+							"quote": "그 기관의 월 보수지급일 또는 복무기관에서 정한 날에 사회복무요원에게 보수를 지급하여야 한다."
+						}]
+					}, {
+						"status": "KNOWN",
+						"value": "교육여비: 교육수료일부터 5일 이내 교육생 계좌 입금 (지방병무청장)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-mma-edu",
+							"locator": "제41조(여비 지급) 제5항",
+							"quote": "교육여비를 산정한 때에는 교육수료일부터 5일 이내 교육생의 은행계좌에 입금하여야 한다."
+						}]
+					}],
+					"WORK_DAYS_RULE": [{
+						"status": "KNOWN",
+						"value": "토요일·공휴일 근무 시 다음 정상근무일(또는 지정한 다른 정상근무일) 휴무 가능",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-mma-bokmu",
+							"locator": "제18조(복무형태 및 근무시간) 제1항제5호",
+							"quote": "복무기관의 장은 토요일 또는 공휴일(관공서의 공휴일에 관한 규정에 따른 공휴일, 이하 \"공휴일\"이라 한다)에 근무한 사람에게는 그 다음의 정상근무일을 휴무하게 할 수 있다."
+						}]
+					}],
+					"OTHER": [
+						{
+							"status": "KNOWN",
+							"value": "격일제 야간근무자는 교통비·급식비 근무일수 2일분 지급",
+							"valueKind": "PAYMENT_RULE",
+							"effectiveYear": 2026,
+							"confidence": "MEDIUM",
+							"evidence": [{
+								"sourceId": "src-mma-pay-page",
+								"locator": "보수 및 권익보장 > 교통비,급식비",
+								"quote": "격일제 야간근무자는 근무일수 2일분 지급"
+							}]
+						},
+						{
+							"status": "KNOWN",
+							"value": "시간외(초과·야간) 근무 시 급식 제공 의무",
+							"valueKind": "PAYMENT_RULE",
+							"effectiveYear": 2026,
+							"confidence": "HIGH",
+							"evidence": [{
+								"sourceId": "src-mma-bokmu",
+								"locator": "제18조 제4항",
+								"quote": "초과근무 또는 별도의 야간근무를 하는 사람에게는 급식을 제공하여야 하며"
+							}]
+						},
+						{
+							"status": "KNOWN",
+							"value": "사회복무연수센터 교육 기간 식비는 교육생에게 지급하지 않음(식당사업자 일괄지급); 이러닝과정은 급식비 등 여비 예산 범위에서 지급 가능",
+							"valueKind": "PAYMENT_RULE",
+							"effectiveYear": 2025,
+							"confidence": "HIGH",
+							"evidence": [{
+								"sourceId": "src-mma-edu",
+								"locator": "제41조(여비 지급) 제2항",
+								"quote": "연수센터에서 교육받는 교육생의 식비는 연수센터장이 식수인원만큼 식당사업자에게 일괄 지급하며 교육생에게는 지급하지 않는다. 다만, 교육을 제17조 에 따른 이러닝과정으로 운영하는 경우에는 교육생에게 급식비 등 필요한 여비를 예산의 범위에서 지급할 수 있다."
+							}]
+						}
+					]
+				}
+			},
+			{
+				"id": "edu-busan",
+				"name": "부산광역시교육청",
+				"type": "EDUCATION_OFFICE",
+				"region": "부산",
+				"aliases": ["부산교육청"],
+				"scopeNote": "교육비특별회계 예산편성 지침 (본청·교육지원청·직속기관) and 공립학교 학교회계 예산편성 기본지침",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 9e3,
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-pen-special-2026",
+							"locator": "p.53 예산편성 단가 > 사회복무요원 보수 (2026: 9,000 / 2025: 7,000; 월 198,000원 22일 기준)",
+							"quote": "중식비 식 9,000 7,000 월 198,000원 (22일 기준)"
+						}, {
+							"sourceId": "src-pen-school-2026",
+							"locator": "p.153 제5장 예산편성 단위 단가표 > 보상금 > 사회복무요원 보수 (2026: 9,000 / 2025: 7,000)",
+							"quote": "∙ 중식비 식 9,000 7,000"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "1일(왕복) 시내버스 왕복이용요금(현금기준); 월 74,800원(22일 기준)",
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-pen-special-2026",
+							"locator": "p.53 예산편성 단가 > 사회복무요원 보수",
+							"quote": "교통비 1일(왕복) 시내버스 왕복이용요금(현금기준) 시내버스 왕복이용요금(현금기준) 월 74,800원(22일 기준)"
+						}]
+					}, {
+						"status": "KNOWN",
+						"value": "1일(왕복) 시내버스 왕복이용요금(현금기준); 현 부산 시내버스 요금 왕복(1,700원×2회) 적용",
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-pen-school-2026",
+							"locator": "p.153 제5장 예산편성 단위 단가표 > 보상금 비고",
+							"quote": "※ 교통비: 현 부산 시내버스 요금 왕복(1,700원×2회) 적용"
+						}]
+					}],
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			},
+			{
+				"id": "public-seoul-metro",
+				"name": "서울교통공사",
+				"type": "PUBLIC_INSTITUTION",
+				"region": "서울",
+				"aliases": ["Seoul Metro", "서울지하철"],
+				"scopeNote": "서울교통공사 역사 근무 사회복무요원 (기관 공식 FAQ, 급여 기준연도 2024 표기)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 7e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-seoulmetro-faq",
+							"locator": "자주 묻는 질문 > 급여, 중식비, 교통비, 피복 등 후생복지는?",
+							"quote": "중식비 7,000원, 교통비(출퇴근시 대중교통이용요금)를 근무 일수에 따라 매월 지급하고 있습니다."
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "출퇴근 시 대중교통 이용요금, 근무 일수에 따라 매월 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-seoulmetro-faq",
+							"locator": "자주 묻는 질문 > 급여, 중식비, 교통비, 피복 등 후생복지는?",
+							"quote": "교통비(출퇴근시 대중교통이용요금)를 근무 일수에 따라 매월 지급하고 있습니다."
+						}]
+					}],
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": [{
+						"status": "KNOWN",
+						"value": "4조2교대; 토·일·공휴일은 평일처럼 근무하고 주중 대체휴무 지정",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-seoulmetro-faq",
+							"locator": "자주 묻는 질문 > 복무형태 및 근무시간은?",
+							"quote": "토·일요일 및 공휴일은 평일처럼 근무하되 주중에 대체휴무를 지정하여 휴무토록 하고 있습니다."
+						}]
+					}],
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			},
+			{
+				"id": "metro-seoul",
+				"name": "서울특별시",
+				"type": "METRO_GOV",
+				"region": "서울",
+				"aliases": ["서울시", "서울시 복지정책과 사회복무요원 중식비 지원"],
+				"scopeNote": "서울시가 25개 자치구 보건복지분야 사회복무요원 중식비에 교부하는 시비보조금의 재원분담 기준. 단가는 공개본에서 마스킹됨 / 서울특별시 본청·사업소(소방재난본부, 미래한강본부 등) 결재문서(정보소통광장 공개분). 금액이 기재된 첨부(지급조서, 배포용 지침)는 비공개·마스킹되어 단가 미확인. 각 사실의 적용 범위는 value에 명시.",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "미래한강본부 사례: 2026년 9월분 사회복무요원보상금(일반회계)을 10.15.에 지급 (익월 지급, 본부 단위 사례이며 시 전체 규칙 아님)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seoul-hangang-pay-202609",
+							"locator": "Contents/section0.xml 결재문서 제목",
+							"quote": "2026. 9월분 사회복무요원보상금 지급(일반회계 10.15. 지급)"
+						}]
+					}],
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "소방재난본부 지침(인건비=보수): 허가 결근일 및 통산 30일 이내 병가일은 전액지급, 복무이탈 일수 및 30일 초과 병가일은 미지급 (중식비·교통비가 아닌 월 보수에 관한 규정)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seoul-fire-guideline-2026",
+							"locator": "Contents/section2.xml Ⅲ 국비 1. 인건비",
+							"quote": "허가 결근일 및 통산 30일 이내 병가일은 \"전액지급”, 복무이탈 일수 및 30일 초과 병가일은 \"미지급”"
+						}]
+					}, {
+						"status": "KNOWN",
+						"value": "소방재난본부: 출장자에게 여비를 실비로 지급 (복무관리규정 제41조제3항 인용)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seoul-fire-guideline-2026",
+							"locator": "Contents/section2.xml Ⅳ 시비 3. 출장여비",
+							"quote": "복무관리규정 제41조(보수지급) 제③항에 따라 출장자에게는 여비를 실비로 지급하여야 한다."
+						}]
+					}]
+				}
+			},
+			{
+				"id": "local-seoul-gangnam",
+				"name": "서울특별시 강남구",
+				"type": "LOCAL_GOV",
+				"region": "서울",
+				"aliases": ["강남구", "강남구청"],
+				"scopeNote": "강남구 소속 사회복무요원 (2022년 계획, 오래된 자료)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "사회복무요원 봉급 및 수당 매월 10일 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2022,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-gangnam-2022-plan",
+							"locator": "추진 일정 > 매 월",
+							"quote": "❍ 사회복무요원 봉급 및 수당 지급 (매월 10일)"
+						}]
+					}],
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			},
+			{
+				"id": "local-seoul-gangdong",
+				"name": "서울특별시 강동구",
+				"type": "LOCAL_GOV",
+				"region": "서울",
+				"aliases": ["강동구", "강동구청"],
+				"scopeNote": "강동구 보건복지분야 사회복무요원(구청/동주민센터, 구립·시립 사회복지시설) 2025년 8월분 지급 결재",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 7e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-gangdong-2025-08-pay",
+							"locator": "6. 지급기준 나.",
+							"quote": "나. 중식비: 실제 출근일수 × 7,000원"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 3e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-gangdong-2025-08-pay",
+							"locator": "6. 지급기준 다.",
+							"quote": "다. 교통비: 실제 출근일수 × 3,000원"
+						}]
+					}],
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "8월분을 2025. 9. 10.(수) 개인별 계좌 입금 (익월 10일)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-gangdong-2025-08-pay",
+							"locator": "8. 지급일자",
+							"quote": "8. 지급일자: 2025. 9. 10.(수)"
+						}]
+					}],
+					"WORK_DAYS_RULE": [{
+						"status": "KNOWN",
+						"value": "중식비·교통비는 실제 출근일수 기준으로 산정",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-gangdong-2025-08-pay",
+							"locator": "6. 지급기준",
+							"quote": "중식비: 실제 출근일수 × 7,000원"
+						}]
+					}],
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			},
+			{
+				"id": "local-seoul-geumcheon",
+				"name": "서울특별시 금천구",
+				"type": "LOCAL_GOV",
+				"region": "서울",
+				"aliases": ["금천구"],
+				"scopeNote": "보건복지분야 사회복무요원 212명 (복지정책과), 2024년",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "매월 10일 (공휴일인 경우 전일), 전월분을 익월 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-geumcheon-2024-reserve",
+							"locator": "p.4 Ⅳ 세부추진계획 지원방법",
+							"quote": "○ 지 급 일 : 매월 10일(공휴일인 경우 전일)"
+						}]
+					}],
+					"WORK_DAYS_RULE": [{
+						"status": "KNOWN",
+						"value": "연가, 병가 등 실제 근무일에 따라 집행액이 달라질 수 있음 (항목별 처리는 명시 없음)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-geumcheon-2024-reserve",
+							"locator": "p.4 집행계획 주석",
+							"quote": "※ 연가, 병가 등 실제 근무일에 따라 집행액이 상이할 수 있음."
+						}]
+					}],
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "근무기관을 통해 일일복무상황부를 매월 말 수합 → 보수명세서 작성 → 개인별 지급(전월분 익월 지급); 연가·병가 등 실제 근무일에 따라 집행액 상이",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-geumcheon-2024-reserve",
+							"locator": "p.4 지급절차",
+							"quote": "지급절차 : 근무기관을 통한 일일복무상황부 수합(매월 말) → \n               보수명세서 작성 → 개인별 지급(전월 분 익월 지급)"
+						}]
+					}]
+				}
+			},
+			{
+				"id": "local-seoul-dongjak",
+				"name": "서울특별시 동작구",
+				"type": "LOCAL_GOV",
+				"region": "서울",
+				"aliases": ["동작구", "동작구청"],
+				"scopeNote": "동작구 소속 사회복무요원 전 분야(사회복지시설·보건소·동주민센터·환경·일반행정); 지급주체 부서별 상이하나 중식비 동일 적용",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 9e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-dongjak-2026-plan",
+							"locator": "Ⅲ 10 사회복무요원 보수지급 표 비고",
+							"quote": "• 중식비: 9,000원/일"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 3e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-dongjak-2026-plan",
+							"locator": "Ⅲ 10 사회복무요원 보수지급 표 비고",
+							"quote": "• 교통비: 대중교통(버스)  -왕복요금(3,000원/일)"
+						}]
+					}],
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "대중교통(버스) 왕복요금 기준, 실비 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-dongjak-2026-plan",
+							"locator": "Ⅲ 10 사회복무요원 보수지급",
+							"quote": "※ 교통비는 실비로 지급"
+						}]
+					}],
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "매월 말일까지 근무상황부 종합, 다음 월 10일 기준 지급 (12월 보수는 12.25. 이전)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-dongjak-2026-plan",
+							"locator": "Ⅲ 10 사회복무요원 보수지급",
+							"quote": "매월 말일까지 근무상황부 종합, 다음 월 10일 기준 지급"
+						}]
+					}],
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "중식비 9,000원은 지급주체별 동일 적용, 보조예산 부족 시 행정자치과 총괄예산에서 지원",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-dongjak-2026-plan",
+							"locator": "Ⅲ 10 사회복무요원 보수지급",
+							"quote": "※ 중식비는 9,000원으로 지급주체별 동일 적용(보조예산 부족 시 행정"
+						}]
+					}]
+				}
+			},
+			{
+				"id": "local-seoul-seongdong",
+				"name": "서울특별시 성동구",
+				"type": "LOCAL_GOV",
+				"region": "서울",
+				"aliases": ["성동구", "성동구청"],
+				"scopeNote": "성동구 소속 사회복무요원 (일반행정·사회복지분야)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 9e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seongdong-2026-plan",
+							"locator": "section0 Ⅵ 기본보장【급여, 제복, 보험】 급여 현황 표",
+							"quote": "근무일 기준: 12,000원/ 1일(중식비 9,000원, 교통비 3,000원)"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 3e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seongdong-2026-plan",
+							"locator": "section0 기본보장 급여 현황 표",
+							"quote": "근무일 기준: 12,000원/ 1일(중식비 9,000원, 교통비 3,000원)"
+						}]
+					}],
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "근무일 기준 1일 3,000원; 환승·장거리 이동으로 추가비용 발생 시 교통카드 금액 기준 실비 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seongdong-2026-plan",
+							"locator": "section0 기본보장 급여 현황",
+							"quote": "※ 단, 교통비 지급 시 환승(지하철, 버스 등), 장거리 이동에 따른 추가비용 발생 시 교통카드 금액 기준 실비 적용해 지급"
+						}]
+					}],
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "해당월 근무 상황 확인 후 익월 15일 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seongdong-2026-plan",
+							"locator": "section0 기본보장 급여 현황",
+							"quote": "해당월 근무 상황 확인 후 익월 15일 지급"
+						}]
+					}],
+					"WORK_DAYS_RULE": [{
+						"status": "KNOWN",
+						"value": "중식비·교통비는 근무일 기준으로 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seongdong-2026-plan",
+							"locator": "section0 기본보장 급여 현황",
+							"quote": "근무일 기준: 12,000원/ 1일"
+						}]
+					}],
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			},
+			{
+				"id": "local-seoul-seongbuk",
+				"name": "서울특별시 성북구",
+				"type": "LOCAL_GOV",
+				"region": "서울",
+				"aliases": ["성북구", "성북구청"],
+				"scopeNote": "성북구 소속 사회복무요원",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 7e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seongbuk-2025-plan",
+							"locator": "보수 등 지급 > 교통비, 중식비, 출장교통비 지급기준",
+							"quote": "∎ 중식비 : 7,000원"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 3e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seongbuk-2025-plan",
+							"locator": "교통비, 중식비, 출장교통비 지급기준",
+							"quote": "∎ 교통비 : 대중교통 왕복이용요금 (현금기준) 3,000원"
+						}]
+					}],
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "대중교통 왕복이용요금(현금기준) 3,000원; 환승·지하철 장거리 등 추가비용 시 교통카드 금액 기준 실비; 출장교통비는 대중교통 실비",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seongbuk-2025-plan",
+							"locator": "교통비, 중식비, 출장교통비 지급기준",
+							"quote": "※ 환승, 지하철 장거리 이동 등 추가비용 발생 시 교통카드 금액 기준 실비 지급"
+						}]
+					}],
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": [{
+						"status": "KNOWN",
+						"value": "오전 반일연가·병가 및 교육기간은 중식비 미지급, 오후 반일연가·병가는 지급 (반일연가 14:00 기준 구분)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seongbuk-2025-plan",
+							"locator": "교통비, 중식비 지급기준; 휴가 > 연가",
+							"quote": "※ 오전 반일연가・병가, 교육기간은 미지급, 오후 반일연가・병가는 지급"
+						}]
+					}],
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "보수 익월 10일 지급 (실비 지급일 표기 '익월 10월'은 원문 그대로)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seongbuk-2025-plan",
+							"locator": "보수 지급",
+							"quote": "- 지급일 : 익월 10일"
+						}]
+					}],
+					"WORK_DAYS_RULE": [{
+						"status": "KNOWN",
+						"value": "소집월·소집해제월 보수는 휴일 포함 일할계산(근무일수×월봉급/월일수); 복무이탈·연병가초과결근 기간 보수 미지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seongbuk-2025-plan",
+							"locator": "보수 지급",
+							"quote": "∎ 지급액 = 근무일수 × (월 봉급 / 월 일수)"
+						}]
+					}],
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "교통비: 반일연가·병가일은 지급, 교육기간은 미지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-seongbuk-2025-plan",
+							"locator": "교통비, 중식비 지급기준",
+							"quote": "※ 반일연가・병가는 지급, 교육기간은 미지급"
+						}]
+					}]
+				}
+			},
+			{
+				"id": "public-seoul-sisul",
+				"name": "서울특별시시설관리공단 (서울시설공단)",
+				"type": "PUBLIC_INSTITUTION",
+				"region": "서울",
+				"aliases": ["서울시설공단"],
+				"scopeNote": "공단 배정 사회복무요원 (2016 전부개정 규정)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "지정된 일자에 본인 계좌로 지급 (구체적 일자 미기재)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2016,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-sisul-rule",
+							"locator": "p.4 제22조(보수지급) 제1항",
+							"quote": "사회복무요원의보수는 공무원보수규정과시행령 제62조의 규정에 따라 지정된 일자에 지급하되반드시본인의계좌로지급하여야한다."
+						}]
+					}],
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "보수 외 중식비·교통비 지급, 급여대장 비치 (금액·방법 미기재)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2016,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-sisul-rule",
+							"locator": "p.4 제22조(보수지급) 제2항",
+							"quote": "운영관리부서장은제1항의 규정에 의한 보수 외에 중식비․교통비를지급하되반드시 급여대장을비치․관리하여야한다."
+						}]
+					}]
+				}
+			},
+			{
+				"id": "edu-incheon",
+				"name": "인천광역시교육청",
+				"type": "EDUCATION_OFFICE",
+				"region": "인천",
+				"aliases": ["인천교육청"],
+				"scopeNote": "2026 교육비특별회계 예산편성 기본지침 (applies to 교육비특별회계-funded 사회복무요원, i.e. 본청·교육지원청·직속기관 and centrally funded posts)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 7e3,
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-ice-special-2026",
+							"locator": "p.44 (printed p.40) 나. 사회복무요원 보수 주) — budget guideline, phrased as '실비 지급' basis",
+							"quote": "주) - 중식비 및 교통비는 실비 지급\n [중식비 7,000원, 대중교통(시내버스) 왕복이용요금(현금기준)]"
+						}],
+						"note": "병무청 2026년도 보수 등 지급 기준의 1일 중식비 9,000원(최소기준)보다 낮은 값이다. 앱은 이 값을 지급액으로 적용하지 않는다."
+					}],
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "대중교통(시내버스) 왕복이용요금(현금기준) 실비; 대중교통요금 인상 시 인상분 반영",
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-ice-special-2026",
+							"locator": "p.44 나. 사회복무요원 보수 주)",
+							"quote": "[중식비 7,000원, 대중교통(시내버스) 왕복이용요금(현금기준)]\n ※ 대중교통요금 인상 시 인상분반영"
+						}]
+					}],
+					"MEAL_ON_LEAVE": [{
+						"status": "KNOWN",
+						"value": "NOT_PAID",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-ice-special-2026",
+							"locator": "p.44 나. 사회복무요원 보수 주)",
+							"quote": "·군사교육소집기간, 휴가 등 복무기관에 출근하지 않는 날은 미지급"
+						}]
+					}],
+					"TRANSPORT_ON_LEAVE": [{
+						"status": "KNOWN",
+						"value": "NOT_PAID",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-ice-special-2026",
+							"locator": "p.44 나. 사회복무요원 보수 주)",
+							"quote": "·군사교육소집기간, 휴가 등 복무기관에 출근하지 않는 날은 미지급"
+						}]
+					}],
+					"MEAL_ON_ABSENCE": [{
+						"status": "KNOWN",
+						"value": "NOT_PAID",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-ice-special-2026",
+							"locator": "p.44 — the rule covers any day the agent does not report to the 복무기관 (휴가 등); 결근 is not named explicitly",
+							"quote": "휴가 등 복무기관에 출근하지 않는 날은 미지급"
+						}]
+					}],
+					"TRANSPORT_ON_ABSENCE": [{
+						"status": "KNOWN",
+						"value": "NOT_PAID",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-ice-special-2026",
+							"locator": "p.44 — the rule covers any day the agent does not report to the 복무기관 (휴가 등); 결근 is not named explicitly",
+							"quote": "휴가 등 복무기관에 출근하지 않는 날은 미지급"
+						}]
+					}],
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "도시락 지참자·도보 출근자에게도 중식비·교통비 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-ice-special-2026",
+							"locator": "p.44 나. 사회복무요원 보수 주)",
+							"quote": "·도시락지참, 도보출근자에 대해서도 중식비, 교통비 지급"
+						}]
+					}, {
+						"status": "KNOWN",
+						"value": "소집월·소집해제월 보수 = 근무일수 × 보수의 일할계산액(그 달 보수 ÷ 그 달 일수, 휴일 포함); 교육소집일·소집해제일도 보수 지급; 출장자는 여비·급식비 등 실비 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-ice-special-2026",
+							"locator": "p.44 나. 사회복무요원 보수 주)",
+							"quote": "·“보수의 일할계산액”이란 그 달의 보수를 그 달의 일수로 나누어 계산하는 것\n을 말하며 휴일 포함"
+						}]
+					}]
+				}
+			},
+			{
+				"id": "metro-jeonnam",
+				"name": "전라남도",
+				"type": "METRO_GOV",
+				"region": "전남",
+				"aliases": ["전남도"],
+				"scopeNote": "보건복지부 사회서비스자원과-2090(2025.5.1.) 기준을 전남 22개 시군(목포~신안) 사회복지 담당과에 전달. 예산편성 기준(안)이며 실제 지급액 아님 / 전라남도 본청 2026 본예산 세출예산사업명세서(일반회계). 사회복무요원보상금 총액만 있고 중식비·교통비 단가나 산출 단가는 기재되어 있지 않음.",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 9e3,
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-jeonnam-2026-budget-standard",
+							"locator": "p.1 본문 2.",
+							"quote": "○ 1일 중식비 : 최소 9,000원 이상  * 국가공무원 특근매식비 지급 단가 기준"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "1일 교통비: 지역별 대중교통(시내버스) 왕복이용 요금(현금 기준)",
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-jeonnam-2026-budget-standard",
+							"locator": "p.1 본문 2.",
+							"quote": "○ 1일 교통비 : 지역별 대중교통(시내버스) 왕복이용 요금(현금 기준)"
+						}]
+					}],
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			},
+			{
+				"id": "local-jeonnam-goheung",
+				"name": "전라남도 고흥군",
+				"type": "LOCAL_GOV",
+				"region": "전남",
+				"aliases": ["고흥군", "고흥군청"],
+				"scopeNote": "고흥군 관내 13개 사회복지시설 사회복무요원 20명 (2026 본예산 사업계획)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 9e3,
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-goheung-2026-budget",
+							"locator": "p.2 사업추진계획 > 사회복무요원 급식비",
+							"quote": "- 민간인에게 지급하는 급량비로서 매식비 기준단가 9,000원 지급"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 2e3,
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-goheung-2026-budget",
+							"locator": "p.2 사업추진계획 > 사회복무요원 교통비",
+							"quote": "◦ 사회복무요원 교통비    - 2,000원 지급"
+						}]
+					}],
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "매월 10일까지 집행",
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-goheung-2026-budget",
+							"locator": "p.1 사업개요 > 집행시기",
+							"quote": "※ 집행시기 : 매월 10일까지 27백만원 집행"
+						}]
+					}],
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			},
+			{
+				"id": "local-jeonnam-mokpo",
+				"name": "전라남도 목포시",
+				"type": "LOCAL_GOV",
+				"region": "전남",
+				"aliases": ["목포시"],
+				"scopeNote": "사회복지시설 사회복무요원 (노인장애인과), 2024년",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "2024년 3월분 보수를 2024. 4. 9.(화)에 지급 (단일 사례)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-mokpo-2024-03-pay",
+							"locator": "p.1 본문 1. 지급일시",
+							"quote": "1. 지급일시 : 2024. 4. 9.(화)"
+						}]
+					}],
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "월 보수 지급 시 급여·교통비·중식비를 함께 지급 (중식비는 노인장애인과 분)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2024,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-mokpo-2024-03-pay",
+							"locator": "p.1 본문 3. 지급금액",
+							"quote": "   - 중식비(노인장애인과) : 금10,800,000원"
+						}]
+					}]
+				}
+			},
+			{
+				"id": "local-jeonnam-yeosu",
+				"name": "전라남도 여수시",
+				"type": "LOCAL_GOV",
+				"region": "전남",
+				"aliases": ["여수시"],
+				"scopeNote": "사회복지시설 및 지자체 사회복지업무지원 사회복무요원 180명 (사회복지과 보조금 집행계획)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 8e3,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-yeosu-2025-plan",
+							"locator": "p.4 참고 지원 기준",
+							"quote": "중식비  1일 8,000원 / 1인 자 체 예 산"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 3400,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-yeosu-2025-plan",
+							"locator": "p.4 참고 지원 기준",
+							"quote": "교통비  1일 3,400원 / 1인"
+						}]
+					}],
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "매 익월 10일 개인별 계좌 입금 (12월분은 당월 지급)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-yeosu-2025-plan",
+							"locator": "p.2 Ⅲ 집행계획 지원시기",
+							"quote": "매 익월 10일 개인별 계좌 입금(12월분은 당월 지급)"
+						}]
+					}],
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "매월 시설별 근무상황(전산 및 수기)을 확인·검토한 후 급여 등 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-yeosu-2025-plan",
+							"locator": "p.4 Ⅳ 행정사항",
+							"quote": "매월 시설별 사회복무요원 근무상황(전산 및 수기) 확인·검토 후 급여 등 지급"
+						}]
+					}]
+				}
+			},
+			{
+				"id": "edu-jeonnam",
+				"name": "전라남도교육청",
+				"type": "EDUCATION_OFFICE",
+				"region": "전남",
+				"aliases": ["전남교육청"],
+				"scopeNote": "학교회계(공립 각급학교) 예산편성 기본단가; 교육청 본청·직속기관(교육비특별회계)은 미확인",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 9e3,
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-jne-2026-school",
+							"locator": "p.144 (문서쪽수 134) 제4부 예산편성 기본단가 > 라. 사회복무요원 인건비",
+							"quote": "중식비(1식) 9,000원, 교통비(왕복): 지역별 시내버스요금 (현금) 기준"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "교통비(왕복): 지역별 시내버스요금(현금) 기준",
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-jne-2026-school",
+							"locator": "p.144 (문서쪽수 134) 라. 사회복무요원 인건비",
+							"quote": "중식비 및 교통비 지급: 중식비(1식) 9,000원, 교통비(왕복): 지역별 시내버스요금 (현금) 기준"
+						}]
+					}],
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "사회복무요원 출장 시 공무원 여비 규정을 준용하여 여비 지급 가능",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-jne-2026-school",
+							"locator": "p.90 여비 > 공무원이 아닌 자의 여비 지급",
+							"quote": "지급할 수 있음(예: 학교운영위원, 공무직, 기간제근로자, 사회복무요원의 출장 등)"
+						}]
+					}]
+				}
+			},
+			{
+				"id": "local-jeonbuk-gunsan",
+				"name": "전북특별자치도 군산시",
+				"type": "LOCAL_GOV",
+				"region": "전북",
+				"aliases": ["군산시"],
+				"scopeNote": "사회복지업무보조 및 사회복지시설 사회복무요원 (복지정책과)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "2026년 1월분 인건비를 2026. 2. 10.(화)에 지급 (단일 사례)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-gunsan-2026-01-pay",
+							"locator": "p.1 본문 6. 지급일",
+							"quote": "6. 지 급 일: 2026. 2. 10.(화)"
+						}]
+					}],
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			},
+			{
+				"id": "local-jeonbuk-jeonju",
+				"name": "전북특별자치도 전주시",
+				"type": "LOCAL_GOV",
+				"region": "전북",
+				"aliases": ["전주시"],
+				"scopeNote": "보건복지분야(사회복지시설, 사회복지업무보조) 사회복무요원; 생활복지과 월별 급여·교통비 지급 결재문서",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 3400,
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-jeonju-2026-09-pay",
+							"locator": "p.1 본문 4. 산출기초",
+							"quote": "교통비(1일 3,400원)"
+						}, {
+							"sourceId": "src-jeonju-2026-01-pay",
+							"locator": "p.1 본문 4. 산출기초",
+							"quote": "1,500,000원), 교통비(1일 3,400원)"
+						}]
+					}],
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "급여 및 교통비를 개인 계좌입금으로 월 1회 지급, 일일복무상황부 첨부 (중식비는 이 결재에 포함되지 않음)",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-jeonju-2026-09-pay",
+							"locator": "p.1 본문 5. 지급방법 / 붙임",
+							"quote": "5. 지급방법 : 개인 계좌입금"
+						}]
+					}]
+				}
+			},
+			{
+				"id": "edu-jeonbuk",
+				"name": "전북특별자치도교육청",
+				"type": "EDUCATION_OFFICE",
+				"region": "전북",
+				"aliases": ["전북교육청"],
+				"scopeNote": "학교회계(공립 각급학교) 예산편성 및 운영지침; 단가 기재 없음",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "사회복무요원 출장 시 공무원여비규정 준용 여비 지급 가능",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-jbe-2026-school",
+							"locator": "여비 > 공무원이 아닌 자의 여비 지급 (txt 2127행)",
+							"quote": "공무원여비규정을 준용하여 지급할 수 있음(예: 교육공무직원,사회복무요원 출장 등)"
+						}]
+					}, {
+						"status": "KNOWN",
+						"value": "업무추진비 현장근무자 격려금품: 상근하는 사회복무요원은 지급 가능",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2026,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-jbe-2026-school",
+							"locator": "업무추진비 > 7. 소속 상근직원에 대한 격려 및 지원 > 라. (txt 12634행)",
+							"quote": "상근하는 사회복무요원은 지급 가능"
+						}]
+					}]
+				}
+			},
+			{
+				"id": "central-pps",
+				"name": "조달청",
+				"type": "CENTRAL_AGENCY",
+				"region": null,
+				"aliases": [],
+				"scopeNote": "조달청 및 소속기관 복무 사회복무요원 (2015년 전부개정본이 현행)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "중식비·교통비 실비 지급",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2015,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-pps",
+							"locator": "제35조(보수지급) 제3항",
+							"quote": "복무기관의 장은 제1항에 따른 보수 외에 중식비와 교통비를 실비로 지급하여야 한다."
+						}]
+					}],
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": [{
+						"status": "KNOWN",
+						"value": "그 기관의 월 보수지급일 또는 복무기관에서 정한 날",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2015,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-pps",
+							"locator": "제35조(보수지급) 제1항",
+							"quote": "교육소집일부터 그 기관의 월 보수지급일 또는 복무기관에서 정한 날에 지급하여야 한다."
+						}]
+					}],
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			},
+			{
+				"id": "central-nec",
+				"name": "중앙선거관리위원회 (선거관리위원회)",
+				"type": "CENTRAL_AGENCY",
+				"region": null,
+				"aliases": ["선거관리위원회", "선관위"],
+				"scopeNote": "각급 선거관리위원회 복무 사회복무요원",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_DAILY_AMOUNT": { "status": "UNKNOWN" },
+					"TRANSPORT_METHOD": { "status": "UNKNOWN" },
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": [{
+						"status": "KNOWN",
+						"value": "월 보수와 중식비·교통비 등 실비 지급 시 급여대장 별도 비치",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-nec",
+							"locator": "제10조(보수지급)",
+							"quote": "사회복무요원의 월 보수와 중식비, 교통비 등 실비를 지급한 경우 급여대장( 별지 제3호서식 )을 따로 비치 관리하여야 한다."
+						}]
+					}, {
+						"status": "KNOWN",
+						"value": "근무지 조정 시 원 복무기관장이 보수·중식비·교통비 지급; 조정받은 위원회는 시간외 급식·출장여비 실비 지급 가능",
+						"valueKind": "PAYMENT_RULE",
+						"effectiveYear": 2025,
+						"confidence": "HIGH",
+						"evidence": [{
+							"sourceId": "src-nec",
+							"locator": "제8조 제4항 (근무지 조정)",
+							"quote": "복무기관장은 근무지가 조정된 사회복무요원에게 보수, 중식비 및 교통비를 지급하여야 하며"
+						}]
+					}]
+				}
+			},
+			{
+				"id": "local-chungnam-gyeryong",
+				"name": "충청남도 계룡시",
+				"type": "LOCAL_GOV",
+				"region": "충남",
+				"aliases": ["계룡시"],
+				"scopeNote": "관내 사회복지시설 근무 사회복무요원 38~39명 (사회복지과 본예산 검토)",
+				"rules": {
+					"MEAL_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 8e3,
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2025,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-gyeryong-2025-budget",
+							"locator": "p.3 Ⅲ 현황 다. 1일 중식비",
+							"quote": "다. 1일 중식비: 8,000원(공무원 매식비)"
+						}]
+					}],
+					"TRANSPORT_DAILY_AMOUNT": [{
+						"status": "KNOWN",
+						"value": 3600,
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2025,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-gyeryong-2025-budget",
+							"locator": "p.3 Ⅲ 현황 나. 1일 교통비",
+							"quote": "나. 1일 교통비: 왕복 버스비 3,600원 ※관외및환승추가비용발생시실비지급"
+						}]
+					}],
+					"TRANSPORT_METHOD": [{
+						"status": "KNOWN",
+						"value": "왕복 버스비 기준(3,600원), 관외 및 환승 추가비용 발생 시 실비 지급",
+						"valueKind": "BUDGET_UNIT_PRICE",
+						"effectiveYear": 2025,
+						"confidence": "MEDIUM",
+						"evidence": [{
+							"sourceId": "src-gyeryong-2025-budget",
+							"locator": "p.3 Ⅲ 현황 나. 1일 교통비",
+							"quote": "나. 1일 교통비: 왕복 버스비 3,600원 ※관외및환승추가비용발생시실비지급"
+						}]
+					}],
+					"MEAL_ON_LEAVE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_LEAVE": { "status": "UNKNOWN" },
+					"MEAL_ON_ABSENCE": { "status": "UNKNOWN" },
+					"TRANSPORT_ON_ABSENCE": { "status": "UNKNOWN" },
+					"MEAL_ON_PARTIAL_DAY": { "status": "UNKNOWN" },
+					"ROUNDING": { "status": "UNKNOWN" },
+					"PAY_DAY": { "status": "UNKNOWN" },
+					"WORK_DAYS_RULE": { "status": "UNKNOWN" },
+					"OTHER": { "status": "UNKNOWN" }
+				}
+			}
+		]
+	};
+
+//#endregion
+//#region ../rules/src/institutions.ts
+/**
+	* Institution-level (복무기관별) payroll evidence.
+	*
+	* The nationwide compensation bundle fixes base pay, the 2026 meal minimum and
+	* the transport fare basis. Everything an individual institution decides on
+	* top of that (its meal amount, which days earn allowances, rounding, pay day)
+	* lives here, one cited fact at a time. A field that no retrieved official
+	* document states is `UNKNOWN`: the registry never fills it with a national
+	* default, a neighbouring institution's value or a guess.
+	*/
+	const institutionRuleFieldSchema = _enum([
+		"MEAL_DAILY_AMOUNT",
+		"TRANSPORT_DAILY_AMOUNT",
+		"TRANSPORT_METHOD",
+		"MEAL_ON_LEAVE",
+		"TRANSPORT_ON_LEAVE",
+		"MEAL_ON_ABSENCE",
+		"TRANSPORT_ON_ABSENCE",
+		"MEAL_ON_PARTIAL_DAY",
+		"ROUNDING",
+		"PAY_DAY",
+		"WORK_DAYS_RULE",
+		"OTHER"
+	]);
+	const INSTITUTION_RULE_FIELDS = institutionRuleFieldSchema.options;
+	const AMOUNT_FIELDS = ["MEAL_DAILY_AMOUNT", "TRANSPORT_DAILY_AMOUNT"];
+	const DAY_ELIGIBILITY_FIELDS = [
+		"MEAL_ON_LEAVE",
+		"TRANSPORT_ON_LEAVE",
+		"MEAL_ON_ABSENCE",
+		"TRANSPORT_ON_ABSENCE"
+	];
+	const institutionTypeSchema = _enum([
+		"EDUCATION_OFFICE",
+		"METRO_GOV",
+		"LOCAL_GOV",
+		"CENTRAL_AGENCY",
+		"PUBLIC_INSTITUTION",
+		"OTHER"
+	]);
+	/**
+	* `PAYMENT_RULE`: the document states what the agent is paid.
+	* `BUDGET_UNIT_PRICE`: a 예산편성 기준단가 — the planning number the payer
+	* budgets with. It is evidence, not proof of the amount actually paid.
+	*/
+	const institutionValueKindSchema = _enum(["PAYMENT_RULE", "BUDGET_UNIT_PRICE"]);
+	const institutionSourceTypeSchema = _enum([
+		"STATUTE_OR_ORDINANCE",
+		"ADMINISTRATIVE_RULE",
+		"INSTITUTION_GUIDELINE",
+		"PAYMENT_RECORD",
+		"BUDGET_GUIDELINE",
+		"OFFICIAL_WEB_PAGE",
+		"OFFICIAL_QNA"
+	]);
+	/**
+	* Derived from the source type and value kind, never set by hand:
+	* - `HIGH`: a rule, ordinance, institution guideline or payment approval
+	*   (지급 결재문서) states the payment.
+	* - `MEDIUM`: a budget guideline's unit price, an official explanatory web
+	*   page or an official Q&A answer.
+	*/
+	const institutionConfidenceSchema = _enum(["HIGH", "MEDIUM"]);
+	const dateOnlySchema = string().refine(isDateOnly, "Dates must use a valid YYYY-MM-DD value.");
+	const sha256Schema = string().regex(/^[0-9a-f]{64}$/);
+	/**
+	* zod's .url() builds a URL, which JavaScriptCore (the iOS bundle) does
+	* not provide, so the registry would fail to parse there. A plain http(s)
+	* prefix check stands in for it (some stored links carry download hints
+	* after the address).
+	*/
+	const httpUrlSchema = string().regex(/^https?:\/\/\S/, "Invalid URL");
+	const repoPathSchema = string().regex(/^docs\/sources\/institutions\//);
+	const institutionSourceSchema = object({
+		id: string().regex(/^src-[a-z0-9-]+$/),
+		title: string().min(1),
+		publisher: string().min(1),
+		sourceType: institutionSourceTypeSchema,
+		url: httpUrlSchema,
+		pageUrl: httpUrlSchema.nullable(),
+		publishedDate: dateOnlySchema.nullable(),
+		retrievedAt: dateOnlySchema,
+		documentYear: number().int().min(2e3).max(2100),
+		original: object({
+			sha256: sha256Schema,
+			bytes: number().int().positive(),
+			/** Repo path when the original is small enough to keep; else null. */
+			file: repoPathSchema.nullable()
+		}).strict(),
+		/** Deterministic text extract (the cited pages at least). */
+		extract: object({
+			file: repoPathSchema,
+			sha256: sha256Schema,
+			pages: string().min(1)
+		}).strict()
+	}).strict();
+	const institutionEvidenceSchema = object({
+		sourceId: string().min(1),
+		locator: string().min(1),
+		/** Verbatim substring of the extract (compared without whitespace). */
+		quote: string().min(2).max(400)
+	}).strict();
+	const knownFactSchema = object({
+		status: literal("KNOWN"),
+		value: union([number().int().nonnegative(), string().min(1)]),
+		valueKind: institutionValueKindSchema,
+		effectiveYear: number().int().min(2e3).max(2100),
+		confidence: institutionConfidenceSchema,
+		note: string().min(1).optional(),
+		evidence: array(institutionEvidenceSchema).min(1)
+	}).strict();
+	const unknownFactSchema = object({ status: literal("UNKNOWN") }).strict();
+	const institutionFactSchema = discriminatedUnion("status", [knownFactSchema, unknownFactSchema]);
+	const rulesSchema = object(Object.fromEntries(INSTITUTION_RULE_FIELDS.map((field) => [field, array(knownFactSchema).min(1).or(unknownFactSchema)]))).strict();
+	const institutionRecordSchema = object({
+		id: string().regex(/^[a-z0-9-]+$/),
+		name: string().min(1),
+		type: institutionTypeSchema,
+		region: string().min(1).nullable(),
+		aliases: array(string().min(1)),
+		scopeNote: string().min(1),
+		rules: rulesSchema
+	}).strict();
+	const institutionRegistrySchema = object({
+		schemaVersion: literal("1.0.0"),
+		registryId: literal("kr.social-service.institution-rules"),
+		retrievedFrom: dateOnlySchema,
+		retrievedUntil: dateOnlySchema,
+		sources: array(institutionSourceSchema).min(1),
+		institutions: array(institutionRecordSchema).min(1)
+	}).strict().superRefine((registry, context) => {
+		const sources = new Map(registry.sources.map((s) => [s.id, s]));
+		if (sources.size !== registry.sources.length) context.addIssue({
+			code: "custom",
+			message: "Duplicate source id."
+		});
+		const ids = /* @__PURE__ */ new Set();
+		const keys = /* @__PURE__ */ new Map();
+		for (const [index, institution] of registry.institutions.entries()) {
+			if (ids.has(institution.id)) context.addIssue({
+				code: "custom",
+				path: [
+					"institutions",
+					index,
+					"id"
+				],
+				message: `Duplicate institution id ${institution.id}.`
+			});
+			ids.add(institution.id);
+			for (const name of [institution.name, ...institution.aliases]) {
+				const key = normalizeInstitutionName(name);
+				const owner = keys.get(key);
+				if (owner !== void 0 && owner !== institution.id) context.addIssue({
+					code: "custom",
+					path: [
+						"institutions",
+						index,
+						"aliases"
+					],
+					message: `"${name}" also names ${owner}; aliases must be unambiguous.`
+				});
+				keys.set(key, institution.id);
+			}
+			for (const field of INSTITUTION_RULE_FIELDS) {
+				const entry = institution.rules[field];
+				if (!Array.isArray(entry)) continue;
+				for (const fact of entry) {
+					const path = [
+						"institutions",
+						index,
+						"rules",
+						field
+					];
+					if (AMOUNT_FIELDS.includes(field) && typeof fact.value !== "number") context.addIssue({
+						code: "custom",
+						path,
+						message: "Amounts are integer KRW."
+					});
+					if (DAY_ELIGIBILITY_FIELDS.includes(field) && ![
+						"PAID",
+						"NOT_PAID",
+						"CONDITIONAL"
+					].includes(String(fact.value))) context.addIssue({
+						code: "custom",
+						path,
+						message: "Day eligibility is PAID, NOT_PAID or CONDITIONAL."
+					});
+					for (const evidence of fact.evidence) {
+						const source = sources.get(evidence.sourceId);
+						if (!source) {
+							context.addIssue({
+								code: "custom",
+								path,
+								message: `Unknown source ${evidence.sourceId}.`
+							});
+							continue;
+						}
+						const expected = deriveConfidence(source.sourceType, fact.valueKind);
+						if (fact.confidence !== expected) context.addIssue({
+							code: "custom",
+							path,
+							message: `Confidence must be ${expected} for ${source.sourceType}/${fact.valueKind}.`
+						});
+					}
+				}
+			}
+		}
+	});
+	function deriveConfidence(sourceType, valueKind) {
+		if (valueKind === "BUDGET_UNIT_PRICE") return "MEDIUM";
+		return sourceType === "STATUTE_OR_ORDINANCE" || sourceType === "ADMINISTRATIVE_RULE" || sourceType === "INSTITUTION_GUIDELINE" || sourceType === "PAYMENT_RECORD" ? "HIGH" : "MEDIUM";
+	}
+	/**
+	* Canonical comparison key for an institution name: NFKC, no whitespace or
+	* punctuation, lower-case Latin. It never drops words, so "경기도교육청" and
+	* "경기도청" stay different keys; shortened names are listed as aliases.
+	*/
+	function normalizeInstitutionName(name) {
+		return name.normalize("NFKC").toLowerCase().replace(/[\s\p{P}\p{S}]+/gu, "");
+	}
+	function parseInstitutionRegistry(value) {
+		return institutionRegistrySchema.parse(value);
+	}
+	const INSTITUTION_REGISTRY = parseInstitutionRegistry(registry_default);
+	/**
+	* Institution name → cited rules, or an explicit unknown.
+	*
+	* Matching is exact on the normalized name or a listed alias. A partial match
+	* is only returned as a suggestion: applying, say, 경기도교육청 rules to a
+	* user who typed "경기도" would put the wrong payer's rules on their pay.
+	*/
+	function lookupInstitutionRules(query, options = {}) {
+		const registry = options.registry ?? INSTITUTION_REGISTRY;
+		const key = normalizeInstitutionName(query);
+		const unknownWarning = "등록된 기관 근거가 없습니다. 기관 규칙은 직접 입력하거나 기관에 확인해야 합니다.";
+		if (key.length === 0) return {
+			status: "UNKNOWN_INSTITUTION",
+			query,
+			suggestions: [],
+			warnings: [unknownWarning]
+		};
+		for (const institution of registry.institutions) {
+			const byName = normalizeInstitutionName(institution.name) === key;
+			const byAlias = !byName && institution.aliases.some((alias) => normalizeInstitutionName(alias) === key);
+			if (!byName && !byAlias) continue;
+			const sources = new Map(registry.sources.map((s) => [s.id, s]));
+			const warnings = [];
+			const fields = Object.fromEntries(INSTITUTION_RULE_FIELDS.map((field) => {
+				const entry = institution.rules[field];
+				if (!Array.isArray(entry)) return [field, { status: "UNKNOWN" }];
+				const facts = entry.map((fact) => ({
+					...fact,
+					sources: fact.evidence.map((e) => sources.get(e.sourceId)),
+					yearMatches: options.year === void 0 || fact.effectiveYear === options.year
+				})).sort((a, b) => Number(b.yearMatches) - Number(a.yearMatches) || b.effectiveYear - a.effectiveYear);
+				if (options.year !== void 0 && !facts.some((f) => f.yearMatches)) warnings.push(`${field}: ${options.year}년 근거가 없고 다른 연도 근거만 있습니다.`);
+				if (facts.some((f) => f.valueKind === "BUDGET_UNIT_PRICE")) warnings.push(`${field}: 예산편성 기준단가이며 실제 지급액과 다를 수 있습니다.`);
+				return [field, {
+					status: "KNOWN",
+					facts
+				}];
+			}));
+			return {
+				status: "MATCHED",
+				query,
+				matchedBy: byName ? "NAME" : "ALIAS",
+				institution: {
+					id: institution.id,
+					name: institution.name,
+					type: institution.type,
+					region: institution.region,
+					scopeNote: institution.scopeNote
+				},
+				fields,
+				warnings
+			};
+		}
+		return {
+			status: "UNKNOWN_INSTITUTION",
+			query,
+			suggestions: registry.institutions.filter((institution) => [institution.name, ...institution.aliases].some((name) => normalizeInstitutionName(name).includes(key))).map(({ id, name }) => ({
+				id,
+				name
+			})),
+			warnings: [unknownWarning]
+		};
+	}
+
+//#endregion
+//#region ../rules/src/institution-suggestions.ts
+/**
+	* 2026 병무청 지급 기준: 1일 중식비 9,000원은 최소 기준이다. 기관이 더 줄 수
+	* 있지만 더 낮게는 줄 수 없으므로, 이보다 낮은 기관 근거는 적용하지 않는다.
+	*/
+	const MEAL_MINIMUM_DAILY_AMOUNT = 9e3;
+	const NOTE_FIELDS = [
+		"TRANSPORT_METHOD",
+		"MEAL_ON_LEAVE",
+		"TRANSPORT_ON_LEAVE",
+		"MEAL_ON_ABSENCE",
+		"TRANSPORT_ON_ABSENCE",
+		"MEAL_ON_PARTIAL_DAY",
+		"ROUNDING",
+		"PAY_DAY",
+		"WORK_DAYS_RULE",
+		"OTHER"
+	];
+	/** Payment rules beat budget unit prices; then HIGH confidence; then newest. */
+	function rank(fact) {
+		return [
+			Number(fact.yearMatches),
+			Number(fact.valueKind === "PAYMENT_RULE"),
+			Number(fact.confidence === "HIGH"),
+			fact.effectiveYear
+		];
+	}
+	function better(a, b) {
+		const left = rank(a);
+		const right = rank(b);
+		for (let i = 0; i < left.length; i += 1) if (left[i] !== right[i]) return left[i] > right[i];
+		return false;
+	}
+	function amountSuggestion(facts, minimum) {
+		let best = null;
+		for (const fact of facts) {
+			if (typeof fact.value !== "number") continue;
+			if (best === null || better(fact, best)) best = fact;
+		}
+		if (best === null || typeof best.value !== "number") return null;
+		const evidence = best.evidence[0];
+		const source = best.sources.find((s) => s.id === evidence.sourceId);
+		const cautions = [];
+		let applicable = true;
+		if (minimum !== null && best.value < minimum) {
+			applicable = false;
+			cautions.push(`2026년 최소 기준 ${minimum.toLocaleString("en-US")}원보다 낮아 적용하지 않아요.`);
+		}
+		if (best.valueKind === "BUDGET_UNIT_PRICE") cautions.push("예산편성 기준단가라 실제 지급액과 다를 수 있어요.");
+		if (!best.yearMatches) cautions.push(`${best.effectiveYear}년 자료예요. 올해 기준과 다를 수 있어요.`);
+		return {
+			amount: best.value,
+			valueKind: best.valueKind,
+			effectiveYear: best.effectiveYear,
+			confidence: best.confidence,
+			currentYear: best.yearMatches,
+			sourceTitle: source?.title ?? evidence.sourceId,
+			publisher: source?.publisher ?? "",
+			locator: evidence.locator,
+			quote: evidence.quote,
+			applicable,
+			caution: cautions.length === 0 ? null : cautions.join(" ")
+		};
+	}
+	/**
+	* Institution name → what the app may prefill (meal and transport per day)
+	* plus every other cited rule as read-only notes. Nothing here is a
+	* calculation: the user still confirms the amounts, and an unknown value is
+	* left empty, never guessed.
+	*/
+	function suggestInstitutionRates(query, options) {
+		const result = lookupInstitutionRules(query, { year: options.year });
+		if (result.status !== "MATCHED") return {
+			status: "UNKNOWN_INSTITUTION",
+			query: result.query,
+			suggestions: result.suggestions,
+			warnings: result.warnings
+		};
+		const known = (field) => {
+			const entry = result.fields[field];
+			return entry.status === "KNOWN" ? entry.facts : [];
+		};
+		const notes = [];
+		for (const field of NOTE_FIELDS) for (const fact of known(field)) {
+			const evidence = fact.evidence[0];
+			const source = fact.sources.find((s) => s.id === evidence.sourceId);
+			notes.push({
+				field,
+				text: String(fact.value),
+				valueKind: fact.valueKind,
+				effectiveYear: fact.effectiveYear,
+				confidence: fact.confidence,
+				sourceTitle: source?.title ?? evidence.sourceId,
+				locator: evidence.locator
+			});
+		}
+		return {
+			status: "MATCHED",
+			institution: {
+				id: result.institution.id,
+				name: result.institution.name,
+				scopeNote: result.institution.scopeNote
+			},
+			meal: amountSuggestion(known("MEAL_DAILY_AMOUNT"), MEAL_MINIMUM_DAILY_AMOUNT),
+			transport: amountSuggestion(known("TRANSPORT_DAILY_AMOUNT"), null),
+			notes,
+			warnings: result.warnings
+		};
 	}
 
 //#endregion
@@ -13688,6 +17207,164 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 
 //#endregion
+//#region ../../apps/web/src/lib/pdf-table.ts
+	function groupPdfRows(items) {
+		const rows = [];
+		const sorted = [...items].sort((a, b) => a.page - b.page || b.y - a.y || a.x - b.x);
+		for (const item of sorted) {
+			const current = rows.find((row) => row.page === item.page && Math.abs(row.y - item.y) <= 2.5);
+			if (current) {
+				current.cells.push(item);
+				current.y = (current.y + item.y) / 2;
+			} else rows.push({
+				page: item.page,
+				y: item.y,
+				cells: [item]
+			});
+		}
+		return rows.map((row) => ({
+			...row,
+			cells: row.cells.sort((a, b) => a.x - b.x)
+		})).sort((a, b) => a.page - b.page || b.y - a.y);
+	}
+	function headerScore(row) {
+		const headers = makeUniqueHeaders(row.cells.map((item) => item.text.trim()));
+		return assessTableHeaders(headers).score;
+	}
+	function normalizePdfHeaderText(value) {
+		return value.normalize("NFKC").trim().toLowerCase().replace(/\s+/g, "");
+	}
+	function isRepeatedPdfHeader(row, headerCells) {
+		const headerLabels = new Set(headerCells.map((cell) => normalizePdfHeaderText(cell.text)));
+		return row.cells.filter((cell) => headerLabels.has(normalizePdfHeaderText(cell.text))).length >= Math.max(2, Math.ceil(headerCells.length * .6));
+	}
+	const PDF_WEEKDAY = /^\([월화수목금토일]\)$/;
+	const PDF_CONFIRMER = /^\[[^\]]+\]\.?$/;
+	/**
+	* Daily service ledgers include calendar/status rows that are not personal
+	* leave or attendance usage. They must not become unresolved import records
+	* merely because they contain a date. Keep this deliberately conservative:
+	* exact weekend/status labels and explicit public-holiday wording only.
+	*/
+	function isNonUsageDailyStatus(value) {
+		const normalized = value.normalize("NFKC").replace(/\s+/g, "").trim();
+		if (!normalized) return true;
+		return /^(토요일|일요일|주말|휴무|휴무일|비번|정상근무|정상출근|근무|근무편성)$/.test(normalized) || /(공휴일|대체공휴일|임시공휴일|국경일)$/.test(normalized) || /^(신정|설날|삼일절|어린이날|부처님오신날|현충일|광복절|개천절|한글날|추석|추석연휴|설날연휴|성탄절|크리스마스|노동절|근로자의날|지방선거|선거일|제헌절)$/.test(normalized);
+	}
+	function isDailyServiceStatusHeader(row) {
+		const merged = normalizePdfHeaderText(row.cells.map((cell) => cell.text).join(""));
+		return merged.includes("날짜") && merged.includes("복무상황") && merged.includes("비고");
+	}
+	function durationWindow(cells) {
+		for (let size = Math.min(3, cells.length); size >= 1; size -= 1) for (let start = 0; start + size <= cells.length; start += 1) {
+			const text = cells.slice(start, start + size).map((cell) => cell.text).join(" ").trim();
+			if (parseDurationMinutes(text) !== null) return {
+				start,
+				end: start + size,
+				text
+			};
+		}
+		return null;
+	}
+	/**
+	* Some official daily-service PDFs center their column headings while the row
+	* contents are left-aligned. A midpoint-of-heading algorithm then puts the
+	* event label into the date column (for example, "2026-04-27 (월) 연가") and
+	* can also split a centered "비고" heading into separate glyph runs.
+	*
+	* For the recognizable 날짜 / 복무상황 / 비고 layout, reconstruct rows from
+	* semantic tokens instead of guessing table borders. This path works for both
+	* positioned PDF text and OCR output and deliberately keeps unknown labels for
+	* preview rather than coercing them.
+	*/
+	function dailyServiceStatusTable(rows, headerIndex) {
+		const header = rows[headerIndex];
+		if (!header || !isDailyServiceStatusHeader(header)) return null;
+		const tableRows = [];
+		for (const row of rows.slice(headerIndex + 1)) {
+			if (isDailyServiceStatusHeader(row)) continue;
+			const dateIndex = row.cells.findIndex((cell) => parseDateCell(cell.text) !== null);
+			if (dateIndex < 0) continue;
+			const date = parseDateCell(row.cells[dateIndex]?.text ?? "");
+			if (!date) continue;
+			const remainder = row.cells.slice(dateIndex + 1);
+			while (remainder[0] && PDF_WEEKDAY.test(remainder[0].text.trim())) remainder.shift();
+			const duration = durationWindow(remainder);
+			const withoutDuration = remainder.filter((_cell, index) => !duration || index < duration.start || index >= duration.end);
+			const confirmerIndex = withoutDuration.findIndex((cell) => PDF_CONFIRMER.test(cell.text.trim()));
+			const eventCells = confirmerIndex >= 0 ? withoutDuration.slice(0, confirmerIndex) : withoutDuration;
+			const noteCells = confirmerIndex >= 0 ? withoutDuration.slice(confirmerIndex + 1) : [];
+			const eventText = eventCells.map((cell) => cell.text.trim()).filter(Boolean).join(" ").trim();
+			let noteText = noteCells.map((cell) => cell.text.trim()).filter(Boolean).join(" ").trim();
+			const classification = classifyEventType(eventText);
+			if (!noteText && eventText && !classification.eventType) noteText = eventText;
+			if (!classification.eventType && isNonUsageDailyStatus(eventText)) continue;
+			tableRows.push({
+				날짜: date,
+				복무상황: eventText,
+				사용시간: duration?.text ?? "",
+				비고: noteText
+			});
+		}
+		if (tableRows.length === 0) return null;
+		return {
+			format: "PDF_TEXT",
+			headers: [
+				"날짜",
+				"복무상황",
+				"사용시간",
+				"비고"
+			],
+			rows: tableRows,
+			sourceLabel: `PDF ${Math.max(...rows.map((row) => row.page), 1)}페이지 · 날짜/복무상황 표`
+		};
+	}
+	function tabularFromPositionedPdfText(items) {
+		const rows = groupPdfRows(items);
+		const dailyHeaderIndex = rows.findIndex(isDailyServiceStatusHeader);
+		if (dailyHeaderIndex >= 0) {
+			const daily = dailyServiceStatusTable(rows, dailyHeaderIndex);
+			if (daily) return daily;
+		}
+		const header = rows.map((row, index) => ({
+			row,
+			index,
+			score: headerScore(row)
+		})).sort((a, b) => b.score - a.score)[0];
+		if (!header || header.score <= 0) throw new Error("PDF에서 복무기록 표 구조를 찾지 못했습니다. 열 인식이 어려운 문서는 원본 형식을 확인해 주세요.");
+		const headerCells = header.row.cells;
+		const headers = makeUniqueHeaders(headerCells.map((cell) => cell.text));
+		const anchors = headerCells.map((cell) => cell.x);
+		const boundaries = anchors.slice(0, -1).map((x, index) => {
+			return (x + (anchors[index + 1] ?? x)) / 2;
+		});
+		const tableRows = [];
+		for (const row of rows.slice(header.index + 1)) {
+			if (isRepeatedPdfHeader(row, headerCells)) continue;
+			const buckets = headers.map(() => []);
+			for (const item of row.cells) {
+				let column = boundaries.findIndex((boundary) => item.x < boundary);
+				if (column < 0) column = headers.length - 1;
+				buckets[column]?.push(item.text.trim());
+			}
+			const result = {};
+			let populated = false;
+			headers.forEach((name, index) => {
+				const value = (buckets[index] ?? []).filter(Boolean).join(" ").trim();
+				result[name] = value;
+				if (value) populated = true;
+			});
+			if (populated) tableRows.push(result);
+		}
+		return {
+			format: "PDF_TEXT",
+			headers,
+			rows: tableRows,
+			sourceLabel: `PDF ${Math.max(...items.map((item) => item.page), 1)}페이지`
+		};
+	}
+
+//#endregion
 //#region ../../apps/web/src/lib/projections.ts
 /**
 	* Thin application glue: combine domain records with rule-supplied inputs.
@@ -15424,6 +19101,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			})),
 			standardServiceMonths: 21
 		}),
+		/** Cited institution rates for a typed 기관명 (profile form). */
+		suggestInstitutionRates: (query, year) => suggestInstitutionRates(query, { year }),
 		/** Verified regional fare suggestion, or null (web lib). */
 		regionalFareSuggestion,
 		evaluateMoneyMonth,
@@ -15585,6 +19264,24 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			const snapshot = requireStore().getSnapshot();
 			if (snapshot.phase !== "READY") throw new Error("Store is not ready.");
 			return snapshot.data;
+		}
+		/** Candidate rows, statuses against stored records and default selection. */
+		async function previewTabular(tabular, fileName, fileSha256) {
+			const batch = createImportBatchDescriptor({
+				fileName,
+				sourceFormat: tabular.format,
+				fileSha256
+			});
+			const preview = await buildImportPreview(tabular, batch);
+			const statuses = rowStatuses(readyData(), preview);
+			return json({
+				preview,
+				statuses: Object.fromEntries(statuses),
+				acceptedRows: [...defaultAcceptedRows(preview, statuses)],
+				acceptedSnapshots: [...defaultAcceptedSnapshots(preview)],
+				decisionLabels: DECISION_LABELS,
+				alreadyImported: readyData().imports.some((record) => record.status === "ACTIVE" && fileSha256 !== null && record.fileSha256 === fileSha256)
+			});
 		}
 		return {
 			version: FACADE_VERSION,
@@ -15792,22 +19489,16 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			* Nothing is written.
 			*/
 			async importPreview(text, fileName, fileSha256) {
-				const tabular = parseDelimitedText(text);
-				const batch = createImportBatchDescriptor({
-					fileName,
-					sourceFormat: tabular.format,
-					fileSha256
-				});
-				const preview = await buildImportPreview(tabular, batch);
-				const statuses = rowStatuses(readyData(), preview);
-				return json({
-					preview,
-					statuses: Object.fromEntries(statuses),
-					acceptedRows: [...defaultAcceptedRows(preview, statuses)],
-					acceptedSnapshots: [...defaultAcceptedSnapshots(preview)],
-					decisionLabels: DECISION_LABELS,
-					alreadyImported: readyData().imports.some((record) => record.status === "ACTIVE" && fileSha256 !== null && record.fileSha256 === fileSha256)
-				});
+				return previewTabular(parseDelimitedText(text), fileName, fileSha256);
+			},
+			/**
+			* The same preview for a text PDF. The host (PDFKit on iOS) extracts
+			* positioned text lines (`page`, `x`, `y`, `text`) and the shared PDF
+			* table reader turns them into rows, as pdf.js text does on the web.
+			*/
+			async importPreviewPdf(itemsJson, fileName, fileSha256) {
+				const items = JSON.parse(itemsJson);
+				return previewTabular(tabularFromPositionedPdfText(items), fileName, fileSha256);
 			},
 			/** Commit accepted rows and snapshots of a preview (web import panel). */
 			async importCommit(previewJson, overridesJson, acceptedRowsJson, acceptedSnapshotsJson) {

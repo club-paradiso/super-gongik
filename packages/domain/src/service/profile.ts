@@ -64,6 +64,12 @@ export const serviceProfileInputSchema = z
     expectedDischargeDate: dateOnlySchema,
     serviceCategory: z.string().trim().max(80).nullable().default(null),
     workplaceType: z.string().trim().max(80).nullable().default(null),
+    /**
+     * 복무기관 이름 as the user typed it. Used only to look up cited
+     * institution rules (meal/transport suggestions); it never changes a
+     * calculation by itself and is not an identifier.
+     */
+    institutionName: z.string().trim().max(80).nullable().default(null),
     residenceRegion: z.string().trim().max(40).nullable().default(null),
     defaultCommuteCost: z.number().nonnegative().nullable().default(null),
     defaultMealAllowanceOverride: z

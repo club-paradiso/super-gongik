@@ -46,6 +46,29 @@ struct ImportTests {
         #expect(snapshot.data?.liveEvents.isEmpty == true)
     }
 
+    @Test("a text PDF's positioned lines preview like the same table as CSV")
+    func pdfPreview() async throws {
+        let runtime = try CoreRuntime(storage: try FileKeyValueStore(directory: FileManager.default.temporaryDirectory.appendingPathComponent("sg-pdf-\(UUID().uuidString)")))
+        _ = try await runtime.open()
+        _ = try await runtime.run("createProfile", [.object([
+            "callUpDate": .string("2026-05-04"), "expectedDischargeDate": .string("2028-02-03"),
+        ])])
+        func item(_ x: Double, _ y: Double, _ text: String) -> JSONValue {
+            .object(["page": .number(1), "x": .number(x), "y": .number(y), "text": .string(text)])
+        }
+        let items = JSONValue.array([
+            item(10, 700, "사용일자"), item(110, 700, "복무상황"), item(210, 700, "사용시간"), item(310, 700, "비고"),
+            item(10, 680, "2026-07-01"), item(110, 680, "연가"), item(210, 680, "8시간"), item(310, 680, "여름"),
+            item(10, 660, "2026-07-02"), item(110, 660, "병가"), item(210, 660, "8시간"), item(310, 660, ""),
+        ])
+        let preview = try JSONValue(data: await runtime.callJSONAsync("importPreviewPdf", [items.jsonText, "records.pdf", "e".padding(toLength: 64, withPad: "0", startingAt: 0)]))
+        let events = preview["preview"]?["events"]?.arrayValue ?? []
+        #expect(events.count == 2)
+        #expect(events.first?["date"]?.stringValue == "2026-07-01")
+        #expect(events.first?["eventType"]?.stringValue == "ANNUAL_LEAVE")
+        #expect((preview["acceptedRows"]?.arrayValue ?? []).count == 2)
+    }
+
     @Test("CSV exports match the web formats")
     func csvExport() async throws {
         let runtime = try CoreRuntime(storage: try FileKeyValueStore(directory: FileManager.default.temporaryDirectory.appendingPathComponent("sg-csv-\(UUID().uuidString)")))

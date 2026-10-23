@@ -170,6 +170,9 @@ const PURE = {
     })),
     standardServiceMonths: domain.STANDARD_SERVICE_MONTHS,
   }),
+  /** Cited institution rates for a typed 기관명 (profile form). */
+  suggestInstitutionRates: (query: string, year: number) =>
+    rules.suggestInstitutionRates(query, { year }),
   /** Verified regional fare suggestion, or null (web lib). */
   regionalFareSuggestion,
   // money screen month evaluation (web lib/money-model.ts)

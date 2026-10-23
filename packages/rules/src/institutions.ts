@@ -97,6 +97,14 @@ const dateOnlySchema = z
 
 const sha256Schema = z.string().regex(/^[0-9a-f]{64}$/);
 
+/**
+ * zod's .url() builds a URL, which JavaScriptCore (the iOS bundle) does
+ * not provide, so the registry would fail to parse there. A plain http(s)
+ * prefix check stands in for it (some stored links carry download hints
+ * after the address).
+ */
+const httpUrlSchema = z.string().regex(/^https?:\/\/\S/, "Invalid URL");
+
 const repoPathSchema = z.string().regex(/^docs\/sources\/institutions\//);
 
 export const institutionSourceSchema = z
@@ -105,8 +113,8 @@ export const institutionSourceSchema = z
     title: z.string().min(1),
     publisher: z.string().min(1),
     sourceType: institutionSourceTypeSchema,
-    url: z.string().url(),
-    pageUrl: z.string().url().nullable(),
+    url: httpUrlSchema,
+    pageUrl: httpUrlSchema.nullable(),
     publishedDate: dateOnlySchema.nullable(),
     retrievedAt: dateOnlySchema,
     documentYear: z.number().int().min(2000).max(2100),

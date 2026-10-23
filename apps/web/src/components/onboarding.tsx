@@ -72,6 +72,7 @@ export function Onboarding({
           expectedDischargeDate,
           serviceCategory: serviceCategory || null,
           workplaceType: null,
+          institutionName: null,
           defaultCommuteCost: null,
           defaultMealAllowanceOverride: null,
           timezone: "Asia/Seoul",
