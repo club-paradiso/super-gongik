@@ -71,6 +71,7 @@ export function HomeTab({
         payBand={model.pay.kind !== "NONE" ? model.pay.band : null}
       />
       <HomeStats actions={actions} model={model} />
+      <HomeWorkdays model={model} />
       <HomeAgenda actions={actions} model={model} />
       <QuickActions actions={actions} completed={model.completed} />
     </div>
@@ -339,6 +340,42 @@ function HomeStats({
           {pay.caption}
         </span>
       </button>
+    </section>
+  );
+}
+
+function HomeWorkdays({ model }: { model: HomeModel }) {
+  const { workdays } = model;
+  if (workdays.kind === "HIDDEN") return null;
+  return (
+    <section className="workday-stats" aria-label="실질 복무일수">
+      <h2 className="workday-stats__title">실질 복무일수</h2>
+      {workdays.kind === "READY" ? (
+        <>
+          <div className="stat-pair workday-stats__grid">
+            {workdays.items.map((item) => (
+              <div className="stat-card" key={item.metric}>
+                <span className="stat-card__label">{item.label}</span>
+                <strong
+                  className={
+                    item.value === "—"
+                      ? "stat-card__value stat-card__value--muted"
+                      : "stat-card__value"
+                  }
+                >
+                  {item.value}
+                </strong>
+                <span className="stat-card__caption">{item.caption}</span>
+              </div>
+            ))}
+          </div>
+          {workdays.note ? (
+            <small className="field-hint">{workdays.note}</small>
+          ) : null}
+        </>
+      ) : (
+        <small className="field-hint">{workdays.caption}</small>
+      )}
     </section>
   );
 }

@@ -58,6 +58,20 @@ export const PRIOR_SERVICE_BASIS_LABELS: Record<PriorServiceBasis, string> = {
   ARTICLE_62_2_7_ALTERNATIVE_SERVICE: "제7호 대체역 편입 취소",
 };
 
+/** 실질 복무일수 figures the user can show on the home screen. */
+export const SERVICE_DAY_METRICS = [
+  "REMAINING_WORKDAYS",
+  "REMAINING_IF_ALL_LEAVE_USED",
+  "ELAPSED_WORKDAYS",
+] as const;
+export type ServiceDayMetric = (typeof SERVICE_DAY_METRICS)[number];
+export const serviceDayMetricSchema = z.enum(SERVICE_DAY_METRICS);
+export const SERVICE_DAY_METRIC_LABELS: Record<ServiceDayMetric, string> = {
+  REMAINING_WORKDAYS: "남은 출근일",
+  REMAINING_IF_ALL_LEAVE_USED: "연가를 다 쓰면 남는 출근일",
+  ELAPSED_WORKDAYS: "지금까지 실제로 출근한 날",
+};
+
 export const serviceProfileInputSchema = z
   .object({
     callUpDate: dateOnlySchema,
@@ -85,6 +99,12 @@ export const serviceProfileInputSchema = z
      * background work for users who prefer the static day-based display.
      */
     liveProgressEnabled: z.boolean().default(false),
+    /**
+     * Which 실질 복무일수 figures the home screen shows. Absent means all
+     * three; an empty list hides them. Optional (not defaulted) so stored
+     * profiles and exports stay unchanged until the user picks.
+     */
+    serviceDayMetrics: z.array(serviceDayMetricSchema).optional(),
     /**
      * Ordinary workday length at the user's institution, in minutes. Needed
      * only to combine minute-based partial leave with day-based balances;

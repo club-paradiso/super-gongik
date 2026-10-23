@@ -6633,6 +6633,13 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		ARTICLE_62_2_6_ARTICLE_137_RECLASSIFIED: "제6호 제137조제7항 보충역 편입",
 		ARTICLE_62_2_7_ALTERNATIVE_SERVICE: "제7호 대체역 편입 취소"
 	};
+	/** 실질 복무일수 figures the user can show on the home screen. */
+	const SERVICE_DAY_METRICS = [
+		"REMAINING_WORKDAYS",
+		"REMAINING_IF_ALL_LEAVE_USED",
+		"ELAPSED_WORKDAYS"
+	];
+	const serviceDayMetricSchema = _enum(SERVICE_DAY_METRICS);
 	const serviceProfileInputSchema = object({
 		callUpDate: dateOnlySchema$2,
 		expectedDischargeDate: dateOnlySchema$2,
@@ -6655,6 +6662,12 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		* background work for users who prefer the static day-based display.
 		*/
 		liveProgressEnabled: boolean().default(false),
+		/**
+		* Which 실질 복무일수 figures the home screen shows. Absent means all
+		* three; an empty list hides them. Optional (not defaulted) so stored
+		* profiles and exports stay unchanged until the user picks.
+		*/
+		serviceDayMetrics: array(serviceDayMetricSchema).optional(),
 		/**
 		* Ordinary workday length at the user's institution, in minutes. Needed
 		* only to combine minute-based partial leave with day-based balances;
@@ -16801,7 +16814,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 
 //#endregion
 //#region ../rules/src/non-payable-days.ts
-	function datesBetween$1(start, end) {
+	function datesBetween$2(start, end) {
 		const dates = [];
 		for (let cursor = start; compareDateOnly(cursor, end) <= 0;) {
 			dates.push(cursor);
@@ -16835,7 +16848,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	}
 	function exactChargedDates(event, input) {
 		if (event.timing.kind !== "ALL_DAY") return null;
-		const range = datesBetween$1(event.startDate, event.endDate);
+		const range = datesBetween$2(event.startDate, event.endDate);
 		if (event.timing.dayCount === range.length) return range;
 		if (input.profile.workPattern !== "WEEKDAY_DAYTIME" || input.profile.workWeekdays === null) return null;
 		const weekdays = new Set(input.profile.workWeekdays);
@@ -16978,7 +16991,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	function covers(event, date) {
 		return compareDateOnly(event.startDate, date) <= 0 && compareDateOnly(date, event.endDate) <= 0;
 	}
-	function datesBetween(start, end) {
+	function datesBetween$1(start, end) {
 		const dates = [];
 		for (let cursor = start; compareDateOnly(cursor, end) <= 0;) {
 			dates.push(cursor);
@@ -16994,7 +17007,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	*/
 	function chargedDates(event, isScheduledWorkingDay) {
 		if (event.timing.kind !== "ALL_DAY") return null;
-		const range = datesBetween(event.startDate, event.endDate);
+		const range = datesBetween$1(event.startDate, event.endDate);
 		if (event.timing.dayCount === range.length) return new Set(range);
 		const scheduled = range.filter(isScheduledWorkingDay);
 		return event.timing.dayCount === scheduled.length ? new Set(scheduled) : null;
@@ -17044,7 +17057,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			day: daysInMonth(month)
 		});
 		const liveEvents = input.events.filter((event) => compareDateOnly(event.startDate, last) <= 0 && compareDateOnly(first, event.endDate) <= 0).filter((event) => isLive(event) && event.eventType !== "USER_NOTE");
-		const days = datesBetween(first, last).map((date) => {
+		const days = datesBetween$1(first, last).map((date) => {
 			if (!(compareDateOnly(profile.callUpDate, date) <= 0 && compareDateOnly(date, profile.expectedDischargeDate) <= 0)) return {
 				date,
 				kind: "OUTSIDE_SERVICE",
@@ -17552,6 +17565,438 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			current,
 			next,
 			steps
+		};
+	}
+
+//#endregion
+//#region ../rules/holidays/kr-public-holidays.json
+	var kr_public_holidays_default = {
+		source: {
+			"title": "한국천문연구원_특일 정보 (공휴일 정보 조회)",
+			"authority": "한국천문연구원",
+			"url": "https://www.data.go.kr/data/15012690/openapi.do",
+			"endpoint": "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo",
+			"fetchedAt": "2026-10-23"
+		},
+		years: {
+			"2025": [
+				{
+					"date": "2025-01-01",
+					"name": "1월1일"
+				},
+				{
+					"date": "2025-01-27",
+					"name": "임시공휴일"
+				},
+				{
+					"date": "2025-01-28",
+					"name": "설날"
+				},
+				{
+					"date": "2025-01-29",
+					"name": "설날"
+				},
+				{
+					"date": "2025-01-30",
+					"name": "설날"
+				},
+				{
+					"date": "2025-03-01",
+					"name": "삼일절"
+				},
+				{
+					"date": "2025-03-03",
+					"name": "대체공휴일"
+				},
+				{
+					"date": "2025-05-05",
+					"name": "어린이날"
+				},
+				{
+					"date": "2025-05-05",
+					"name": "부처님오신날"
+				},
+				{
+					"date": "2025-05-06",
+					"name": "대체공휴일"
+				},
+				{
+					"date": "2025-06-03",
+					"name": "임시공휴일(제21대 대통령 선거)"
+				},
+				{
+					"date": "2025-06-06",
+					"name": "현충일"
+				},
+				{
+					"date": "2025-08-15",
+					"name": "광복절"
+				},
+				{
+					"date": "2025-10-03",
+					"name": "개천절"
+				},
+				{
+					"date": "2025-10-05",
+					"name": "추석"
+				},
+				{
+					"date": "2025-10-06",
+					"name": "추석"
+				},
+				{
+					"date": "2025-10-07",
+					"name": "추석"
+				},
+				{
+					"date": "2025-10-08",
+					"name": "대체공휴일"
+				},
+				{
+					"date": "2025-10-09",
+					"name": "한글날"
+				},
+				{
+					"date": "2025-12-25",
+					"name": "기독탄신일"
+				}
+			],
+			"2026": [
+				{
+					"date": "2026-01-01",
+					"name": "1월1일"
+				},
+				{
+					"date": "2026-02-16",
+					"name": "설날"
+				},
+				{
+					"date": "2026-02-17",
+					"name": "설날"
+				},
+				{
+					"date": "2026-02-18",
+					"name": "설날"
+				},
+				{
+					"date": "2026-03-01",
+					"name": "삼일절"
+				},
+				{
+					"date": "2026-03-02",
+					"name": "대체공휴일(삼일절)"
+				},
+				{
+					"date": "2026-05-01",
+					"name": "노동절"
+				},
+				{
+					"date": "2026-05-05",
+					"name": "어린이날"
+				},
+				{
+					"date": "2026-05-24",
+					"name": "부처님오신날"
+				},
+				{
+					"date": "2026-05-25",
+					"name": "대체공휴일(부처님오신날)"
+				},
+				{
+					"date": "2026-06-03",
+					"name": "전국동시지방선거"
+				},
+				{
+					"date": "2026-06-06",
+					"name": "현충일"
+				},
+				{
+					"date": "2026-07-17",
+					"name": "제헌절"
+				},
+				{
+					"date": "2026-08-15",
+					"name": "광복절"
+				},
+				{
+					"date": "2026-08-17",
+					"name": "대체공휴일(광복절)"
+				},
+				{
+					"date": "2026-09-24",
+					"name": "추석"
+				},
+				{
+					"date": "2026-09-25",
+					"name": "추석"
+				},
+				{
+					"date": "2026-09-26",
+					"name": "추석"
+				},
+				{
+					"date": "2026-10-03",
+					"name": "개천절"
+				},
+				{
+					"date": "2026-10-05",
+					"name": "대체공휴일(개천절)"
+				},
+				{
+					"date": "2026-10-09",
+					"name": "한글날"
+				},
+				{
+					"date": "2026-12-25",
+					"name": "기독탄신일"
+				}
+			],
+			"2027": [
+				{
+					"date": "2027-01-01",
+					"name": "1월1일"
+				},
+				{
+					"date": "2027-02-06",
+					"name": "설날"
+				},
+				{
+					"date": "2027-02-07",
+					"name": "설날"
+				},
+				{
+					"date": "2027-02-08",
+					"name": "설날"
+				},
+				{
+					"date": "2027-02-09",
+					"name": "대체공휴일(설날)"
+				},
+				{
+					"date": "2027-03-01",
+					"name": "삼일절"
+				},
+				{
+					"date": "2027-05-01",
+					"name": "노동절"
+				},
+				{
+					"date": "2027-05-03",
+					"name": "대체공휴일(노동절)"
+				},
+				{
+					"date": "2027-05-05",
+					"name": "어린이날"
+				},
+				{
+					"date": "2027-05-13",
+					"name": "부처님오신날"
+				},
+				{
+					"date": "2027-06-06",
+					"name": "현충일"
+				},
+				{
+					"date": "2027-07-17",
+					"name": "제헌절"
+				},
+				{
+					"date": "2027-07-19",
+					"name": "대체공휴일(제헌절)"
+				},
+				{
+					"date": "2027-08-15",
+					"name": "광복절"
+				},
+				{
+					"date": "2027-08-16",
+					"name": "대체공휴일(광복절)"
+				},
+				{
+					"date": "2027-09-14",
+					"name": "추석"
+				},
+				{
+					"date": "2027-09-15",
+					"name": "추석"
+				},
+				{
+					"date": "2027-09-16",
+					"name": "추석"
+				},
+				{
+					"date": "2027-10-03",
+					"name": "개천절"
+				},
+				{
+					"date": "2027-10-04",
+					"name": "대체공휴일(개천절)"
+				},
+				{
+					"date": "2027-10-09",
+					"name": "한글날"
+				},
+				{
+					"date": "2027-10-11",
+					"name": "대체공휴일(한글날)"
+				},
+				{
+					"date": "2027-12-25",
+					"name": "기독탄신일"
+				},
+				{
+					"date": "2027-12-27",
+					"name": "대체공휴일(기독탄신일)"
+				}
+			],
+			"2028": [
+				{
+					"date": "2028-01-01",
+					"name": "1월1일"
+				},
+				{
+					"date": "2028-01-26",
+					"name": "설날"
+				},
+				{
+					"date": "2028-01-27",
+					"name": "설날"
+				},
+				{
+					"date": "2028-01-28",
+					"name": "설날"
+				},
+				{
+					"date": "2028-03-01",
+					"name": "삼일절"
+				},
+				{
+					"date": "2028-04-12",
+					"name": "국회의원선거일"
+				},
+				{
+					"date": "2028-05-01",
+					"name": "노동절"
+				},
+				{
+					"date": "2028-05-02",
+					"name": "부처님오신날"
+				},
+				{
+					"date": "2028-05-05",
+					"name": "어린이날"
+				},
+				{
+					"date": "2028-06-06",
+					"name": "현충일"
+				},
+				{
+					"date": "2028-07-17",
+					"name": "제헌절"
+				},
+				{
+					"date": "2028-08-15",
+					"name": "광복절"
+				},
+				{
+					"date": "2028-10-02",
+					"name": "추석"
+				},
+				{
+					"date": "2028-10-03",
+					"name": "개천절"
+				},
+				{
+					"date": "2028-10-03",
+					"name": "추석"
+				},
+				{
+					"date": "2028-10-04",
+					"name": "추석"
+				},
+				{
+					"date": "2028-10-05",
+					"name": "대체공휴일(추석)"
+				},
+				{
+					"date": "2028-10-09",
+					"name": "한글날"
+				},
+				{
+					"date": "2028-12-25",
+					"name": "기독탄신일"
+				}
+			]
+		}
+	};
+
+//#endregion
+//#region ../rules/src/public-holidays.ts
+	const file = kr_public_holidays_default;
+	const PUBLIC_HOLIDAY_SOURCE = file.source;
+	/** Years the file covers. A year is listed only once it was announced. */
+	const PUBLIC_HOLIDAY_YEARS = Object.keys(file.years).map(Number).sort((a, b) => a - b);
+	const names = /* @__PURE__ */ new Map();
+	for (const holidays of Object.values(file.years)) for (const { date, name } of holidays) names.set(date, names.has(date) ? `${names.get(date)}·${name}` : name);
+	function publicHolidayName(date) {
+		return names.get(date) ?? null;
+	}
+	function isPublicHolidayYearCovered(year) {
+		return PUBLIC_HOLIDAY_YEARS.includes(year);
+	}
+
+//#endregion
+//#region ../rules/src/service-workdays.ts
+	const ABSENCE_EVENT_TYPES = /* @__PURE__ */ new Set([
+		"SERVICE_SUSPENSION",
+		"SERVICE_ABSENCE",
+		"EXCESS_ANNUAL_ABSENCE"
+	]);
+	function datesBetween(start, end) {
+		const dates = [];
+		for (let cursor = start; compareDateOnly(cursor, end) <= 0;) {
+			dates.push(cursor);
+			cursor = addDays(cursor, 1);
+		}
+		return dates;
+	}
+	/** 연가 left in whole half-days; minutes short of a half day cannot skip work. */
+	function leaveDays(balance) {
+		const halfDays = balance.remainingAfterScheduled.halfDays + balance.upcomingCredits.halfDays + Math.floor((balance.remainingAfterScheduled.minutes + balance.upcomingCredits.minutes) / 240);
+		return Math.max(0, halfDays) / 2;
+	}
+	function deriveServiceWorkdays(input) {
+		const { profile, today } = input;
+		if (profile.workPattern !== null && profile.workPattern !== "WEEKDAY_DAYTIME") return { status: "UNSUPPORTED_WORK_PATTERN" };
+		if (profile.workWeekdays === null || profile.workWeekdays.length === 0) return { status: "NEEDS_WORK_WEEKDAYS" };
+		const weekdays = new Set(profile.workWeekdays);
+		const declared = new Set(input.attendanceMonths.filter(isLive).flatMap((m) => m.nonWorkingDates));
+		const isScheduled = (date) => weekdays.has(dayOfWeek(date)) && publicHolidayName(date) === null && !declared.has(date);
+		const away = /* @__PURE__ */ new Set();
+		for (const event of input.events) {
+			if (!isLive(event) || event.timing.kind !== "ALL_DAY") continue;
+			if (isLeaveEventType(event.eventType)) {
+				const charged = chargedDates(event, isScheduled) ?? new Set(datesBetween(event.startDate, event.endDate));
+				for (const date of charged) away.add(date);
+			} else if (ABSENCE_EVENT_TYPES.has(event.eventType)) for (const date of datesBetween(event.startDate, event.endDate)) away.add(date);
+		}
+		const isWorkday = (date) => isScheduled(date) && !away.has(date);
+		const count = (start, end) => compareDateOnly(start, end) > 0 ? 0 : datesBetween(start, end).filter(isWorkday).length;
+		const remaining = count(compareDateOnly(today, profile.callUpDate) < 0 ? profile.callUpDate : addDays(today, 1), profile.expectedDischargeDate);
+		const lastElapsed = compareDateOnly(today, profile.expectedDischargeDate) > 0 ? profile.expectedDischargeDate : addDays(today, -1);
+		const elapsed = count(profile.callUpDate, lastElapsed);
+		const leave = input.annualLeave?.status === "RESOLVED" ? leaveDays(input.annualLeave) : null;
+		const uncoveredHolidayYears = [];
+		const endYear = Number(profile.expectedDischargeDate.slice(0, 4));
+		for (let year = Number(profile.callUpDate.slice(0, 4)); year <= endYear; year += 1) if (!isPublicHolidayYearCovered(year)) uncoveredHolidayYears.push(year);
+		return {
+			status: "READY",
+			remaining,
+			remainingIfAllLeaveUsed: leave === null ? null : Math.max(0, remaining - leave),
+			leaveDaysAssumed: leave,
+			leaveIncludesUpcoming: leave !== null && (input.annualLeave.upcomingCredits.halfDays > 0 || input.annualLeave.upcomingCredits.minutes > 0),
+			elapsed,
+			uncoveredHolidayYears
 		};
 	}
 
@@ -18821,12 +19266,20 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	function buildAppProjection(data, profile, today) {
 		const liveEvents = data.events.filter(isLive).sort((a, b) => a.startDate.localeCompare(b.startDate));
 		const todayEvents = liveEvents.filter((event) => compareDateOnly(event.startDate, today) <= 0 && compareDateOnly(today, event.endDate) <= 0);
+		const ledger = buildLedgerForProfile(data, profile, today);
 		return {
 			progress: calculateServiceProgress(profile, today),
-			ledger: buildLedgerForProfile(data, profile, today),
+			ledger,
 			compensation: evaluateMonthlyCompensation(profile, today, {
 				events: data.events,
 				attendance: findAttendanceMonth(data.attendanceMonths, yearMonthOf(today))
+			}),
+			workdays: deriveServiceWorkdays({
+				profile,
+				events: data.events,
+				attendanceMonths: data.attendanceMonths,
+				annualLeave: ledger.balance,
+				today
 			}),
 			liveEvents,
 			nextEvent: liveEvents.find((event) => compareDateOnly(event.startDate, today) > 0) ?? null,
@@ -20007,6 +20460,48 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			}, null)}` : null
 		};
 	}
+	function formatDayCount(value) {
+		return `${value.toLocaleString("ko-KR")}일`;
+	}
+	function buildWorkdays(profile, projection) {
+		const metrics = SERVICE_DAY_METRICS.filter((metric) => (profile.serviceDayMetrics ?? SERVICE_DAY_METRICS).includes(metric));
+		const { workdays, progress } = projection;
+		if (metrics.length === 0 || progress.state === "COMPLETED") return { kind: "HIDDEN" };
+		if (workdays.status === "NEEDS_WORK_WEEKDAYS") return {
+			kind: "NEEDS_WORK_WEEKDAYS",
+			caption: "근무 요일을 정하면 실제 출근일을 세어 드려요"
+		};
+		if (workdays.status === "UNSUPPORTED_WORK_PATTERN") return {
+			kind: "UNSUPPORTED",
+			caption: "교대·합숙 근무는 출근일을 세지 않아요"
+		};
+		return {
+			kind: "READY",
+			items: metrics.map((metric) => {
+				switch (metric) {
+					case "REMAINING_WORKDAYS": return {
+						metric,
+						label: "남은 출근일",
+						value: formatDayCount(workdays.remaining),
+						caption: "내일부터 소집해제일까지, 공휴일·휴가 제외"
+					};
+					case "REMAINING_IF_ALL_LEAVE_USED": return {
+						metric,
+						label: "연가 다 쓰면",
+						value: workdays.remainingIfAllLeaveUsed === null ? "—" : formatDayCount(workdays.remainingIfAllLeaveUsed),
+						caption: workdays.leaveDaysAssumed === null ? "연가 부여 일수를 확인하면 보여 드려요" : workdays.leaveIncludesUpcoming ? `앞으로 받을 연가까지 ${formatDayCount(workdays.leaveDaysAssumed)}을 모두 쓴다면` : `남은 연가 ${formatDayCount(workdays.leaveDaysAssumed)}을 모두 쓴다면`
+					};
+					case "ELAPSED_WORKDAYS": return {
+						metric,
+						label: "실제로 출근한 날",
+						value: formatDayCount(workdays.elapsed),
+						caption: "소집일부터 어제까지, 휴가·결근 제외"
+					};
+				}
+			}),
+			note: workdays.uncoveredHolidayYears.length === 0 ? null : `${workdays.uncoveredHolidayYears.join("·")}년 공휴일은 아직 발표 전이라 빼지 않았어요`
+		};
+	}
 	function buildPay(projection, schedule) {
 		const { compensation, progress } = projection;
 		const bandLabel = schedule.status === "READY" && schedule.current ? schedule.current.label : compensation.equivalentRank;
@@ -20055,6 +20550,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			hero: buildHero(profile, projection, schedule, today),
 			leave: buildLeave(projection),
 			pay: buildPay(projection, schedule),
+			workdays: buildWorkdays(profile, projection),
 			today: projection.todayEvents.map((event) => agendaItem(event, today)),
 			upcoming: projection.liveEvents.filter((event) => compareDateOnly(event.startDate, horizon) >= 0).slice(0, limit).map((event) => agendaItem(event, today)),
 			completed: projection.progress.state === "COMPLETED"

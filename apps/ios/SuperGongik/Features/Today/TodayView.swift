@@ -51,6 +51,9 @@ struct TodayView: View {
                                            openLedger: { showingLedger = true },
                                            openPay: { openTab(.pay) },
                                            openCalendar: { openTab(.calendar) })
+                                if let workdays = home.workdays, workdays.kind != "HIDDEN" {
+                                    WorkdaySection(workdays: workdays)
+                                }
                             }
                             AgendaSection(home: home, projection: projection, openCalendar: { openTab(.calendar) })
                                 .padding(.top, home.completed ? SGSpacing.md : 0)
@@ -934,6 +937,52 @@ private struct LedgerTile<Value: View, Footer: View>: View {
         .background(.sg(SGColor.surface), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         .sgShadow(.small)
         .sgWarriorFrame(cornerRadius: 14)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+/// 실질 복무일수: the figures the user chose in 더보기, from the core's
+/// `HomeWorkdays`. Values arrive formatted ("19일", "—").
+private struct WorkdaySection: View {
+    let workdays: HomeModel.Workdays
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SGSpacing.sm) {
+            CodexSectionHeader(title: "실질 복무일수", world: "WORKDAYS") { EmptyView() }
+            if let items = workdays.items, !items.isEmpty {
+                let columns = typeSize.isAccessibilitySize
+                    ? [GridItem(.flexible())]
+                    : [GridItem(.flexible(), spacing: SGSpacing.sm), GridItem(.flexible(), spacing: SGSpacing.sm)]
+                LazyVGrid(columns: columns, spacing: SGSpacing.sm) {
+                    ForEach(items) { item in tile(item) }
+                }
+            }
+            if let text = workdays.note ?? workdays.caption {
+                Text(text)
+                    .font(SGTypography.caption)
+                    .foregroundStyle(.sg(SGColor.textTertiary))
+            }
+        }
+    }
+
+    private func tile(_ item: HomeModel.Workdays.Item) -> some View {
+        let number = item.value.hasSuffix("일") ? String(item.value.dropLast()) : item.value
+        return VStack(alignment: .leading, spacing: SGSpacing.xxs) {
+            Text(item.label)
+                .font(SGTypography.font(12, .semibold, relativeTo: .caption))
+                .foregroundStyle(.sg(SGColor.textSecondary))
+            TileValue(text: number, unit: item.value.hasSuffix("일") ? "일" : nil,
+                      emphasis: item.value == "—" ? .muted : .value)
+            Text(item.caption)
+                .font(SGTypography.caption)
+                .foregroundStyle(.sg(SGColor.textTertiary))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(SGSpacing.sm + 2)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .background(.sg(SGColor.surface), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .sgShadow(.small)
         .accessibilityElement(children: .combine)
     }
 }

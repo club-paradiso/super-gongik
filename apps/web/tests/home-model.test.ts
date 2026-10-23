@@ -186,3 +186,54 @@ describe("formatting helpers", () => {
     expect(floorPercent(1, 1000)).toBe(0.1);
   });
 });
+
+describe("실질 복무일수", () => {
+  function withProfile(
+    key: ScenarioKey,
+    patch: Partial<NonNullable<UserData["profile"]>>,
+  ) {
+    const document = data(key);
+    const profile = { ...document.profile!, ...patch };
+    return buildHomeModel(
+      profile,
+      buildAppProjection({ ...document, profile }, profile, SCENARIO_TODAY),
+      SCENARIO_TODAY,
+    ).workdays;
+  }
+  const weekdays = {
+    workPattern: "WEEKDAY_DAYTIME" as const,
+    workWeekdays: [1, 2, 3, 4, 5],
+  };
+
+  it("shows all three figures until the user picks", () => {
+    const workdays = withProfile("mid-service", weekdays);
+    if (workdays.kind !== "READY") throw new Error(workdays.kind);
+    expect(workdays.items.map((item) => item.metric)).toEqual([
+      "REMAINING_WORKDAYS",
+      "REMAINING_IF_ALL_LEAVE_USED",
+      "ELAPSED_WORKDAYS",
+    ]);
+    expect(workdays.items[0]!.value).toMatch(/^\d[\d,]*일$/);
+  });
+
+  it("keeps the fixed order for a chosen subset and hides an empty choice", () => {
+    const chosen = withProfile("mid-service", {
+      ...weekdays,
+      serviceDayMetrics: ["ELAPSED_WORKDAYS", "REMAINING_WORKDAYS"],
+    });
+    if (chosen.kind !== "READY") throw new Error(chosen.kind);
+    expect(chosen.items.map((item) => item.metric)).toEqual([
+      "REMAINING_WORKDAYS",
+      "ELAPSED_WORKDAYS",
+    ]);
+    expect(
+      withProfile("mid-service", { ...weekdays, serviceDayMetrics: [] }),
+    ).toEqual({ kind: "HIDDEN" });
+  });
+
+  it("asks for the work weekdays first", () => {
+    expect(
+      withProfile("mid-service", { workPattern: null, workWeekdays: null }),
+    ).toMatchObject({ kind: "NEEDS_WORK_WEEKDAYS" });
+  });
+});

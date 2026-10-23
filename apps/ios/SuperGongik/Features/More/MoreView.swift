@@ -9,6 +9,13 @@ import SwiftUI
 /// not drawn: the app does not hold them, and ranks do not exist for social
 /// service personnel.
 struct MoreView: View {
+    /// Same order and wording as the domain's SERVICE_DAY_METRIC_LABELS.
+    static let serviceDayMetrics: [(key: String, label: String)] = [
+        ("REMAINING_WORKDAYS", "남은 출근일"),
+        ("REMAINING_IF_ALL_LEAVE_USED", "연가를 다 쓰면 남는 출근일"),
+        ("ELAPSED_WORKDAYS", "지금까지 실제로 출근한 날"),
+    ]
+
     @Environment(AppModel.self) private var model
     @Environment(PrivacyLock.self) private var lock
     @AppStorage(ThemePreference.key, store: ThemePreference.store) private var theme: SGTheme = .standard
@@ -85,6 +92,25 @@ struct MoreView: View {
                             .disabled(model.isReadOnly)
                         } header: {
                             header("복무", world: "PROFILE")
+                        }
+
+                        Section {
+                            ForEach(Self.serviceDayMetrics, id: \.key) { metric in
+                                Toggle(metric.label, isOn: Binding(
+                                    get: { (profile.serviceDayMetrics ?? Self.serviceDayMetrics.map(\.key)).contains(metric.key) },
+                                    set: { on in
+                                        let current = profile.serviceDayMetrics ?? Self.serviceDayMetrics.map(\.key)
+                                        let next = Self.serviceDayMetrics.map(\.key).filter {
+                                            $0 == metric.key ? on : current.contains($0)
+                                        }
+                                        Task { await model.editProfile(["serviceDayMetrics": .array(next.map { .string($0) })]) }
+                                    }))
+                                .disabled(model.isReadOnly)
+                            }
+                        } header: {
+                            header("실질 복무일수", world: "WORKDAYS")
+                        } footer: {
+                            Text("홈 화면에 보여 줄 값을 고르세요. 주말·공휴일(한국천문연구원 특일 정보)과 휴가·결근일을 빼고 세요. 급여 계산은 이 공휴일을 쓰지 않고, 달마다 확인한 휴무일을 그대로 써요.")
                         }
                     }
 

@@ -59,6 +59,9 @@ public struct ServiceProfile: Codable, Sendable, Equatable {
     public let defaultCommuteCost: Double?
     public let defaultMealAllowanceOverride: Double?
     public let liveProgressEnabled: Bool?
+    /// 실질 복무일수 figures to show; nil means all three (see the domain's
+    /// `SERVICE_DAY_METRICS`).
+    public let serviceDayMetrics: [String]?
     public let workdayMinutes: Int?
     public let workdayStartTime: String?
     public let workdayEndTime: String?
@@ -200,6 +203,23 @@ public struct HomeModel: Decodable, Sendable {
         public let band: String?
     }
 
+    /// 실질 복무일수 (`HomeWorkdays`): kind READY carries `items`; the others
+    /// carry only a `caption`; HIDDEN carries nothing.
+    public struct Workdays: Decodable, Sendable {
+        public struct Item: Decodable, Sendable, Identifiable {
+            public let metric: String
+            public let label: String
+            public let value: String
+            public let caption: String
+            public var id: String { metric }
+        }
+
+        public let kind: String
+        public let caption: String?
+        public let items: [Item]?
+        public let note: String?
+    }
+
     public struct AgendaItem: Decodable, Sendable, Identifiable {
         public let event: ServiceEvent
         public let daysUntil: Int
@@ -210,6 +230,8 @@ public struct HomeModel: Decodable, Sendable {
     public let hero: Hero
     public let leave: Leave
     public let pay: Pay
+    /// Optional so projections from an older core bundle still decode.
+    public let workdays: Workdays?
     public let today: [AgendaItem]
     public let upcoming: [AgendaItem]
     public let completed: Bool
