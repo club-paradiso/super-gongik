@@ -173,8 +173,10 @@ struct ProfileEditView: View {
                     Text("병역법 시행령 제62조제2항의 7가지 경우에만 기간이 합산돼요. ‘잘 모르겠어요’면 기본 보수를 계산하지 않아요. 기간은 복무기관에 확인한 값을 넣어 주세요.")
                 }
 
-                institutionSection
-                ratesSections
+                // Type-erased: the nested conditionals of these sections made the
+                // compiler's IR generation run out of capacity when inlined here.
+                AnyView(institutionSection)
+                AnyView(ratesSections)
 
                 Section {
                     Toggle("초 단위 진행률", isOn: $draft.live)
