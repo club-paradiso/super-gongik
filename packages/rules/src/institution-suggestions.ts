@@ -1,9 +1,13 @@
+import type { DateOnly } from "@super-gongik/domain";
+
+import { COMPENSATION_RULE_BUNDLES } from "./bundles";
 import {
   lookupInstitutionRules,
   type InstitutionKnownFact,
   type InstitutionRuleField,
   type InstitutionSource,
 } from "./institutions";
+import { selectRuleByDate } from "./selector";
 
 /**
  * 2026 병무청 지급 기준: 1일 중식비 9,000원은 최소 기준이다. 기관이 더 줄 수
@@ -46,14 +50,35 @@ export type InstitutionSuggestions =
       transport: InstitutionAmountSuggestion | null;
       /** Everything else the registry knows, cited, for the user to read. */
       notes: InstitutionNote[];
+      /** 병무청 공통 규정, when the institution has no meal amount of its own. */
+      common: CommonRulesFallback | null;
       warnings: string[];
     }
   | {
       status: "UNKNOWN_INSTITUTION";
       query: string;
       suggestions: Array<{ id: string; name: string }>;
+      /** No institution evidence: the 병무청 공통 규정 apply (users can report more). */
+      common: CommonRulesFallback | null;
       warnings: string[];
     };
+
+/**
+ * What applies when an institution has no cited rule of its own: the 병무청
+ * national standard. The meal amount is the official 2026 minimum, which every
+ * institution must at least pay; the day rules are the registry's cited
+ * 「병무청 (전국 공통)」 facts. Transport has no national amount (it follows the
+ * bus fare), so only its basis is given.
+ */
+export type CommonRulesFallback = {
+  label: string;
+  year: number;
+  meal: { amount: number; basis: string; institutionMayPayMore: boolean };
+  transportNote: string | null;
+  notes: InstitutionNote[];
+};
+
+const COMMON_RULES_NAME = "병무청 (전국 공통)";
 
 const NOTE_FIELDS: readonly InstitutionRuleField[] = [
   "TRANSPORT_METHOD",
@@ -90,6 +115,55 @@ function better(a: FactWithSources, b: FactWithSources): boolean {
     if (left[i] !== right[i]) return left[i]! > right[i]!;
   }
   return false;
+}
+
+function notesOf(
+  known: (field: InstitutionRuleField) => FactWithSources[],
+): InstitutionNote[] {
+  const notes: InstitutionNote[] = [];
+  for (const field of NOTE_FIELDS) {
+    for (const fact of known(field)) {
+      const evidence = fact.evidence[0]!;
+      const source = fact.sources.find((s) => s.id === evidence.sourceId);
+      notes.push({
+        field,
+        text: String(fact.value),
+        valueKind: fact.valueKind,
+        effectiveYear: fact.effectiveYear,
+        confidence: fact.confidence,
+        sourceTitle: source?.title ?? evidence.sourceId,
+        locator: evidence.locator,
+      });
+    }
+  }
+  return notes;
+}
+
+export function commonRulesFallback(year: number): CommonRulesFallback | null {
+  const selection = selectRuleByDate(
+    "COMPENSATION",
+    COMPENSATION_RULE_BUNDLES,
+    `${year}-07-01` as DateOnly,
+  );
+  if (selection.status !== "SUPPORTED") return null;
+  const common = lookupInstitutionRules(COMMON_RULES_NAME, { year });
+  if (common.status !== "MATCHED") return null;
+  const notes = notesOf((field) => {
+    const entry = common.fields[field];
+    return entry.status === "KNOWN" ? entry.facts : [];
+  });
+  return {
+    label: "병무청 공통 규정",
+    year,
+    meal: {
+      amount: selection.rule.meal.minimumDailyAmount,
+      basis: selection.rule.meal.minimumSource,
+      institutionMayPayMore: selection.rule.meal.institutionMayPayMore,
+    },
+    transportNote:
+      notes.find((note) => note.field === "TRANSPORT_METHOD")?.text ?? null,
+    notes,
+  };
 }
 
 function amountSuggestion(
@@ -151,6 +225,7 @@ export function suggestInstitutionRates(
       status: "UNKNOWN_INSTITUTION",
       query: result.query,
       suggestions: result.suggestions,
+      common: commonRulesFallback(options.year),
       warnings: result.warnings,
     };
   }
@@ -158,22 +233,7 @@ export function suggestInstitutionRates(
     const entry = result.fields[field];
     return entry.status === "KNOWN" ? entry.facts : [];
   };
-  const notes: InstitutionNote[] = [];
-  for (const field of NOTE_FIELDS) {
-    for (const fact of known(field)) {
-      const evidence = fact.evidence[0]!;
-      const source = fact.sources.find((s) => s.id === evidence.sourceId);
-      notes.push({
-        field,
-        text: String(fact.value),
-        valueKind: fact.valueKind,
-        effectiveYear: fact.effectiveYear,
-        confidence: fact.confidence,
-        sourceTitle: source?.title ?? evidence.sourceId,
-        locator: evidence.locator,
-      });
-    }
-  }
+  const notes = notesOf(known);
   return {
     status: "MATCHED",
     institution: {
@@ -187,6 +247,10 @@ export function suggestInstitutionRates(
     ),
     transport: amountSuggestion(known("TRANSPORT_DAILY_AMOUNT"), null),
     notes,
+    common:
+      known("MEAL_DAILY_AMOUNT").length === 0
+        ? commonRulesFallback(options.year)
+        : null,
     warnings: result.warnings,
   };
 }

@@ -16652,6 +16652,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	* 있지만 더 낮게는 줄 수 없으므로, 이보다 낮은 기관 근거는 적용하지 않는다.
 	*/
 	const MEAL_MINIMUM_DAILY_AMOUNT = 9e3;
+	const COMMON_RULES_NAME = "병무청 (전국 공통)";
 	const NOTE_FIELDS = [
 		"TRANSPORT_METHOD",
 		"MEAL_ON_LEAVE",
@@ -16678,6 +16679,44 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		const right = rank(b);
 		for (let i = 0; i < left.length; i += 1) if (left[i] !== right[i]) return left[i] > right[i];
 		return false;
+	}
+	function notesOf(known) {
+		const notes = [];
+		for (const field of NOTE_FIELDS) for (const fact of known(field)) {
+			const evidence = fact.evidence[0];
+			const source = fact.sources.find((s) => s.id === evidence.sourceId);
+			notes.push({
+				field,
+				text: String(fact.value),
+				valueKind: fact.valueKind,
+				effectiveYear: fact.effectiveYear,
+				confidence: fact.confidence,
+				sourceTitle: source?.title ?? evidence.sourceId,
+				locator: evidence.locator
+			});
+		}
+		return notes;
+	}
+	function commonRulesFallback(year) {
+		const selection = selectRuleByDate("COMPENSATION", COMPENSATION_RULE_BUNDLES, `${year}-07-01`);
+		if (selection.status !== "SUPPORTED") return null;
+		const common = lookupInstitutionRules(COMMON_RULES_NAME, { year });
+		if (common.status !== "MATCHED") return null;
+		const notes = notesOf((field) => {
+			const entry = common.fields[field];
+			return entry.status === "KNOWN" ? entry.facts : [];
+		});
+		return {
+			label: "병무청 공통 규정",
+			year,
+			meal: {
+				amount: selection.rule.meal.minimumDailyAmount,
+				basis: selection.rule.meal.minimumSource,
+				institutionMayPayMore: selection.rule.meal.institutionMayPayMore
+			},
+			transportNote: notes.find((note) => note.field === "TRANSPORT_METHOD")?.text ?? null,
+			notes
+		};
 	}
 	function amountSuggestion(facts, minimum) {
 		let best = null;
@@ -16722,26 +16761,14 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			status: "UNKNOWN_INSTITUTION",
 			query: result.query,
 			suggestions: result.suggestions,
+			common: commonRulesFallback(options.year),
 			warnings: result.warnings
 		};
 		const known = (field) => {
 			const entry = result.fields[field];
 			return entry.status === "KNOWN" ? entry.facts : [];
 		};
-		const notes = [];
-		for (const field of NOTE_FIELDS) for (const fact of known(field)) {
-			const evidence = fact.evidence[0];
-			const source = fact.sources.find((s) => s.id === evidence.sourceId);
-			notes.push({
-				field,
-				text: String(fact.value),
-				valueKind: fact.valueKind,
-				effectiveYear: fact.effectiveYear,
-				confidence: fact.confidence,
-				sourceTitle: source?.title ?? evidence.sourceId,
-				locator: evidence.locator
-			});
-		}
+		const notes = notesOf(known);
 		return {
 			status: "MATCHED",
 			institution: {
@@ -16752,6 +16779,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			meal: amountSuggestion(known("MEAL_DAILY_AMOUNT"), MEAL_MINIMUM_DAILY_AMOUNT),
 			transport: amountSuggestion(known("TRANSPORT_DAILY_AMOUNT"), null),
 			notes,
+			common: known("MEAL_DAILY_AMOUNT").length === 0 ? commonRulesFallback(options.year) : null,
 			warnings: result.warnings
 		};
 	}
