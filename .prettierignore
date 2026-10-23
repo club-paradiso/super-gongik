@@ -11,3 +11,6 @@ apps/ios/**/.swiftpm
 apps/ios/Packages/SuperGongikKit/Sources/SGCore/Resources/sg-shims.js
 contracts/interchange
 apps/ios/**/*.xcassets
+
+# Stored source bytes are pinned by SHA-256; never reformat them.
+docs/sources/institutions

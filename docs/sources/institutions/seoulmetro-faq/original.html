@@ -1,0 +1,6289 @@
+
+
+
+
+
+	
+
+
+
+
+
+          
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8">
+		<!-- <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<!-- <meta http-equiv="Content-Script-Type" content="text/javascript"> -->
+		<!-- <meta http-equiv="Content-Style-Type" content="text/css"> -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, target-densitydpi=medium-dpi">
+		<meta name="format-detection" content="telephone=no">
+		<!-- <meta http-equiv="Content-Language" content="ko"> -->
+		<!-- <meta http-equiv="cache-control" content="no-cache"> -->
+		<!-- <meta http-equiv="pragma" content="no-cache"> -->
+
+
+
+
+
+
+
+
+
+	
+		
+		
+			
+			
+			
+			
+			
+				
+			
+		
+	
+
+
+		<meta name="title" content="서울교통공사 | 자주 묻는 질문" />
+		<meta name="author" content="서울교통공사">
+		<meta name="keywords" content="서울교통공사">
+		<meta name="description" content="서울교통공사">
+		<title>자주 묻는 질문 &gt; 시민 참여&gt;고객의 소리&gt;자주 묻는 질문 &gt; 상세화면</title>
+		<link type="text/css" href="/css/reset.css" rel="stylesheet">
+		<link type="text/css" href="/css/layout.css?ver=260220" rel="stylesheet">
+		<link type="text/css" href="/css/sub.css" rel="stylesheet">
+		<link type="text/css" href="/css/style.css?ver=260220" rel="stylesheet">
+		<link type="text/css" href="/css/jquery-ui-1.9.2.custom.min.css" rel="stylesheet">
+		<link type="text/css" href="/css/examples.css" rel="stylesheet"> <!-- 메인 css -->
+		<link type="text/css" href="/css/jquery.fullPage.css" rel="stylesheet"><!-- 메인 css -->
+		<link type="text/css" href="/css/main.css?ver=260220" rel="stylesheet"> <!-- 메인 css -->
+		<link type="text/css" href="/css/jquery.bxslider.css" rel="stylesheet"> <!-- 메인 css -->
+		<script src="/js/jquery-1.11.1.min.js"></script>
+		<script src="/js/common.js?ver=241230"></script>
+		<script src="/js/gnb.js?ver=250902"></script>
+		<script src="/js/examples.js"></script> <!-- 메인 js -->
+		<script src="/js/jquery.fullPage.js"></script> <!-- 메인 js -->
+		<script src="/js/jquery.bxslider.min.js"></script> <!-- 메인 js -->
+   		<!--  <script src="//www.seoul.go.kr/seoulgnb/gnb.js"></script> 개발 서버에서만 비활성화-->
+		<link rel="shortcut icon" href="/images/favicon/favicon.ico"><!-- 파비콘 -->
+		<link rel="stylesheet" type="text/css" href="/css/examples_sd.css" media="screen"/>
+		<link rel="stylesheet" type="text/css" href="/css/slider-pro.min.css" media="screen"/>	
+			
+		<style>
+			@media screen and (max-width: 1024px) {
+				.zoomTool {
+					display:none;
+				}
+			}
+			@media screen and (max-width: 1740px) {
+				.zoomTool {
+					margin-top:4px !important;
+					
+				}
+			}
+			.zoomTool {
+				margin-top:10px;
+			}
+			
+		</style>
+	</head>
+			
+
+
+
+
+
+
+	<body>
+	<script src="/comsys/resources/js/jquery-1.9.1.js"></script>
+	
+	<script>
+
+function checkLoginMain() {
+	
+	var protocol = window.location.protocol;
+	
+	if ( protocol.indexOf("https") != -1) {
+		document.goLogin.action="/kr/sslMetroLogin.do";
+	}	
+
+	var tmpStr = protocol +"//" + document.location.host;
+
+	document.goLogin.url.value = document.location.href;
+	document.goLogin.url.value = document.goLogin.url.value.replace(tmpStr, "");
+
+	//alert(document.goLogin.url.value);
+	
+	document.goLogin.submit();
+}
+
+
+function sessionExtend() {
+
+	var url = "/kr/common/sessionExtend.do";
+	var data = new Array();
+	data = {};
+
+	var successFn = function(json) {
+		
+		alert("실명인증 유효 시간이 30분으로 연장 되었습니다.");	  	 
+	};
+
+	$.ajax({
+		type: 'post',
+		cache: false,
+		url: url,
+		data: data,
+		dataType: 'json',
+		success: successFn
+	});		
+	}
+
+
+</script>
+	
+<form name="goLogin" action="/kr/metroLogin.do" method="post"><input type="hidden" name="ptSignature" value="E1DlS0adYzeZ1SGXyf7vfQ==" />
+
+<!-- <input type="hidden" name="menuIdx" value="375"/> -->
+
+<input type="hidden" name="url" value=""/>
+</form>
+	
+		<div class="wrap">
+			<!-- skip-->
+			<div class="skip-nav">
+				<a href="#content-box"> 본문 바로가기 </a>
+				<a href="#gnb">주 메뉴 바로가기</a>
+			</div>
+			<!-- //skip-->
+
+			<div class="header">
+				
+				<div class="header-in">	
+				<div class="seoul-gnb">
+				<h1 class="top-logo"><a href="/"><img src="/images/layout/logo.svg" alt="서울교통공사" /></a></h1> <!-- //2025. 09. 01 수정 -->
+				<span class="top-etc-gnb"><a href="#;"><span class="hide">메뉴열기</span></a></span>
+				<div id="seoul-common-gnb"></div>
+				<div class="top-etc clearfix">
+					<ul class="clearfix">
+						<li class="top-etc-sitmap"><a href="#;" title="사이트맵"><span class="hide">사이트맵</span></a></li>
+						<li class="top-etc-cer"><a href="#;" onclick="checkLoginMain();" title="실명인증"><span class="hide">실명인증</span></a></li>
+						<li class="top-etc-shc"><a href="#;" title="검색"><span class="hide">검색 열기</span></a></li>
+						<li class="top-etc-lang">
+							<a href="#;" title="다국어사이트"><span class="hide">다국어사이트 열기</span></a>
+							<ul class="lang-link">
+								<li><a href="/en/index.do">ENGLISH</a></li>
+								<li><a href="/cn/index.do">中文</a></li>
+								<li><a href="/jp/index.do">日本語</a></li>
+							</ul>
+						</li>
+					</ul>
+					
+					<a href="#;" onclick="sessionExtend();" class="icon-clock"><img src="/images/layout/clock.svg" alt="세션연장하기"></a>
+
+					  
+				</div>
+						
+						
+					</div><!-- //header-top -->
+					
+					
+						
+					<script>
+
+$('document').ready(function(){
+	var isMobile = document.getElementById("isMobile").value;
+	if(isMobile != "Y"){
+		if($(window).width() > 1024){
+			$('.mn1').mouseenter(function(){
+				var wid, gnb2w;
+	 			wid = $('.gnb').width();
+				$('.sgnb-wp').css('width', wid);
+				$('.gnb2 > li').css('width', $('.gnb > li').width());
+				$('.mn1 > .sgnb-wp').css('left', 0);
+				$('.mn1 > .sgnb-wp').slideDown(300);
+				$('.mn1 > .sgnb-wp').css('display','block');
+				$('.mn2 > .sgnb-wp').css('display','none');
+				$('.mn3 > .sgnb-wp').css('display','none');
+				$('.mn4 > .sgnb-wp').css('display','none');
+				$('.mn5 > .sgnb-wp').css('display','none');
+				$('.mn6 > .sgnb-wp').css('display','none');
+				$('.mn7 > .sgnb-wp').css('display','none');
+				
+			});
+			$('.mn2').mouseenter(function(){
+				var wid, gnb2w;
+				wid = $('.gnb').width();
+				$('.gnb2 > li').css('width', $('.gnb > li').width());
+				$('.sgnb-wp').css('width', wid);
+				gnb2w = $('.mn1').width() * -1;
+ 				$('.mn2 > .sgnb-wp').css('left', gnb2w);
+				$('.mn1 > .sgnb-wp').css('display','none');
+				$('.mn2 > .sgnb-wp').slideDown(300);
+				$('.mn2 > .sgnb-wp').css('display','block');
+				$('.mn3 > .sgnb-wp').css('display','none');
+				$('.mn4 > .sgnb-wp').css('display','none');
+				$('.mn5 > .sgnb-wp').css('display','none');
+				$('.mn6 > .sgnb-wp').css('display','none');
+				$('.mn7 > .sgnb-wp').css('display','none'); 
+				/* $('.tm-gnb-mask').css('height','600px'); */
+			});
+			/* $('.mn2').mouseleave(function(){
+				$('.tm-gnb-mask').css('height','457px');
+			}); */
+			$('.mn3').mouseenter(function(){
+				var wid, gnb2w;
+				wid = $('.gnb').width();
+				$('.gnb2 > li').css('width', $('.gnb > li').width());
+				$('.mn3 > .sgnb-wp').css('width', wid);
+				gnb2w = ($('.mn1').width() * -1 ) + ($('.mn2').width() * -1 );
+				$('.sgnb-wp').css('left', gnb2w);
+				$('.mn1 > .sgnb-wp').css('display','none');
+				$('.mn2 > .sgnb-wp').css('display','none');
+				$('.mn3 > .sgnb-wp').slideDown(300);
+				$('.mn3 > .sgnb-wp').css('display','block');
+				$('.mn4 > .sgnb-wp').css('display','none');
+				$('.mn5 > .sgnb-wp').css('display','none');
+				$('.mn6 > .sgnb-wp').css('display','none');
+				$('.mn7 > .sgnb-wp').css('display','none');
+			});
+			$('.mn4').mouseenter(function(){
+				var wid, gnb2w;
+				wid = $('.gnb').width();
+				$('.gnb2 > li').css('width', $('.gnb > li').width());
+				$('.mn4 > .sgnb-wp').css('width', wid);
+				gnb2w = ($('.mn1').width() * -1 ) + ($('.mn2').width() * -1 ) + ($('.mn3').width() * -1 );
+				$('.sgnb-wp').css('left', gnb2w);
+				$('.mn1 > .sgnb-wp').css('display','none');
+				$('.mn2 > .sgnb-wp').css('display','none');
+				$('.mn3 > .sgnb-wp').css('display','none');
+				$('.mn4 > .sgnb-wp').slideDown(300);
+				$('.mn4 > .sgnb-wp').css('display','block');
+				$('.mn5 > .sgnb-wp').css('display','none');
+				$('.mn6 > .sgnb-wp').css('display','none');
+				$('.mn7 > .sgnb-wp').css('display','none');
+				
+			});
+			$('.mn5').mouseenter(function(){
+				var wid, gnb2w;
+				wid = $('.gnb').width();
+				$('.gnb2 > li').css('width', $('.gnb > li').width());
+				$('.mn5 > .sgnb-wp').css('width', wid);
+				gnb2w = ($('.mn1').width() * -1 ) + ($('.mn2').width() * -1 ) + ($('.mn3').width() * -1 ) + ($('.mn4').width() * -1 );
+				$('.sgnb-wp').css('left', gnb2w);
+				$('.mn1 > .sgnb-wp').css('display','none');
+				$('.mn2 > .sgnb-wp').css('display','none');
+				$('.mn3 > .sgnb-wp').css('display','none');
+				$('.mn4 > .sgnb-wp').css('display','none');
+				$('.mn5 > .sgnb-wp').slideDown(300);
+				$('.mn5 > .sgnb-wp').css('display','block');
+				$('.mn6 > .sgnb-wp').css('display','none');
+				$('.mn7 > .sgnb-wp').css('display','none');
+				
+			});
+			$('.mn6').mouseenter(function(){
+				var wid, gnb2w;
+				wid = $('.gnb').width();
+				$('.gnb2 > li').css('width', $('.gnb > li').width());
+				$('.mn6 > .sgnb-wp').css('width', wid);
+				gnb2w = ($('.mn1').width() * -1 ) + ($('.mn2').width() * -1 ) + ($('.mn3').width() * -1 ) + ($('.mn4').width() * -1 ) + ($('.mn5').width() * -1 );
+				$('.sgnb-wp').css('left', gnb2w);
+				$('.mn1 > .sgnb-wp').css('display','none');
+				$('.mn2 > .sgnb-wp').css('display','none');
+				$('.mn3 > .sgnb-wp').css('display','none');
+				$('.mn4 > .sgnb-wp').css('display','none');
+				$('.mn5 > .sgnb-wp').css('display','none');
+				$('.mn6 > .sgnb-wp').slideDown(300);
+				$('.mn6 > .sgnb-wp').css('display','block');
+				$('.mn7 > .sgnb-wp').css('display','none');
+				
+			});
+			$('.mn7').mouseenter(function(){
+				var wid, gnb2w;
+				wid = $('.gnb').width();
+				$('.gnb2 > li').css('width', $('.gnb > li').width());
+				$('.mn7 > .sgnb-wp').css('width', wid);
+				gnb2w = ($('.mn1').width() * -1 ) + ($('.mn2').width() * -1 ) + ($('.mn3').width() * -1 ) + ($('.mn4').width() * -1 ) + ($('.mn5').width() * -1 ) + ($('.mn6').width() * -1 );
+				$('.sgnb-wp').css('left', gnb2w);
+				$('.mn1 > .sgnb-wp').css('display','none');
+				$('.mn2 > .sgnb-wp').css('display','none');
+				$('.mn3 > .sgnb-wp').css('display','none');
+				$('.mn4 > .sgnb-wp').css('display','none');
+				$('.mn5 > .sgnb-wp').css('display','none');
+				$('.mn6 > .sgnb-wp').css('display','none');
+				$('.mn7 > .sgnb-wp').slideDown(300);
+				$('.mn7 > .sgnb-wp').css('display','block');
+				
+			});
+			$('.mn1').keyup(function(){
+				var wid, gnb2w;
+	 			wid = $('.gnb').width();
+				$('.sgnb-wp').css('width', wid);
+				$('.gnb2 > li').css('width', $('.gnb > li').width());
+				$('.mn1 > .sgnb-wp').css('left', 0);
+				$('.mn1 > .sgnb-wp').slideDown(300);
+				$('.mn1 > .sgnb-wp').css('display','block');
+				$('.mn2 > .sgnb-wp').css('display','none');
+				$('.mn3 > .sgnb-wp').css('display','none');
+				$('.mn4 > .sgnb-wp').css('display','none');
+				$('.mn5 > .sgnb-wp').css('display','none');
+				$('.mn6 > .sgnb-wp').css('display','none');
+				$('.mn7 > .sgnb-wp').css('display','none');
+				
+			});
+			$('.mn2').keyup(function(){
+				var wid, gnb2w;
+				wid = $('.gnb').width();
+				$('.gnb2 > li').css('width', $('.gnb > li').width());
+				$('.sgnb-wp').css('width', wid);
+				gnb2w = $('.mn1').width() * -1;
+ 				$('.mn2 > .sgnb-wp').css('left', gnb2w);
+				$('.mn1 > .sgnb-wp').css('display','none');
+				$('.mn2 > .sgnb-wp').slideDown(300);
+				$('.mn2 > .sgnb-wp').css('display','block');
+				$('.mn3 > .sgnb-wp').css('display','none');
+				$('.mn4 > .sgnb-wp').css('display','none');
+				$('.mn5 > .sgnb-wp').css('display','none');
+				$('.mn6 > .sgnb-wp').css('display','none'); 
+				$('.mn7 > .sgnb-wp').css('display','none');
+				/* $('.tm-gnb-mask').css('height','600px'); */
+			});
+			/* $('.mn2').mouseleave(function(){
+				$('.tm-gnb-mask').css('height','457px');
+			}); */
+			$('.mn3').keyup(function(){
+				var wid, gnb2w;
+				wid = $('.gnb').width();
+				$('.gnb2 > li').css('width', $('.gnb > li').width());
+				$('.mn3 > .sgnb-wp').css('width', wid);
+				gnb2w = ($('.mn1').width() * -1 ) + ($('.mn2').width() * -1 );
+				$('.sgnb-wp').css('left', gnb2w);
+				$('.mn1 > .sgnb-wp').css('display','none');
+				$('.mn2 > .sgnb-wp').css('display','none');
+				$('.mn3 > .sgnb-wp').slideDown(300);
+				$('.mn3 > .sgnb-wp').css('display','block');
+				$('.mn4 > .sgnb-wp').css('display','none');
+				$('.mn5 > .sgnb-wp').css('display','none');
+				$('.mn6 > .sgnb-wp').css('display','none');
+				$('.mn7 > .sgnb-wp').css('display','none');
+				
+			});
+			$('.mn4').keyup(function(){
+				var wid, gnb2w;
+				wid = $('.gnb').width();
+				$('.gnb2 > li').css('width', $('.gnb > li').width());
+				$('.mn4 > .sgnb-wp').css('width', wid);
+				gnb2w = ($('.mn1').width() * -1 ) + ($('.mn2').width() * -1 ) + ($('.mn3').width() * -1 );
+				$('.sgnb-wp').css('left', gnb2w);
+				$('.mn1 > .sgnb-wp').css('display','none');
+				$('.mn2 > .sgnb-wp').css('display','none');
+				$('.mn3 > .sgnb-wp').css('display','none');
+				$('.mn4 > .sgnb-wp').slideDown(300);
+				$('.mn4 > .sgnb-wp').css('display','block');
+				$('.mn5 > .sgnb-wp').css('display','none');
+				$('.mn6 > .sgnb-wp').css('display','none');
+				$('.mn7 > .sgnb-wp').css('display','none');
+				
+			});
+			$('.mn5').keyup(function(){
+				var wid, gnb2w;
+				wid = $('.gnb').width();
+				$('.gnb2 > li').css('width', $('.gnb > li').width());
+				$('.mn5 > .sgnb-wp').css('width', wid);
+				gnb2w = ($('.mn1').width() * -1 ) + ($('.mn2').width() * -1 ) + ($('.mn3').width() * -1 ) + ($('.mn4').width() * -1 );
+				$('.sgnb-wp').css('left', gnb2w);
+				$('.mn1 > .sgnb-wp').css('display','none');
+				$('.mn2 > .sgnb-wp').css('display','none');
+				$('.mn3 > .sgnb-wp').css('display','none');
+				$('.mn4 > .sgnb-wp').css('display','none');
+				$('.mn5 > .sgnb-wp').slideDown(300);
+				$('.mn5 > .sgnb-wp').css('display','block');
+				$('.mn6 > .sgnb-wp').css('display','none');
+				$('.mn7 > .sgnb-wp').css('display','none');
+				
+			});
+			$('.mn6').keyup(function(){
+				var wid, gnb2w;
+				wid = $('.gnb').width();
+				$('.gnb2 > li').css('width', $('.gnb > li').width());
+				$('.mn6 > .sgnb-wp').css('width', wid);
+				gnb2w = ($('.mn1').width() * -1 ) + ($('.mn2').width() * -1 ) + ($('.mn3').width() * -1 ) + ($('.mn4').width() * -1 ) + ($('.mn5').width() * -1 );
+				$('.sgnb-wp').css('left', gnb2w);
+				$('.mn1 > .sgnb-wp').css('display','none');
+				$('.mn2 > .sgnb-wp').css('display','none');
+				$('.mn3 > .sgnb-wp').css('display','none');
+				$('.mn4 > .sgnb-wp').css('display','none');
+				$('.mn5 > .sgnb-wp').css('display','none');
+				$('.mn6 > .sgnb-wp').slideDown(300);
+				$('.mn6 > .sgnb-wp').css('display','block');
+				$('.mn7 > .sgnb-wp').css('display','none');
+				
+			});
+			$('.mn7').keyup(function(){
+				var wid, gnb2w;
+				wid = $('.gnb').width();
+				$('.gnb2 > li').css('width', $('.gnb > li').width());
+				$('.mn7 > .sgnb-wp').css('width', wid);
+				gnb2w = ($('.mn1').width() * -1 ) + ($('.mn2').width() * -1 ) + ($('.mn3').width() * -1 ) + ($('.mn4').width() * -1 ) + ($('.mn5').width() * -1 ) + ($('.mn6').width() * -1 );
+				$('.sgnb-wp').css('left', gnb2w);
+				$('.mn1 > .sgnb-wp').css('display','none');
+				$('.mn2 > .sgnb-wp').css('display','none');
+				$('.mn3 > .sgnb-wp').css('display','none');
+				$('.mn4 > .sgnb-wp').css('display','none');
+				$('.mn5 > .sgnb-wp').css('display','none');
+				$('.mn6 > .sgnb-wp').css('display','none');
+				$('.mn7 > .sgnb-wp').slideDown(300);
+				$('.mn7 > .sgnb-wp').css('display','block');
+				
+			});
+		}
+	}
+	/* $(window).resize(function(){
+		if($(window).width() < 1024){
+			location.reload();
+		}
+	}); */
+	
+	$(".container > a:eq(0)").on("focusin", function(){
+		$('.mn1 > .sgnb-wp').css('display','none');
+		$('.mn2 > .sgnb-wp').css('display','none');
+		$('.mn3 > .sgnb-wp').css('display','none');
+		$('.mn4 > .sgnb-wp').css('display','none');
+		$('.mn5 > .sgnb-wp').css('display','none');
+		$('.mn6 > .sgnb-wp').css('display','none');
+		$('.mn7 > .sgnb-wp').css('display','none');
+		$('.tm-gnb-mask').css('display','none');
+	});
+	
+	$(".auth-timer").on("focusin", function(){
+		$('.mn1 > .sgnb-wp').css('display','none');
+		$('.mn2 > .sgnb-wp').css('display','none');
+		$('.mn3 > .sgnb-wp').css('display','none');
+		$('.mn4 > .sgnb-wp').css('display','none');
+		$('.mn5 > .sgnb-wp').css('display','none');
+		$('.mn6 > .sgnb-wp').css('display','none');
+		$('.mn7 > .sgnb-wp').css('display','none');
+		$('.tm-gnb-mask').css('display','none');
+	});
+	
+	
+});
+
+
+function topMenuClick(url, newwin){
+	
+	var isMobile = document.getElementById("isMobile").value;
+	if(isMobile == "Y"){
+	}
+	else{
+		if (newwin == "Y") {
+			window.open(url, "_blank");
+		} else {
+			location.href = url;
+		}
+	}
+}
+</script>
+<div class="gnb-box">
+  <div>	
+  	<div class="gnb-top clearfix">
+  		<span class="btn-close-mn"><a href="#;">메뉴닫기</a></span>
+	</div>
+	<ul class="gnb" id="gnb">
+		<li class="mn1"   >
+		<h2><a href="#;" title="이용정보"  onClick="topMenuClick('/kr/page.do?menuIdx=354', 'N');"><span>이용정보</span></a></h2>
+
+			<div class="sgnb-wp">
+				<div class="gnb-box2">
+					<h3>이용정보</h3>
+					
+					<ul class="gnb2 clearfix">
+						
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;" title="새창으로 열림"  onClick="topMenuClick('/kr/cyberStation.do?menuIdx=538', 'Y');"><span>사이버스테이션</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/cyberStation.do?menuIdx=538" target="_blank" title="새창으로 열림"><span>사이버스테이션</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;" title="새창으로 열림"  onClick="topMenuClick('https://smss.seoulmetro.co.kr/traininfo/traininfoUserView.do', 'Y');"><span>실시간열차운행정보</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="https://smss.seoulmetro.co.kr/traininfo/traininfoUserView.do" target="_blank" title="새창으로 열림"><span>실시간열차운행정보</span></a></li>
+									
+									<li ><a href="/kr/slowInfoList.do?menuIdx=1010" ><span>열차서행정보(선로공사)</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/delayProofList.do?menuIdx=543', 'N');"><span>간편지연증명서</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/delayProofList.do?menuIdx=543" ><span>간편지연증명서</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=354', 'N');"><span>운임제도</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=354" ><span>운임안내</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=355" ><span>승차권안내</span></a></li>
+									
+									<li ><a href="/kr/fare.do?menuIdx=527" ><span>단체권운임안내</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=528" ><span>여객운송약관(1~8호선)</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=779" ><span>여객운송약관(9호선 2·3단계)</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=366', 'N');"><span>이용고객 편의시설</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=366" ><span>배려시설 현황</span></a></li>
+									
+									<li ><a href="/kr/equipmentList.do?menuIdx=367" ><span>승강설비 가동현황</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=769" ><span>휠체어 이용 승·하차 안내</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=569" ><span>무인편의기기</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=195" ><span>문화공간</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=540" ><span>환승주차장</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=542" ><span>자전거 보관함</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=588" ><span>수유실</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=746" ><span>잠실광역환승센터</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=895" ><span>또타러기지(T-luggage)</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=843" ><span>또타스토리지(개인창고)</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=897" ><span>또타라커(T-Locker)</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/tempClosurList.do?menuIdx=775', 'N');"><span>역시설물 임시폐쇄 공사현황</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/tempClosurList.do?menuIdx=775" ><span>역시설물 임시폐쇄 공사현황</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=730', 'N');"><span>유실물센터</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/page.do?menuIdx=730" ><span>이용안내</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=541" ><span>유실물센터</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						</ul>
+					</div> <!--//gnb-box2 -->
+			</div><!--//sgnb-wp -->
+		</li>
+		<li class="mn2"   >
+		<h2><a href="#;" title="안전환경"  onClick="topMenuClick('/kr/page.do?menuIdx=479', 'N');"><span>안전환경</span></a></h2>
+
+			<div class="sgnb-wp">
+				<div class="gnb-box2">
+					<h3>안전환경</h3>
+					
+					<ul class="gnb2 clearfix">
+						
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=479', 'N');"><span>안전가이드</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=480" ><span>안전수칙</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=482" ><span>열차내에서</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=483" ><span>승강설비 이용시</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=484" ><span>지진발생시</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=485" ><span>화재시</span></a></li>
+									
+									<li ><a href="https://safecity.seoul.go.kr/distFclt/cfMapDs/cfMapDs.page?menuId=MENU_SSNS_000015" target="_blank" title="새창으로 열림"><span>침수·폭우 예측시스템(서울안전누리)</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=734', 'N');"><span>안전보건 경영방침</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=734" ><span>안전보건 경영방침</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=552', 'N');"><span>안전경영방침</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=552" ><span>안전경영방침</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=553', 'N');"><span>안전관련법령</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/board.do?menuIdx=553" ><span>안전관련법령</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=554', 'N');"><span>안전보고서</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/board.do?menuIdx=554" ><span>안전보고서</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=555', 'N');"><span>안전동영상</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/board.do?menuIdx=555" ><span>안전동영상</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=994', 'N');"><span>환경경영</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/page.do?menuIdx=994" ><span>환경경영체계</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=995" ><span>환경윤리준수 선언문</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=996" ><span>환경지표</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=997" ><span>온실가스</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=494" ><span>공기질관리</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=999" ><span>소음관리</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=495" ><span>환경자료실</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=488', 'N');"><span>안전장비 취급 및 현황</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/page.do?menuIdx=489" ><span>안전장비 취급요령</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=490" ><span>역사 내 안전장비</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=491" ><span>열차 내 안전장비</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=556', 'N');"><span>지하철테러대응</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/page.do?menuIdx=556" ><span>지하철테러대응</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=739" ><span>자료실</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=496', 'N');"><span>지하철 환경</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/page.do?menuIdx=496" ><span>위생관리</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						</ul>
+					</div> <!--//gnb-box2 -->
+			</div><!--//sgnb-wp -->
+		</li>
+		<li class="mn3 on2 on2"   >
+		<h2><a href="#;" title="시민 참여"  onClick="topMenuClick('/kr/filmList.do?menuIdx=395', 'N');"><span>시민 참여</span></a></h2>
+
+			<div class="sgnb-wp">
+				<div class="gnb-box2">
+					<h3>시민 참여</h3>
+					
+					<ul class="gnb2 clearfix">
+						
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/filmList.do?menuIdx=395', 'N');"><span>신청센터</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/filmList.do?menuIdx=395" ><span>시설물 촬영</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=883" ><span>인재개발원 대관</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/garage.do?menuIdx=401&reservegroupid=3', 'N');"><span>서울교통공사 견학 </span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/garage.do?menuIdx=401&reservegroupid=3" ><span>차량사업소견학</span></a></li>
+									
+									<li ><a href="/kr/safetyExperience.do?menuIdx=753&reservegroupid=6" ><span>시민안전체험·홍보관</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/eventList.do?menuIdx=392', 'N');"><span>시민초청 문화이벤트</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/eventList.do?menuIdx=545" target="_blank" title="새창으로 열림"><span>참여하기</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=409', 'N');"><span>문화스테이션</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/board.do?menuIdx=409" ><span>지하철 여행</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=413" ><span>문화갤러리</span></a></li>
+									
+									<li ><a href="https://webzine.seoulmetro.co.kr/newshome/mtnmain.php" target="_blank" title="새창으로 열림"><span>서울교통공사 웹진</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=385', 'N');"><span>시민안전모니터</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=385" ><span>안내</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=386" ><span>공지사항</span></a></li>
+									
+									<li ><a href="/kr/privateList.do?menuIdx=135&cdvocchannel=3" ><span>모니터링</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li class=active >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=374', 'N');"><span>고객의 소리</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/page.do?menuIdx=374" ><span>이용 안내</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=375" ><span>자주 묻는 질문</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=376" ><span>신청</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/juminyesanList.do?menuIdx=785', 'N');"><span>주민참여예산</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/juminyesanList.do?menuIdx=785" ><span>제안하기</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=813" ><span>연도별 사업추진 실적</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/ideaList.do?menuIdx=379&bbs_cd=pro001', 'N');"><span>시민 아이디어</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/ideaList.do?menuIdx=379&bbs_cd=pro001" ><span>아이디어 보기</span></a></li>
+									
+									<li ><a href="/kr/ideaSuggestions.do?menuIdx=1012&bbs_cd=pro001" ><span>아이디어 제안하기</span></a></li>
+									
+									<li ><a href="/kr/ideaImplList.do?menuIdx=1007&bbs_cd=pro001" ><span>실시 시민 아이디어</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=388', 'N');"><span>고객서비스 헌장</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/page.do?menuIdx=388" ><span>고객서비스 헌장</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=871" ><span>이행 실적</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						</ul>
+					</div> <!--//gnb-box2 -->
+			</div><!--//sgnb-wp -->
+		</li>
+		<li class="mn4"   >
+		<h2><a href="#;" title="알림마당"  onClick="topMenuClick('/kr/board.do?menuIdx=546', 'N');"><span>알림마당</span></a></h2>
+
+			<div class="sgnb-wp">
+				<div class="gnb-box2">
+					<h3>알림마당</h3>
+					
+					<ul class="gnb2 clearfix">
+						
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=546', 'N');"><span>공지사항</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/board.do?menuIdx=546" ><span>공지사항</span></a></li>
+									
+									<li ><a href="/kr/bannerList.do?menuIdx=988" ><span>배너 모아보기</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=547', 'N');"><span>보도자료</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/board.do?menuIdx=547" ><span>보도자료</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=417', 'N');"><span>입찰/계약정보</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=417" ><span>입찰안내</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=418" ><span>발주계획</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=423" ><span>사전규격공개</span></a></li>
+									
+									<li ><a href="/kr/noticeList.do?menuIdx=419" ><span>입찰공고 및 결과</span></a></li>
+									
+									<li ><a href="privList.do?menuIdx=776&zmetd2=03" ><span>계약현황</span></a></li>
+									
+									<li ><a href="/kr/payList.do?menuIdx=422" ><span>대금지급안내</span></a></li>
+									
+									<li ><a href="/kr/payList2.do?menuIdx=880" ><span>영세율공급증명 발급</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=424" ><span>제안서 평가결과</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=751" ><span>건설공사/하도급계약현황</span></a></li>
+									
+									<li ><a href="/kr/printList.do?menuIdx=420" ><span>실적증명서 발급</span></a></li>
+									
+									<li ><a href="/kr/privList.do?menuIdx=425" ><span>수의계약내역 및 실적</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=421" ><span>계약자료실</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=822" ><span>계약내용 변경사항</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=823" ><span>감리·감독·검사 현황</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=428', 'N');"><span>부대사업정보</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=428" ><span>광고시설물</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=429" ><span>편의시설물</span></a></li>
+									
+									<li ><a href="/kr/mallList.do?menuIdx=430" ><span>역구내상가</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=833" ><span>자주묻는질문</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=1021" ><span>상생플러스+ 공간</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=926', 'N');"><span>오픈 이노베이션</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=926" ><span>제도소개</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=927" ><span>추진절차</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=932" ><span>모집공고</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=849', 'N');"><span>업무협의절차</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/page.do?menuIdx=849" ><span>인접굴착공사</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=850" ><span>연결통로설치</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=979', 'N');"><span>혼잡도</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/board.do?menuIdx=979" ><span>열차혼잡도</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=887', 'N');"><span>이달의 역세권 행사</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/board.do?menuIdx=887" ><span>이달의 역세권 행사</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=548', 'N');"><span>자료실</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/board.do?menuIdx=548" ><span>자료실</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						</ul>
+					</div> <!--//gnb-box2 -->
+			</div><!--//sgnb-wp -->
+		</li>
+		<li class="mn5"   >
+		<h2><a href="#;" title="정보공개"  onClick="topMenuClick('/kr/page.do?menuIdx=435', 'N');"><span>정보공개</span></a></h2>
+
+			<div class="sgnb-wp">
+				<div class="gnb-box2">
+					<h3>정보공개</h3>
+					
+					<ul class="gnb2 clearfix">
+						
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=435', 'N');"><span>제도안내</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=435" ><span>정보공개제도란</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=436" ><span>관련규정</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=437" ><span>관련서식</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=828" ><span>비공개대상정보 세부기준</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=867" ><span>자주 청구하는 항목 안내</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=820&sort_order=asc', 'N');"><span>사전정보공표</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/board.do?menuIdx=820&sort_order=asc" ><span>사전정보 공표목록</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=441" ><span>업무추진비</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=872" ><span>자주 조회하는 사전정보</span></a></li>
+									
+									<li ><a href="/kr/customer.do?menuIdx=1028" ><span>정보공개 고객의견함</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=892', 'N');"><span>공공데이터개방</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=892" ><span>공공데이터개방</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=846" ><span>공공데이터 수요조사</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=455', 'N');"><span>반부패/청렴</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/board.do?menuIdx=455" ><span>반부패/청렴활동 자료실</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=875" ><span>반부패/청렴관련 사규</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=458" ><span>부패공직자 현황 공개</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=460" ><span>청렴도 및 시책평가 결과</span></a></li>
+									
+									<li ><a href="/kr/twowayMonitor.do?menuIdx=878" ><span>실시간 민원소통 모니터링</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/staff.do?menuIdx=829&channel=6', 'N');"><span>부조리신고센터</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/staff.do?menuIdx=829&channel=6" ><span>인사비리 제보신고</span></a></li>
+									
+									<li ><a href="/kr/staff.do?menuIdx=462&channel=1" ><span>공직자비리신고</span></a></li>
+									
+									<li ><a href="/kr/staff.do?menuIdx=464&channel=3" ><span>갑의 부당행위 신고</span></a></li>
+									
+									<li ><a href="/kr/waste.do?menuIdx=451&cdvocchannel=11" ><span>예산낭비신고센터</span></a></li>
+									
+									<li ><a href="/kr/shop.do?menuIdx=453" ><span>상가무단전대양도신고</span></a></li>
+									
+									<li ><a href="/kr/staff.do?menuIdx=459&channel=5" ><span>계약관련 부조리 신고</span></a></li>
+									
+									<li ><a href="/kr/hadoList.do?menuIdx=466" ><span>하도급부조리 신고</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=811" ><span>부패비리 변호사 대리신고</span></a></li>
+									
+									<li ><a href="/kr/staff.do?menuIdx=463&channel=2" ><span>공익신고</span></a></li>
+									
+									<li ><a href="/kr/staff.do?menuIdx=842&channel=7" ><span>공공재정 부정청구행위 신고</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=470', 'N');"><span>개인정보처리방침</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/page.do?menuIdx=985" ><span>개인정보처리방침</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=470" ><span>개인정보삭제현황</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=760" ><span>목적외 이용·제3자 제공 내역</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=986" ><span>이동형 영상정보처리방침</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=469" ><span>고정형 영상정보처리방침</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=549', 'N');"><span>정보목록</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/board.do?menuIdx=549" ><span>정보목록(기록물생산현황)</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=550', 'N');"><span>정보공개청구</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/page.do?menuIdx=550" ><span>정보공개청구</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=446', 'N');"><span>결재문서/회의록</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="http://opengov.seoul.go.kr/sanction?searchKeyword=&sysid=staterun%2C100223&startDate=&endDate" target="_blank" title="새창으로 열림"><span>결재문서(서울시 연계)</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=446" ><span>회의록</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=447" ><span>위원회운영현황</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=119', 'N');"><span>청탁금지법</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/board.do?menuIdx=119" ><span>청탁금지법 자료실</span></a></li>
+									
+									<li ><a href="/kr/staff.do?menuIdx=465&channel=4" ><span>청탁금지법 위반행위 신고</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						</ul>
+					</div> <!--//gnb-box2 -->
+			</div><!--//sgnb-wp -->
+		</li>
+		<li class="mn6"   >
+		<h2><a href="#;" title="ESG경영"  onClick="topMenuClick('/kr/page.do?menuIdx=956', 'N');"><span>ESG경영</span></a></h2>
+
+			<div class="sgnb-wp">
+				<div class="gnb-box2">
+					<h3>ESG경영</h3>
+					
+					<ul class="gnb2 clearfix">
+						
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=956', 'N');"><span>ESG경영</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=956" ><span>ESG경영</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=957" ><span>ESG 경영 실천 선언문</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=964', 'N');"><span>ESG 대표성과</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=964" ><span>ESG 경영성과</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=965" ><span>수상실적</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=966', 'N');"><span>ESG 경영위원회</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/board.do?menuIdx=966" ><span>ESG 경영위원회</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=967', 'N');"><span>ESG 경영보고서</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=967" ><span>지속가능경영보고서</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=968', 'N');"><span>이해관계자 소통</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=968" ><span>이해관계자 소통채널</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=969" ><span>단체가입현황</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=972', 'N');"><span>사회공헌</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/page.do?menuIdx=972" ><span>비전 및 실행과제</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=884" ><span>사회공헌 활동</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=974', 'N');"><span>ESG 채권 발행현황</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/page.do?menuIdx=974" ><span>ESG 채권 발행현황</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/seoulPick.do?menuIdx=1024', 'N');"><span>서울Pick</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/seoulPick.do?menuIdx=1024" ><span>서울Pick</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=1025" ><span>자주 묻는 질문</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						</ul>
+					</div> <!--//gnb-box2 -->
+			</div><!--//sgnb-wp -->
+		</li>
+		<li class="mn7"   >
+		<h2><a href="#;" title="공사 소개"  onClick="topMenuClick('/kr/page.do?menuIdx=503', 'N');"><span>공사 소개</span></a></h2>
+
+			<div class="sgnb-wp">
+				<div class="gnb-box2">
+					<h3>공사 소개</h3>
+					
+					<ul class="gnb2 clearfix">
+						
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=503', 'N');"><span>서울교통공사</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=503" ><span>CEO 인사말</span></a></li>
+									
+									<li ><a href="/kr/orgList.do?menuIdx=504" ><span>조직도 및 업무안내</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=505" ><span>찾아오시는 길</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=715" ><span>사이버역사관</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=817" ><span>서울교통공사 Now</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=507', 'N');"><span>공사 이미지</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=507" ><span>기관상징(CI·슬로건)</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=508" ><span>캐릭터</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=509" ><span>로고송</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=764" ><span>홍보자료</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=983" ><span>공사 홍보대사</span></a></li>
+									
+									<li ><a href="/kr/socialMediaList.do?menuIdx=1019" ><span>소셜미디어</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=512', 'N');"><span>경영정보</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=512" ><span>개요 및 연혁</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=513" ><span>운행현황</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=514" ><span>경영목표</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=515" ><span>사업계획</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=517" ><span>예산서</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=516" ><span>회계결산</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=106" ><span>외부경영평가</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=110" ><span>재무제표</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=111" ><span>내부감사활동</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=758" ><span>외부감사활동</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=519" ><span>이사회 의결</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=855', 'N');"><span>인권경영</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/page.do?menuIdx=855" ><span>인권경영 소개</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=853" ><span>인권경영 소식</span></a></li>
+									
+									<li ><a href="/kr/staff.do?menuIdx=851&channel=8" ><span>인권침해 신고</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=557', 'N');"><span>채용정보</span></a>
+
+
+								<ul class="gnb3 row1">
+									<li ><a href="/kr/board.do?menuIdx=557" ><span>채용정보</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=723" ><span>인재상</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=755" ><span>인사제도</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=861', 'N');"><span>적극행정</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/page.do?menuIdx=861" ><span>제도소개</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=862" ><span>실행계획</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=863" ><span>자료실</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/board.do?menuIdx=518', 'N');"><span>관련법령 및 사규</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/board.do?menuIdx=518" ><span>정관 및 사규</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=595" ><span>관련법령</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=334" ><span>사규제개정 및 폐기예고</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=105" ><span>법률고문현황</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						<li  >
+							<div class="gnb-box3">
+
+							<a href="#;"   onClick="topMenuClick('/kr/page.do?menuIdx=498', 'N');"><span>산업현황</span></a>
+
+
+								<ul class="gnb3 row2">
+									<li ><a href="/kr/page.do?menuIdx=498" ><span>산업재산권현황</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=499" ><span>신사업개발현황</span></a></li>
+									
+									<li ><a href="/kr/page.do?menuIdx=500" ><span>철도사업현황</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=501" ><span>기술연구자료실</span></a></li>
+									
+									<li ><a href="/kr/board.do?menuIdx=808" ><span>교통정책자료실</span></a></li>
+									
+									</ul>
+								</div>
+						</li>
+						</ul>
+					</div> <!--//gnb-box2 -->
+			</div><!--//sgnb-wp -->
+		</li>
+		</ul>
+  </div>	
+</div>					
+					<div class="site-map-mask"></div>
+<div class="site-map-wp">
+						<div class="site-map-head">
+							<h2>사이트맵</h2>
+						</div>
+						<div class="site-map-body">
+							<div class="site-map-cont">
+							
+								<ul class="site-map-lst">
+
+
+              					<li>
+										<div>
+
+
+											<a href="/kr/page.do?menuIdx=354" >이용정보</a>
+
+											<ul>
+
+
+												<li>
+															<a href="/kr/cyberStation.do?menuIdx=538" target="_blank" title="새창으로 열림">사이버스테이션</a>
+								
+								
+															<ul>
+																<li><a href="/kr/cyberStation.do?menuIdx=538" target="_blank" title="새창으로 열림">사이버스테이션</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="https://smss.seoulmetro.co.kr/traininfo/traininfoUserView.do" target="_blank" title="새창으로 열림">실시간열차운행정보</a>
+								
+								
+															<ul>
+																<li><a href="https://smss.seoulmetro.co.kr/traininfo/traininfoUserView.do" target="_blank" title="새창으로 열림">실시간열차운행정보</a></li>
+																	<li><a href="/kr/slowInfoList.do?menuIdx=1010" >열차서행정보(선로공사)</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/delayProofList.do?menuIdx=543" >간편지연증명서</a>
+								
+								
+															<ul>
+																<li><a href="/kr/delayProofList.do?menuIdx=543" >간편지연증명서</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=354" >운임제도</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=354" >운임안내</a></li>
+																	<li><a href="/kr/page.do?menuIdx=355" >승차권안내</a></li>
+																	<li><a href="/kr/fare.do?menuIdx=527" >단체권운임안내</a></li>
+																	<li><a href="/kr/page.do?menuIdx=528" >여객운송약관(1~8호선)</a></li>
+																	<li><a href="/kr/page.do?menuIdx=779" >여객운송약관(9호선 2·3단계)</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=366" >이용고객 편의시설</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=366" >배려시설 현황</a></li>
+																	<li><a href="/kr/equipmentList.do?menuIdx=367" >승강설비 가동현황</a></li>
+																	<li><a href="/kr/page.do?menuIdx=769" >휠체어 이용 승·하차 안내</a></li>
+																	<li><a href="/kr/page.do?menuIdx=569" >무인편의기기</a></li>
+																	<li><a href="/kr/page.do?menuIdx=195" >문화공간</a></li>
+																	<li><a href="/kr/page.do?menuIdx=540" >환승주차장</a></li>
+																	<li><a href="/kr/page.do?menuIdx=542" >자전거 보관함</a></li>
+																	<li><a href="/kr/page.do?menuIdx=588" >수유실</a></li>
+																	<li><a href="/kr/page.do?menuIdx=746" >잠실광역환승센터</a></li>
+																	<li><a href="/kr/page.do?menuIdx=895" >또타러기지(T-luggage)</a></li>
+																	<li><a href="/kr/page.do?menuIdx=843" >또타스토리지(개인창고)</a></li>
+																	<li><a href="/kr/page.do?menuIdx=897" >또타라커(T-Locker)</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/tempClosurList.do?menuIdx=775" >역시설물 임시폐쇄 공사현황</a>
+								
+								
+															<ul>
+																<li><a href="/kr/tempClosurList.do?menuIdx=775" >역시설물 임시폐쇄 공사현황</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=730" >유실물센터</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=730" >이용안내</a></li>
+																	<li><a href="/kr/page.do?menuIdx=541" >유실물센터</a></li>
+																	</ul>
+															</li>
+						
+													</ul>
+             							</div>
+             						</li>
+								<li>
+										<div>
+
+
+											<a href="/kr/page.do?menuIdx=479" >안전환경</a>
+
+											<ul>
+
+
+												<li>
+															<a href="/kr/page.do?menuIdx=479" >안전가이드</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=480" >안전수칙</a></li>
+																	<li><a href="/kr/page.do?menuIdx=482" >열차내에서</a></li>
+																	<li><a href="/kr/page.do?menuIdx=483" >승강설비 이용시</a></li>
+																	<li><a href="/kr/page.do?menuIdx=484" >지진발생시</a></li>
+																	<li><a href="/kr/page.do?menuIdx=485" >화재시</a></li>
+																	<li><a href="https://safecity.seoul.go.kr/distFclt/cfMapDs/cfMapDs.page?menuId=MENU_SSNS_000015" target="_blank" title="새창으로 열림">침수·폭우 예측시스템(서울안전누리)</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=734" >안전보건 경영방침</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=734" >안전보건 경영방침</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=552" >안전경영방침</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=552" >안전경영방침</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=553" >안전관련법령</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=553" >안전관련법령</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=554" >안전보고서</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=554" >안전보고서</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=555" >안전동영상</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=555" >안전동영상</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=994" >환경경영</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=994" >환경경영체계</a></li>
+																	<li><a href="/kr/page.do?menuIdx=995" >환경윤리준수 선언문</a></li>
+																	<li><a href="/kr/page.do?menuIdx=996" >환경지표</a></li>
+																	<li><a href="/kr/page.do?menuIdx=997" >온실가스</a></li>
+																	<li><a href="/kr/page.do?menuIdx=494" >공기질관리</a></li>
+																	<li><a href="/kr/page.do?menuIdx=999" >소음관리</a></li>
+																	<li><a href="/kr/board.do?menuIdx=495" >환경자료실</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=488" >안전장비 취급 및 현황</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=489" >안전장비 취급요령</a></li>
+																	<li><a href="/kr/page.do?menuIdx=490" >역사 내 안전장비</a></li>
+																	<li><a href="/kr/page.do?menuIdx=491" >열차 내 안전장비</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=556" >지하철테러대응</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=556" >지하철테러대응</a></li>
+																	<li><a href="/kr/board.do?menuIdx=739" >자료실</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=496" >지하철 환경</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=496" >위생관리</a></li>
+																	</ul>
+															</li>
+						
+													</ul>
+             							</div>
+             						</li>
+								<li>
+										<div>
+
+
+											<a href="/kr/filmList.do?menuIdx=395" >시민 참여</a>
+
+											<ul>
+
+
+												<li>
+															<a href="/kr/filmList.do?menuIdx=395" >신청센터</a>
+								
+								
+															<ul>
+																<li><a href="/kr/filmList.do?menuIdx=395" >시설물 촬영</a></li>
+																	<li><a href="/kr/page.do?menuIdx=883" >인재개발원 대관</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/garage.do?menuIdx=401&reservegroupid=3" >서울교통공사 견학 </a>
+								
+								
+															<ul>
+																<li><a href="/kr/garage.do?menuIdx=401&reservegroupid=3" >차량사업소견학</a></li>
+																	<li><a href="/kr/safetyExperience.do?menuIdx=753&reservegroupid=6" >시민안전체험·홍보관</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/eventList.do?menuIdx=392" >시민초청 문화이벤트</a>
+								
+								
+															<ul>
+																<li><a href="/kr/eventList.do?menuIdx=545" target="_blank" title="새창으로 열림">참여하기</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=409" >문화스테이션</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=409" >지하철 여행</a></li>
+																	<li><a href="/kr/board.do?menuIdx=413" >문화갤러리</a></li>
+																	<li><a href="https://webzine.seoulmetro.co.kr/newshome/mtnmain.php" target="_blank" title="새창으로 열림">서울교통공사 웹진</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=385" >시민안전모니터</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=385" >안내</a></li>
+																	<li><a href="/kr/board.do?menuIdx=386" >공지사항</a></li>
+																	<li><a href="/kr/privateList.do?menuIdx=135&cdvocchannel=3" >모니터링</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=374" >고객의 소리</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=374" >이용 안내</a></li>
+																	<li><a href="/kr/board.do?menuIdx=375" >자주 묻는 질문</a></li>
+																	<li><a href="/kr/page.do?menuIdx=376" >신청</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/juminyesanList.do?menuIdx=785" >주민참여예산</a>
+								
+								
+															<ul>
+																<li><a href="/kr/juminyesanList.do?menuIdx=785" >제안하기</a></li>
+																	<li><a href="/kr/board.do?menuIdx=813" >연도별 사업추진 실적</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/ideaList.do?menuIdx=379&bbs_cd=pro001" >시민 아이디어</a>
+								
+								
+															<ul>
+																<li><a href="/kr/ideaList.do?menuIdx=379&bbs_cd=pro001" >아이디어 보기</a></li>
+																	<li><a href="/kr/ideaSuggestions.do?menuIdx=1012&bbs_cd=pro001" >아이디어 제안하기</a></li>
+																	<li><a href="/kr/ideaImplList.do?menuIdx=1007&bbs_cd=pro001" >실시 시민 아이디어</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=388" >고객서비스 헌장</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=388" >고객서비스 헌장</a></li>
+																	<li><a href="/kr/page.do?menuIdx=871" >이행 실적</a></li>
+																	</ul>
+															</li>
+						
+													</ul>
+             							</div>
+             						</li>
+								<li>
+										<div>
+
+
+											<a href="/kr/board.do?menuIdx=546" >알림마당</a>
+
+											<ul>
+
+
+												<li>
+															<a href="/kr/board.do?menuIdx=546" >공지사항</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=546" >공지사항</a></li>
+																	<li><a href="/kr/bannerList.do?menuIdx=988" >배너 모아보기</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=547" >보도자료</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=547" >보도자료</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=417" >입찰/계약정보</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=417" >입찰안내</a></li>
+																	<li><a href="/kr/board.do?menuIdx=418" >발주계획</a></li>
+																	<li><a href="/kr/board.do?menuIdx=423" >사전규격공개</a></li>
+																	<li><a href="/kr/noticeList.do?menuIdx=419" >입찰공고 및 결과</a></li>
+																	<li><a href="privList.do?menuIdx=776&zmetd2=03" >계약현황</a></li>
+																	<li><a href="/kr/payList.do?menuIdx=422" >대금지급안내</a></li>
+																	<li><a href="/kr/payList2.do?menuIdx=880" >영세율공급증명 발급</a></li>
+																	<li><a href="/kr/board.do?menuIdx=424" >제안서 평가결과</a></li>
+																	<li><a href="/kr/board.do?menuIdx=751" >건설공사/하도급계약현황</a></li>
+																	<li><a href="/kr/printList.do?menuIdx=420" >실적증명서 발급</a></li>
+																	<li><a href="/kr/privList.do?menuIdx=425" >수의계약내역 및 실적</a></li>
+																	<li><a href="/kr/board.do?menuIdx=421" >계약자료실</a></li>
+																	<li><a href="/kr/board.do?menuIdx=822" >계약내용 변경사항</a></li>
+																	<li><a href="/kr/board.do?menuIdx=823" >감리·감독·검사 현황</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=428" >부대사업정보</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=428" >광고시설물</a></li>
+																	<li><a href="/kr/page.do?menuIdx=429" >편의시설물</a></li>
+																	<li><a href="/kr/mallList.do?menuIdx=430" >역구내상가</a></li>
+																	<li><a href="/kr/board.do?menuIdx=833" >자주묻는질문</a></li>
+																	<li><a href="/kr/page.do?menuIdx=1021" >상생플러스+ 공간</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=926" >오픈 이노베이션</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=926" >제도소개</a></li>
+																	<li><a href="/kr/page.do?menuIdx=927" >추진절차</a></li>
+																	<li><a href="/kr/board.do?menuIdx=932" >모집공고</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=849" >업무협의절차</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=849" >인접굴착공사</a></li>
+																	<li><a href="/kr/page.do?menuIdx=850" >연결통로설치</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=979" >혼잡도</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=979" >열차혼잡도</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=887" >이달의 역세권 행사</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=887" >이달의 역세권 행사</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=548" >자료실</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=548" >자료실</a></li>
+																	</ul>
+															</li>
+						
+													</ul>
+             							</div>
+             						</li>
+								<li>
+										<div>
+
+
+											<a href="/kr/page.do?menuIdx=435" >정보공개</a>
+
+											<ul>
+
+
+												<li>
+															<a href="/kr/page.do?menuIdx=435" >제도안내</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=435" >정보공개제도란</a></li>
+																	<li><a href="/kr/page.do?menuIdx=436" >관련규정</a></li>
+																	<li><a href="/kr/board.do?menuIdx=437" >관련서식</a></li>
+																	<li><a href="/kr/page.do?menuIdx=828" >비공개대상정보 세부기준</a></li>
+																	<li><a href="/kr/page.do?menuIdx=867" >자주 청구하는 항목 안내</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=820&sort_order=asc" >사전정보공표</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=820&sort_order=asc" >사전정보 공표목록</a></li>
+																	<li><a href="/kr/board.do?menuIdx=441" >업무추진비</a></li>
+																	<li><a href="/kr/page.do?menuIdx=872" >자주 조회하는 사전정보</a></li>
+																	<li><a href="/kr/customer.do?menuIdx=1028" >정보공개 고객의견함</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=892" >공공데이터개방</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=892" >공공데이터개방</a></li>
+																	<li><a href="/kr/board.do?menuIdx=846" >공공데이터 수요조사</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=455" >반부패/청렴</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=455" >반부패/청렴활동 자료실</a></li>
+																	<li><a href="/kr/board.do?menuIdx=875" >반부패/청렴관련 사규</a></li>
+																	<li><a href="/kr/board.do?menuIdx=458" >부패공직자 현황 공개</a></li>
+																	<li><a href="/kr/board.do?menuIdx=460" >청렴도 및 시책평가 결과</a></li>
+																	<li><a href="/kr/twowayMonitor.do?menuIdx=878" >실시간 민원소통 모니터링</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/staff.do?menuIdx=829&channel=6" >부조리신고센터</a>
+								
+								
+															<ul>
+																<li><a href="/kr/staff.do?menuIdx=829&channel=6" >인사비리 제보신고</a></li>
+																	<li><a href="/kr/staff.do?menuIdx=462&channel=1" >공직자비리신고</a></li>
+																	<li><a href="/kr/staff.do?menuIdx=464&channel=3" >갑의 부당행위 신고</a></li>
+																	<li><a href="/kr/waste.do?menuIdx=451&cdvocchannel=11" >예산낭비신고센터</a></li>
+																	<li><a href="/kr/shop.do?menuIdx=453" >상가무단전대양도신고</a></li>
+																	<li><a href="/kr/staff.do?menuIdx=459&channel=5" >계약관련 부조리 신고</a></li>
+																	<li><a href="/kr/hadoList.do?menuIdx=466" >하도급부조리 신고</a></li>
+																	<li><a href="/kr/page.do?menuIdx=811" >부패비리 변호사 대리신고</a></li>
+																	<li><a href="/kr/staff.do?menuIdx=463&channel=2" >공익신고</a></li>
+																	<li><a href="/kr/staff.do?menuIdx=842&channel=7" >공공재정 부정청구행위 신고</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=470" >개인정보처리방침</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=985" >개인정보처리방침</a></li>
+																	<li><a href="/kr/board.do?menuIdx=470" >개인정보삭제현황</a></li>
+																	<li><a href="/kr/board.do?menuIdx=760" >목적외 이용·제3자 제공 내역</a></li>
+																	<li><a href="/kr/board.do?menuIdx=986" >이동형 영상정보처리방침</a></li>
+																	<li><a href="/kr/page.do?menuIdx=469" >고정형 영상정보처리방침</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=549" >정보목록</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=549" >정보목록(기록물생산현황)</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=550" >정보공개청구</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=550" >정보공개청구</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=446" >결재문서/회의록</a>
+								
+								
+															<ul>
+																<li><a href="http://opengov.seoul.go.kr/sanction?searchKeyword=&sysid=staterun%2C100223&startDate=&endDate" target="_blank" title="새창으로 열림">결재문서(서울시 연계)</a></li>
+																	<li><a href="/kr/board.do?menuIdx=446" >회의록</a></li>
+																	<li><a href="/kr/page.do?menuIdx=447" >위원회운영현황</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=119" >청탁금지법</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=119" >청탁금지법 자료실</a></li>
+																	<li><a href="/kr/staff.do?menuIdx=465&channel=4" >청탁금지법 위반행위 신고</a></li>
+																	</ul>
+															</li>
+						
+													</ul>
+             							</div>
+             						</li>
+								<li>
+										<div>
+
+
+											<a href="/kr/page.do?menuIdx=956" >ESG경영</a>
+
+											<ul>
+
+
+												<li>
+															<a href="/kr/page.do?menuIdx=956" >ESG경영</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=956" >ESG경영</a></li>
+																	<li><a href="/kr/page.do?menuIdx=957" >ESG 경영 실천 선언문</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=964" >ESG 대표성과</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=964" >ESG 경영성과</a></li>
+																	<li><a href="/kr/page.do?menuIdx=965" >수상실적</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=966" >ESG 경영위원회</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=966" >ESG 경영위원회</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=967" >ESG 경영보고서</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=967" >지속가능경영보고서</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=968" >이해관계자 소통</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=968" >이해관계자 소통채널</a></li>
+																	<li><a href="/kr/page.do?menuIdx=969" >단체가입현황</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=972" >사회공헌</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=972" >비전 및 실행과제</a></li>
+																	<li><a href="/kr/board.do?menuIdx=884" >사회공헌 활동</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=974" >ESG 채권 발행현황</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=974" >ESG 채권 발행현황</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/seoulPick.do?menuIdx=1024" >서울Pick</a>
+								
+								
+															<ul>
+																<li><a href="/kr/seoulPick.do?menuIdx=1024" >서울Pick</a></li>
+																	<li><a href="/kr/page.do?menuIdx=1025" >자주 묻는 질문</a></li>
+																	</ul>
+															</li>
+						
+													</ul>
+             							</div>
+             						</li>
+								<li>
+										<div>
+
+
+											<a href="/kr/page.do?menuIdx=503" >공사 소개</a>
+
+											<ul>
+
+
+												<li>
+															<a href="/kr/page.do?menuIdx=503" >서울교통공사</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=503" >CEO 인사말</a></li>
+																	<li><a href="/kr/orgList.do?menuIdx=504" >조직도 및 업무안내</a></li>
+																	<li><a href="/kr/page.do?menuIdx=505" >찾아오시는 길</a></li>
+																	<li><a href="/kr/page.do?menuIdx=715" >사이버역사관</a></li>
+																	<li><a href="/kr/board.do?menuIdx=817" >서울교통공사 Now</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=507" >공사 이미지</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=507" >기관상징(CI·슬로건)</a></li>
+																	<li><a href="/kr/page.do?menuIdx=508" >캐릭터</a></li>
+																	<li><a href="/kr/page.do?menuIdx=509" >로고송</a></li>
+																	<li><a href="/kr/board.do?menuIdx=764" >홍보자료</a></li>
+																	<li><a href="/kr/page.do?menuIdx=983" >공사 홍보대사</a></li>
+																	<li><a href="/kr/socialMediaList.do?menuIdx=1019" >소셜미디어</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=512" >경영정보</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=512" >개요 및 연혁</a></li>
+																	<li><a href="/kr/page.do?menuIdx=513" >운행현황</a></li>
+																	<li><a href="/kr/page.do?menuIdx=514" >경영목표</a></li>
+																	<li><a href="/kr/page.do?menuIdx=515" >사업계획</a></li>
+																	<li><a href="/kr/page.do?menuIdx=517" >예산서</a></li>
+																	<li><a href="/kr/page.do?menuIdx=516" >회계결산</a></li>
+																	<li><a href="/kr/page.do?menuIdx=106" >외부경영평가</a></li>
+																	<li><a href="/kr/page.do?menuIdx=110" >재무제표</a></li>
+																	<li><a href="/kr/board.do?menuIdx=111" >내부감사활동</a></li>
+																	<li><a href="/kr/board.do?menuIdx=758" >외부감사활동</a></li>
+																	<li><a href="/kr/board.do?menuIdx=519" >이사회 의결</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=855" >인권경영</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=855" >인권경영 소개</a></li>
+																	<li><a href="/kr/board.do?menuIdx=853" >인권경영 소식</a></li>
+																	<li><a href="/kr/staff.do?menuIdx=851&channel=8" >인권침해 신고</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=557" >채용정보</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=557" >채용정보</a></li>
+																	<li><a href="/kr/page.do?menuIdx=723" >인재상</a></li>
+																	<li><a href="/kr/board.do?menuIdx=755" >인사제도</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=861" >적극행정</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=861" >제도소개</a></li>
+																	<li><a href="/kr/page.do?menuIdx=862" >실행계획</a></li>
+																	<li><a href="/kr/board.do?menuIdx=863" >자료실</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/board.do?menuIdx=518" >관련법령 및 사규</a>
+								
+								
+															<ul>
+																<li><a href="/kr/board.do?menuIdx=518" >정관 및 사규</a></li>
+																	<li><a href="/kr/page.do?menuIdx=595" >관련법령</a></li>
+																	<li><a href="/kr/board.do?menuIdx=334" >사규제개정 및 폐기예고</a></li>
+																	<li><a href="/kr/page.do?menuIdx=105" >법률고문현황</a></li>
+																	</ul>
+															</li>
+						
+													<li>
+															<a href="/kr/page.do?menuIdx=498" >산업현황</a>
+								
+								
+															<ul>
+																<li><a href="/kr/page.do?menuIdx=498" >산업재산권현황</a></li>
+																	<li><a href="/kr/page.do?menuIdx=499" >신사업개발현황</a></li>
+																	<li><a href="/kr/page.do?menuIdx=500" >철도사업현황</a></li>
+																	<li><a href="/kr/board.do?menuIdx=501" >기술연구자료실</a></li>
+																	<li><a href="/kr/board.do?menuIdx=808" >교통정책자료실</a></li>
+																	</ul>
+															</li>
+						
+													</ul>
+             							</div>
+             						</li>
+								</ul>
+								
+							</div><!-- //site-map-cont -->
+						</div><!-- //site-map-body -->
+						<a href="#close" class="btn-close-sitemap"><img src="/images/layout/btn_close_sitemap.png"  alt="닫기" /></a>
+						
+					</div><!-- //site-map-wp -->
+					
+					<input type = "hidden" value = "" id = "isMobile" />
+					
+					
+					
+				</div> <!-- //inner  -->
+
+			<form name="Search" id="Search" action="/kr/search.do" method="post"><input type="hidden" name="ptSignature" value="1zDnCfKHxIfHe0KEJqbg0fUhuWhA8EHxaVt5id1Bxig=" />
+				
+				<div class="total-sch-box">
+					<div class="total-sch cleafix">
+						<span class="input-wp">
+							<label for="SRCH_TEXT" class="hide">검색어 입력</label>
+							<input name="SRCH_TEXT" id="SRCH_TEXT" type="text" class="int-t" placeholder="검색어를 입력하세요." />
+						</span>
+						<label for="s3" class="hide"></label>
+						<input id="s3" type="submit" class="total-shc-btn" value="검색" />
+						<span class="btn-tsch-close"><a href="#;"><img src="/images/layout/btn_a_delete4.gif" alt="닫기" /></a></span>
+
+					</div><!-- //total-sch -->
+				</div> <!-- //total-sch-box -->
+			</form>				
+				<div class="tm-gnb-mask"></div>
+			
+			</div> <!-- //header  -->
+
+			
+			
+          
+
+
+
+
+
+
+<!-- <script type="text/javaScript" language="javascript" defer="defer"> -->
+<script>
+
+function snsShare(gubunNum) {
+	
+	var msg = "";  
+	var href = "";
+	var name = "";        
+	var url = document.location.href;
+	url = encodeURIComponent(url);
+
+	msg = "서울교통공사";
+	if (gubunNum == 'twitter') {
+		href = "http://twitter.com/share?url=" + url + "&text="
+				+ encodeURI(msg);
+		name = "twitter";
+	} else if (gubunNum == 'facebook') {
+		href = "http://www.facebook.com/sharer.php?u=" + url + "&t="
+				+ encodeURI(msg) + "&src=sp";
+		name = "facebook";
+	}
+	window.open(href, name);
+}
+
+$(document).ready(function() {
+	
+	var menuTitle = $("#lnb-title").text();
+	
+	switch(menuTitle){
+		case "이용정보":		
+								$("div.lnb-title").attr("class", "lnb-title sub01"); 
+								$("div.sub-visual").attr("class", "sub-visual v1 sub1"); 
+								break;
+		case "안전환경":		
+								$("div.lnb-title").attr("class", "lnb-title sub02"); 
+								$("div.sub-visual").attr("class", "sub-visual v1 sub2"); 
+								break;
+		case "시민 참여":	
+								$("div.lnb-title").attr("class", "lnb-title sub03"); 
+								$("div.sub-visual").attr("class", "sub-visual v1 sub3"); 
+								break;
+		case "알림마당":		
+								$("div.lnb-title").attr("class", "lnb-title sub04"); 
+								$("div.sub-visual").attr("class", "sub-visual v1 sub4"); 
+								break;
+		case "정보공개":		
+								$("div.lnb-title").attr("class", "lnb-title sub05"); 
+								$("div.sub-visual").attr("class", "sub-visual v1 sub5"); 
+								break;
+		case "ESG경영":			
+								$("div.lnb-title").attr("class", "lnb-title sub06"); 
+								$("div.sub-visual").attr("class", "sub-visual v1 sub6"); 
+								break;
+		case "공사 소개":			
+								$("div.lnb-title").attr("class", "lnb-title sub07"); 
+								$("div.sub-visual").attr("class", "sub-visual v1 sub7"); 
+								break;
+	}
+	
+});
+
+
+</script>
+
+<div class="sub-body">
+	<div class="container">
+		<div class="sub-visual v1">
+			<div class="inner">
+
+				<div class="auth-timer">
+				<script>
+				
+				var loginYn = false;
+				
+				$(document).ready(function() {
+					var href = window.location.pathname;
+					if(href.match(/login/) || href.match(/privateList/)) {
+						
+					} else {
+						var url = "/kr/checkLogin.do?menuIdx=375";
+						var data = new Array();
+						data = {param : ""};
+						var successFn = function(json) {
+							if ( json.loginCheck == "true" ) {
+								$(".auth-timer").css("visibility","visible");
+								loginYn = true;
+							} 
+						};
+						console.log("서울교통공사 로그인 세션체크");		
+						$.ajax({
+							type: 'post',
+							cache: false,
+							url: url,
+							data: data,
+							dataType: 'json',
+							success: successFn
+						});			
+					}
+
+					
+				});
+				
+				var timer2 = "30:01";
+				var interval = setInterval(function() {
+
+
+				  var timer = timer2.split(':');
+				  //by parsing integer, I avoid all extra string processing
+				  var minutes = parseInt(timer[0], 10);
+				  var seconds = parseInt(timer[1], 10);
+				  --seconds;
+				  minutes = (seconds < 0) ? --minutes : minutes;
+				  if (minutes < 0) clearInterval(interval);
+				  seconds = (seconds < 0) ? 59 : seconds;
+				  seconds = (seconds < 10) ? '0' + seconds : seconds;
+				  //minutes = (minutes < 10) ?  minutes : minutes;
+				  $('#auth-time').html(minutes + ':' + seconds);
+				  $('#auth-time1').html(minutes + ':' + seconds);
+				  timer2 = minutes + ':' + seconds;
+				  if(loginYn) {
+					  if(minutes==1 && seconds==0) {
+						  if(confirm("실명인증 자동 로그아웃 시간이 1분 남았습니다.\n연장하시겠습니까?")) {
+							  sessionExtend();
+							  timerClear();
+						  }
+					  }
+					  if(minutes==0 && seconds==0) alert("실명인증 유효시간 경과로 자동 로그아웃 되었습니다.\n작성하신 글이 있으시면 백업하신 후 다시 접속해 주시기 바랍니다.");			  
+				  }
+
+				}, 1000);
+				
+				function timerClear() {
+					timer2 = "30:01";
+				}
+				</script>
+					<div class="timer"><span>실명인증 유효</span> <span class="time" id="auth-time">30:00</span></div>
+					<a href="#;" onClick="sessionExtend(); timerClear();"><div class="extend">연장</div></a>
+				</div>			
+
+				
+					
+				
+
+
+
+
+				<div class="location-nav" id = "NaVi_Menu">
+					<ul>
+						<li class="home"><em class="pc-vr">HOME</em><i class="mobile-vr">홈</i></li>
+						<li class="l-menu">
+							<span class="ctrl"></span>
+
+						
+							
+								
+									<a href="javascript:;" class="active" id="naviMenu" title="같은레벨의 메뉴보기"><span>시민 참여</span></a>
+									
+								<ul  class="l-submenu">
+									
+										
+									
+										
+											<li><a href="/kr/page.do?menuIdx=354"><span>이용정보</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/en/cyberKioskEn.do?menuIdx=945"><span>무인 헬프데스크(키오스크)</span></a></li>
+										
+									
+										
+											<li><a href="/kr/page.do?menuIdx=479"><span>안전환경</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/kr/filmList.do?menuIdx=395"><span>시민 참여</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/kr/board.do?menuIdx=546"><span>알림마당</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/kr/page.do?menuIdx=435"><span>정보공개</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/kr/page.do?menuIdx=956"><span>ESG경영</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/kr/page.do?menuIdx=503"><span>공사 소개</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+								</ul>
+									
+									
+								
+							
+						
+						
+							
+								
+							
+						
+						
+							
+								
+							
+						
+						
+						</li>
+						
+						
+						<li class="l-menu"> 
+							<span class="ctrl"></span>	
+
+						
+						
+							
+								
+							
+						
+						
+							
+								
+									<a href="javascript:;" class="active" title="같은레벨의 메뉴보기"><span>고객의 소리</span></a>
+									
+								<ul  class="l-submenu">
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/kr/filmList.do?menuIdx=395"><span>신청센터</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/kr/garage.do?menuIdx=401&reservegroupid=3"><span>서울교통공사 견학 </span></a></li>
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/kr/eventList.do?menuIdx=392"><span>시민초청 문화이벤트</span></a></li>
+										
+									
+										
+									
+										
+											<li><a href="/kr/board.do?menuIdx=409"><span>문화스테이션</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/kr/page.do?menuIdx=385"><span>시민안전모니터</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/kr/page.do?menuIdx=374"><span>고객의 소리</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/kr/juminyesanList.do?menuIdx=785"><span>주민참여예산</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/kr/ideaList.do?menuIdx=379&bbs_cd=pro001"><span>시민 아이디어</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/kr/page.do?menuIdx=388"><span>고객서비스 헌장</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+								</ul>
+									
+									
+								
+							
+						
+						
+							
+								
+							
+						
+						
+
+						</li>
+						
+						
+						<li class="l-menu"> 
+							<span class="ctrl"></span>	
+						
+						
+						
+							
+								
+							
+						
+						
+							
+								
+							
+						
+						
+							
+								
+									<a href="javascript:;" class="active" title="같은레벨의 메뉴보기"><span>자주 묻는 질문</span></a>
+									
+								<ul  class="l-submenu">
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+											<li><a href="/kr/page.do?menuIdx=374"><span>이용 안내</span></a></li>
+										
+									
+										
+											<li><a href="/kr/board.do?menuIdx=375"><span>자주 묻는 질문</span></a></li>
+										
+									
+										
+											<li><a href="/kr/page.do?menuIdx=376"><span>신청</span></a></li>
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+										
+									
+								</ul>
+									
+									
+								
+							
+						
+						
+						
+						</li>
+					</ul>
+				</div> <!-- //location-nav -->
+
+
+				
+
+			</div><!-- //inner -->
+		</div> <!-- //sub-visual -->
+
+
+				<div class="contents_area">
+					
+					<div class="inner">
+
+<div class="lnb-wrap">
+	<div class="lnb-box">
+
+		
+			
+		
+
+
+
+
+	   	<div class="lnb-title">
+			<h2><span id="lnb-title">시민 참여</span></h2>
+		</div>
+		<div class="lnb">
+			<ul  class="depth2">
+
+        	
+        	
+        		
+        		
+        		<li class="">
+        			<a href="#none" class="depth"><span>신청센터</span></a>
+        			
+        			<ul class="depth3" >
+        				
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/filmList.do?menuIdx=395" class="depth" >시설물 촬영</a>
+        				</li>
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/page.do?menuIdx=883" class="depth" >인재개발원 대관</a>
+        				</li>
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        			</ul>
+        			
+        		</li>
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		<li class="">
+        			<a href="#none" class="depth"><span>서울교통공사 견학 </span></a>
+        			
+        			<ul class="depth3" >
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/garage.do?menuIdx=401&reservegroupid=3" class="depth" >차량사업소견학</a>
+        				</li>
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/safetyExperience.do?menuIdx=753&reservegroupid=6" class="depth" >시민안전체험·홍보관</a>
+        				</li>
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        			</ul>
+        			
+        		</li>
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		<li class="">
+        			<a href="#none" class="depth"><span>시민초청 문화이벤트</span></a>
+        			
+        			<ul class="depth3" >
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/eventList.do?menuIdx=545" class="depth" target="_blank" title="새창으로 열림">참여하기</a>
+        				</li>
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        			</ul>
+        			
+        		</li>
+        		
+        		
+        		
+        		
+        		
+        		<li class="">
+        			<a href="#none" class="depth"><span>문화스테이션</span></a>
+        			
+        			<ul class="depth3" >
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/board.do?menuIdx=409" class="depth" >지하철 여행</a>
+        				</li>
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/board.do?menuIdx=413" class="depth" >문화갤러리</a>
+        				</li>
+        				
+        				
+        				
+        				<li class="">
+        					<a href="https://webzine.seoulmetro.co.kr/newshome/mtnmain.php" class="depth" target="_blank" title="새창으로 열림">서울교통공사 웹진</a>
+        				</li>
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        			</ul>
+        			
+        		</li>
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		<li class="">
+        			<a href="#none" class="depth"><span>시민안전모니터</span></a>
+        			
+        			<ul class="depth3" >
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/page.do?menuIdx=385" class="depth" >안내</a>
+        				</li>
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/board.do?menuIdx=386" class="depth" >공지사항</a>
+        				</li>
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/privateList.do?menuIdx=135&cdvocchannel=3" class="depth" >모니터링</a>
+        				</li>
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        			</ul>
+        			
+        		</li>
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		<li class="on">
+        			<a href="#none" class="depth"><span>고객의 소리</span></a>
+        			
+        			<ul class="depth3" style=display:block>
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/page.do?menuIdx=374" class="depth" >이용 안내</a>
+        				</li>
+        				
+        				
+        				
+        				<li class="on">
+        					<a href="/kr/board.do?menuIdx=375" class="depth" >자주 묻는 질문</a>
+        				</li>
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/page.do?menuIdx=376" class="depth" >신청</a>
+        				</li>
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        			</ul>
+        			
+        		</li>
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		<li class="">
+        			<a href="#none" class="depth"><span>주민참여예산</span></a>
+        			
+        			<ul class="depth3" >
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/juminyesanList.do?menuIdx=785" class="depth" >제안하기</a>
+        				</li>
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/board.do?menuIdx=813" class="depth" >연도별 사업추진 실적</a>
+        				</li>
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        			</ul>
+        			
+        		</li>
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		<li class="">
+        			<a href="#none" class="depth"><span>시민 아이디어</span></a>
+        			
+        			<ul class="depth3" >
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/ideaList.do?menuIdx=379&bbs_cd=pro001" class="depth" >아이디어 보기</a>
+        				</li>
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/ideaSuggestions.do?menuIdx=1012&bbs_cd=pro001" class="depth" >아이디어 제안하기</a>
+        				</li>
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/ideaImplList.do?menuIdx=1007&bbs_cd=pro001" class="depth" >실시 시민 아이디어</a>
+        				</li>
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        			</ul>
+        			
+        		</li>
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		
+        		<li class="">
+        			<a href="#none" class="depth"><span>고객서비스 헌장</span></a>
+        			
+        			<ul class="depth3" >
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/page.do?menuIdx=388" class="depth" >고객서비스 헌장</a>
+        				</li>
+        				
+        				
+        				
+        				<li class="">
+        					<a href="/kr/page.do?menuIdx=871" class="depth" >이행 실적</a>
+        				</li>
+        				
+        				
+        			</ul>
+        			
+        		</li>
+        		
+        		
+        		
+        		
+        		
+        		
+        	
+        	
+        	
+    
+    
+
+    
+        	
+<!-- 
+				<li>
+					<a href="#;"><span>환경안전</span></a>
+					<ul class="depth3">
+						<li><a href="#;">sub1</a></li>
+						<li><a href="#;">sub1</a></li>
+					</ul>
+				</li>
+				<li>
+					<a href="#;"><span>산업현황</span></a>
+					<ul class="depth3">
+						<li><a href="#;">sub2</a></li>
+						<li><a href="#;">sub2</a></li>
+					</ul>
+				</li>
+				<li class="on"> 
+					<a href="#;"><span>지하철테러대응</span></a>
+					<ul class="depth3" style="display:block">
+						<li class="on"><a href="#;">테러발생시 국민행동요령</a></li>
+						<li><a href="#;">윤리경영 소개</a></li>
+						<li><a href="#;">윤리경영 내부규정</a></li>
+						<li><a href="#;">윤리경영 자료실</a></li>
+						<li><a href="#;">관련사이트</a></li>
+					</ul>
+				</li>
+ -->
+
+
+
+			</ul>
+		</div><!-- //lnb-->
+	
+		
+		
+
+		<!--
+		<p class="sns-t">
+			<img src="/images/layout/text_sns_t.png" alt="sns 공유" />
+		</p>
+		 
+		<ul class="sns clearfix">
+			<li><a href="javascript:snsShare('facebook');" title="페이스북 새창열림" ><img src="/images/layout/icon_sns_f2.gif" alt="페이스북" /></a></li>
+			<li><a href="javascript:snsShare('twitter');" title="트위터 새창열림" ><img src="/images/layout/icon_sns_t2.gif" alt="트위터" /></a></li>
+		</ul>
+		-->
+	</div><!-- //lnb-box -->
+</div> <!-- //lnb-wrap -->
+<style>
+@media screen and (max-width: 1024px) {
+	.zoomTool {
+		display:none;
+	}
+}
+
+</style>
+<script>
+$(document).ready(function(){
+	$(".sub-top").append("<div class='zoomTool' style='font-size:16px; font-weight:bold; position:absolute; top:93px; right: 10px; '><a href='#' onClick='pageZoomPlus()'><div style='display:table-cell;border:1px solid #bbb; border-right:none; padding:5px 13px;'>+ 본문확대</div></a><a href='#' onClick='pageZoomMinus()'><div style='display:table-cell;border:1px solid #bbb; padding:5px 13px;'>- 본문축소</div></a></div>");
+	zoom = getCookie("pageZoomScale");
+	if(zoom != null) {
+		$("#contents").css("zoom",zoom);
+	}
+});
+function pageZoomPlus() {
+	zoom = $("#contents").css("zoom");
+	console.log("BorwserZoom: "+zoom);
+	if(zoom == "normal") {
+		zoom = "1";
+	} else if(zoom.length >= 4) {
+		zoom = zoom.substring(0,1)+"."+zoom.substring(1,2);
+	}
+	zoom *= 1;
+	console.log("CurrentZoom: "+zoom);
+	zoom += 0.1;
+	console.log("SetZoom: "+zoom);
+	zoom = Math.round(zoom*10)/10;
+	console.log("SetZoom: "+zoom);
+	
+	zoom += "";
+	if(zoom <= 1.7) {
+		console.log("SetZoomStart");
+		$("#contents").css("zoom",zoom);
+		setCookie("pageZoomScale",zoom, 30);
+	}
+	
+}
+function pageZoomMinus() {
+	zoom = $("#contents").css("zoom");
+	console.log("BorwserZoom: "+zoom);
+	if(zoom == "normal") {
+		zoom = "1";
+	} else if(zoom.length >= 4) {
+		zoom = zoom.substring(0,1)+"."+zoom.substring(1,2);
+	}
+	zoom *= 1;
+	console.log("CurrentZoom: "+zoom);
+	zoom -= 0.1;
+	console.log("SetZoom: "+zoom);
+	zoom = Math.round(zoom*10)/10;
+	console.log("SetZoom: "+zoom);
+	zoom += "";
+	
+	if(zoom >= 1.0) {
+		console.log("SetZoomStart");
+		$("#contents").css("zoom",zoom);
+		setCookie("pageZoomScale",zoom, 30);
+	}
+}
+function setCookie(cookieName, value, exdays){
+	var exdate = new Date();
+	exdate.setDate(exdate.getDate() + exdays);
+	var cookieValue = escape(value) + ((exdays==null) ? "" : "; expires=" + exdate.toGMTString());
+	document.cookie = cookieName + "=" + cookieValue;
+}
+
+function deleteCookie(cookieName){
+	var expireDate = new Date();
+	expireDate.setDate(expireDate.getDate() - 1);
+	document.cookie = cookieName + "= " + "; expires=" + expireDate.toGMTString();
+}
+
+function getCookie(cookieName) {
+	cookieName = cookieName + '=';
+	var cookieData = document.cookie;
+	var start = cookieData.indexOf(cookieName);
+	var cookieValue = '';
+	if(start != -1){
+		start += cookieName.length;
+		var end = cookieData.indexOf(';', start);
+		if(end == -1)end = cookieData.length;
+		cookieValue = cookieData.substring(start, end);
+	}
+	return unescape(cookieValue);
+}
+</script>
+			
+	<script type="text/javascript" src="/js/link.js"></script> 
+	
+
+
+
+
+
+<script type="text/javascript" src="/common/resources/js/global_common.js"></script>
+
+
+<div class="content-wrap" id="content-box">
+	<div class="sub-top">
+		<h3 class="page-title">자주묻는질문</h3>
+		<p class="page-msg">누구나 안전하고 행복하게 이용할 수 있는 서울교통공사가 될 수 있도록 최선을 다하겠습니다.</p>
+	</div>
+	<div class="contents" id="contents">
+		<!-- 본문시작 -->
+								
+			<section id="board-top">
+				
+				
+				
+				
+				
+				
+			    
+				
+			    <article>
+
+				<div class="tbl-box1 m-top40">
+			     
+				    <table class="tbl-type1 t-row">
+				        <caption>자주 묻는 질문</caption>
+				        <colgroup>
+			        		<col style="width:13%" />
+							<col style="width:20%"/>
+							<col style="width:14%" />
+							<col style="width:20%"/>
+							<col style="width:13%" />
+							<col style="width:20%"/>
+				        </colgroup>
+				        <tbody>
+							<tr>
+								<th scope="row">제목</th>
+								<td colspan="5">
+									
+									
+										
+											
+										
+											
+										
+											
+												
+											
+										
+											
+										
+											
+										
+											
+										
+											
+										
+											
+										
+									
+									
+										지하철 사회복무요원은 어떠한 일을 하나요?
+										
+			                        
+			                        
+								</td>
+							</tr>
+							
+				        	
+							
+								
+								
+								
+									
+								
+									
+								
+									
+								
+									
+								
+									
+								
+									
+								
+									
+								
+									
+								
+								
+									<tr>
+									
+										
+											
+								        
+											
+											
+						        			
+							        			
+						        			
+						        				
+						        					
+						        				
+						        				
+								        			<th scope="row">분류</th>
+								        			<td>
+								        				공사일반
+								        			</td>
+								        		
+								        	
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+											
+						        			
+							        			
+						        			
+						        				
+						        				
+								        			<th scope="row">담당부서</th>
+								        			<td>
+								        				비상계획처
+								        			</td>
+								        		
+								        	
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+											
+						        			
+							        			
+						        			
+						        				
+						        					
+						        				
+						        				
+								        			<th scope="row">전화번호</th>
+								        			<td>
+								        				6311-9527
+								        			</td>
+								        		
+								        	
+								        
+											
+								        
+											
+								        
+									
+									</tr>
+								
+									<tr>
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+									</tr>
+								
+									<tr>
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+									</tr>
+								
+									<tr>
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+									</tr>
+								
+									<tr>
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+									</tr>
+								
+									<tr>
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+									</tr>
+								
+									<tr>
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+									</tr>
+								
+									<tr>
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+										
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+											
+								        
+									
+									</tr>
+								
+								
+									
+						        
+									
+						        
+									
+						        
+									
+						        
+									
+						        
+									
+						        
+									
+						        
+									
+									<tr>
+										<th scope="row">내용</th>
+			        				 	<td colspan="5">
+			        				 		<div class="textarea-area" style="min-height:150px;" ><p>○ 사회복무요원의 주요임무는?<br>
+  - 지하철 이용승객 안내, 지하철 편의시설 이용안내, 역사 내 안전사고 예방, 역사 내 범죄예방 활동 등을 수행하고 있습니다. <br><br>  
+○ 사회복무요원의 근무지는?<br>
+  - 근무지는 출·퇴근 시간, 근무인원 등을 고려하여 주소지 인근의 1~8호선, 9호선(언주역~중앙보훈역) 역사에 주로 배치되어 있습니다. <br><br>
+○ 복무형태 및 근무시간은?<br>
+  - 지하철 운행 및 역사경계 등 24시간 근무필요에 따라 4조2교대 근무를 하며, 주간근무와 야간근무는 교대근무형태에 맞추어하고, 주간은 9시부터 18시까지, 야간은 18시부터 익일 9시까지 근무합니다. <br>
+    또한, 토·일요일 및 공휴일은 평일처럼 근무하되 주중에 대체휴무를 지정하여 휴무토록 하고 있습니다. <br><br>  
+○ 급여, 중식비, 교통비, 피복 등 후생복지는?<br>
+  - 사회복무요원의 급여는 현역병과 같은 수준의 급여(2024년 기준 상등병 1,000,00원)와 중식비 7,000원, 교통비(출퇴근시 대중교통이용요금)를 
+근무 일수에 따라 매월 지급하고 있습니다. <br>  
+  - 근무복은 하복, 동복, 동잠바, 단화 등 일체를 지급하고 있으며, 연 2회 체육행사비, 소집해제기념품 지급 등 사회복무요원의 복무환경 개선을 위해 다양한 후생 복지를 지원하고 있습니다. 또한, 복무 중 연가 외에 우수근무자에 대해 3일의 특별휴가와 경조사 발생시 사유에 따라 청원휴가(본인 결혼 5일 등)를 부여하고 있습니다. <br><br>  
+○ 사회복무요원의 복무관리는? <br>  
+  - 각 역에 근무하는 사회복무요원은 역장의 지휘·감독 하에 각종 휴가 허가, 신상면담, 고충상담 등 복무관리가 이루어지고 있습니다.   
+</p><p><br></p></div>
+			        				 	</td>
+			        				 </tr>
+			       				 	
+						        
+									
+							
+							
+					        
+
+					        
+				        </tbody>
+				    </table>
+				</div>
+				
+				</article>
+				    
+			    <div class="board-view-btn">
+					<form name="actionForm" id="actionForm" method="post" action="./board.do?menuIdx=375&bbsIdx=2206706"><input type="hidden" name="ptSignature" value="+MXZXALEdBTkNsncSXArirbXVuoLhZBnM/jurk8hYwqjhAXWsOlWphajweKJotdr" />
+
+						<!-- input name="pageindex" id="pageindex" type="hidden" value="" />  -->
+						<input name="mode" id="mode" type="hidden" />
+						<input name="state" id="state" type="hidden" value="Y"/>
+						<input name="pIdx" id="pIdx" type="hidden" />
+						
+			        	
+
+			        	<div class="board-view-btn"><a href="#;" class="list-sky-white move-list">목록</a>
+			        	
+			        	
+			        	
+			        	
+			        	
+			        	</div>
+
+			        	
+			        	<script>
+					    $(".move-list").click(function () {
+					    	$("#mode").val("");
+					    	$("#pIdx").val("");
+					    	$("#actionForm").attr("action", "./board.do?menuIdx=375").submit();
+					    });
+					    
+					    
+					    </script>
+			        	
+					</form>
+				</div>
+				
+				
+					<table class="tbl-type1 t-row t-page">
+						<caption>이전글 및 다음글에 관한 정보를 제공하는 테이블입니다.</caption>
+						<colgroup>
+							<col style="width:15%;" />
+							<col style="width:85%;" />
+						</colgroup>
+						<tbody>
+							
+							<tr>
+								<th scope="row">다음글</th>
+								<td><a href="board.do?menuIdx=375&bbsIdx=2206707">역사에 비치된 화재용 방독면은 어떻게 이용하나요?</a></td>
+							</tr>
+							
+							
+							<tr>
+								<th scope="row">이전글</th>
+								<td><a href="board.do?menuIdx=375&bbsIdx=2206704">열차가 급정거 하는 이유는 무엇인가요?</a></td>
+							</tr>
+							
+							
+						</tbody>
+					</table>				
+				
+				
+				
+			
+				
+				
+				<script>
+			    	$(".auto-row").each(function () {
+			    		var $this = $(this);
+			    		var $td = $this.find("td");
+			    		var $ths = $td.filter(".th");
+			    		var $tds = $td.filter(".td");
+			    		if ( $ths.length == 1 ) $tds.eq(0).attr("colspan", "5").addClass("txtL");
+			    		else if ( $ths.length == 2 ) $tds.eq(0).attr("colspan", "3").addClass("txtL");
+			    		$td.eq(0).addClass("bL0");
+			    		$td.eq($td.length-1).addClass("bR0");
+			    	});
+			    </script>
+				
+			</section>
+			
+		</div> <!-- //contents -->
+
+	</div> <!-- //contents_wrap -->
+
+          
+
+					</div><!--//inner  -->
+				</div><!-- //contents_area -->
+			</div> <!-- //container-->
+
+</div> <!--//sub-body  -->
+
+<script>
+var urlA = "";			//url주소	
+function cng_url(urlB){
+	urlA = urlB;
+}
+function go2page(){
+	if (urlA == "") return;
+	window.open(urlA,"");
+}
+</script>
+
+<div class="footer">
+			
+	<div class="footer-in">
+		<div class="foot-cont">
+			<!-- <span class="foot-logo"><img src="/images/layout/f_logo.png" alt="서울교통공사 Seoul Metro" /></span>-->
+			
+			<div class="foot-list">
+				<ul class="clearfix">
+					<!-- <li><a href="/kr/page.do?menuIdx=451">예산낭비신고센터</a></li>
+					<li><a href="/kr/page.do?menuIdx=505">찾아오시는 길</a></li>
+					<li class="pivacy"><a href="/kr/page.do?menuIdx=742">개인정보처리방침</a></li>
+					<li><a href="/kr/page.do?menuIdx=469">영상정보운영방침</a></li>
+					<li><a href="/kr/board.do?menuIdx=470">개인정보삭제현황</a></li>-->
+					
+					<li><a href="/kr/page.do?menuIdx=985">개인정보처리방침</a></li>
+					<li><a href="/kr/page.do?menuIdx=528">여객운송약관</a></li>
+					<li><a href="/kr/board.do?menuIdx=334">사규 제·개정 및 폐기 예고</a></li>
+					<li><a href="/kr/board.do?menuIdx=518">관련 법령 및 사규</a></li>
+					<li><a href="/kr/board.do?menuIdx=441">업무추진비 사용내역</a></li>
+					<li><a href="/kr/page.do?menuIdx=505">찾아오시는 길</a></li>
+					
+				</ul>
+				<p class="cpr" style="font-size:12px;">04806 서울특별시 성동구 천호대로 346 | 대표전화 <a href="tel:1577-1234" style="color:white";>1577-1234</a>  Copyright 2017. 서울교통공사 All right reserved.
+				 &nbsp;&nbsp;<span class="clean-story" style="color:#fff"></span></p>
+			</div><!--//foot-list -->
+				
+			<div class="foot-etc clearfix">
+
+				
+				<div class="family-site clearfix">
+					<a href="#;" class="lb-family">유관기관 바로가기</a>
+					<span class="ctr"></span>
+					<ul class="famliy-list">
+						<li class="fm-first"><a href="#;" onclick = "cng_url('http://info.korail.com/mbs/www/index.jsp');">코레일</a></li>
+						<li><a href="#;" onclick = "cng_url('http://www.metro9.co.kr/site/main/index001');">서울시메트로9호선</a></li>
+						<li><a href="#;" onclick = "cng_url('http://www.ictr.or.kr/');">인천교통공사</a></li>
+						<li><a href="#;" onclick = "cng_url('http://www.arex.or.kr');">공항철도(주)</a></li>
+						<li><a href="#;" onclick = "cng_url('http://www.shinbundang.co.kr/index.jsp');">신분당선주식회사</a></li>
+						<li><a href="#;" onclick = "cng_url('http://www.shinbundang2.co.kr/');">경기철도주식회사</a></li>
+						<li><a href="#;" onclick = "cng_url('http://www.seohaerail.co.kr/');">서해철도(주)</a></li>
+						<li><a href="#;" onclick = "cng_url('http://www.humetro.busan.kr/default/main.do');">부산교통공사</a></li>
+						<li><a href="#;" onclick = "cng_url('http://www.grtc.co.kr/');">광주도시철도공사</a></li>
+						<li><a href="#;" onclick = "cng_url('http://www.dtro.or.kr/');">대구교통공사</a></li>
+						<li><a href="#;" onclick = "cng_url('http://www.djet.co.kr/kor/index.do');">대전교통공사</a></li>
+						<li><a href="#;" onclick = "cng_url('http://www.seoul.go.kr');">서울특별시</a></li>
+						<li><a href="#;" onclick = "cng_url('http://www.kr.or.kr/main.do');">한국철도시설공단</a></li>
+						<li><a href="#;" onclick = "cng_url('http://www.railsafety.or.kr/web/index.jsp?section=null&edmui=null');">철도안전정보포탈</a></li>
+						<li><a href="#;" onclick = "cng_url('http://www.kric.go.kr/index.jsp');">철도산업정보센터</a></li>
+						<!--<li><a href="#;" onclick = "cng_url('https://www.seoulmetro.co.kr:444/vocsmrt/collaboration/common/Login.jsp');">협력사공간</a></li>-->
+						<!-- <li><a href="#;" onclick = "cng_url('https://www.seoulmetro.co.kr:444/vocsmrt/staffsquare/common/Login.jsp');">건강검진</a></li> -->
+						<!--<li><a href="#;" onclick = "cng_url('https://www.smrt.co.kr/program/member/loginEmployeeBoard.jsp?menuID=001009001&thref=/program/board/listLogin.jsp?menuID=001008007&boardTypeID=114');">직원게시판</a></li>-->
+						<!--<li><a href="#;" onclick = "cng_url('https://hrd.seoulmetro.co.kr/jsp/user/main/metro.jsp');">인재개발원</a></li>
+						<li><a href="#;" onclick = "cng_url('https://seoulmetro.ezwel.com/cuser/login/loginForm.ez?url=&clientFamilyNm=null&goUrl=');">복리후생관</a></li>
+						<li><a href="#;" onclick = "cng_url('/kr/safetyExperience.do?menuIdx=753&reservegroupid=6&employee=Y');">직원 안전체험 신청</a></li>-->
+					</ul>
+				 </div>
+				 <a id="btn-fmy" class="btn-family" title="새창" href = "javascript:go2page();">GO</a>
+				<div class="seoul-banner" id="seoul" tabindex="0" >
+					<iframe id='08740852' name='08740852' title='홈페이지 접속 통계 수집 프레임입니다.' src='https://delivery.acecounter.com/delivery/www/delivery/afr.php?zoneid=510&amp;cb=INSERT_RANDOM_NUMBER_HERE' scrolling='no' width='210' height='70' tabindex="0"></iframe>
+					<!-- <a href="http://webzine.seoulmetro.co.kr/newshome/mtnmain.php" target="_blank" title="서울교통공사 웹진 공감메트로 새 창 열림" style="display: block;height: 70px;">
+						<img src="/images/main/banner01_n2_v3.jpg" alt="서울교통공사 웹진 공감메트로 새 창 열림" style="height: 70px;" />
+					</a> -->
+				</div>
+				<div class="wa">
+					<!-- <a href="#;" class="btn-wa"> -->
+					<img src="/images/layout/mark_wa.png" alt="(사)한국장애인단체총연합회한국웹접근성인증평가원웹접근성우수사이트 인증마크(WA인증마크)" style="width: 85px;"/>
+					<!-- </a> -->
+				
+					<div class="wa-mask"></div>
+					<div class="wa-view">
+						<a href="#"><img src="/images/introduction/txt_close.png" alt="팝업창 닫기"></a>
+						<img src="/images/layout/wa2.jpg" alt="(사)한국장애인단체총연합회한국웹접근성인증평가원웹접근성우수사이트 인증마크(WA인증마크)" />
+					</div>
+				
+				</div>
+
+			</div><!--//foot-etc -->
+		
+		</div> <!-- //foot-cont -->
+	</div> <!-- //footer-in -->
+
+</div> <!-- //footer -->
+
+<script>
+  //GNB 로딩 스크립트
+  //Yjs.Gnb.init('사이트코드','GNB 표출영역 ID'); 
+  /*
+  window.onload = function(){
+	  Yjs.Gnb.init('P003','seoul-common-gnb');
+  };
+  */
+</script>
+<script>
+	$(document).ready(function() {
+		var cleanStory = ["청렴으로 신뢰받고, 안전으로 보답하는 서울교통공사","청렴한 오늘의 당신이 발전하는 내일의 서울교통공사를 만들어갑니다.","내가 실천하는 청렴 한 걸음, 함께 만드는 청렴한 세상","나의 작은 실천 마음이 청렴의 시작입니다.","서울교통공사의\"청렴행 순환열차\"는 365일 24시간 운행 중 입니다.","오늘이 깨끗한, 내일이 청렴한, 당신의 서울교통공사","청렴온도는 100ºC 부패온도는 0ºC","나로부터 NO 부패!, 우리모두 YES 청렴!","바뀌지 않는 가치, 우리의 청렴입니다.","또 타고 싶은 지하철, 청렴도 함께 승차해요.","우리 모두의 청렴이 안전한 교통문화를 만듭니다."];
+		function rand(min, max) {
+		  return Math.floor(Math.random() * (max - min)) + min;
+		}
+		var randnum = rand(0,10);
+		$(".clean-story").html(cleanStory[randnum]);
+	});
+</script>
+	
+<!-- <script type="text/javascript">
+    var NL_domain = "smrt.loginside.co.kr";
+</script>
+<script type="text/javascript" src='/js/loginside/loginside_script.js'></script> -->
+
+
+
+
+
+	
+</html>
+
+
+
+
+
