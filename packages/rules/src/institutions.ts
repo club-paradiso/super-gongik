@@ -98,7 +98,7 @@ const dateOnlySchema = z
 const sha256Schema = z.string().regex(/^[0-9a-f]{64}$/);
 
 /**
- * zod's .url() builds a \`URL\`, which JavaScriptCore (the iOS bundle) does
+ * zod's .url() builds a URL, which JavaScriptCore (the iOS bundle) does
  * not provide, so the registry would fail to parse there. A plain http(s)
  * prefix check stands in for it (some stored links carry download hints
  * after the address).
