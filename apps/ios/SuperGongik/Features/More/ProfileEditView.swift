@@ -173,56 +173,8 @@ struct ProfileEditView: View {
                     Text("병역법 시행령 제62조제2항의 7가지 경우에만 기간이 합산돼요. ‘잘 모르겠어요’면 기본 보수를 계산하지 않아요. 기간은 복무기관에 확인한 값을 넣어 주세요.")
                 }
 
-                Section {
-                    TextField("예: 경기도교육청, 서울특별시 성북구", text: $draft.institution)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                    institutionResult
-                } header: {
-                    Text("복무기관")
-                } footer: {
-                    Text("기관명을 입력하면 등록된 공식 자료에서 중식비·교통비 기준을 찾아 보여드려요. 값은 확인 후 저장해야 반영돼요.")
-                }
-
-                Section {
-                    Picker("중식비", selection: Binding(get: { customMeal }, set: setCustomMeal)) {
-                        Text("기본 9,000원").tag(false)
-                        Text("기관이 더 줘요").tag(true)
-                    }
-                    .pickerStyle(.segmented)
-                    if customMeal {
-                        LabeledContent("기관 1일 중식비") {
-                            HStack(spacing: SGSpacing.xxs) { numberField("원", $draft.meal, width: 80); Text("원") }
-                        }
-                    }
-                } header: {
-                    Text("중식비")
-                } footer: {
-                    Text(customMeal
-                        ? "기관이 주는 1일 중식비를 넣어 주세요. 9,000원보다 낮은 금액은 쓸 수 없어요."
-                        : "병무청 기준 1일 9,000원으로 매달 자동 계산해요. 기관이 더 주는 경우에만 바꾸세요.")
-                }
-
-                Section {
-                    Picker("거주 지역", selection: $draft.region) {
-                        Text("지역 선택").tag("")
-                        ForEach(options?.residenceRegions ?? [], id: \.self) { Text($0).tag($0) }
-                    }
-                    LabeledContent("1일 교통비") {
-                        HStack(spacing: SGSpacing.xxs) { numberField("원", $draft.commute, width: 80); Text("원") }
-                    }
-                    if let fare, draft.commute == String(Int(fare.dailyRoundTripFare)) {
-                        Text("지역 기준(\(fare.basis))으로 채웠어요. 실제 요금이 다르면 고쳐 주세요.")
-                            .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
-                    } else if !draft.region.isEmpty && fare == nil {
-                        Text("이 지역은 검증된 기본운임이 아직 없어요. 직접 입력해 주세요.")
-                            .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
-                    }
-                } header: {
-                    Text("교통비")
-                } footer: {
-                    Text("한 번만 정해 두면 매달 자동으로 계산해요. 병무청 기준은 시내버스 왕복 현금요금이고, 환승·지하철 장거리는 교통카드 실비예요.")
-                }
+                institutionSection
+                ratesSections
 
                 Section {
                     Toggle("초 단위 진행률", isOn: $draft.live)
@@ -270,6 +222,63 @@ struct ProfileEditView: View {
         }
     }
 
+
+    @ViewBuilder
+    private var institutionSection: some View {
+        Section {
+            TextField("예: 경기도교육청, 서울특별시 성북구", text: $draft.institution)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+            institutionResult
+        } header: {
+            Text("복무기관")
+        } footer: {
+            Text("기관명을 입력하면 등록된 공식 자료에서 중식비·교통비 기준을 찾아 보여드려요. 값은 확인 후 저장해야 반영돼요.")
+        }
+    }
+
+    @ViewBuilder
+    private var ratesSections: some View {
+        Section {
+            Picker("중식비", selection: Binding(get: { customMeal }, set: { setCustomMeal($0) })) {
+                Text("기본 9,000원").tag(false)
+                Text("기관이 더 줘요").tag(true)
+            }
+            .pickerStyle(.segmented)
+            if customMeal {
+                LabeledContent("기관 1일 중식비") {
+                    HStack(spacing: SGSpacing.xxs) { numberField("원", $draft.meal, width: 80); Text("원") }
+                }
+            }
+        } header: {
+            Text("중식비")
+        } footer: {
+            Text(customMeal
+                ? "기관이 주는 1일 중식비를 넣어 주세요. 9,000원보다 낮은 금액은 쓸 수 없어요."
+                : "병무청 기준 1일 9,000원으로 매달 자동 계산해요. 기관이 더 주는 경우에만 바꾸세요.")
+        }
+
+        Section {
+            Picker("거주 지역", selection: $draft.region) {
+                Text("지역 선택").tag("")
+                ForEach(options?.residenceRegions ?? [], id: \.self) { Text($0).tag($0) }
+            }
+            LabeledContent("1일 교통비") {
+                HStack(spacing: SGSpacing.xxs) { numberField("원", $draft.commute, width: 80); Text("원") }
+            }
+            if let fare, draft.commute == String(Int(fare.dailyRoundTripFare)) {
+                Text("지역 기준(\(fare.basis))으로 채웠어요. 실제 요금이 다르면 고쳐 주세요.")
+                    .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+            } else if !draft.region.isEmpty && fare == nil {
+                Text("이 지역은 검증된 기본운임이 아직 없어요. 직접 입력해 주세요.")
+                    .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+            }
+        } header: {
+            Text("교통비")
+        } footer: {
+            Text("한 번만 정해 두면 매달 자동으로 계산해요. 병무청 기준은 시내버스 왕복 현금요금이고, 환승·지하철 장거리는 교통카드 실비예요.")
+        }
+    }
 
     private var institutionResult: some View {
         Group {
