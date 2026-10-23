@@ -54,7 +54,17 @@ struct ProfileEditView: View {
             let name: String
         }
 
+        struct Common: Decodable, Sendable {
+            struct Meal: Decodable, Sendable { let amount: Double }
+            let label: String
+            let year: Int
+            let meal: Meal
+            let transportNote: String?
+            let notes: [Note]
+        }
+
         let status: String
+        let common: Common?
         let institution: Institution?
         let meal: Amount?
         let transport: Amount?
@@ -301,6 +311,7 @@ struct ProfileEditView: View {
                     Text("비어 있던 칸을 기관 기준으로 채웠어요. 저장하기 전에 확인해 주세요.")
                         .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
                 }
+                if let common = rates.common { commonCard(common, reason: "이 기관의 중식비 근거는 아직 없어요.") }
                 if let notes = rates.notes, !notes.isEmpty {
                     DisclosureGroup("이 기관의 확인된 규칙 \(notes.count)건") {
                         ForEach(notes) { note in
@@ -320,12 +331,46 @@ struct ProfileEditView: View {
                     ForEach(list.prefix(5), id: \.self) { item in
                         Button(item.name) { draft.institution = item.name }
                     }
+                } else if let common = rates.common {
+                    commonCard(common, reason: "등록된 기관 근거가 없어요.")
                 } else {
                     Text("등록된 기관 근거가 없어요. 중식비·교통비는 직접 입력해 주세요.")
                         .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
                 }
                 Button("우리 기관 기준 제보하기") { reportInstitution() }
                     .font(SGTypography.caption)
+            }
+        }
+    }
+
+    /// 병무청 공통 규정 for an institution without evidence of its own. The app
+    /// already calculates meal at the 9,000 won minimum when nothing is set, so
+    /// this explains what applies; it never fills a field.
+    @ViewBuilder
+    private func commonCard(_ common: InstitutionRates.Common, reason: String) -> some View {
+        VStack(alignment: .leading, spacing: SGSpacing.xxs) {
+            Label("\(common.label)을 적용해요", systemImage: "building.columns")
+                .font(SGTypography.label)
+            Text("\(reason) 기관이 더 주는 경우가 아니면 중식비는 병무청 \(common.year)년 기준 1일 \(Formatters.won(common.meal.amount))으로 계산해요.")
+                .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+            if let note = common.transportNote {
+                Text("교통비: \(note)").font(SGTypography.caption)
+                    .foregroundStyle(.sg(SGColor.textTertiary))
+            }
+            Text("우리 기관에 다른 규정이 있다면 아래 제보하기로 알려 주세요.")
+                .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+        }
+        if !common.notes.isEmpty {
+            DisclosureGroup("병무청 공통 규칙 \(common.notes.count)건") {
+                ForEach(common.notes) { note in
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(Self.fieldLabel(note.field)).font(SGTypography.caption.weight(.semibold))
+                        Text(note.text).font(SGTypography.caption)
+                        Text("\(note.effectiveYear)년 · \(note.sourceTitle)").font(SGTypography.caption)
+                            .foregroundStyle(.sg(SGColor.textTertiary))
+                    }
+                    .padding(.vertical, 2)
+                }
             }
         }
     }

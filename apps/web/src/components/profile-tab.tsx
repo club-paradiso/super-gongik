@@ -748,6 +748,12 @@ function ProfileForm({
                     주세요.
                   </small>
                 ) : null}
+                {institutionRates.common ? (
+                  <CommonRulesCard
+                    common={institutionRates.common}
+                    reason="이 기관의 중식비 근거는 아직 없어요."
+                  />
+                ) : null}
                 {institutionRates.notes.length > 0 ? (
                   <details>
                     <summary>
@@ -786,10 +792,19 @@ function ProfileForm({
                     ))}
                   </>
                 ) : (
-                  <small>
-                    등록된 기관 근거가 없어요. 중식비·교통비는 직접 입력해
-                    주세요.
-                  </small>
+                  <>
+                    {institutionRates.common ? (
+                      <CommonRulesCard
+                        common={institutionRates.common}
+                        reason="등록된 기관 근거가 없어요."
+                      />
+                    ) : (
+                      <small>
+                        등록된 기관 근거가 없어요. 중식비·교통비는 직접 입력해
+                        주세요.
+                      </small>
+                    )}
+                  </>
                 )}
                 <a
                   href={reportInstitutionUrl()}
@@ -935,6 +950,49 @@ const INSTITUTION_FIELD_LABELS: Record<string, string> = {
   PAY_DAY: "급여 지급일",
   WORK_DAYS_RULE: "근무일수 규칙",
 };
+
+function CommonRulesCard({
+  common,
+  reason,
+}: {
+  common: NonNullable<
+    Extract<
+      ReturnType<typeof suggestInstitutionRates>,
+      { status: "UNKNOWN_INSTITUTION" }
+    >["common"]
+  >;
+  reason: string;
+}) {
+  return (
+    <div className="institution-rates">
+      <strong>{common.label}을 적용해요</strong>
+      <small>
+        {reason} 기관이 더 주는 경우가 아니면 중식비는 병무청 {common.year}년
+        기준 1일 {common.meal.amount.toLocaleString("ko-KR")}원으로 계산해요.
+      </small>
+      {common.transportNote ? (
+        <small>교통비: {common.transportNote}</small>
+      ) : null}
+      <small>우리 기관에 다른 규정이 있다면 아래 제보하기로 알려 주세요.</small>
+      {common.notes.length > 0 ? (
+        <details>
+          <summary>병무청 공통 규칙 {common.notes.length}건</summary>
+          <ul>
+            {common.notes.map((note) => (
+              <li key={`${note.field}|${note.text}|${note.sourceTitle}`}>
+                {INSTITUTION_FIELD_LABELS[note.field] ?? "그 밖의 규칙"}:{" "}
+                {note.text}{" "}
+                <small>
+                  ({note.effectiveYear}년 · {note.sourceTitle})
+                </small>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
+    </div>
+  );
+}
 
 /**
  * Theme picker. Applies at once and is stored in this browser only, outside

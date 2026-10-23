@@ -46,6 +46,35 @@ describe("suggestInstitutionRates", () => {
     expect(result.notes.every((n) => n.sourceTitle.length > 0)).toBe(true);
   });
 
+  it("falls back to the 병무청 공통 규정 for an unregistered institution", () => {
+    const result = suggestInstitutionRates("없는기관123", { year: 2026 });
+    if (result.status !== "UNKNOWN_INSTITUTION") throw new Error("expected");
+    expect(result.common).toMatchObject({
+      label: "병무청 공통 규정",
+      meal: { amount: 9000, institutionMayPayMore: true },
+    });
+    expect(result.common?.notes.some((n) => n.field === "MEAL_ON_LEAVE")).toBe(
+      true,
+    );
+    expect(result.common?.transportNote).toContain("실비");
+  });
+
+  it("has no fallback for a year without a verified bundle", () => {
+    const result = suggestInstitutionRates("없는기관123", { year: 2031 });
+    if (result.status !== "UNKNOWN_INSTITUTION") throw new Error("expected");
+    expect(result.common).toBeNull();
+  });
+
+  it("uses the fallback for a matched institution with no meal amount", () => {
+    const result = suggestInstitutionRates("경기도 광명시", { year: 2026 });
+    if (result.status !== "MATCHED") throw new Error("expected a match");
+    expect(result.meal).toBeNull();
+    expect(result.common?.meal.amount).toBe(9000);
+    const known = suggestInstitutionRates("경기도교육청", { year: 2025 });
+    if (known.status !== "MATCHED") throw new Error("expected a match");
+    expect(known.common).toBeNull();
+  });
+
   it("returns suggestions, never a guess, for an unregistered name", () => {
     const result = suggestInstitutionRates("경기도", { year: 2026 });
     expect(result.status).toBe("UNKNOWN_INSTITUTION");
