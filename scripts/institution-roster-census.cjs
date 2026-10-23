@@ -58,7 +58,7 @@ const STATUS = {
   OWN: "기관 자체 기록",
   PARENT: "대표기관 기록",
   SCOPE: "상위 규정 적용범위",
-  NONE: "기관별 근거 없음",
+  NONE: "병무청 공통 규정",
 };
 
 function classify(row) {
@@ -118,7 +118,7 @@ const groupBy = (list, key) => {
   return [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
 };
 const header =
-  "| 구분 | 복무기관 | 자체 기록 | 대표기관 기록 | 상위 규정 | 근거 없음 | 기관별 근거 비율 |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: |";
+  "| 구분 | 복무기관 | 자체 기록 | 대표기관 기록 | 상위 규정 | 병무청 공통 규정 | 기관별 근거 비율 |\n| --- | ---: | ---: | ---: | ---: | ---: | ---: |";
 
 const parents = groupBy(rows, "dpBokmuGgm");
 const parentsWithRecord = parents.filter(([name]) => lookup(name)).length;
@@ -142,7 +142,7 @@ const lines = [
   `- **${STATUS.OWN}** (OWN): the 복무기관's own name is a registry record or alias.`,
   `- **${STATUS.PARENT}** (PARENT): its 대표기관 (병무청's 대표복무기관, e.g. the 구청 for a 사회복지시설) is a registry record. The record's scopeNote says whom its rules cover; check it before applying.`,
   `- **${STATUS.SCOPE}** (SCOPE): a branch office covered by a registry record's rule through that rule's own scope clause (\`docs/sources/mma-roster/scope-rules.json\`).`,
-  `- **${STATUS.NONE}** (NONE): no institution-level evidence in the registry. The nationwide 병무청 rules (\`central-mma\`) still apply to every 복무기관; the app falls back to them and to what the user enters.`,
+  `- **${STATUS.NONE}** (NONE): no public institution-level evidence was found, so the app applies the nationwide 병무청 rules (\`commonServiceRules\` in \`packages/rules/src/common-service-rules.ts\`: 1일 중식비 최소 9,000원, 교통비는 대중교통 왕복요금 기준, 휴가·결근일 미지급). An institution with different rules is corrected through user reports.`,
   "",
   "## Nationwide",
   "",
@@ -157,9 +157,9 @@ const lines = [
   header,
   ...groupBy(rows, "gtcdNm").map(([name, list]) => tableRow(name, list)),
   "",
-  "## Largest 대표기관 with no evidence yet",
+  "## Largest 대표기관 on the 병무청 공통 규정",
   "",
-  "Research priority: the 대표기관 that cover the most 복무기관 and have no registry record.",
+  "Research and user-report priority: the 대표기관 that cover the most 복무기관 and have no registry record.",
   "",
   "| 대표기관 | 관할청 | 복무기관 |",
   "| --- | --- | ---: |",

@@ -679,6 +679,13 @@ The importer re-checks every candidate fact and drops it rather than repairing i
 
 ## Limits
 
+- **Institutions without evidence use the 병무청 공통 규정.** Product
+  decision of 2026-10-23: where no public institution-level evidence exists,
+  the app applies the nationwide 병무청 rules (`commonServiceRules` in
+  `packages/rules/src/common-service-rules.ts`): 1일 중식비 최소 9,000원,
+  교통비는 대중교통(시내버스) 왕복요금 기준, 휴가·결근일 미지급. Institutions
+  whose rules differ are corrected later through user reports, kept apart
+  from official evidence.
 - **Coverage is far from complete.** Korea has about 226 시군구, 17 시도,
   17 시도교육청 and hundreds of public bodies. Many internal 복무관리 계획 are not
   public, or are public with amounts masked (Seoul 결재문서 often mask amounts,
