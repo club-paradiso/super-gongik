@@ -50,6 +50,10 @@ import {
   rowStatuses,
   type EventOverride,
 } from "@/lib/import-model";
+import {
+  tabularFromPositionedPdfText,
+  type PositionedPdfText,
+} from "@/lib/pdf-table";
 import { buildLedgerForProfile } from "@/lib/projections";
 
 import {
@@ -136,6 +140,34 @@ export function createNativeRuntime() {
     const snapshot = requireStore().getSnapshot();
     if (snapshot.phase !== "READY") throw new Error("Store is not ready.");
     return snapshot.data;
+  }
+
+  /** Candidate rows, statuses against stored records and default selection. */
+  async function previewTabular(
+    tabular: ReturnType<typeof parseDelimitedText>,
+    fileName: string,
+    fileSha256: string | null,
+  ): Promise<string> {
+    const batch = createImportBatchDescriptor({
+      fileName,
+      sourceFormat: tabular.format,
+      fileSha256,
+    });
+    const preview = await buildImportPreview(tabular, batch);
+    const statuses = rowStatuses(readyData(), preview);
+    return json({
+      preview,
+      statuses: Object.fromEntries(statuses),
+      acceptedRows: [...defaultAcceptedRows(preview, statuses)],
+      acceptedSnapshots: [...defaultAcceptedSnapshots(preview)],
+      decisionLabels: DECISION_LABELS,
+      alreadyImported: readyData().imports.some(
+        (record) =>
+          record.status === "ACTIVE" &&
+          fileSha256 !== null &&
+          record.fileSha256 === fileSha256,
+      ),
+    });
   }
 
   return {
@@ -411,27 +443,25 @@ export function createNativeRuntime() {
       fileName: string,
       fileSha256: string | null,
     ): Promise<string> {
-      const tabular = parseDelimitedText(text);
-      const batch = createImportBatchDescriptor({
+      return previewTabular(parseDelimitedText(text), fileName, fileSha256);
+    },
+
+    /**
+     * The same preview for a text PDF. The host (PDFKit on iOS) extracts
+     * positioned text lines (`page`, `x`, `y`, `text`) and the shared PDF
+     * table reader turns them into rows, as pdf.js text does on the web.
+     */
+    async importPreviewPdf(
+      itemsJson: string,
+      fileName: string,
+      fileSha256: string | null,
+    ): Promise<string> {
+      const items = JSON.parse(itemsJson) as PositionedPdfText[];
+      return previewTabular(
+        tabularFromPositionedPdfText(items),
         fileName,
-        sourceFormat: tabular.format,
         fileSha256,
-      });
-      const preview = await buildImportPreview(tabular, batch);
-      const statuses = rowStatuses(readyData(), preview);
-      return json({
-        preview,
-        statuses: Object.fromEntries(statuses),
-        acceptedRows: [...defaultAcceptedRows(preview, statuses)],
-        acceptedSnapshots: [...defaultAcceptedSnapshots(preview)],
-        decisionLabels: DECISION_LABELS,
-        alreadyImported: readyData().imports.some(
-          (record) =>
-            record.status === "ACTIVE" &&
-            fileSha256 !== null &&
-            record.fileSha256 === fileSha256,
-        ),
-      });
+      );
     },
 
     /** Commit accepted rows and snapshots of a preview (web import panel). */

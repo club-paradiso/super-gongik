@@ -72,10 +72,10 @@ struct RecordImportView: View {
                     Button {
                         importing = true
                     } label: {
-                        Label(result == nil ? "파일 선택 (CSV·TSV)" : "다른 파일 선택", systemImage: "doc.badge.plus")
+                        Label(result == nil ? "파일 선택 (PDF·CSV·TSV)" : "다른 파일 선택", systemImage: "doc.badge.plus")
                     }
                 } footer: {
-                    Text("기관에서 받은 복무상황 파일을 CSV나 TSV로 저장해 선택하세요. 미리보기에서 확인한 행만 저장해요. XLSX·HWP·PDF는 아직 웹 슈퍼공익에서 가져올 수 있어요.")
+                    Text("기관에서 받은 복무상황 PDF나 CSV·TSV 파일을 선택하세요. 글자가 들어 있는 PDF는 표를 바로 읽어요. 미리보기에서 확인한 행만 저장해요. 스캔한 PDF와 XLSX·HWP는 아직 웹 슈퍼공익에서 가져올 수 있어요.")
                 }
 
                 if let result {
@@ -122,7 +122,7 @@ struct RecordImportView: View {
             }
         }
         .fileImporter(isPresented: $importing,
-                      allowedContentTypes: [.commaSeparatedText, .tabSeparatedText, .plainText, .text]) { picked in
+                      allowedContentTypes: [.pdf, .commaSeparatedText, .tabSeparatedText, .plainText, .text]) { picked in
             Task { await load(picked) }
         }
         .confirmationDialog("이 파일에서 가져온 기록을 취소할까요?", isPresented: Binding(
@@ -223,26 +223,44 @@ struct RecordImportView: View {
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
         guard let data = try? Data(contentsOf: url), data.count <= 10 * 1024 * 1024 else {
-            notice = (.danger, "파일을 읽지 못했어요. 10MB 이하의 CSV·TSV 파일인지 확인해 주세요.")
+            notice = (.danger, "파일을 읽지 못했어요. 10MB 이하의 PDF·CSV·TSV 파일인지 확인해 주세요.")
             return
-        }
-        let text: String
-        if let utf8 = String(data: data, encoding: .utf8) {
-            text = utf8
-            usedLegacyEncoding = false
-        } else {
-            let cp949 = CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.dosKorean.rawValue))
-            guard let legacy = String(data: data, encoding: String.Encoding(rawValue: cp949)) else {
-                notice = (.danger, "글자를 읽지 못했어요. 파일을 UTF-8 CSV로 다시 저장해 주세요.")
-                return
-            }
-            text = legacy
-            usedLegacyEncoding = true
         }
         fileName = url.lastPathComponent
         let sha = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+        let isPDF = url.pathExtension.lowercased() == "pdf" || data.starts(with: Array("%PDF".utf8))
         do {
-            let json = try await runtime.callJSONAsync("importPreview", [text, fileName, sha])
+            let json: Data
+            if isPDF {
+                usedLegacyEncoding = false
+                let items: [PDFRecordText.Item]
+                do {
+                    items = try PDFRecordText.items(from: data)
+                } catch PDFRecordText.Failure.noText {
+                    notice = (.warning, "글자를 읽을 수 없는 스캔 PDF예요. 웹 슈퍼공익에서 OCR로 가져오거나, 기관에 CSV·텍스트 PDF를 요청해 주세요.")
+                    return
+                } catch {
+                    notice = (.danger, "PDF를 열지 못했어요. 암호가 걸렸거나 손상된 파일인지 확인해 주세요.")
+                    return
+                }
+                let itemsJSON = String(data: try JSONEncoder().encode(items), encoding: .utf8) ?? "[]"
+                json = try await runtime.callJSONAsync("importPreviewPdf", [itemsJSON, fileName, sha])
+            } else {
+                let text: String
+                if let utf8 = String(data: data, encoding: .utf8) {
+                    text = utf8
+                    usedLegacyEncoding = false
+                } else {
+                    let cp949 = CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.dosKorean.rawValue))
+                    guard let legacy = String(data: data, encoding: String.Encoding(rawValue: cp949)) else {
+                        notice = (.danger, "글자를 읽지 못했어요. 파일을 UTF-8 CSV로 다시 저장해 주세요.")
+                        return
+                    }
+                    text = legacy
+                    usedLegacyEncoding = true
+                }
+                json = try await runtime.callJSONAsync("importPreview", [text, fileName, sha])
+            }
             let value = try JSONValue(data: json)
             rawPreview = value["preview"]
             result = try JSONDecoder().decode(Result.self, from: json)
