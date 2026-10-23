@@ -1095,6 +1095,153 @@
         "sha256": "b81f6dcfbcfdd5a2f4e3af53fadc353ff64dfc078d30c1798d10e0cd298c19ed",
         "pages": "all"
       }
+    },
+    {
+      "id": "src-jje-sechul-2026",
+      "title": "2026년도 제주특별자치도교육비특별회계 본예산 세출예산서",
+      "publisher": "제주특별자치도교육청",
+      "sourceType": "BUDGET_GUIDELINE",
+      "url": "https://www.jje.go.kr/board/download.jje?boardId=BBS_0000578&menuCd=DOM_000000108008000000&paging=ok&startPage=1&dataSid=1447397&command=update&fileSid=1363903",
+      "pageUrl": "http://www.jje.go.kr/open/index.jje?menuCd=DOM_000001901002018001",
+      "publishedDate": null,
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2026,
+      "original": {
+        "sha256": "984143252a50d36afd4659b5b771a2bb79d6226d11856c2e9c1728be7724df30",
+        "bytes": 4999922,
+        "file": null
+      },
+      "extract": {
+        "file": "docs/sources/institutions/jje-sechul-2026/extract.txt",
+        "sha256": "9329076ab4c1e749f5a17dde712c8e023a899279f20eb6be3dc42ea144ec7d28",
+        "pages": "191,628,630"
+      }
+    },
+    {
+      "id": "src-youngji-budget-2025",
+      "title": "2025학년도 제주영지학교회계 세입·세출 예산서 (2025.02.13)",
+      "publisher": "제주영지학교",
+      "sourceType": "BUDGET_GUIDELINE",
+      "url": "https://school.jje.go.kr/common/nttFileDownload.do?fileKey=66e0d18d66058181d82684a5040c9a81",
+      "pageUrl": "https://school.jje.go.kr/youngji/na/ntt/selectNttInfo.do?mi=119358&bbsId=111097&nttSn=40504627",
+      "publishedDate": "2025-02-13",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2025,
+      "original": {
+        "sha256": "3f514ccb9dca337f54e2ddbcbedfb689c78c8a03c8a8a8748796a0fee219eca9",
+        "bytes": 87552,
+        "file": "docs/sources/institutions/youngji-budget-2025/original.hwp"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/youngji-budget-2025/extract.txt",
+        "sha256": "f78db49c62fae6503c723475f4279c787ad196d032a10ec82037e1c2be4c0a86",
+        "pages": "all"
+      }
+    },
+    {
+      "id": "src-jjs-sbw-pay-2026-08",
+      "title": "2026년 8월분 사회복무요원 인건비 지급 (제주시 주민복지과-42409)",
+      "publisher": "제주특별자치도 제주시 복지가족국 주민복지과",
+      "sourceType": "PAYMENT_RECORD",
+      "url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down",
+      "pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCT2D8AFC1E1494FF72163723261EB74802",
+      "publishedDate": "2026-09-03",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2026,
+      "original": {
+        "sha256": "d58afdc779ba8cbf96db5e98ebcd7539f0fb0efdb3184e2a42fee7e1011d1c51",
+        "bytes": 121866,
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-08/original.pdf"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-08/extract.txt",
+        "sha256": "2f0d3bff935476e5013dae29b274039502f5659699cc5724e63ac775b8b51b01",
+        "pages": "1"
+      }
+    },
+    {
+      "id": "src-jjs-sbw-pay-2026-07",
+      "title": "2026년 7월분 사회복무요원 인건비 지급 (제주시 주민복지과-38055)",
+      "publisher": "제주특별자치도 제주시 복지가족국 주민복지과",
+      "sourceType": "PAYMENT_RECORD",
+      "url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down",
+      "pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCT0478279C548CE1E103F040D94299FCFA",
+      "publishedDate": "2026-08-05",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2026,
+      "original": {
+        "sha256": "b203b9b6b2b8a9f2fb91c0f9162b3a5bcea3d2e8043d69b8f61de480c3fdf4ce",
+        "bytes": 122434,
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-07/original.pdf"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-07/extract.txt",
+        "sha256": "9c7844a09c6b19e331de88b02e30efb036d455301486449d1b2c1b795b56ccb0",
+        "pages": "1"
+      }
+    },
+    {
+      "id": "src-jjs-sbw-pay-2026-04",
+      "title": "2026년 4월분 사회복무요원 인건비 지급 (제주시 2026.5.4. 결재)",
+      "publisher": "제주특별자치도 제주시 복지가족국 주민복지과",
+      "sourceType": "PAYMENT_RECORD",
+      "url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down",
+      "pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCTCF451B2A2F273B6F7DE996745B0C123D",
+      "publishedDate": "2026-05-04",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2026,
+      "original": {
+        "sha256": "3a93da65699072a5528d3c6ceae7074d504e130ee4c6eee454634357cb37dbe6",
+        "bytes": 122788,
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-04/original.pdf"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-04/extract.txt",
+        "sha256": "ab8ccb2aa7ba2bc7e709315a7a6fca9375d2d8bb5f520d2f00e301c87f40ddcd",
+        "pages": "1"
+      }
+    },
+    {
+      "id": "src-jjs-sbw-pay-2026-01",
+      "title": "2026년 1월분 사회복무요원 인건비 지급 (제주시 주민복지과-8212)",
+      "publisher": "제주특별자치도 제주시 복지가족국 주민복지과",
+      "sourceType": "PAYMENT_RECORD",
+      "url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down",
+      "pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCTF3EE3B21CDC81FC9F7A8EDD9D3855E2F",
+      "publishedDate": "2026-02-06",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2026,
+      "original": {
+        "sha256": "6cb21789a2875f5c1566db5b3508395ea1b41d244e8e272b5c2ecf0f5627d2ea",
+        "bytes": 122532,
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-01/original.pdf"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-01/extract.txt",
+        "sha256": "394637d31cbce6fa23cf5277f34b4d221e326641aaef2f301235fc34763df9e2",
+        "pages": "1"
+      }
+    },
+    {
+      "id": "src-jjs-sbw-pay-2025-10",
+      "title": "2025년 10월분 사회복무요원 인건비 지급 (제주시 주민복지과-19896)",
+      "publisher": "제주특별자치도 제주시 복지가족국 주민복지과",
+      "sourceType": "PAYMENT_RECORD",
+      "url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down",
+      "pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCTBB249D97B1B6F968E303D0665A55C12A",
+      "publishedDate": "2025-11-06",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2025,
+      "original": {
+        "sha256": "d7612ec130b0b8b5c211aa0cfa9fd5fa8c2cc3ff41f399634a358234dc67b21c",
+        "bytes": 138380,
+        "file": "docs/sources/institutions/jjs-sbw-pay-2025-10/original.pdf"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/jjs-sbw-pay-2025-10/extract.txt",
+        "sha256": "585980c1024ee44954c249279d9018a449651098064500a4484bfb970009ecf5",
+        "pages": "1"
+      }
     }
   ],
   "institutions": [
@@ -5342,6 +5489,326 @@
         "OTHER": {
           "status": "UNKNOWN"
         }
+      }
+    },
+    {
+      "id": "edu-jeju-student-culture-center",
+      "name": "제주특별자치도교육청 제주학생문화원",
+      "type": "EDUCATION_OFFICE",
+      "region": "제주",
+      "aliases": ["제주학생문화원"],
+      "scopeNote": "제주특별자치도교육청 직속기관 제주학생문화원 소속 사회복무요원(2026 본예산 2명)",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 9000,
+            "valueKind": "BUDGET_UNIT_PRICE",
+            "effectiveYear": 2026,
+            "confidence": "MEDIUM",
+            "evidence": [
+              {
+                "sourceId": "src-jje-sechul-2026",
+                "locator": "PDF p.628 (인쇄 p.708) [제주학생문화원] 카. 사회복무요원관리",
+                "quote": "카. 사회복무요원관리 35,096 1) 보수 310보전금 1,245,000원×2명×12월= 29,880 2) 급량비 310보전금 9,000원×2명×220일= 3,960"
+              }
+            ],
+            "note": "급량비 산출기초, 220일 기준"
+          }
+        ],
+        "TRANSPORT_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 2400,
+            "valueKind": "BUDGET_UNIT_PRICE",
+            "effectiveYear": 2026,
+            "confidence": "MEDIUM",
+            "evidence": [
+              {
+                "sourceId": "src-jje-sechul-2026",
+                "locator": "PDF p.628 (인쇄 p.708) [제주학생문화원] 카. 사회복무요원관리",
+                "quote": "2) 급량비 310보전금 9,000원×2명×220일= 3,960 3) 교통비 310보전금 2,400원×2명×220일= 1,056"
+              }
+            ],
+            "note": "교통비 산출기초, 220일 기준"
+          }
+        ],
+        "TRANSPORT_METHOD": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": {
+          "status": "UNKNOWN"
+        },
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": {
+          "status": "UNKNOWN"
+        }
+      }
+    },
+    {
+      "id": "edu-jeju-seogwipo-student-culture-center",
+      "name": "제주특별자치도교육청 서귀포학생문화원",
+      "type": "EDUCATION_OFFICE",
+      "region": "제주",
+      "aliases": ["서귀포학생문화원"],
+      "scopeNote": "제주특별자치도교육청 직속기관 서귀포학생문화원 소속 사회복무요원(2026 본예산 1명)",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 9000,
+            "valueKind": "BUDGET_UNIT_PRICE",
+            "effectiveYear": 2026,
+            "confidence": "MEDIUM",
+            "evidence": [
+              {
+                "sourceId": "src-jje-sechul-2026",
+                "locator": "PDF p.630 (인쇄 p.710) [서귀포학생문화원] 다. 사회복무요원급여",
+                "quote": "다. 사회복무요원급여 17,784 1) 급여 310보전금 1,217,000원×1명×12월= 14,604 2) 중식비 310보전금 9,000원×1명×250일= 2,250"
+              }
+            ],
+            "note": "중식비 산출기초, 250일 기준"
+          }
+        ],
+        "TRANSPORT_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 2400,
+            "valueKind": "BUDGET_UNIT_PRICE",
+            "effectiveYear": 2026,
+            "confidence": "MEDIUM",
+            "evidence": [
+              {
+                "sourceId": "src-jje-sechul-2026",
+                "locator": "PDF p.630 (인쇄 p.710) [서귀포학생문화원] 다. 사회복무요원급여",
+                "quote": "2) 중식비 310보전금 9,000원×1명×250일= 2,250 3) 교통비 310보전금 2,400원×1명×250일= 600"
+              }
+            ],
+            "note": "교통비 산출기초, 250일 기준"
+          }
+        ],
+        "TRANSPORT_METHOD": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": {
+          "status": "UNKNOWN"
+        },
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": {
+          "status": "UNKNOWN"
+        }
+      }
+    },
+    {
+      "id": "school-jeju-youngji",
+      "name": "제주영지학교",
+      "type": "OTHER",
+      "region": "제주",
+      "aliases": [],
+      "scopeNote": "제주특별자치도교육청 소속 공립 특수학교 제주영지학교 학교회계(사회복무요원 22명 편성)",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 8000,
+            "valueKind": "BUDGET_UNIT_PRICE",
+            "effectiveYear": 2025,
+            "confidence": "MEDIUM",
+            "evidence": [
+              {
+                "sourceId": "src-youngji-budget-2025",
+                "locator": "세출예산명세서 / 2.사회복무요원인건비 / 1.기간제근로자인건비",
+                "quote": "(목적)사회복무요원 식비 : 8,000원*22명"
+              }
+            ],
+            "note": "식비 8,000원×22명×20일×12월. 같은 항목의 별도 '급량비 8,000원*3명*20일*12월'은 용도가 문서에 적혀 있지 않다."
+          }
+        ],
+        "TRANSPORT_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 2400,
+            "valueKind": "BUDGET_UNIT_PRICE",
+            "effectiveYear": 2025,
+            "confidence": "MEDIUM",
+            "evidence": [
+              {
+                "sourceId": "src-youngji-budget-2025",
+                "locator": "세출예산명세서 / 2.사회복무요원인건비 / 1.기간제근로자인건비",
+                "quote": "(목적)사회복무요원 교통비 : 2,400원*22"
+              }
+            ],
+            "note": "교통비 2,400원×22명×20일×12월"
+          }
+        ],
+        "TRANSPORT_METHOD": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": {
+          "status": "UNKNOWN"
+        },
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": {
+          "status": "UNKNOWN"
+        }
+      }
+    },
+    {
+      "id": "local-jeju-jejusi",
+      "name": "제주특별자치도 제주시",
+      "type": "LOCAL_GOV",
+      "region": "제주",
+      "aliases": ["제주시청"],
+      "scopeNote": "제주시(행정시) 주민복지과가 일괄 지급하는 보건복지분야 사회복무요원(제주시 소관 사회복지시설, 동부보건소 등 근무) 보상금 지급 결재 기록. 시청 행정분야 부서·읍면동 근무 요원의 지급 문서는 공개 원문에서 찾지 못함.",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_METHOD": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "익월 10일 전후 계좌이체 지급 (월별 단건 결재 기록 = single instances, 지급일 규정은 미확인)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-jjs-sbw-pay-2026-08",
+                "locator": "p.1 마. 지급일",
+                "quote": "제주시 소관 사회복지시설에서 근무하고 있는 보건복지분야 사회복무요원 8월분 인건비를"
+              },
+              {
+                "sourceId": "src-jjs-sbw-pay-2026-08",
+                "locator": "p.1 라·마",
+                "quote": "라. 지출방법: 계좌이체\n 마. 지 급 일: 2026. 9. 10.(목)"
+              },
+              {
+                "sourceId": "src-jjs-sbw-pay-2026-07",
+                "locator": "p.1 라·마",
+                "quote": "라. 지출방법: 계좌이체\n 마. 지 급 일: 2026. 8. 10.(월)"
+              },
+              {
+                "sourceId": "src-jjs-sbw-pay-2026-04",
+                "locator": "p.1 마",
+                "quote": "마. 지 급 일: 2026. 5. 8.(금)"
+              },
+              {
+                "sourceId": "src-jjs-sbw-pay-2026-01",
+                "locator": "p.1 마",
+                "quote": "마. 지 출 일: 2026. 2. 10.(화)"
+              },
+              {
+                "sourceId": "src-jjs-sbw-pay-2025-10",
+                "locator": "p.1 마",
+                "quote": "마. 지출예정일 : 2025. 11. 10.(월)"
+              }
+            ],
+            "note": "보건복지분야 사회복무요원(제주시 소관 사회복지시설·동부보건소 등) 보상금을 제주시 주민복지과가 일괄 지급한 월별 결재문서들. 각 문서는 단건(single instance) 지급 기록이며 지급일을 정한 규정은 공개 문서에서 확인되지 않음."
+          }
+        ],
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": [
+          {
+            "status": "KNOWN",
+            "value": "보상금(인건비)은 예산과목 '사회복무제도지원(전환사업)·일반보전금·사회복무요원보상금'에서 시 주민복지과가 계좌이체로 일괄 지급 (월별 단건 결재 기록)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-jjs-sbw-pay-2026-07",
+                "locator": "p.1 1·2·바",
+                "quote": "2. 2026년도 보건복지분야 사회복무요원 7월분 인건비를 아래와 같이 지급하겠습니다."
+              }
+            ]
+          }
+        ]
       }
     }
   ]
