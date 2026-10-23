@@ -10,6 +10,14 @@ on:
 permissions:
   contents: read
 
+# A feat/** branch with an open PR fires both `push` and `pull_request`, and
+# every new commit used to leave the older runs going. On the small macOS
+# runner pool that queued iOS jobs for an hour. One run per branch: a newer run
+# cancels the older one, except on main where every commit is verified.
+concurrency:
+  group: ci-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   verify:
     name: Verify workspace
@@ -93,7 +101,9 @@ jobs:
   webkit:
     name: Release gate · WebKit mobile
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Playwright's --with-deps pulls ~70 apt packages; a slow Azure mirror once
+    # took 20 minutes on that step alone and cancelled the gate.
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
