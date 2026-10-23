@@ -685,8 +685,8 @@ function AttendanceEditor({
     <section className="attendance-editor">
       <h2>이 달 근무일 확인</h2>
       <p className="field-hint">
-        공휴일 달력은 앱에 넣지 않았어요. 쉬는 날을 직접 표시하고 저장해야
-        중식비·교통비 일수를 세요.
+        급여 계산에서는 공휴일을 자동으로 빼지 않아요. 쉬는 날을 직접 표시하고
+        저장해야 중식비·교통비 일수를 세요.
         {status?.missing.includes("MONTH_RECONFIRMATION")
           ? " 확인한 뒤 기록이 바뀌어 다시 저장해야 해요."
           : ""}

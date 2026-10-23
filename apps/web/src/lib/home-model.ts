@@ -11,7 +11,9 @@ import {
   type LeaveQuantity,
   type ServiceEvent,
   type ServiceMilestoneKind,
+  type ServiceDayMetric,
   type ServiceProfile,
+  SERVICE_DAY_METRICS,
 } from "@super-gongik/domain";
 import {
   currentPayStepOrdinal,
@@ -100,10 +102,28 @@ export type HomeAgendaItem = {
   isToday: boolean;
 };
 
+/** 실질 복무일수: the figures the user chose, or why they cannot be shown. */
+export type HomeWorkdays =
+  | { kind: "HIDDEN" }
+  | { kind: "NEEDS_WORK_WEEKDAYS"; caption: string }
+  | { kind: "UNSUPPORTED"; caption: string }
+  | {
+      kind: "READY";
+      items: Array<{
+        metric: ServiceDayMetric;
+        label: string;
+        value: string;
+        caption: string;
+      }>;
+      /** Set when a year in the service has no announced holidays yet. */
+      note: string | null;
+    };
+
 export type HomeModel = {
   hero: HomeHero;
   leave: HomeLeave;
   pay: HomePay;
+  workdays: HomeWorkdays;
   today: HomeAgendaItem[];
   upcoming: HomeAgendaItem[];
   completed: boolean;
@@ -349,6 +369,76 @@ function buildLeave(projection: AppProjection): HomeLeave {
   };
 }
 
+function formatDayCount(value: number) {
+  return `${value.toLocaleString("ko-KR")}일`;
+}
+
+function buildWorkdays(
+  profile: ServiceProfile,
+  projection: AppProjection,
+): HomeWorkdays {
+  const metrics = SERVICE_DAY_METRICS.filter((metric) =>
+    (profile.serviceDayMetrics ?? SERVICE_DAY_METRICS).includes(metric),
+  );
+  const { workdays, progress } = projection;
+  if (metrics.length === 0 || progress.state === "COMPLETED") {
+    return { kind: "HIDDEN" };
+  }
+  if (workdays.status === "NEEDS_WORK_WEEKDAYS") {
+    return {
+      kind: "NEEDS_WORK_WEEKDAYS",
+      caption: "근무 요일을 정하면 실제 출근일을 세어 드려요",
+    };
+  }
+  if (workdays.status === "UNSUPPORTED_WORK_PATTERN") {
+    return {
+      kind: "UNSUPPORTED",
+      caption: "교대·합숙 근무는 출근일을 세지 않아요",
+    };
+  }
+  const items = metrics.map((metric) => {
+    switch (metric) {
+      case "REMAINING_WORKDAYS":
+        return {
+          metric,
+          label: "남은 출근일",
+          value: formatDayCount(workdays.remaining),
+          caption: "내일부터 소집해제일까지, 공휴일·휴가 제외",
+        };
+      case "REMAINING_IF_ALL_LEAVE_USED":
+        return {
+          metric,
+          label: "연가 다 쓰면",
+          value:
+            workdays.remainingIfAllLeaveUsed === null
+              ? "—"
+              : formatDayCount(workdays.remainingIfAllLeaveUsed),
+          caption:
+            workdays.leaveDaysAssumed === null
+              ? "연가 부여 일수를 확인하면 보여 드려요"
+              : workdays.leaveIncludesUpcoming
+                ? `앞으로 받을 연가까지 ${formatDayCount(workdays.leaveDaysAssumed)}을 모두 쓴다면`
+                : `남은 연가 ${formatDayCount(workdays.leaveDaysAssumed)}을 모두 쓴다면`,
+        };
+      case "ELAPSED_WORKDAYS":
+        return {
+          metric,
+          label: "실제로 출근한 날",
+          value: formatDayCount(workdays.elapsed),
+          caption: "소집일부터 어제까지, 휴가·결근 제외",
+        };
+    }
+  });
+  return {
+    kind: "READY",
+    items,
+    note:
+      workdays.uncoveredHolidayYears.length === 0
+        ? null
+        : `${workdays.uncoveredHolidayYears.join("·")}년 공휴일은 아직 발표 전이라 빼지 않았어요`,
+  };
+}
+
 function buildPay(
   projection: AppProjection,
   schedule: PayBandSchedule,
@@ -414,6 +504,7 @@ export function buildHomeModel(
     hero: buildHero(profile, projection, schedule, today),
     leave: buildLeave(projection),
     pay: buildPay(projection, schedule),
+    workdays: buildWorkdays(profile, projection),
     today: projection.todayEvents.map((event) => agendaItem(event, today)),
     upcoming: projection.liveEvents
       .filter((event) => compareDateOnly(event.startDate, horizon) >= 0)

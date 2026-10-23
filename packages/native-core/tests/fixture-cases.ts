@@ -1147,8 +1147,36 @@ const projection: FixtureSuite = {
       data: minuteAccumulation,
       today: "2026-10-03",
     },
+    // 실질 복무일수 READY shape: all three figures, then a chosen subset.
+    {
+      id: "weekday schedule @ 2026-10-03",
+      kind: "projection",
+      data: withWeekdays(full),
+      today: "2026-10-03",
+    },
+    {
+      id: "weekday schedule, two figures @ 2026-10-03",
+      kind: "projection",
+      data: withWeekdays(full, ["ELAPSED_WORKDAYS", "REMAINING_WORKDAYS"]),
+      today: "2026-10-03",
+    },
   ],
 };
+
+function withWeekdays(
+  data: typeof full,
+  serviceDayMetrics?: ("REMAINING_WORKDAYS" | "ELAPSED_WORKDAYS")[],
+): typeof full {
+  return {
+    ...data,
+    profile: data.profile && {
+      ...data.profile,
+      workPattern: "WEEKDAY_DAYTIME",
+      workWeekdays: [1, 2, 3, 4, 5],
+      ...(serviceDayMetrics ? { serviceDayMetrics } : {}),
+    },
+  };
+}
 
 export const SUITES: FixtureSuite[] = [
   dates,

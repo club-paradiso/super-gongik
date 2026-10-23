@@ -119,7 +119,7 @@ function datesBetween(start: DateOnly, end: DateOnly): DateOnly[] {
  * scheduled working dates when the count equals their number. Otherwise the
  * charged dates are unknown and null is returned.
  */
-function chargedDates(
+export function chargedDates(
   event: ServiceEvent,
   isScheduledWorkingDay: (date: DateOnly) => boolean,
 ): Set<DateOnly> | null {

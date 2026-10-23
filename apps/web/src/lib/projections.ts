@@ -12,9 +12,11 @@ import {
 } from "@super-gongik/domain";
 import {
   deriveAnnualLeaveCredits,
+  deriveServiceWorkdays,
   evaluateMonthlyCompensation,
   findAttendanceMonth,
   type MonthlyCompensationEvaluation,
+  type ServiceWorkdays,
 } from "@super-gongik/rules";
 
 /**
@@ -44,6 +46,7 @@ export type AppProjection = {
   progress: ReturnType<typeof calculateServiceProgress>;
   ledger: LeaveLedger;
   compensation: MonthlyCompensationEvaluation;
+  workdays: ServiceWorkdays;
   liveEvents: ServiceEvent[];
   nextEvent: ServiceEvent | null;
   todayEvents: ServiceEvent[];
@@ -62,15 +65,23 @@ export function buildAppProjection(
       compareDateOnly(event.startDate, today) <= 0 &&
       compareDateOnly(today, event.endDate) <= 0,
   );
+  const ledger = buildLedgerForProfile(data, profile, today);
   return {
     progress: calculateServiceProgress(profile, today),
-    ledger: buildLedgerForProfile(data, profile, today),
+    ledger,
     compensation: evaluateMonthlyCompensation(profile, today, {
       events: data.events,
       attendance: findAttendanceMonth(
         data.attendanceMonths,
         yearMonthOf(today),
       ),
+    }),
+    workdays: deriveServiceWorkdays({
+      profile,
+      events: data.events,
+      attendanceMonths: data.attendanceMonths,
+      annualLeave: ledger.balance,
+      today,
     }),
     liveEvents,
     nextEvent:
