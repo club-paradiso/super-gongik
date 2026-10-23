@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./institutions": "./src/institutions.ts"
+    "./institutions": "./src/institutions.ts",
+    "./common-service-rules": "./src/common-service-rules.ts"
   },
   "scripts": {
     "lint": "eslint src tests --config ../../eslint.config.mjs --max-warnings=0",

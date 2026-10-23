@@ -1,0 +1,61 @@
+{
+  "note": "Branch offices whose own name differs from a registry record but whose agents fall under that record's rule by the rule's own scope clause (see each record's scopeNote). Used only by scripts/institution-roster-census.cjs; never as lookup aliases.",
+  "rules": [
+    {
+      "pattern": "^공무원연금공단",
+      "registryId": "public-geps"
+    },
+    {
+      "pattern": "^한국농어촌공사",
+      "registryId": "public-krc"
+    },
+    {
+      "pattern": "^중소벤처기업진흥공단",
+      "registryId": "public-kosmes"
+    },
+    {
+      "pattern": "^한국부동산원",
+      "registryId": "public-reb"
+    },
+    {
+      "pattern": "^한국가스안전공사",
+      "registryId": "public-kgs"
+    },
+    {
+      "pattern": "^한국승강기안전공단",
+      "registryId": "public-koelsa"
+    },
+    {
+      "pattern": "^국가인권위원회",
+      "registryId": "central-nhrck"
+    },
+    {
+      "pattern": "^(조달청|.+지방조달청)",
+      "registryId": "central-pps"
+    },
+    {
+      "pattern": "선거관리위원회$",
+      "registryId": "central-nec"
+    },
+    {
+      "pattern": "(소년원|소년분류심사원)$",
+      "registryId": "central-moj-juvenile"
+    },
+    {
+      "pattern": "^(병무청|.+지방병무(지)?청)$",
+      "registryId": "central-mma"
+    },
+    {
+      "pattern": "철도특별사법경찰대",
+      "registryId": "central-molit-railway-police"
+    },
+    {
+      "pattern": "^서울교통공사",
+      "registryId": "public-seoul-metro"
+    },
+    {
+      "pattern": "^한국주택금융공사",
+      "registryId": "public-hf"
+    }
+  ]
+}

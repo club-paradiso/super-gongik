@@ -51,6 +51,7 @@ export const DAY_KIND_LABELS: Record<ServiceDay["kind"], string> = {
   NOT_SCHEDULED: "근무 요일 아님",
   DECLARED_NON_WORKING: "공휴일·휴무",
   FULL_DAY_LEAVE: "종일 휴가",
+  FULL_DAY_ABSENCE: "종일 결근",
   NEEDS_DECISION: "직접 정해야 함",
   WORKED: "근무일",
 };
@@ -70,7 +71,8 @@ export function attendanceEditorDays(
         day.kind === "WORKED" ||
         day.kind === "DECLARED_NON_WORKING" ||
         (day.kind === "NEEDS_DECISION" && !nonWorking.has(day.date)) ||
-        day.kind === "FULL_DAY_LEAVE",
+        day.kind === "FULL_DAY_LEAVE" ||
+        day.kind === "FULL_DAY_ABSENCE",
     ),
     decisionDays: days.filter(
       (day) => day.requiresDecision && !nonWorking.has(day.date),

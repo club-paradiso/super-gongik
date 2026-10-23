@@ -24,12 +24,16 @@ import {
  * - DECLARED_NON_WORKING: a scheduled weekday the user marked as a holiday
  *   or institution closure for this month.
  * - FULL_DAY_LEAVE: a scheduled day fully covered by a charged all-day leave.
- *   This is a classification only: no primary source (제41조④, the MMA 2026
- *   payment standard) states per leave type whether 중식비·교통비 are paid on
- *   such a day, so eligibility stays undecided until the user decides.
+ * - FULL_DAY_ABSENCE: a scheduled day fully covered by an all-day 복무중단,
+ *   복무이탈 or 연가초과 결근.
+ *   Neither earns 중식비·교통비 under the 병무청 공통 규정 ("교통비,급식비
+ *   실제 근무일에 대해 실비 지급 휴가, 결근 등 비근무일 미지급", mma.go.kr
+ *   보수 및 권익보장). The user can still record a per-day decision for an
+ *   institution that pays differently.
  * - NEEDS_DECISION: the records do not settle attendance (half-day or
- *   minute leave, outing, late arrival, early leave, education, training, or
- *   an all-day leave whose charged dates inside its range are not provable).
+ *   minute leave, outing, late arrival, early leave, education, training, a
+ *   partial-day absence, or an all-day leave whose charged dates inside its
+ *   range are not provable).
  * - WORKED: a scheduled working day with no record against it.
  */
 export type ServiceDayKind =
@@ -37,6 +41,7 @@ export type ServiceDayKind =
   | "NOT_SCHEDULED"
   | "DECLARED_NON_WORKING"
   | "FULL_DAY_LEAVE"
+  | "FULL_DAY_ABSENCE"
   | "NEEDS_DECISION"
   | "WORKED";
 
@@ -49,9 +54,9 @@ export type ServiceDay = {
   mealEligible: boolean | null;
   transportEligible: boolean | null;
   /**
-   * true when the primary sources do not settle eligibility for this day
-   * (FULL_DAY_LEAVE and NEEDS_DECISION), so an explicit user decision is
-   * required before the month's day counts exist.
+   * true when the sources do not settle eligibility for this day
+   * (NEEDS_DECISION), so an explicit user decision is required before the
+   * month's day counts exist.
    */
   requiresDecision: boolean;
   /** true when the eligibility comes from the user's explicit decision. */
@@ -83,6 +88,10 @@ const DECISION_EVENT_TYPES = new Set([
   "EARLY_LEAVE",
   "EDUCATION",
   "TRAINING",
+]);
+
+/** 결근 types: an all-day record is a FULL_DAY_ABSENCE, anything else a decision. */
+const ABSENCE_EVENT_TYPES = new Set([
   "SERVICE_SUSPENSION",
   "SERVICE_ABSENCE",
   "EXCESS_ANNUAL_ABSENCE",
@@ -222,14 +231,16 @@ export function deriveMonthServiceDays(input: {
           else if (charged.has(date) && kind !== "NEEDS_DECISION") {
             kind = "FULL_DAY_LEAVE";
           }
+        } else if (ABSENCE_EVENT_TYPES.has(event.eventType)) {
+          if (event.timing.kind !== "ALL_DAY") kind = "NEEDS_DECISION";
+          else if (kind !== "NEEDS_DECISION") kind = "FULL_DAY_ABSENCE";
         } else if (DECISION_EVENT_TYPES.has(event.eventType)) {
           kind = "NEEDS_DECISION";
         }
       }
     }
 
-    const requiresDecision =
-      kind === "FULL_DAY_LEAVE" || kind === "NEEDS_DECISION";
+    const requiresDecision = kind === "NEEDS_DECISION";
     const override = overrides.get(date);
     if (override) {
       return {
@@ -242,9 +253,9 @@ export function deriveMonthServiceDays(input: {
         decidedByUser: true,
       };
     }
-    // Only a plain working day (eligible) and a non-scheduled or declared
-    // non-working day (no attendance, nothing to pay) are settled without the
-    // user; every leave or partial-attendance day waits for a decision.
+    // A plain working day is eligible. Non-scheduled, declared non-working,
+    // full-day leave and full-day absence days earn nothing (병무청 공통 규정);
+    // only a partial-attendance day waits for the user's decision.
     const eligible = requiresDecision ? null : kind === "WORKED";
     return {
       date,
@@ -285,7 +296,7 @@ export function deriveMonthServiceDays(input: {
         ? "이 달의 공휴일·기관 휴무일을 확인해야 근무일 수를 셀 수 있어요."
         : missing.includes("MONTH_RECONFIRMATION")
           ? "확인 이후 기록이나 근무 요일이 바뀌어 이 달을 다시 확인해야 해요."
-          : "휴가·외출 등 기록이 있는 날의 중식비·교통비 지급 여부를 정해 주세요.",
+          : "반차·외출·지각·교육 등 기록이 있는 날의 중식비·교통비 지급 여부를 정해 주세요.",
     };
   }
 
@@ -298,7 +309,7 @@ export function deriveMonthServiceDays(input: {
     mealEligibleDays: days.filter((day) => day.mealEligible).length,
     transportEligibleDays: days.filter((day) => day.transportEligible).length,
     explanation:
-      "근무 요일 중 공휴일·휴무일·종일 휴가를 뺀 날과 직접 정한 날을 셌어요.",
+      "근무 요일에서 공휴일·휴무일과 종일 휴가·결근일을 빼고 셌어요. 휴가·결근일은 병무청 공통 규정에 따라 중식비·교통비가 없어요.",
   };
 }
 

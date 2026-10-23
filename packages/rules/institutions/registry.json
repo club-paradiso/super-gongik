@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "registryId": "kr.social-service.institution-rules",
   "retrievedFrom": "2026-10-22",
-  "retrievedUntil": "2026-10-22",
+  "retrievedUntil": "2026-10-23",
   "sources": [
     {
       "id": "src-dge-school-2026",
@@ -864,6 +864,447 @@
         "sha256": "9a73cb50ae579ebf94010968ea6ad59cae6df15168f9cd209fd741f2676dcc3b",
         "pages": "all"
       }
+    },
+    {
+      "id": "src-geps-sbjm-2021",
+      "title": "공무원연금공단 사회복무요원 복무관리지침(2021.10.07. 제312호)",
+      "publisher": "공무원연금공단 (알리오 내부규정 공시)",
+      "sourceType": "INSTITUTION_GUIDELINE",
+      "url": "https://www.alio.go.kr/download/rulefiledown.json?fileNo=137850",
+      "pageUrl": "https://www.alio.go.kr/occasional/ruleDtl.do?seq=19004",
+      "publishedDate": "2021-10-07",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2021,
+      "original": {
+        "sha256": "6703d352de2b8e7b5e3d884522158f02671817ab7b0fbc970f710ab24125d1cc",
+        "bytes": 109056,
+        "file": "docs/sources/institutions/geps-sbjm-2021/original.hwp"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/geps-sbjm-2021/extract.txt",
+        "sha256": "9e0bfcc9a84bff6297a6cdfad38af49767aa3de2a6bc00d1293918baa7c0c829",
+        "pages": "all"
+      }
+    },
+    {
+      "id": "src-kgs-sbjm-2024",
+      "title": "한국가스안전공사 사회복무요원 복무관리지침(2024년도 3월 개정)",
+      "publisher": "한국가스안전공사 (알리오 내부규정 공시)",
+      "sourceType": "INSTITUTION_GUIDELINE",
+      "url": "https://www.alio.go.kr/download/rulefiledown.json?fileNo=195835",
+      "pageUrl": "https://www.alio.go.kr/occasional/ruleDtl.do?seq=45147",
+      "publishedDate": "2024-03-06",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2024,
+      "original": {
+        "sha256": "ae082892eedb7e1651326bb0c78f68ffae0aade6d309f94ec7b208484217c2ac",
+        "bytes": 636416,
+        "file": null
+      },
+      "extract": {
+        "file": "docs/sources/institutions/kgs-sbjm-2024/extract.txt",
+        "sha256": "bcf3195901e0a9e8a99cfc60e64812c68ecb1a4a6c26555d23a2fbc36cac1ab0",
+        "pages": "all"
+      }
+    },
+    {
+      "id": "src-krc-sbjm-2026",
+      "title": "한국농어촌공사 사회복무요원 복무관리 운영지침(2026년도 02월 01일 개정)",
+      "publisher": "한국농어촌공사 (알리오 내부규정 공시)",
+      "sourceType": "INSTITUTION_GUIDELINE",
+      "url": "https://www.alio.go.kr/download/rulefiledown.json?fileNo=230654",
+      "pageUrl": "https://www.alio.go.kr/occasional/ruleDtl.do?seq=51636",
+      "publishedDate": "2026-02-01",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2026,
+      "original": {
+        "sha256": "8eb7786895ef2d2f9dc84e005e0e9beb31f425c66d524f0ac2f983d9d8a102e6",
+        "bytes": 222712,
+        "file": "docs/sources/institutions/krc-sbjm-2026/original.pdf"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/krc-sbjm-2026/extract.txt",
+        "sha256": "972c3dcbd236a096f716a9db7871ffbb810e4e8686695eec57eb274769c142a2",
+        "pages": "all"
+      }
+    },
+    {
+      "id": "src-reb-sbjm-2026",
+      "title": "한국부동산원 사회복무요원 복무관리 및 운영 요강(2026년도 6월 26일 개정)",
+      "publisher": "한국부동산원 (알리오 내부규정 공시)",
+      "sourceType": "INSTITUTION_GUIDELINE",
+      "url": "https://www.alio.go.kr/download/rulefiledown.json?fileNo=238380",
+      "pageUrl": "https://www.alio.go.kr/occasional/ruleDtl.do?seq=19664",
+      "publishedDate": "2026-06-26",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2026,
+      "original": {
+        "sha256": "33fb802786a2c07a164dbe4136d3fe4f30963dcb07ff9c00d450b57d8e8d3d13",
+        "bytes": 352793,
+        "file": "docs/sources/institutions/reb-sbjm-2026/original.pdf"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/reb-sbjm-2026/extract.txt",
+        "sha256": "7be3d6763a9b4c760f4f95301211614bb1d4827d3d51ff5afc34a30d5f2939c2",
+        "pages": "all"
+      }
+    },
+    {
+      "id": "src-kosmes-sbjm-2026",
+      "title": "중소벤처기업진흥공단 사회복무요원 복무관리 지침(2026년도 01월 22일 개정)",
+      "publisher": "중소벤처기업진흥공단 (알리오 내부규정 공시)",
+      "sourceType": "INSTITUTION_GUIDELINE",
+      "url": "https://www.alio.go.kr/download/rulefiledown.json?fileNo=230060",
+      "pageUrl": "https://www.alio.go.kr/occasional/ruleDtl.do?seq=1908",
+      "publishedDate": "2026-01-22",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2026,
+      "original": {
+        "sha256": "b9304c4a5a88e68ccc5fd5c7433ef433d532a6fe7606984c13f6add6c80af52d",
+        "bytes": 55296,
+        "file": "docs/sources/institutions/kosmes-sbjm-2026/original.hwp"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/kosmes-sbjm-2026/extract.txt",
+        "sha256": "f6cbbec42a91a70d8feae9b35a06e6dc799c30181e3e51e8e1e0f2695db8fc86",
+        "pages": "all"
+      }
+    },
+    {
+      "id": "src-koelsa-sbjm-2019",
+      "title": "한국승강기안전공단 사회복무요원 복무관리 지침(2019.12.31)",
+      "publisher": "한국승강기안전공단 (알리오 내부규정 공시)",
+      "sourceType": "INSTITUTION_GUIDELINE",
+      "url": "https://www.alio.go.kr/download/rulefiledown.json?fileNo=97227",
+      "pageUrl": "https://www.alio.go.kr/occasional/ruleDtl.do?seq=40795",
+      "publishedDate": "2019-12-31",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2019,
+      "original": {
+        "sha256": "50c7303495931dede5b542da6a7e69540dfcbdb1469c33e134e3f9dc939414fc",
+        "bytes": 279100,
+        "file": "docs/sources/institutions/koelsa-sbjm-2019/original.pdf"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/koelsa-sbjm-2019/extract.txt",
+        "sha256": "096e501900674b6f05818cca2b879a34f478371e4ee9a8bf2cf26c838810ec16",
+        "pages": "all"
+      }
+    },
+    {
+      "id": "src-sen-sbm-manual-2026",
+      "title": "2026년도 서울특별시교육청 사회복무요원 복무관리 매뉴얼",
+      "publisher": "서울특별시교육청 총무과",
+      "sourceType": "INSTITUTION_GUIDELINE",
+      "url": "https://buseo.sen.go.kr/component/file/ND_fileDownload.do?q_fileSn=2277245&q_fileId=51ea45ac-ed7c-4763-8e1c-bf11358dcbd1",
+      "pageUrl": "https://buseo.sen.go.kr/buseo/bu03/user/bbs/BD_selectBbs.do?q_bbsSn=1183&q_bbsDocNo=20260728164227305",
+      "publishedDate": "2026-07-28",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2026,
+      "original": {
+        "sha256": "54eb74f57910625c524c797108a6c3b0fceb7dec524414766a3e3bddbfd339e7",
+        "bytes": 282624,
+        "file": "docs/sources/institutions/sen-sbm-manual-2026/original.hwp"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/sen-sbm-manual-2026/extract.txt",
+        "sha256": "8eb7bc0cf158ffe71f7e80ed77f0180df83dbba20dc69d11b38a66d4b02cefba",
+        "pages": "5. 보수 지급 (보수·교통비·중식비 항목)"
+      }
+    },
+    {
+      "id": "src-sen-sbm-manual-2025",
+      "title": "2025년도 서울특별시교육청 사회복무요원 복무관리 매뉴얼(수정)",
+      "publisher": "서울특별시교육청 총무과",
+      "sourceType": "INSTITUTION_GUIDELINE",
+      "url": "https://buseo.sen.go.kr/component/file/ND_fileDownload.do?q_fileSn=2192572&q_fileId=4def58e3-721d-4790-afeb-54617a41e7df",
+      "pageUrl": "https://buseo.sen.go.kr/buseo/bu03/user/bbs/BD_selectBbs.do?q_bbsSn=1183&q_bbsDocNo=20250421110928967",
+      "publishedDate": "2025-04-21",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2025,
+      "original": {
+        "sha256": "01169dbb1d126e0673781c0150bc8c140c5e79a89e2f0c35ba161494e35f44ce",
+        "bytes": 1615872,
+        "file": null
+      },
+      "extract": {
+        "file": "docs/sources/institutions/sen-sbm-manual-2025/extract.txt",
+        "sha256": "e99c11b0078b9962ea43c8b3d407ea44b31dda7222dcd4b27a92ed4edc073b54",
+        "pages": "5. 보수 지급"
+      }
+    },
+    {
+      "id": "src-elis-gyeonggi-sbm-rule",
+      "title": "경기도 사회복무요원 복무관리 규정 (훈령 제1486호, 시행 2015.08.07)",
+      "publisher": "경기도",
+      "sourceType": "ADMINISTRATIVE_RULE",
+      "url": "https://www.elis.go.kr/allalr/selectAlrBdtOne?alrNo=41000032007002&histNo=003&menuNm=totSrch",
+      "pageUrl": null,
+      "publishedDate": "2015-08-07",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2015,
+      "original": {
+        "sha256": "803206814d8c3b438ef30a07cd02484221b9a50ee9ef82f1b775abd2a7a857f9",
+        "bytes": 63628,
+        "file": "docs/sources/institutions/elis-gyeonggi-sbm-rule/original.html"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/elis-gyeonggi-sbm-rule/extract.txt",
+        "sha256": "7ce6ec9e1e1737c9657290a0c68c76e3aecdafa8f7f1f97452c8272085da5ea8",
+        "pages": "all"
+      }
+    },
+    {
+      "id": "src-elis-hadong-sbm-rule",
+      "title": "하동군 사회복무요원의 복무관리 규정 (훈령 제389호, 시행 2023.02.13)",
+      "publisher": "경상남도 하동군",
+      "sourceType": "ADMINISTRATIVE_RULE",
+      "url": "https://www.elis.go.kr/allalr/selectAlrBdtOne?alrNo=48850138281004&histNo=006&menuNm=totSrch",
+      "pageUrl": null,
+      "publishedDate": "2023-02-13",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2023,
+      "original": {
+        "sha256": "0e021d8f85602ae3085db8ba3e85ab1ef2134ab7d16ebad3012706d3a30c23cd",
+        "bytes": 60319,
+        "file": "docs/sources/institutions/elis-hadong-sbm-rule/original.html"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/elis-hadong-sbm-rule/extract.txt",
+        "sha256": "1e61001168e2c31bbab6c95bdc4f57bcef98ba683bf0811ad30ce6d1bd4169bc",
+        "pages": "all"
+      }
+    },
+    {
+      "id": "src-elis-uiryeong-sbm-rule",
+      "title": "의령군공익근무요원의복무관리규정 (시행 2015.09.17)",
+      "publisher": "경상남도 의령군",
+      "sourceType": "ADMINISTRATIVE_RULE",
+      "url": "https://www.elis.go.kr/allalr/selectAlrBdtOne?alrNo=48720128268021&histNo=002&menuNm=totSrch",
+      "pageUrl": null,
+      "publishedDate": "2015-09-17",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2015,
+      "original": {
+        "sha256": "9986f11bae2996c08f5168da4dba84e865c29568942db3c7c41e1384881e481b",
+        "bytes": 65241,
+        "file": "docs/sources/institutions/elis-uiryeong-sbm-rule/original.html"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/elis-uiryeong-sbm-rule/extract.txt",
+        "sha256": "b81f6dcfbcfdd5a2f4e3af53fadc353ff64dfc078d30c1798d10e0cd298c19ed",
+        "pages": "all"
+      }
+    },
+    {
+      "id": "src-jje-sechul-2026",
+      "title": "2026년도 제주특별자치도교육비특별회계 본예산 세출예산서",
+      "publisher": "제주특별자치도교육청",
+      "sourceType": "BUDGET_GUIDELINE",
+      "url": "https://www.jje.go.kr/board/download.jje?boardId=BBS_0000578&menuCd=DOM_000000108008000000&paging=ok&startPage=1&dataSid=1447397&command=update&fileSid=1363903",
+      "pageUrl": "http://www.jje.go.kr/open/index.jje?menuCd=DOM_000001901002018001",
+      "publishedDate": null,
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2026,
+      "original": {
+        "sha256": "984143252a50d36afd4659b5b771a2bb79d6226d11856c2e9c1728be7724df30",
+        "bytes": 4999922,
+        "file": null
+      },
+      "extract": {
+        "file": "docs/sources/institutions/jje-sechul-2026/extract.txt",
+        "sha256": "9329076ab4c1e749f5a17dde712c8e023a899279f20eb6be3dc42ea144ec7d28",
+        "pages": "191,628,630"
+      }
+    },
+    {
+      "id": "src-youngji-budget-2025",
+      "title": "2025학년도 제주영지학교회계 세입·세출 예산서 (2025.02.13)",
+      "publisher": "제주영지학교",
+      "sourceType": "BUDGET_GUIDELINE",
+      "url": "https://school.jje.go.kr/common/nttFileDownload.do?fileKey=66e0d18d66058181d82684a5040c9a81",
+      "pageUrl": "https://school.jje.go.kr/youngji/na/ntt/selectNttInfo.do?mi=119358&bbsId=111097&nttSn=40504627",
+      "publishedDate": "2025-02-13",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2025,
+      "original": {
+        "sha256": "3f514ccb9dca337f54e2ddbcbedfb689c78c8a03c8a8a8748796a0fee219eca9",
+        "bytes": 87552,
+        "file": "docs/sources/institutions/youngji-budget-2025/original.hwp"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/youngji-budget-2025/extract.txt",
+        "sha256": "f78db49c62fae6503c723475f4279c787ad196d032a10ec82037e1c2be4c0a86",
+        "pages": "all"
+      }
+    },
+    {
+      "id": "src-jjs-sbw-pay-2026-08",
+      "title": "2026년 8월분 사회복무요원 인건비 지급 (제주시 주민복지과-42409)",
+      "publisher": "제주특별자치도 제주시 복지가족국 주민복지과",
+      "sourceType": "PAYMENT_RECORD",
+      "url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down",
+      "pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCT2D8AFC1E1494FF72163723261EB74802",
+      "publishedDate": "2026-09-03",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2026,
+      "original": {
+        "sha256": "d58afdc779ba8cbf96db5e98ebcd7539f0fb0efdb3184e2a42fee7e1011d1c51",
+        "bytes": 121866,
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-08/original.pdf"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-08/extract.txt",
+        "sha256": "2f0d3bff935476e5013dae29b274039502f5659699cc5724e63ac775b8b51b01",
+        "pages": "1"
+      }
+    },
+    {
+      "id": "src-jjs-sbw-pay-2026-07",
+      "title": "2026년 7월분 사회복무요원 인건비 지급 (제주시 주민복지과-38055)",
+      "publisher": "제주특별자치도 제주시 복지가족국 주민복지과",
+      "sourceType": "PAYMENT_RECORD",
+      "url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down",
+      "pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCT0478279C548CE1E103F040D94299FCFA",
+      "publishedDate": "2026-08-05",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2026,
+      "original": {
+        "sha256": "b203b9b6b2b8a9f2fb91c0f9162b3a5bcea3d2e8043d69b8f61de480c3fdf4ce",
+        "bytes": 122434,
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-07/original.pdf"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-07/extract.txt",
+        "sha256": "9c7844a09c6b19e331de88b02e30efb036d455301486449d1b2c1b795b56ccb0",
+        "pages": "1"
+      }
+    },
+    {
+      "id": "src-jjs-sbw-pay-2026-04",
+      "title": "2026년 4월분 사회복무요원 인건비 지급 (제주시 2026.5.4. 결재)",
+      "publisher": "제주특별자치도 제주시 복지가족국 주민복지과",
+      "sourceType": "PAYMENT_RECORD",
+      "url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down",
+      "pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCTCF451B2A2F273B6F7DE996745B0C123D",
+      "publishedDate": "2026-05-04",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2026,
+      "original": {
+        "sha256": "3a93da65699072a5528d3c6ceae7074d504e130ee4c6eee454634357cb37dbe6",
+        "bytes": 122788,
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-04/original.pdf"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-04/extract.txt",
+        "sha256": "ab8ccb2aa7ba2bc7e709315a7a6fca9375d2d8bb5f520d2f00e301c87f40ddcd",
+        "pages": "1"
+      }
+    },
+    {
+      "id": "src-jjs-sbw-pay-2026-01",
+      "title": "2026년 1월분 사회복무요원 인건비 지급 (제주시 주민복지과-8212)",
+      "publisher": "제주특별자치도 제주시 복지가족국 주민복지과",
+      "sourceType": "PAYMENT_RECORD",
+      "url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down",
+      "pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCTF3EE3B21CDC81FC9F7A8EDD9D3855E2F",
+      "publishedDate": "2026-02-06",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2026,
+      "original": {
+        "sha256": "6cb21789a2875f5c1566db5b3508395ea1b41d244e8e272b5c2ecf0f5627d2ea",
+        "bytes": 122532,
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-01/original.pdf"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/jjs-sbw-pay-2026-01/extract.txt",
+        "sha256": "394637d31cbce6fa23cf5277f34b4d221e326641aaef2f301235fc34763df9e2",
+        "pages": "1"
+      }
+    },
+    {
+      "id": "src-jjs-sbw-pay-2025-10",
+      "title": "2025년 10월분 사회복무요원 인건비 지급 (제주시 주민복지과-19896)",
+      "publisher": "제주특별자치도 제주시 복지가족국 주민복지과",
+      "sourceType": "PAYMENT_RECORD",
+      "url": "https://www.open.go.kr/util/wonmunUtils/wonmunFileDownload.down",
+      "pageUrl": "https://www.open.go.kr/othicInfo/infoList/infoListDetl.do?prdnNstRgstNo=DCTBB249D97B1B6F968E303D0665A55C12A",
+      "publishedDate": "2025-11-06",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2025,
+      "original": {
+        "sha256": "d7612ec130b0b8b5c211aa0cfa9fd5fa8c2cc3ff41f399634a358234dc67b21c",
+        "bytes": 138380,
+        "file": "docs/sources/institutions/jjs-sbw-pay-2025-10/original.pdf"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/jjs-sbw-pay-2025-10/extract.txt",
+        "sha256": "585980c1024ee44954c249279d9018a449651098064500a4484bfb970009ecf5",
+        "pages": "1"
+      }
+    },
+    {
+      "id": "src-gnuh-sbjm-2021",
+      "title": "경상국립대학교병원 사회복무요원복무관리규정(2021.12.10. 개정, 규정 제946호)",
+      "publisher": "경상국립대학교병원 (알리오 내부규정 공시)",
+      "sourceType": "INSTITUTION_GUIDELINE",
+      "url": "https://www.alio.go.kr/download/rulefiledown.json?fileNo=141220",
+      "pageUrl": "https://www.alio.go.kr/occasional/ruleDtl.do?seq=19067",
+      "publishedDate": "2021-12-10",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2021,
+      "original": {
+        "sha256": "512ee4110a5ef50450464fc0042d92cf66b16c4864e958cc01b1bf20bde6a611",
+        "bytes": 65024,
+        "file": "docs/sources/institutions/gnuh-sbjm-2021/original.hwp"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/gnuh-sbjm-2021/extract.txt",
+        "sha256": "f469e7a3f809d873ee65bc15782b68f2c92651fc74f1200a55a606539d21ed94",
+        "pages": "all"
+      }
+    },
+    {
+      "id": "src-hf-sbjm-2016",
+      "title": "한국주택금융공사 사회복무요원 운영기준(2016.12.30. 개정)",
+      "publisher": "한국주택금융공사 (알리오 내부규정 공시)",
+      "sourceType": "INSTITUTION_GUIDELINE",
+      "url": "https://www.alio.go.kr/download/rulefiledown.json?fileNo=187840",
+      "pageUrl": "https://www.alio.go.kr/occasional/ruleDtl.do?seq=7299",
+      "publishedDate": "2016-12-30",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2016,
+      "original": {
+        "sha256": "d09ed7774e8fe096ee9765fb2491cba5e69ec8e04278ad94d5a5a44fe465b315",
+        "bytes": 65536,
+        "file": "docs/sources/institutions/hf-sbjm-2016/original.hwp"
+      },
+      "extract": {
+        "file": "docs/sources/institutions/hf-sbjm-2016/extract.txt",
+        "sha256": "5893ac5f6715cb000286a440916446967dc49f75db132f408c58edba2adf6b33",
+        "pages": "all"
+      }
+    },
+    {
+      "id": "src-sr-sbjm-2021",
+      "title": "주식회사 에스알 사회복무요원 운영지침(2021년 10월 5일 개정)",
+      "publisher": "주식회사 에스알 (알리오 내부규정 공시)",
+      "sourceType": "INSTITUTION_GUIDELINE",
+      "url": "https://www.alio.go.kr/download/rulefiledown.json?fileNo=192711",
+      "pageUrl": "https://www.alio.go.kr/occasional/ruleDtl.do?seq=51427",
+      "publishedDate": "2021-10-05",
+      "retrievedAt": "2026-10-23",
+      "documentYear": 2021,
+      "original": {
+        "sha256": "d97cd7478430502738be6ce5fb25c189dacc3f79f349a909e333fb5a5ada19bc",
+        "bytes": 609709,
+        "file": null
+      },
+      "extract": {
+        "file": "docs/sources/institutions/sr-sbjm-2021/extract.txt",
+        "sha256": "8b96ef466cfcc9c8c93c7c5590c55c0b759bfce1becb00e591f0a82b07e3905e",
+        "pages": "1,11"
+      }
     }
   ],
   "institutions": [
@@ -872,7 +1313,7 @@
       "name": "경기도 광명시",
       "type": "LOCAL_GOV",
       "region": "경기",
-      "aliases": ["광명시"],
+      "aliases": ["경기도광명시청", "광명시", "광명시청"],
       "scopeNote": "보건복지분야 사회복무요원 월평균 165명 (복지정책과), 2024년",
       "rules": {
         "MEAL_DAILY_AMOUNT": {
@@ -944,7 +1385,7 @@
       "name": "경기도 오산시",
       "type": "LOCAL_GOV",
       "region": "경기",
-      "aliases": ["오산시"],
+      "aliases": ["경기도오산시청", "오산시", "오산시청"],
       "scopeNote": "사회복지시설 지원 사회복무요원 인건비 계산 (안전정책과 추경 검토보고 붙임2)",
       "rules": {
         "MEAL_DAILY_AMOUNT": [
@@ -1446,7 +1887,7 @@
       "name": "경상북도 성주군",
       "type": "LOCAL_GOV",
       "region": "경북",
-      "aliases": ["성주군"],
+      "aliases": ["성주군", "성주군청"],
       "scopeNote": "SECONDARY: 값은 구미시 '사회복무요원 중식비 현실화 계획'(2025.7.) 붙임 '타 지자체 중식비 현황'에 기재된 것으로, 해당 기관 자체 문서가 아님 / 복지분야(사회복지시설) 사회복무요원 35명, 2024년 자체 문서 (local 그룹의 구미시 조사표 2차자료와 별개)",
       "rules": {
         "MEAL_DAILY_AMOUNT": [
@@ -1531,7 +1972,7 @@
       "name": "경상북도 포항시",
       "type": "LOCAL_GOV",
       "region": "경북",
-      "aliases": ["포항시"],
+      "aliases": ["포항시", "포항시청"],
       "scopeNote": "SECONDARY: 값은 구미시 '사회복무요원 중식비 현실화 계획'(2025.7.) 붙임 '타 지자체 중식비 현황'에 기재된 것으로, 해당 기관 자체 문서가 아님 / 아동복지시설(지역아동센터) 사회복무요원 75명 중식비 (교육청소년과, 2024 자체 문서)",
       "rules": {
         "MEAL_DAILY_AMOUNT": [
@@ -1590,7 +2031,7 @@
       "name": "광주광역시 서구",
       "type": "LOCAL_GOV",
       "region": "광주",
-      "aliases": ["광주 서구"],
+      "aliases": ["광주 서구", "광주광역시 서구청", "광주서구청"],
       "scopeNote": "보건복지분야 사회복무요원 160명 (2024년 자료)",
       "rules": {
         "MEAL_DAILY_AMOUNT": [
@@ -2456,7 +2897,11 @@
       "name": "서울특별시",
       "type": "METRO_GOV",
       "region": "서울",
-      "aliases": ["서울시", "서울시 복지정책과 사회복무요원 중식비 지원"],
+      "aliases": [
+        "서울시",
+        "서울시 복지정책과 사회복무요원 중식비 지원",
+        "서울특별시청"
+      ],
       "scopeNote": "서울시가 25개 자치구 보건복지분야 사회복무요원 중식비에 교부하는 시비보조금의 재원분담 기준. 단가는 공개본에서 마스킹됨 / 서울특별시 본청·사업소(소방재난본부, 미래한강본부 등) 결재문서(정보소통광장 공개분). 금액이 기재된 첨부(지급조서, 배포용 지침)는 비공개·마스킹되어 단가 미확인. 각 사실의 적용 범위는 value에 명시.",
       "rules": {
         "MEAL_DAILY_AMOUNT": {
@@ -2699,7 +3144,7 @@
       "name": "서울특별시 금천구",
       "type": "LOCAL_GOV",
       "region": "서울",
-      "aliases": ["금천구"],
+      "aliases": ["금천구", "금천구청"],
       "scopeNote": "보건복지분야 사회복무요원 212명 (복지정책과), 2024년",
       "rules": {
         "MEAL_DAILY_AMOUNT": {
@@ -3524,7 +3969,7 @@
       "name": "전라남도 목포시",
       "type": "LOCAL_GOV",
       "region": "전남",
-      "aliases": ["목포시"],
+      "aliases": ["목포시", "목포시청"],
       "scopeNote": "사회복지시설 사회복무요원 (노인장애인과), 2024년",
       "rules": {
         "MEAL_DAILY_AMOUNT": {
@@ -3596,7 +4041,7 @@
       "name": "전라남도 여수시",
       "type": "LOCAL_GOV",
       "region": "전남",
-      "aliases": ["여수시"],
+      "aliases": ["여수시", "여수시청"],
       "scopeNote": "사회복지시설 및 지자체 사회복지업무지원 사회복무요원 180명 (사회복지과 보조금 집행계획)",
       "rules": {
         "MEAL_DAILY_AMOUNT": [
@@ -3779,7 +4224,7 @@
       "name": "전북특별자치도 군산시",
       "type": "LOCAL_GOV",
       "region": "전북",
-      "aliases": ["군산시"],
+      "aliases": ["군산시", "군산시청"],
       "scopeNote": "사회복지업무보조 및 사회복지시설 사회복무요원 (복지정책과)",
       "rules": {
         "MEAL_DAILY_AMOUNT": {
@@ -3838,7 +4283,7 @@
       "name": "전북특별자치도 전주시",
       "type": "LOCAL_GOV",
       "region": "전북",
-      "aliases": ["전주시"],
+      "aliases": ["전주시", "전주시청"],
       "scopeNote": "보건복지분야(사회복지시설, 사회복지업무보조) 사회복무요원; 생활복지과 월별 급여·교통비 지급 결재문서",
       "rules": {
         "MEAL_DAILY_AMOUNT": {
@@ -4133,7 +4578,7 @@
       "name": "충청남도 계룡시",
       "type": "LOCAL_GOV",
       "region": "충남",
-      "aliases": ["계룡시"],
+      "aliases": ["계룡시", "계룡시청"],
       "scopeNote": "관내 사회복지시설 근무 사회복무요원 38~39명 (사회복지과 본예산 검토)",
       "rules": {
         "MEAL_DAILY_AMOUNT": [
@@ -4211,6 +4656,1470 @@
         "OTHER": {
           "status": "UNKNOWN"
         }
+      }
+    },
+    {
+      "id": "public-geps",
+      "name": "공무원연금공단",
+      "type": "PUBLIC_INSTITUTION",
+      "region": null,
+      "aliases": ["GEPS"],
+      "scopeNote": "공무원연금공단(본부 제주특별자치도 서귀포시)에 배정된 사회복무요원 전체. 제2조: '공단에 배정된 사회복무요원 복무관리 및 운영에 적용'. 공시본은 2021.10.07. 개정본(알리오 최신 첨부)",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_METHOD": [
+          {
+            "status": "KNOWN",
+            "value": "실비 지급, 도보 등으로 출·퇴근해도 대중교통 이용요금 기준 교통비 지급",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2021,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-geps-sbjm-2021",
+                "locator": "제37조(보수지급) ②",
+                "quote": "이사장은 제1항에 따른 보수 외에 중식비와 교통비를 매월 보수지급일에 사회복무요원 복무관리규정(병무청 훈령)에 따라 실비로 지급하며, 도보 등으로 출·퇴근하는 경우에도 대중교통 이용요금 기준 교통비를 지급한다."
+              }
+            ]
+          }
+        ],
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "보수·중식비·교통비 모두 공단의 월 보수지급일에 지급(구체적 일자는 지침에 없음)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2021,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-geps-sbjm-2021",
+                "locator": "제37조(보수지급) ①·②",
+                "quote": "사회복무요원의 보수를 다음 각 호에 해당하는 기준에 따라 공단의 월 보수지급일에 지급한다."
+              }
+            ]
+          }
+        ],
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": {
+          "status": "UNKNOWN"
+        }
+      }
+    },
+    {
+      "id": "public-kgs",
+      "name": "한국가스안전공사",
+      "type": "PUBLIC_INSTITUTION",
+      "region": null,
+      "aliases": ["KGS"],
+      "scopeNote": "한국가스안전공사 본사 및 지역 조직(제주지역본부 포함 가능) 각 복무부서. 정의: '\"복무부서\"이란 사회복무요원이 배정되어 복무하게 되는 공사 내 각 부서'. 제주 소속 조직의 실제 복무요원 배치 여부는 미확인",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_METHOD": [
+          {
+            "status": "KNOWN",
+            "value": "왕복 대중교통요금(도보 출퇴근 시에도 지급); 중식비는 병무청 지급기준에 따름",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2024,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-kgs-sbjm-2024",
+                "locator": "제17조(급여 등 지급) ①",
+                "quote": "복무부서장은 사회복무요원의 복무기간(군사교육 소집기간 포함)중 공무원보수규정에서 정한 보수와 실비 보상을 위한 교통비(도보 출퇴근시에도 지급), 중식비를 지급하여야 한다. 이때 교통비는 왕복 대중교통요금, 중식비는 병무청 사회복무요원 보수 등 지급기준에 따른다."
+              }
+            ]
+          }
+        ],
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "보수 및 실비보상비용은 공사의 급여지급일에 본인 계좌로 입금",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2024,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-kgs-sbjm-2024",
+                "locator": "제17조(급여 등 지급) ②",
+                "quote": "제1항에 따른 보수 및 실비보상비용의 지급일은 공사의 급여지급일로 하며, 지급방법은 복무자 본인의 계좌 입금으로 한다."
+              }
+            ]
+          }
+        ],
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": {
+          "status": "UNKNOWN"
+        }
+      }
+    },
+    {
+      "id": "public-krc",
+      "name": "한국농어촌공사",
+      "type": "PUBLIC_INSTITUTION",
+      "region": null,
+      "aliases": [],
+      "scopeNote": "한국농어촌공사 본사·지역본부·지사 등 전 단위조직(제주지역본부 포함). 정의: '“단위관리자”란 ... 지역본부, 안전기술본부, 사업단 및 지사의 장을 말한다'. 제주 조직의 실제 배치 여부는 미확인",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_METHOD": [
+          {
+            "status": "KNOWN",
+            "value": "보수 외 중식비와 교통비를 실비로 지급",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-krc-sbjm-2026",
+                "locator": "제10조(보수) ①",
+                "quote": "보수 이외에 중식비와 교통비를 실비로 지급한다."
+              }
+            ]
+          }
+        ],
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": [
+          {
+            "status": "KNOWN",
+            "value": "일일 보수액 계산 시 십원 미만 버림",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-krc-sbjm-2026",
+                "locator": "제10조(보수) ⑤",
+                "quote": "사회복무요원의 일일 보수액을 계산하여 지급할 경우 \"십원\" 미만은 버린다."
+              }
+            ]
+          }
+        ],
+        "PAY_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "보수는 전월 1일~말일분을 다음 월 10일에 지급(휴일이면 전일)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-krc-sbjm-2026",
+                "locator": "제10조(보수) ②",
+                "quote": "사회복무요원의 보수는 전월 1일부터 말일까지 계산하여 다음 월 10일에 지급한다. 다만, 지급일이 휴일인 경우에는 그 전일에 지급한다."
+              }
+            ]
+          }
+        ],
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": {
+          "status": "UNKNOWN"
+        }
+      }
+    },
+    {
+      "id": "public-reb",
+      "name": "한국부동산원",
+      "type": "PUBLIC_INSTITUTION",
+      "region": null,
+      "aliases": [],
+      "scopeNote": "한국부동산원 각 실·처·지사(제주지사 포함 가능). 정의: '“복무실처지사”란 ... 한국부동산원의 각 실처지사를 말한다'. 제주 조직의 실제 배치 여부는 미확인",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_METHOD": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "보수는 매월 말일 지급(휴일이면 그 전일)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-reb-sbjm-2026",
+                "locator": "제15조(보수 등) ①",
+                "quote": "군인의 봉급표에 의하여 매월 말일에 지급한다. 단, 지급일이 휴일인 때에는 순차적으로 그전일에 지급한다."
+              }
+            ]
+          }
+        ],
+        "WORK_DAYS_RULE": [
+          {
+            "status": "KNOWN",
+            "value": "교통비·중식비는 근무일수에 비례하여 지급할 수 있음",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-reb-sbjm-2026",
+                "locator": "제15조(보수 등) ②",
+                "quote": "사회복무요원의 교통비와 중식비는 근무일수에 비례하여 지급할 수 있으며"
+              }
+            ]
+          }
+        ],
+        "OTHER": [
+          {
+            "status": "KNOWN",
+            "value": "출장 등으로 별도 중식이 제공되는 날은 중식비 미지급; 금액은 실비 범위 내에서 총괄부서장이 별도 통지",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-reb-sbjm-2026",
+                "locator": "제15조(보수 등) ②·③",
+                "quote": "출장 등 별도로 중식비가 제공되는 경우 해당 일에는 중식비를 추가로 지급하지 아니한다. ③ 교통비와 중식비는 실비 범위 내에서 총괄부서의 장이 별도로 정하여 통지하는 바에 따른다."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "public-kosmes",
+      "name": "중소벤처기업진흥공단",
+      "type": "PUBLIC_INSTITUTION",
+      "region": null,
+      "aliases": ["중진공"],
+      "scopeNote": "중소벤처기업진흥공단 본부·연수원·지역본·지부(제주지역본부 포함 가능) 사회복무요원. 제3조: '3. 연수원, 지역본·지부 사회복무요원 : ...'. 제주 조직의 실제 배치 여부는 미확인",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_METHOD": [
+          {
+            "status": "KNOWN",
+            "value": "보수 외 중식비·교통비를 예산 범위 내 실비로 매월 지급",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-kosmes-sbjm-2026",
+                "locator": "제6조(사회복무요원의 복무관리) ⑨ 2.",
+                "quote": "보수외에 중식비 및 교통비를 예산 범위 내에서 실비로 매월 지급한다."
+              }
+            ]
+          }
+        ],
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "보수 지급일 매월 25일 기준",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-kosmes-sbjm-2026",
+                "locator": "제6조(사회복무요원의 복무관리) ⑨ 1.가",
+                "quote": "지급일 : 매월 25일 기준"
+              }
+            ]
+          }
+        ],
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": {
+          "status": "UNKNOWN"
+        }
+      }
+    },
+    {
+      "id": "public-koelsa",
+      "name": "한국승강기안전공단",
+      "type": "PUBLIC_INSTITUTION",
+      "region": null,
+      "aliases": [],
+      "scopeNote": "한국승강기안전공단에 근무하는 사회복무요원 전체(제주 소재 지사 포함 가능). 2019.12.31. 지침(알리오 공시 최신본)으로 현재 금액과 다를 수 있음",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 6000,
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2019,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-koelsa-sbjm-2019",
+                "locator": "제14조(보수) ②",
+                "quote": "보수외1일중식비6,000원및1일교통비시내버스왕복이용요금을예산범위내에서매월지급한다."
+              }
+            ],
+            "note": "2019년 지침 기준 금액"
+          }
+        ],
+        "TRANSPORT_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_METHOD": [
+          {
+            "status": "KNOWN",
+            "value": "1일 시내버스 왕복 이용요금(예산 범위 내, 매월 지급)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2019,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-koelsa-sbjm-2019",
+                "locator": "제14조(보수) ②",
+                "quote": "1일교통비시내버스왕복이용요금을예산범위내에서매월지급한다."
+              }
+            ]
+          }
+        ],
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "보수 매월 25일 지급",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2019,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-koelsa-sbjm-2019",
+                "locator": "제14조(보수) ①",
+                "quote": "군인의봉급표에의하여매월25일에지급한다."
+              }
+            ]
+          }
+        ],
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": {
+          "status": "UNKNOWN"
+        }
+      }
+    },
+    {
+      "id": "edu-seoul",
+      "name": "서울특별시교육청",
+      "type": "EDUCATION_OFFICE",
+      "region": "서울",
+      "aliases": ["서울시교육청"],
+      "scopeNote": "서울특별시교육청 소속 근무지(학교 등)에서 복무하는 사회복무요원 대상 매뉴얼. 장애학생 활동지원 분야는 교육청이 인건비 지원, 학습지원·일반행정지원 분야는 근무지 자체 예산으로 지급.",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 9000,
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sen-sbm-manual-2026",
+                "locator": "5. 보수 지급 / 중식비",
+                "quote": "❍ 중식비: 1일 9,000원(중식비 지급 최소 단가)"
+              }
+            ],
+            "note": "최소 단가. 학교 급식비가 9,000원을 초과하면 추가 지급 가능."
+          },
+          {
+            "status": "KNOWN",
+            "value": 7000,
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2025,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sen-sbm-manual-2025",
+                "locator": "5. 보수 지급 / 중식비",
+                "quote": "❍ 중식비: 1일 7,000원(중식비 지급 최소 단가)"
+              }
+            ],
+            "note": "2025년도 매뉴얼(최소 단가)"
+          }
+        ],
+        "TRANSPORT_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 3100,
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sen-sbm-manual-2026",
+                "locator": "5. 보수 지급 / 교통비",
+                "quote": "❍ 교통비: 1일 3,100원(교통비 지급 최소 단가)"
+              }
+            ],
+            "note": "최소 단가"
+          },
+          {
+            "status": "KNOWN",
+            "value": 3000,
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2025,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sen-sbm-manual-2025",
+                "locator": "5. 보수 지급 / 교통비",
+                "quote": "❍ 교통비: 1일 3,000원(교통비 지급 최소 단가)\n- 도보 등으로 출·퇴근하는 경우에도 교통비 지급\n- 휴가 및 결근 등 비근무일은 미지급"
+              }
+            ],
+            "note": "2025년도 매뉴얼(최소 단가). 3,000원 이상 사용 증빙 시 추가 지급 가능."
+          }
+        ],
+        "TRANSPORT_METHOD": [
+          {
+            "status": "KNOWN",
+            "value": "1일 3,100원 최소 단가, 도보 출퇴근도 지급, 3,100원 이상 추가비용 발생 시 교통카드 금액 기준 실비 지급",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sen-sbm-manual-2026",
+                "locator": "5. 보수 지급 / 교통비",
+                "quote": "❍ 교통비: 1일 3,100원(교통비 지급 최소 단가)\n- 도보 등으로 출·퇴근하는 경우에도 교통비 지급\n- 휴가 및 결근 등 비근무일은 미지급\n- 출·퇴근 교통비 3,100원 이상 추가비용 발생시 교통카드 금액 기준 실비 지급"
+              }
+            ]
+          }
+        ],
+        "MEAL_ON_LEAVE": [
+          {
+            "status": "KNOWN",
+            "value": "NOT_PAID",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sen-sbm-manual-2026",
+                "locator": "5. 보수 지급 / 중식비",
+                "quote": "- 근무지 점심시간 내 근무한 경우 지급, 휴가 및 결근 등 비근무일은 미지급"
+              }
+            ]
+          }
+        ],
+        "TRANSPORT_ON_LEAVE": [
+          {
+            "status": "KNOWN",
+            "value": "NOT_PAID",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sen-sbm-manual-2026",
+                "locator": "5. 보수 지급 / 교통비",
+                "quote": "❍ 교통비: 1일 3,100원(교통비 지급 최소 단가)\n- 도보 등으로 출·퇴근하는 경우에도 교통비 지급\n- 휴가 및 결근 등 비근무일은 미지급\n- 출·퇴근 교통비 3,100원 이상 추가비용 발생시 교통카드 금액 기준 실비 지급"
+              }
+            ]
+          }
+        ],
+        "MEAL_ON_ABSENCE": [
+          {
+            "status": "KNOWN",
+            "value": "NOT_PAID",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sen-sbm-manual-2026",
+                "locator": "5. 보수 지급 / 중식비",
+                "quote": "- 근무지 점심시간 내 근무한 경우 지급, 휴가 및 결근 등 비근무일은 미지급"
+              }
+            ]
+          }
+        ],
+        "TRANSPORT_ON_ABSENCE": [
+          {
+            "status": "KNOWN",
+            "value": "NOT_PAID",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sen-sbm-manual-2026",
+                "locator": "5. 보수 지급 / 교통비",
+                "quote": "❍ 교통비: 1일 3,100원(교통비 지급 최소 단가)\n- 도보 등으로 출·퇴근하는 경우에도 교통비 지급\n- 휴가 및 결근 등 비근무일은 미지급\n- 출·퇴근 교통비 3,100원 이상 추가비용 발생시 교통카드 금액 기준 실비 지급"
+              }
+            ]
+          }
+        ],
+        "MEAL_ON_PARTIAL_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "근무지 점심시간 내 근무한 경우에만 중식비 지급",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sen-sbm-manual-2026",
+                "locator": "5. 보수 지급 / 중식비",
+                "quote": "- 근무지 점심시간 내 근무한 경우 지급, 휴가 및 결근 등 비근무일은 미지급"
+              }
+            ]
+          }
+        ],
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "근무 월 급여를 다음 달 10일 이전까지 지급 완료",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sen-sbm-manual-2026",
+                "locator": "5. 보수 지급 / 인건비 지원 절차",
+                "quote": "- 근무지에서는 근무 월 급여를 다음 달 10일 이전까지 지급 완료"
+              }
+            ]
+          },
+          {
+            "status": "KNOWN",
+            "value": "근무 월 급여를 다음 월 10일 이전까지 지급 완료",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2025,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sen-sbm-manual-2025",
+                "locator": "5. 보수 지급",
+                "quote": "- 근무지에서는 근무 월 급여를 다음 월 10일 이전까지 지급 완료"
+              }
+            ]
+          }
+        ],
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": [
+          {
+            "status": "KNOWN",
+            "value": "학교 급식비가 9,000원을 초과하는 경우 중식비 추가 지급 가능(예산 신청 시 급식 운영 계획서 별도 제출)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sen-sbm-manual-2026",
+                "locator": "5. 보수 지급 / 중식비",
+                "quote": "※ 학교 급식비가 9,000원을 초과하는 경우 추가 지급 가능(예산 신청 시 학교 급식 운영 계획서를 별도 제출)"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "metro-gyeonggi",
+      "name": "경기도",
+      "type": "METRO_GOV",
+      "region": "경기",
+      "aliases": ["경기도청"],
+      "scopeNote": "경기도 및 그 소속기관에서 복무하는 사회복무요원(제1조). 자치법규정보시스템 현행본(시행 2015.08.07, 훈령 제1486호) 기준.",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_METHOD": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "「지방공무원보수규정」과 병역법 시행령 제62조에 따라 지정된 일자에 본인 계좌로 지급",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2015,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-elis-gyeonggi-sbm-rule",
+                "locator": "제19조(보수지급) 제1항",
+                "quote": "① 사회복무요원의 보수는「 지방공무원보수규정 」과  법 시행령 제62조 에 따라 지정된 일자에 지급하되 본인의 계좌로 지급하여야 한다."
+              }
+            ],
+            "note": "구체적 날짜는 규정에 없음. 2026-10-23 자치법규정보시스템 현행본."
+          }
+        ],
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": [
+          {
+            "status": "KNOWN",
+            "value": "보수 외에 중식비·교통비를 지급하고 급여대장을 갖추어 관리(금액은 규정에 없음)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2015,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-elis-gyeonggi-sbm-rule",
+                "locator": "제19조(보수지급) 제2항",
+                "quote": "② 복무기관장은 제1항의 규정에 의한 보수 외에 중식비, 교통비를 지급하되 급여대장을 갖추어 두고, 관리하여야 한다."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "local-gyeongnam-hadong",
+      "name": "경상남도 하동군",
+      "type": "LOCAL_GOV",
+      "region": "경남",
+      "aliases": ["하동군청"],
+      "scopeNote": "하동군에 배정되어 복무하는 사회복무요원(제1조·제2조). 자치법규정보시스템 현행본(시행 2023.02.13, 훈령 제389호).",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_METHOD": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "매월 하동군 공무원 보수지급일",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2023,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-elis-hadong-sbm-rule",
+                "locator": "제23조(보수지급) 제1항",
+                "quote": "① 사회복무요원의 월 보수는 주무부서에서 회계절차에 의거 매월 하동군 공무원 보수지급일에 지급하여야 한다."
+              }
+            ],
+            "note": "2026-10-23 자치법규정보시스템 현행본"
+          }
+        ],
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": [
+          {
+            "status": "KNOWN",
+            "value": "예산의 범위에서 보수 외에 중식비와 교통비 지급(금액은 규정에 없음)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2023,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-elis-hadong-sbm-rule",
+                "locator": "제23조(보수지급) 제2항",
+                "quote": "② 주무부서에서는 예산의 범위에서 보수 외에 중식비와 교통비를 지급하여야 한다."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "local-gyeongnam-uiryeong",
+      "name": "경상남도 의령군",
+      "type": "LOCAL_GOV",
+      "region": "경남",
+      "aliases": ["의령군청"],
+      "scopeNote": "의령군 공익근무요원(현 사회복무요원) 복무관리규정. 자치법규정보시스템 현행본(시행 2015.09.17). 옛 명칭(공익근무요원) 그대로임.",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_METHOD": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "매월 의령군 공무원 보수지급기일",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2015,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-elis-uiryeong-sbm-rule",
+                "locator": "제24조(보수지급) 제1항",
+                "quote": "① 공익근무요원의 월보수는 주무부서에서 회계절차에 의거 매월 의령군 공무원 보수지급기일에 지급하여야 한다."
+              }
+            ],
+            "note": "2026-10-23 자치법규정보시스템 현행본; 규정은 옛 명칭 \"공익근무요원\" 사용"
+          }
+        ],
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": {
+          "status": "UNKNOWN"
+        }
+      }
+    },
+    {
+      "id": "edu-jeju-student-culture-center",
+      "name": "제주특별자치도교육청 제주학생문화원",
+      "type": "EDUCATION_OFFICE",
+      "region": "제주",
+      "aliases": ["제주학생문화원"],
+      "scopeNote": "제주특별자치도교육청 직속기관 제주학생문화원 소속 사회복무요원(2026 본예산 2명)",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 9000,
+            "valueKind": "BUDGET_UNIT_PRICE",
+            "effectiveYear": 2026,
+            "confidence": "MEDIUM",
+            "evidence": [
+              {
+                "sourceId": "src-jje-sechul-2026",
+                "locator": "PDF p.628 (인쇄 p.708) [제주학생문화원] 카. 사회복무요원관리",
+                "quote": "카. 사회복무요원관리 35,096 1) 보수 310보전금 1,245,000원×2명×12월= 29,880 2) 급량비 310보전금 9,000원×2명×220일= 3,960"
+              }
+            ],
+            "note": "급량비 산출기초, 220일 기준"
+          }
+        ],
+        "TRANSPORT_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 2400,
+            "valueKind": "BUDGET_UNIT_PRICE",
+            "effectiveYear": 2026,
+            "confidence": "MEDIUM",
+            "evidence": [
+              {
+                "sourceId": "src-jje-sechul-2026",
+                "locator": "PDF p.628 (인쇄 p.708) [제주학생문화원] 카. 사회복무요원관리",
+                "quote": "2) 급량비 310보전금 9,000원×2명×220일= 3,960 3) 교통비 310보전금 2,400원×2명×220일= 1,056"
+              }
+            ],
+            "note": "교통비 산출기초, 220일 기준"
+          }
+        ],
+        "TRANSPORT_METHOD": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": {
+          "status": "UNKNOWN"
+        },
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": {
+          "status": "UNKNOWN"
+        }
+      }
+    },
+    {
+      "id": "edu-jeju-seogwipo-student-culture-center",
+      "name": "제주특별자치도교육청 서귀포학생문화원",
+      "type": "EDUCATION_OFFICE",
+      "region": "제주",
+      "aliases": ["서귀포학생문화원"],
+      "scopeNote": "제주특별자치도교육청 직속기관 서귀포학생문화원 소속 사회복무요원(2026 본예산 1명)",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 9000,
+            "valueKind": "BUDGET_UNIT_PRICE",
+            "effectiveYear": 2026,
+            "confidence": "MEDIUM",
+            "evidence": [
+              {
+                "sourceId": "src-jje-sechul-2026",
+                "locator": "PDF p.630 (인쇄 p.710) [서귀포학생문화원] 다. 사회복무요원급여",
+                "quote": "다. 사회복무요원급여 17,784 1) 급여 310보전금 1,217,000원×1명×12월= 14,604 2) 중식비 310보전금 9,000원×1명×250일= 2,250"
+              }
+            ],
+            "note": "중식비 산출기초, 250일 기준"
+          }
+        ],
+        "TRANSPORT_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 2400,
+            "valueKind": "BUDGET_UNIT_PRICE",
+            "effectiveYear": 2026,
+            "confidence": "MEDIUM",
+            "evidence": [
+              {
+                "sourceId": "src-jje-sechul-2026",
+                "locator": "PDF p.630 (인쇄 p.710) [서귀포학생문화원] 다. 사회복무요원급여",
+                "quote": "2) 중식비 310보전금 9,000원×1명×250일= 2,250 3) 교통비 310보전금 2,400원×1명×250일= 600"
+              }
+            ],
+            "note": "교통비 산출기초, 250일 기준"
+          }
+        ],
+        "TRANSPORT_METHOD": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": {
+          "status": "UNKNOWN"
+        },
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": {
+          "status": "UNKNOWN"
+        }
+      }
+    },
+    {
+      "id": "school-jeju-youngji",
+      "name": "제주영지학교",
+      "type": "OTHER",
+      "region": "제주",
+      "aliases": [],
+      "scopeNote": "제주특별자치도교육청 소속 공립 특수학교 제주영지학교 학교회계(사회복무요원 22명 편성)",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 8000,
+            "valueKind": "BUDGET_UNIT_PRICE",
+            "effectiveYear": 2025,
+            "confidence": "MEDIUM",
+            "evidence": [
+              {
+                "sourceId": "src-youngji-budget-2025",
+                "locator": "세출예산명세서 / 2.사회복무요원인건비 / 1.기간제근로자인건비",
+                "quote": "(목적)사회복무요원 식비 : 8,000원*22명"
+              }
+            ],
+            "note": "식비 8,000원×22명×20일×12월. 같은 항목의 별도 '급량비 8,000원*3명*20일*12월'은 용도가 문서에 적혀 있지 않다."
+          }
+        ],
+        "TRANSPORT_DAILY_AMOUNT": [
+          {
+            "status": "KNOWN",
+            "value": 2400,
+            "valueKind": "BUDGET_UNIT_PRICE",
+            "effectiveYear": 2025,
+            "confidence": "MEDIUM",
+            "evidence": [
+              {
+                "sourceId": "src-youngji-budget-2025",
+                "locator": "세출예산명세서 / 2.사회복무요원인건비 / 1.기간제근로자인건비",
+                "quote": "(목적)사회복무요원 교통비 : 2,400원*22"
+              }
+            ],
+            "note": "교통비 2,400원×22명×20일×12월"
+          }
+        ],
+        "TRANSPORT_METHOD": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": {
+          "status": "UNKNOWN"
+        },
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": {
+          "status": "UNKNOWN"
+        }
+      }
+    },
+    {
+      "id": "local-jeju-jejusi",
+      "name": "제주특별자치도 제주시",
+      "type": "LOCAL_GOV",
+      "region": "제주",
+      "aliases": ["제주시청"],
+      "scopeNote": "제주시(행정시) 주민복지과가 일괄 지급하는 보건복지분야 사회복무요원(제주시 소관 사회복지시설, 동부보건소 등 근무) 보상금 지급 결재 기록. 시청 행정분야 부서·읍면동 근무 요원의 지급 문서는 공개 원문에서 찾지 못함.",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_METHOD": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "익월 10일 전후 계좌이체 지급 (월별 단건 결재 기록 = single instances, 지급일 규정은 미확인)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-jjs-sbw-pay-2026-08",
+                "locator": "p.1 마. 지급일",
+                "quote": "제주시 소관 사회복지시설에서 근무하고 있는 보건복지분야 사회복무요원 8월분 인건비를"
+              },
+              {
+                "sourceId": "src-jjs-sbw-pay-2026-08",
+                "locator": "p.1 라·마",
+                "quote": "라. 지출방법: 계좌이체\n 마. 지 급 일: 2026. 9. 10.(목)"
+              },
+              {
+                "sourceId": "src-jjs-sbw-pay-2026-07",
+                "locator": "p.1 라·마",
+                "quote": "라. 지출방법: 계좌이체\n 마. 지 급 일: 2026. 8. 10.(월)"
+              },
+              {
+                "sourceId": "src-jjs-sbw-pay-2026-04",
+                "locator": "p.1 마",
+                "quote": "마. 지 급 일: 2026. 5. 8.(금)"
+              },
+              {
+                "sourceId": "src-jjs-sbw-pay-2026-01",
+                "locator": "p.1 마",
+                "quote": "마. 지 출 일: 2026. 2. 10.(화)"
+              },
+              {
+                "sourceId": "src-jjs-sbw-pay-2025-10",
+                "locator": "p.1 마",
+                "quote": "마. 지출예정일 : 2025. 11. 10.(월)"
+              }
+            ],
+            "note": "보건복지분야 사회복무요원(제주시 소관 사회복지시설·동부보건소 등) 보상금을 제주시 주민복지과가 일괄 지급한 월별 결재문서들. 각 문서는 단건(single instance) 지급 기록이며 지급일을 정한 규정은 공개 문서에서 확인되지 않음."
+          }
+        ],
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": [
+          {
+            "status": "KNOWN",
+            "value": "보상금(인건비)은 예산과목 '사회복무제도지원(전환사업)·일반보전금·사회복무요원보상금'에서 시 주민복지과가 계좌이체로 일괄 지급 (월별 단건 결재 기록)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2026,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-jjs-sbw-pay-2026-07",
+                "locator": "p.1 1·2·바",
+                "quote": "2. 2026년도 보건복지분야 사회복무요원 7월분 인건비를 아래와 같이 지급하겠습니다."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "public-gnuh",
+      "name": "경상국립대학교병원",
+      "type": "PUBLIC_INSTITUTION",
+      "region": "경남",
+      "aliases": ["경상대병원"],
+      "scopeNote": "제1조(목적) 「이 규정은 경상국립대학교병원(이하 “병원”이라 한다)에서 사회복무요원으로 근무하는 자의 복무관리 등에 관한 사항을 규정함을 목적으로 한다.」",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_METHOD": [
+          {
+            "status": "KNOWN",
+            "value": "실비",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2021,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-gnuh-sbjm-2021",
+                "locator": "제9조(보수 등) ①",
+                "quote": "사회복무요원의 보수는 매년 공무원보수규정에 의한 군인의 봉급표 및 제수당규정에 의거 지급하며, 중식비와 교통비를 실비로 지급 한다."
+              }
+            ]
+          }
+        ],
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": {
+          "status": "UNKNOWN"
+        },
+        "WORK_DAYS_RULE": {
+          "status": "UNKNOWN"
+        },
+        "OTHER": [
+          {
+            "status": "KNOWN",
+            "value": "중식비 실비 지급(금액 미기재)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2021,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-gnuh-sbjm-2021",
+                "locator": "제9조(보수 등) ①",
+                "quote": "중식비와 교통비를 실비로 지급 한다."
+              }
+            ],
+            "note": "중식비 1일 금액은 규정에 없음"
+          }
+        ]
+      }
+    },
+    {
+      "id": "public-hf",
+      "name": "한국주택금융공사",
+      "type": "PUBLIC_INSTITUTION",
+      "region": null,
+      "aliases": ["주택금융공사"],
+      "scopeNote": "제1조(목적) 「…한국주택금융공사(이하 “공사”라 한다)에 배정되어 복무하는 사회복무요원의 복무관리 및 운영 등에 필요한 사항을 정함을 목적으로 한다.」 제2조 「“복무부점”이란 사회복무요원이 배정되어 복무하게 되는 근무지로서 공사의 각 부점을 말한다.」",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_METHOD": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "공사 직원의 보수지급일과 같음",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2016,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-hf-sbjm-2016",
+                "locator": "제15조(보수 지급) ①",
+                "quote": "사회복무요원의 보수는「공무원보수규정」의 군인의 봉급표에 따라 지급하며, 그 지급일은 공사 직원의 보수지급일과 같다."
+              }
+            ]
+          }
+        ],
+        "WORK_DAYS_RULE": [
+          {
+            "status": "KNOWN",
+            "value": "교통비·중식비는 근무일수에 비례하여 지급할 수 있음(금액은 총괄부서의 장이 별도 통지)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2016,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-hf-sbjm-2016",
+                "locator": "제15조(보수 지급) ②",
+                "quote": "②교통비와 중식비는 근무일수에 비례하여 지급할 수 있으며, 그 금액은 총괄부서의 장이 별도로 정하여 통지한 바에 따른다."
+              }
+            ],
+            "note": "1일 금액은 규정에 없음(별도 통지)"
+          }
+        ],
+        "OTHER": {
+          "status": "UNKNOWN"
+        }
+      }
+    },
+    {
+      "id": "public-sr",
+      "name": "주식회사 에스알",
+      "type": "PUBLIC_INSTITUTION",
+      "region": null,
+      "aliases": ["(주)에스알", "에스알"],
+      "scopeNote": "제1조(목적) 「…주식회사에스알(이하“회사”이라한다)에 배정되어복무하는사회복무요원의복무관리및운영등에필요한사항을정함을목적으로한다.」 제2조 「“근무지”란 영 제49조에 따라 배정받은 사회복무요원을 실제 배치하여 근무하게 되는 소속을 말한다.」",
+      "rules": {
+        "MEAL_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_DAILY_AMOUNT": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_METHOD": [
+          {
+            "status": "KNOWN",
+            "value": "실비(도보 등으로 출퇴근해도 대중교통 이용요금 기준 교통비 지급)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2021,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sr-sbjm-2021",
+                "locator": "p.11 제16조(보수지급) ②",
+                "quote": "지원부서장은 제1항에 따른 보수 외에 중식비와 교통비를 실비로 지급하여야 하며, 도보 등으로 출·퇴근하는 경우에도 대중교통 이용요금 기준 교통비를 지급한다."
+              }
+            ]
+          }
+        ],
+        "MEAL_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_LEAVE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "TRANSPORT_ON_ABSENCE": {
+          "status": "UNKNOWN"
+        },
+        "MEAL_ON_PARTIAL_DAY": {
+          "status": "UNKNOWN"
+        },
+        "ROUNDING": {
+          "status": "UNKNOWN"
+        },
+        "PAY_DAY": [
+          {
+            "status": "KNOWN",
+            "value": "월 보수지급일로 정해진 날",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2021,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sr-sbjm-2021",
+                "locator": "p.11 제16조(보수지급) ①",
+                "quote": "지원부서장은 월 보수지급일로 정해진 날에 사회복무요원에게다음과같이보수를지급하여야한다."
+              }
+            ]
+          }
+        ],
+        "WORK_DAYS_RULE": [
+          {
+            "status": "KNOWN",
+            "value": "야간근무자는 근무일수를 2일로 인정하여 지급",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2021,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sr-sbjm-2021",
+                "locator": "p.11 제16조(보수지급) ② 단서",
+                "quote": "다만, 제12조제1항에 따라 야간근무를 하는 사람은근무일수를2일로인정하여지급하여야한다."
+              }
+            ]
+          }
+        ],
+        "OTHER": [
+          {
+            "status": "KNOWN",
+            "value": "중식비 실비 지급(금액 미기재)",
+            "valueKind": "PAYMENT_RULE",
+            "effectiveYear": 2021,
+            "confidence": "HIGH",
+            "evidence": [
+              {
+                "sourceId": "src-sr-sbjm-2021",
+                "locator": "p.11 제16조(보수지급) ②",
+                "quote": "보수 외에 중식비와 교통비를 실비로 지급하여야 하며"
+              }
+            ]
+          }
+        ]
       }
     }
   ]

@@ -338,12 +338,12 @@ describe("end-to-end local workflow", () => {
         context,
       ),
     );
-    // The full-day leave on 9/10 still needs an allowance decision.
-    const pending = buildAppProjection(ready(store), profile, "2026-09-24");
-    expect(pending.compensation.total).toBeNull();
-    expect(pending.compensation.serviceDays?.undecidedDates).toEqual([
-      "2026-09-10",
-    ]);
+    // The full-day leave on 9/10 earns no allowances under the 병무청 공통
+    // 규정, so the month totals without a per-day decision.
+    const settled = buildAppProjection(ready(store), profile, "2026-09-24");
+    expect(settled.compensation.serviceDays?.undecidedDates).toEqual([]);
+    expect(settled.compensation.total).toBe(1_200_000 + 9000 * 19 + 2800 * 19);
+    // Recording the same decision explicitly changes nothing.
     await store.run((data, context) =>
       saveAttendanceMonth(
         data,
