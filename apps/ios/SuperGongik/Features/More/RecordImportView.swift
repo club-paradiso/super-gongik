@@ -113,6 +113,14 @@ struct RecordImportView: View {
         .sgGroupedChrome()
         .navigationTitle("기관 기록 가져오기")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if result != nil {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("저장 \(accepted.count + acceptedSnapshots.count)건") { Task { await commit() } }
+                        .disabled(accepted.isEmpty && acceptedSnapshots.isEmpty || model.isReadOnly)
+                }
+            }
+        }
         .fileImporter(isPresented: $importing,
                       allowedContentTypes: [.commaSeparatedText, .tabSeparatedText, .plainText, .text]) { picked in
             Task { await load(picked) }
@@ -136,12 +144,21 @@ struct RecordImportView: View {
             Section { SGNotice(.info, title: "한글 인코딩(CP949)으로 읽었어요.", message: "글자가 깨져 보이면 파일을 UTF-8 CSV로 다시 저장해 주세요.") }
                 .listRowBackground(Color.clear).listRowInsets(EdgeInsets())
         }
-        Section("복무 기록 \(result.preview.events.count)행 · 선택 \(accepted.count)") {
-            if result.preview.events.isEmpty {
+        let usable = result.preview.events.filter { $0.date != nil && $0.eventType != nil }
+        let skipped = result.preview.events.filter { $0.date == nil || $0.eventType == nil }
+        Section {
+            Button("선택한 \(accepted.count + acceptedSnapshots.count)건 저장") { Task { await commit() } }
+                .disabled(accepted.isEmpty && acceptedSnapshots.isEmpty || model.isReadOnly)
+                .frame(maxWidth: .infinity)
+        } footer: {
+            Text("아래 목록에서 켜 둔 행만 저장돼요. 겹치는지 판단할 수 없는 행과 경고가 있는 행은 기본으로 꺼 둬요. 직접 확인한 뒤 켜 주세요. 저장 전에는 아무것도 바뀌지 않아요.")
+        }
+        Section("가져올 복무 기록 \(usable.count)행 · 선택 \(accepted.count)") {
+            if usable.isEmpty {
                 Text("가져올 복무 기록을 찾지 못했어요. 날짜·복무상황 열이 있는 파일인지 확인해 주세요.")
                     .font(SGTypography.body).foregroundStyle(.sg(SGColor.textSecondary))
             }
-            ForEach(result.preview.events) { row in
+            ForEach(usable) { row in
                 let status = result.statuses[String(row.sourceRowIndex)]
                 Toggle(isOn: Binding(
                     get: { accepted.contains(row.sourceRowIndex) },
@@ -158,7 +175,23 @@ struct RecordImportView: View {
                         }
                     }
                 }
-                .disabled(row.date == nil || row.eventType == nil)
+            }
+        }
+        if !skipped.isEmpty {
+            Section {
+                DisclosureGroup("건너뛰는 행 \(skipped.count)개 (정상출근 등)") {
+                    ForEach(skipped) { row in
+                        VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
+                            Text(row.date ?? "날짜 없음").font(SGTypography.caption).monospacedDigit()
+                            if let message = row.warnings.first?.message {
+                                Text(message).font(SGTypography.caption)
+                                    .foregroundStyle(.sg(SGColor.textTertiary))
+                            }
+                        }
+                    }
+                }
+            } footer: {
+                Text("정상출근처럼 휴가·병가가 아닌 날이나 종류를 알 수 없는 행은 저장하지 않아요. 휴가 기록이 빠졌다면 해당 행의 종류 표기를 확인해 주세요.")
             }
         }
         if !result.preview.snapshots.isEmpty {
@@ -174,13 +207,6 @@ struct RecordImportView: View {
                     }
                 }
             }
-        }
-        Section {
-            Button("선택한 \(accepted.count + acceptedSnapshots.count)건 저장") { Task { await commit() } }
-                .disabled(accepted.isEmpty && acceptedSnapshots.isEmpty || model.isReadOnly)
-                .frame(maxWidth: .infinity)
-        } footer: {
-            Text("겹치는지 판단할 수 없는 행과 경고가 있는 행은 기본으로 선택하지 않아요. 직접 확인한 뒤 선택해 주세요.")
         }
     }
 

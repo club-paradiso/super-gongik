@@ -14983,7 +14983,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	const dateOnlySchema = string().refine(isDateOnly, "Dates must use a valid YYYY-MM-DD value.");
 	const sha256Schema = string().regex(/^[0-9a-f]{64}$/);
 	/**
-	* zod's .url() builds a \`URL\`, which JavaScriptCore (the iOS bundle) does
+	* zod's .url() builds a URL, which JavaScriptCore (the iOS bundle) does
 	* not provide, so the registry would fail to parse there. A plain http(s)
 	* prefix check stands in for it (some stored links carry download hints
 	* after the address).
