@@ -1,6 +1,7 @@
 export * from "./bundles";
 export * from "./calculation";
 export * from "./compensation";
+export * from "./institution-suggestions";
 export * from "./leave";
 export * from "./leave-credits";
 export * from "./monthly-compensation";

@@ -28,6 +28,7 @@ export function userDataWithProfile(
       expectedDischargeDate: "2028-02-03",
       serviceCategory: null,
       workplaceType: null,
+      institutionName: null,
       defaultCommuteCost: null,
       defaultMealAllowanceOverride: null,
       timezone: "Asia/Seoul",

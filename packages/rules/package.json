@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./institutions": "./src/institutions.ts"
   },
   "scripts": {
     "lint": "eslint src tests --config ../../eslint.config.mjs --max-warnings=0",

@@ -72,10 +72,10 @@ struct RecordImportView: View {
                     Button {
                         importing = true
                     } label: {
-                        Label(result == nil ? "파일 선택 (CSV·TSV)" : "다른 파일 선택", systemImage: "doc.badge.plus")
+                        Label(result == nil ? "파일 선택 (PDF·CSV·TSV)" : "다른 파일 선택", systemImage: "doc.badge.plus")
                     }
                 } footer: {
-                    Text("기관에서 받은 복무상황 파일을 CSV나 TSV로 저장해 선택하세요. 미리보기에서 확인한 행만 저장해요. XLSX·HWP·PDF는 아직 웹 슈퍼공익에서 가져올 수 있어요.")
+                    Text("기관에서 받은 복무상황 PDF나 CSV·TSV 파일을 선택하세요. 글자가 들어 있는 PDF는 표를 바로 읽어요. 미리보기에서 확인한 행만 저장해요. 스캔한 PDF와 XLSX·HWP는 아직 웹 슈퍼공익에서 가져올 수 있어요.")
                 }
 
                 if let result {
@@ -113,8 +113,16 @@ struct RecordImportView: View {
         .sgGroupedChrome()
         .navigationTitle("기관 기록 가져오기")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if result != nil {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("저장 \(accepted.count + acceptedSnapshots.count)건") { Task { await commit() } }
+                        .disabled(accepted.isEmpty && acceptedSnapshots.isEmpty || model.isReadOnly)
+                }
+            }
+        }
         .fileImporter(isPresented: $importing,
-                      allowedContentTypes: [.commaSeparatedText, .tabSeparatedText, .plainText, .text]) { picked in
+                      allowedContentTypes: [.pdf, .commaSeparatedText, .tabSeparatedText, .plainText, .text]) { picked in
             Task { await load(picked) }
         }
         .confirmationDialog("이 파일에서 가져온 기록을 취소할까요?", isPresented: Binding(
@@ -136,12 +144,21 @@ struct RecordImportView: View {
             Section { SGNotice(.info, title: "한글 인코딩(CP949)으로 읽었어요.", message: "글자가 깨져 보이면 파일을 UTF-8 CSV로 다시 저장해 주세요.") }
                 .listRowBackground(Color.clear).listRowInsets(EdgeInsets())
         }
-        Section("복무 기록 \(result.preview.events.count)행 · 선택 \(accepted.count)") {
-            if result.preview.events.isEmpty {
+        let usable = result.preview.events.filter { $0.date != nil && $0.eventType != nil }
+        let skipped = result.preview.events.filter { $0.date == nil || $0.eventType == nil }
+        Section {
+            Button("선택한 \(accepted.count + acceptedSnapshots.count)건 저장") { Task { await commit() } }
+                .disabled(accepted.isEmpty && acceptedSnapshots.isEmpty || model.isReadOnly)
+                .frame(maxWidth: .infinity)
+        } footer: {
+            Text("아래 목록에서 켜 둔 행만 저장돼요. 겹치는지 판단할 수 없는 행과 경고가 있는 행은 기본으로 꺼 둬요. 직접 확인한 뒤 켜 주세요. 저장 전에는 아무것도 바뀌지 않아요.")
+        }
+        Section("가져올 복무 기록 \(usable.count)행 · 선택 \(accepted.count)") {
+            if usable.isEmpty {
                 Text("가져올 복무 기록을 찾지 못했어요. 날짜·복무상황 열이 있는 파일인지 확인해 주세요.")
                     .font(SGTypography.body).foregroundStyle(.sg(SGColor.textSecondary))
             }
-            ForEach(result.preview.events) { row in
+            ForEach(usable) { row in
                 let status = result.statuses[String(row.sourceRowIndex)]
                 Toggle(isOn: Binding(
                     get: { accepted.contains(row.sourceRowIndex) },
@@ -158,7 +175,23 @@ struct RecordImportView: View {
                         }
                     }
                 }
-                .disabled(row.date == nil || row.eventType == nil)
+            }
+        }
+        if !skipped.isEmpty {
+            Section {
+                DisclosureGroup("건너뛰는 행 \(skipped.count)개 (정상출근 등)") {
+                    ForEach(skipped) { row in
+                        VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
+                            Text(row.date ?? "날짜 없음").font(SGTypography.caption).monospacedDigit()
+                            if let message = row.warnings.first?.message {
+                                Text(message).font(SGTypography.caption)
+                                    .foregroundStyle(.sg(SGColor.textTertiary))
+                            }
+                        }
+                    }
+                }
+            } footer: {
+                Text("정상출근처럼 휴가·병가가 아닌 날이나 종류를 알 수 없는 행은 저장하지 않아요. 휴가 기록이 빠졌다면 해당 행의 종류 표기를 확인해 주세요.")
             }
         }
         if !result.preview.snapshots.isEmpty {
@@ -175,13 +208,6 @@ struct RecordImportView: View {
                 }
             }
         }
-        Section {
-            Button("선택한 \(accepted.count + acceptedSnapshots.count)건 저장") { Task { await commit() } }
-                .disabled(accepted.isEmpty && acceptedSnapshots.isEmpty || model.isReadOnly)
-                .frame(maxWidth: .infinity)
-        } footer: {
-            Text("겹치는지 판단할 수 없는 행과 경고가 있는 행은 기본으로 선택하지 않아요. 직접 확인한 뒤 선택해 주세요.")
-        }
     }
 
     private func amount(_ row: Candidate) -> String {
@@ -197,26 +223,44 @@ struct RecordImportView: View {
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
         guard let data = try? Data(contentsOf: url), data.count <= 10 * 1024 * 1024 else {
-            notice = (.danger, "파일을 읽지 못했어요. 10MB 이하의 CSV·TSV 파일인지 확인해 주세요.")
+            notice = (.danger, "파일을 읽지 못했어요. 10MB 이하의 PDF·CSV·TSV 파일인지 확인해 주세요.")
             return
-        }
-        let text: String
-        if let utf8 = String(data: data, encoding: .utf8) {
-            text = utf8
-            usedLegacyEncoding = false
-        } else {
-            let cp949 = CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.dosKorean.rawValue))
-            guard let legacy = String(data: data, encoding: String.Encoding(rawValue: cp949)) else {
-                notice = (.danger, "글자를 읽지 못했어요. 파일을 UTF-8 CSV로 다시 저장해 주세요.")
-                return
-            }
-            text = legacy
-            usedLegacyEncoding = true
         }
         fileName = url.lastPathComponent
         let sha = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+        let isPDF = url.pathExtension.lowercased() == "pdf" || data.starts(with: Array("%PDF".utf8))
         do {
-            let json = try await runtime.callJSONAsync("importPreview", [text, fileName, sha])
+            let json: Data
+            if isPDF {
+                usedLegacyEncoding = false
+                let items: [PDFRecordText.Item]
+                do {
+                    items = try PDFRecordText.items(from: data)
+                } catch PDFRecordText.Failure.noText {
+                    notice = (.warning, "글자를 읽을 수 없는 스캔 PDF예요. 웹 슈퍼공익에서 OCR로 가져오거나, 기관에 CSV·텍스트 PDF를 요청해 주세요.")
+                    return
+                } catch {
+                    notice = (.danger, "PDF를 열지 못했어요. 암호가 걸렸거나 손상된 파일인지 확인해 주세요.")
+                    return
+                }
+                let itemsJSON = String(data: try JSONEncoder().encode(items), encoding: .utf8) ?? "[]"
+                json = try await runtime.callJSONAsync("importPreviewPdf", [itemsJSON, fileName, sha])
+            } else {
+                let text: String
+                if let utf8 = String(data: data, encoding: .utf8) {
+                    text = utf8
+                    usedLegacyEncoding = false
+                } else {
+                    let cp949 = CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.dosKorean.rawValue))
+                    guard let legacy = String(data: data, encoding: String.Encoding(rawValue: cp949)) else {
+                        notice = (.danger, "글자를 읽지 못했어요. 파일을 UTF-8 CSV로 다시 저장해 주세요.")
+                        return
+                    }
+                    text = legacy
+                    usedLegacyEncoding = true
+                }
+                json = try await runtime.callJSONAsync("importPreview", [text, fileName, sha])
+            }
             let value = try JSONValue(data: json)
             rawPreview = value["preview"]
             result = try JSONDecoder().decode(Result.self, from: json)

@@ -1,0 +1,4811 @@
+
+<!--  IE9 이상인 경우 표출 시작 -->
+<!DOCTYPE html>
+<html lang="ko">
+	
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0" />
+		
+		<title>보수 및 권익보장 - 사회복무요원복무안내 - 사회복무요원 - 복무제도 - 병역이행안내 - 병무청</title>
+
+		<link type="text/css" href="/css/syjy/template.css" rel="stylesheet" />
+		<link href="/css/jQuery/jquery-ui-1.8.16.custom.css" rel="StyleSheet" type="text/css" />
+
+		<!--  IE9 이상인 경우 표출 시작 -->
+		<link type="text/css" href="/css/syjy/sub.css" rel="stylesheet" />
+		<link type="text/css" href="/css/syjy/sub_content.css" rel="stylesheet" />
+	
+
+		<script src="/js/jquery-1.12.4.min.js"></script>
+		<script src="/js/sns_shareNew.js"></script>
+		
+			<script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
+		
+		<!-- common.js 삭제시 Tab함수 및 Tab_2함수 작동불가!!삭제하지 말것! -->
+		<script src="/js/syjy/common.js"></script>
+		<script src="/js/syjy/base.js"></script>
+		<!-- common.js 삭제시 Tab함수 및 Tab_2함수 작동불가!!삭제하지 말것! -->
+		<script src='/js/date.js'></script>
+		<script src='/js/jquery-ui.min.js'></script>
+		<!-- 모바일 구분 -->
+		<script src="/js/mobile.js"></script>
+
+		<style>
+			.embed-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; }
+			.embed-container iframe, .embed-container object, .embed-container embed { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+		</style>
+
+		<!--[if lt IE 9]>
+		<script src="/js/syjy/html5.js"></script>
+			<![endif]-->
+		<!--[if lt IE 7]>
+		<script src="/js/syjy/IE8.js"></script>
+		<![endif]-->
+		
+		<script>
+			Kakao.init('d2405e88a51fa31cdc0b9b1b275c1925');
+		</script>
+		
+		<script>
+			//<![CDATA[
+
+			$(document).ready(function(){
+				//모바일여부에 따라 전화걸기 , 메세지 보내기 넣음
+				//isMobile($("#minwonTel"),$("#minwonSms"));
+				//탭스타일 적용
+				if(true){
+					$('.tab_common li').removeClass('on');
+					$('#mma0000910').addClass('on');
+				}
+				if(true){
+					$('.tab_common li:eq(6)').addClass("on");
+				}
+				document.getElementById('gtuigyeon_cn').value = '기타 의견을 100자 내외로 적어주세요.';
+				f_menuPersonInCharge('mma0000910');
+			});
+
+			// 병무 민원상담 담당자 정보 가져오기
+			function f_menuPersonInCharge(mc) {
+				var url = '/syjy/selectMenuPersonInCharge.json';
+				var param = {mc : mc};
+				$.ajax({
+					url: url,
+					data: param,
+					type: 'post',
+					success: function(data) {
+						if(data.resultVO != null && data.resultVO !=""){
+							if(data.resultVO.jikwon_open_yn != "N"){
+								if(data.resultVO.cjdatabyeongyeong_dtm == null ||data.resultVO.cjdatabyeongyeong_dtm ==""){
+									$('#cjdatabyeongyeong_dtm').hide();
+								}else{
+									$('#cjdatabyeongyeong_dtm').append(data.resultVO.cjdatabyeongyeong_dtm.substr(0,10));
+								}
+								if(data.resultVO.jikwon_fnm == null ||data.resultVO.jikwon_fnm ==""){
+									$('#ddjikwon_fnm').hide();
+									//$('#ddjikwon_fnm').append("관리자");
+									$('#ddbuseo_nm').hide();
+								}else{
+									$('#ddbuseo_nm').append(data.resultVO.buseo_nm);
+									$('#ddjikwon_fnm').append(data.resultVO.jikwon_fnm+'('+data.resultVO.jeonhwa_no+')');
+								}
+							}else{
+								$('#cjdatabyeongyeong_dtm').hide();
+								$('#ddjikwon_fnm').hide();
+								$('#ddbuseo_nm').hide();
+							}
+						}else{
+							$('#cjdatabyeongyeong_dtm').hide();
+							$('#ddjikwon_fnm').hide();
+							//$('#ddjikwon_fnm').append("관리자");
+							$('#ddbuseo_nm').hide();
+						}
+					}
+				});
+			}
+
+			// 의견사항 Text 내용
+			function gtuigyeonChk(){
+				var gtuigyeonval = $('#gtuigyeon_cn').val();
+				if(gtuigyeonval == ''){
+					document.getElementById('gtuigyeon_cn').value = '기타 의견을 100자 내외로 적어주세요.';
+				}else if(gtuigyeonval == '기타 의견을 100자 내외로 적어주세요.'){
+					document.getElementById('gtuigyeon_cn').value = '';
+				}
+			}
+
+			// 만족도 반영
+			function manjokdoInsert() {
+				var i, cnt = 0;
+				var manjokdocd = document.getElementsByName("manjokdo_cd");
+
+				for(i=0; i<manjokdocd.length; i++){
+					if(manjokdocd[i].checked == true){
+						cnt++;
+						break;
+					}
+				}
+				if(cnt==0){
+					alert("만족도를 선택해 주세요");
+					return false;
+				}
+				var gtuigyeonval = $('#gtuigyeon_cn').val();
+				if(gtuigyeonval == ''){
+					document.getElementById('gtuigyeon_cn').value = '기타 의견을 100자 내외로 적어주세요.';
+				}else if(gtuigyeonval == '기타 의견을 100자 내외로 적어주세요.'){
+					document.getElementById('gtuigyeon_cn').value = '';
+				}
+				var manjokdo_cd = $(':radio[name="manjokdo_cd"]:checked').val();
+				var url = '/insertSatisfaction.json';
+				var menu_id = 'mma0000910';
+				var param = {
+						manjokdo_cd : manjokdo_cd,
+						gtuigyeon_cn : gtuigyeonval,
+						menu_id : menu_id
+					};
+				$.ajax({
+					url: url,
+					data: param,
+					dataType : 'json',
+					type: 'post',
+					success: function(data) {
+						alert("만족도에 참여해 주셔서 감사합니다.");
+						for(i=0; i<manjokdocd.length; i++){
+							if(manjokdocd[i].checked == true){
+								manjokdocd[i].checked = false;
+							}
+						}
+						document.getElementById('gtuigyeon_cn').value = '기타 의견을 100자 내외로 적어주세요.';
+					},
+					error : function(xhr, option, error) {
+						alert("등록 중 오류가 발생했습니다.");
+					}
+				});
+			}
+			/* 상단 메뉴 */
+			$('#nav > ul > li').mouseenter(function(){
+				$(this).addClass('on');
+				$(this).find('div').stop().delay(400).slideDown('400', 'swing');
+				$('#top_menu_text').slideUp(500);
+				$('.rightMenuImg').attr('src','/images/syjy/common/gnb_top_bt_up.gif');
+				$('.rightMenuImg1').attr('src','/images/syjy/common/gnb_m_top_bt_up.gif');
+			});
+
+			$('#nav > ul > li').mouseleave(function(){
+				$(this).removeClass('on');
+				$(this).find('div').stop(true, true).hide();
+			});
+
+			$('#nav > ul > li > a').focus(function(){
+			$('#nav > ul > li').find('div').removeClass('on');
+				$(this).siblings('div').addClass('on');
+			});
+
+			$('#nav > ul > li > div a:last-child').blur(function(){
+				$(this).siblings('div').removeClass('on');
+			});
+
+
+			$('.mainfocusLastPoint').focusout(function(){
+				$('#nav > ul > li').find('div').removeClass('on');
+
+			});
+
+			//]]>
+		</script>
+	</head>
+	<body>
+		<div id="krds-masthead">
+			<div class="toggle-wrap">
+				<div class="toggle-head">
+					<div class="inner mma-max-width">
+						<span class="nuri-txt">이 누리집은 대한민국 공식 전자정부 누리집입니다.</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="wrap">
+			<div id="krds-header" class="clearfix">
+				<header>
+						<div id="accessibility">
+							<a href="#secrion">콘텐츠로 바로가기</a>
+							<a href="#nav">대메뉴로 바로가기</a>
+						</div>
+						
+						
+
+<link type="text/css" rel="stylesheet" href="/resources/css/common/common.css"/>
+<link type="text/css" rel="stylesheet" href="/resources/css/component/component.css"/>
+
+
+
+
+<script src="/resources/js/component/ui-script.js"></script>
+<script src="/resources/js/plugin/swiper-bundle.min.js"></script>
+
+
+<!-- 20250709 이기광 : KRDS Footer -->
+<!-- footer -->
+
+<!-- //masthead -->
+<!-- header -->
+	<!-- 헤더 컨텐츠 영역  -->
+	
+		<div class="header-in">
+			<!-- 헤더 상단 기타메뉴 -->
+			<div class="header-container">
+				<div class="inner mma-max-width">
+					
+					<div class="header-utility utility-nonm" style="justify-content:flex-end;">
+						<ul class="utility-list">
+							<li>
+								<a href="/eng/index.do" class="krds-btn small text" target="_blank" title="새 창 열기">
+									ENGLISH <i class="svg-icon ico-go"></i>
+								</a>
+							</li>
+						</ul>		
+					</div>
+					<div class="header-branding">
+						
+							<div class="header-back">
+								<button onclick="history.back();"><img src="/images/syjy/common/back_img.png" alt="뒤로가기" /></button>
+							</div>
+						
+						<h2 class="logo">
+							<a href="/index.do">
+								<span class="sr-only">병무청 - Military Manpower Administration.</span>
+							</a>
+						</h2>
+						<div class="header-actions" >
+							<form name="searchForm" id="krds-search" method="post" action="https://search.mma.go.kr/mmasearch/search/entrySch.do" onsubmit="return f_search(document.searchForm); return false;" target="_blank">
+						        <ul class="search">
+						            <li id="virSch">
+						                <label for="search" class="skip skip_t">검색어입력란</label>
+						                <input type="hidden" id="eng_text" />
+						                <input type="hidden" id="han_text" />
+						                <input type="hidden" id="back_text" />
+						                <input type="search" id="search" title="검색어" class="text keyboardInput" name="qt" value="" placeholder="검색어를 입력하세요!"/>
+						            </li>
+						            <li style="float:right;"><button class="img btn-navi sch" title="통합검색 레이어" >통합검색</button></li>
+						        </ul>
+						    </form>
+							<button type="button" class="btn-navi all" aria-controls="mobile-nav">전체메뉴</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- //헤더 상단 기타메뉴 -->
+			<div id="nav" class="nav_m mma-menu">
+				<ul id="hide">
+					<li class="mainfocusLastPoint naviClose"  id="militaryService">
+						<button onclick="naviClick('militaryService')" class="mma-main-trigger">병역이행안내</button>
+						<div>
+							<ul>
+								<li class="" style="margin-top: -13px !important;">
+									<a href="/contents.do?mc=usr0000041">개요(총괄)</a>
+								</li>
+								<li class="menu1_1">
+									<a href="/contents.do?mc=usr0000042">병역이행일정안내</a>
+								</li>
+								<li class="menu1_2">
+									<a href="/contents.do?mc=mma0001998">병역면탈 예방 및 단속</a>
+								</li>
+								<li class="menu1_3">
+									<a href="/contents.do?mc=mma0003141">확인신체검사</a>
+								</li>
+								<li class="menu1_4">
+									<a href="/contents.do?mc=mma0002279">
+										병역기피자 등 병무사범<br />예방.단속
+									</a>
+								</li>
+								<li class="menu1_5">
+									 <a href="/contents.do?mc=usr0000043">병역준비역 편입</a>
+								</li>
+								<li class="menu1_6">
+									<a href="/contents.do?mc=usr0000167" >병역판정검사</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=usr0000167">병역판정검사 대상자</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0000975">검사과정 및 지참물</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0000976">과목·질환별 구비서류</a>
+										</li>
+		<!-- 								<li> -->
+		<!-- 									<a href="/contents.do?mc=mma0000977">진단서첨부를 하지 않아도 되는 질환</a> -->
+		<!-- 								</li> -->
+										<li>
+											<a href="http://www.law.go.kr/법령/병역판정신체검사등검사규칙" target="_blank" title="새 창으로 이동">병역판정신체검사 규칙(국방부령)</a>
+											<span class="new_windowN"></span>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000169">병역처분기준</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0001994">신체등급 판정기준</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0002218">신체등급판정 심의위원회 등 운영</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000170">우선병역판정검사</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000171">병역판정검사 일자연기</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000172">병역판정검사없이 신청에 의한 전시근로역,병역면제</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000173">질병·심신장애 및 학력에 의한 병역처분 변경원 출원</a>
+										</li>
+									</ul>
+								</li>
+								<li class="" style="margin-top: -13px !important;">
+									<a href="/contents.do?mc=usr0000139">재병역판정검사</a>
+								</li>
+								<li class="menu1_7">
+									<a href="/contents.do?mc=mma0002909">입영판정검사</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=mma0002909">입영판정검사란?</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0002910">입영판정검사 일자‧장소 변경 및 연기</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0002911">입영판정검사 신청</a>
+										</li>
+									</ul>
+								</li>
+								<li class="menu1_8">
+									<a href="/contents.do?mc=usr0000174" style="letter-spacing: -0.17em;">재학생(입영연기,입영원)</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=usr0000174">재학생 입영연기</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000175">학적 변동자 처리</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000176">재학생 입영원 출원</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0000691">재학생 입영원 취소 및 변경</a>
+										</li>
+									</ul>
+								</li>
+								<li class="menu1_9">
+									<a href="/contents.do?mc=mma0002458">슈퍼힘찬이</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=mma0002458">슈퍼힘찬이 프로젝트란</a>
+										</li>
+									</ul>
+								</li>
+								<li class="" style="margin-top: -13px !important;">
+									<a href="/contents.do?mc=mma0000728">복무제도</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=mma0000728">현역병,상근예비역</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0000744">사회복무요원</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0000752">예술체육요원</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0000760">전문연구,산업기능요원</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0000771">승선근무예비역</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0000777">특수병과사관후보생,공중 보건의사등</a>
+										</li>
+										<li>
+											<a href="/simsa/contents.do?mc=mma0002438" target="_blank" title="새 창으로 이동">대체복무요원</a>
+											<span class="new_windowN"></span>
+										</li>
+									</ul>
+								</li>
+								<li class="menu1_10">
+									<a href="/contents.do?mc=usr0000142">병역의무자 여비</a>
+								</li>
+								<li class="menu1_11">
+									<a href="/contents.do?mc=usr0000186">국외여행,국외체재</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=usr0000186">허가 절차 안내</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0000787">국외이주 목적 외 허가</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0000801">국외이주 허가</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0001993">국외여행허가 취소</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0000804">미귀국자 제재등</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0000807&amp;num=1">영주권자등 입영희망 신청 제도</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000193">복수국적과 병역의무</a>
+										</li>
+									</ul>
+								</li>
+								<li class="" style="margin-top: -13px !important; margin-left: -3px;">
+									<a href="/contents.do?mc=usr0000198" style="letter-spacing: -0.15em;">예비군편성 / 병력동원</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=usr0000198">예비군 편성</a>
+										</li>
+										<li>
+											<a href="https://www.yebigun1.mil.kr" target="_blank" title="새 창으로 이동">예비군 보류(해소)신청(국방부)</a>
+											<span class="new_windowN"></span>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000202">병력동원소집</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0002242">병력동원훈련소집</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0003402">자주하는 질문 모음(FAQ)</a>
+										</li>
+									</ul>
+								</li>
+								<li class="menu1_12">
+									<a href="/contents.do?mc=mma0003144">병역감면</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=mma0003144">제도 개요</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000209">생계유지 곤란사유 병역감면</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000210">수형사유 전시근로역 편입</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000211">고아사유 등 전시근로역 편입</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000212">귀화자사유 전시근로역 편입</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000213">전 공상자 가족의 보충역 편입 및 복무기간</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000214">성전환자 전시근로역 편입</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000215">군사분계선 이북지역 이주사유 병역면제</a>
+										</li>
+									</ul>
+								</li>
+								<li class="menu1_13">
+									<a href="/contents.do?mc=usr0000146" style="letter-spacing: -0.17em;">병적증명서 등 발급 안내</a>
+								</li>
+								<li class="menu1_14">
+									<a href="/contents.do?mc=mma0003143">병적별도관리제도</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=mma0003143">병적별도관리제도란</a>
+										</li>
+										<li>
+											<a href="https://e4c.mma.go.kr/caisYGSG" target="_blank" title="새 창으로 이동">병적별도관리 신고(대중문화예술인 및 체육선수)</a>
+											<span class="new_windowN"></span>
+										</li>
+									</ul>
+								</li>
+								<li class="menu1_15">
+									<a href="/contents.do?mc=usr0000147">병무청 지정병원</a>
+								</li>
+								<li class="menu1_16">
+									<a href="/contents.do?mc=usr0000216">찾아가는길</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=mma0002032">병역판정검사장 가는길</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0002049">입영부대 가는길</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0002083">군사교육소집부대 가는길</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0002096">동원 표준훈련장 가는길</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0002136">육군 전문특기병 전형평가장소 가는길</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000218">사회복무 연수센터 가는길</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0002315">사회복무요원 교육 집결지 가는 길</a>
+										</li>
+										<li class="mainfocusLastPoint">
+											<a href="/contents.do?mc=mma0002517">대체복무요원 소집장소 가는 길</a>
+										</li>
+									</ul>
+								</li>
+								<li class="menu1_17">
+									<a href="/contents.do?mc=mma0003356">나라사랑 가게</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=mma0003356">나라사랑 가게란?</a>
+										</li>
+										<li>
+											<a href="/about/udgg/list.do?mc=mma0003357">나라사랑 가게 조회</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0003358">나라사랑 가게 신청 안내</a>
+										</li>
+									</ul>
+								</li>
+								<li class="menu1_18">
+									<a href="/contents.do?mc=mma0003365">군번찾기 (민원신청)<br />안내</a>
+								</li>
+							</ul>
+						</div>
+					</li>
+					<li id="militarySupport" class="naviClose">
+		
+						<button onclick="naviClick('militarySupport')" class="mma-main-trigger">군지원(입영신청)안내</button>
+							<div>
+								<ul>
+									<li class="" style="margin-top: -13px !important;">
+										<a href="/contents.do?mc=mma0003746">군지원(입영신청)안내</a>
+										<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=mma0003746">안내 및 신청(지원)</a>
+										</li>
+										<li>
+											<a href="/board/boardView.do?gesipan_id=507&gsgeul_no=1521169&mc=mma0003311" target="_blank" title="새 창으로 이동">입영일자 본인선택 안내</a>
+											<span class="new_windowN"></span>
+										</li>
+										<li>
+											<a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22059" target="_blank" title="새 창으로 이동">현역/상근 민원신청</a>
+											<span class="new_windowN"></span>
+										</li>
+										<li>
+											<a href="/board/boardList.do?gesipan_id=69&mc=usr0000127" target="_blank" title="새 창으로 이동">모집병 지원 안내</a>
+											<span class="new_windowN"></span>
+										</li>
+										<li>
+											<a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22041" target="_blank" title="새 창으로 이동">지원서 작성/수정/취소</a>
+											<span class="new_windowN"></span>
+										</li>
+									</ul>
+									</li>
+									<li class="menu2_1">
+										<a href="/board/boardList.do?gesipan_id=69&amp;mc=usr0000127">모집안내서비스</a>
+										<ul class="skip_m">
+											<li>
+												<a href="/board/boardList.do?mc=usr0000127&amp;gesipan_id=69">공지사항</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000743">이달의 모집계획</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000386">안내 및 지원절차</a>
+											</li>
+										</ul>
+									</li>
+									<li class=""  style="margin-top: -13px !important;">
+										<a href="/contents.do?mc=mma0003479">군지원(입영신청)<br>담당자/주소</a>
+										<ul class="skip_m">
+											<li>
+												<a href="/contents.do?mc=mma0000814&amp;#anchor_address">서울지방병무청</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000815&amp;#anchor_address">부산&middot;울산지방병무청</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000816&amp;#anchor_address">대구&middot;경북지방병무청</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000817&amp;#anchor_address">경인지방병무청</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000818&amp;#anchor_address">광주&middot;전남지방병무청</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000819&amp;#anchor_address">대전&middot;충남지방병무청</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000820&amp;#anchor_address">강원지방병무청</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000821&amp;#anchor_address">충북지방병무청</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000822&amp;#anchor_address">전북지방병무청</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000823&amp;#anchor_address">경남지방병무청</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000824&amp;#anchor_address">제주지방병무청</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000980&amp;#anchor_address">인천병무지청</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000825&amp;#anchor_address">경기북부병무지청</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=mma0000826&amp;#anchor_address">강원영동병무지청</a>
+											</li>
+										</ul>
+									</li>
+									<li class="" style="margin-top: -13px !important;">
+										<a href="/board/boardList.do?mc=mma0002306&amp;gesipan_id=317">
+											자주하는 질문 모음<br />(FAQ)
+										</a>
+										<ul class="skip_m">
+											<li>
+												<a href="/board/boardList.do?mc=mma0002306&amp;gesipan_id=317">각 군 공통FAQ</a>
+											</li>
+											<li>
+												<a href="/board/boardList.do?mc=usr0000155&amp;gesipan_id=118">육군FAQ</a>
+											</li>
+											<li>
+												<a href="/board/boardList.do?mc=usr0000156&amp;gesipan_id=119">해군FAQ</a>
+											</li>
+											<li>
+												<a href="/board/boardList.do?mc=usr0000157&amp;gesipan_id=120">해병대FAQ</a>
+											</li>
+											<li>
+												<a href="/board/boardList.do?mc=usr0000158&amp;gesipan_id=121">공군FAQ</a>
+											</li>
+											<li>
+												<a href="/board/boardList.do?mc=mma0002277&amp;gesipan_id=314">취업맞춤특기병FAQ</a>
+											</li>
+										</ul>
+									</li>
+									<li class="menu2_5">
+										<a href="/board/boardList.do?gesipan_id=13&amp;mc=usr0000137">장교부사관등 지원</a>
+										<ul class="skip_m">
+											<li>
+												<a href="/board/boardList.do?mc=usr0000137&amp;gesipan_id=13">공지사항</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=usr0000292">모집 누리집 안내</a>
+											</li>
+										</ul>
+									</li>
+									<li class="" style="margin-top: -13px !important;">
+										<a href="/contents.do?mc=usr0000294">
+											입영 대상자가 알아야<br />할 사항
+										</a>
+										<ul class="skip_m">
+											<li>
+												<a href="/contents.do?mc=usr0000294">입영시 유의사항</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=usr0000295">현역병 선발취소 및 입영일자 연기신청</a>
+											</li>
+											<li>
+												<a href="/contents.do?mc=usr0000296">입영하기 전 건강관리</a>
+											</li>
+										 </ul>
+									</li>
+									<li class="menu2_2">
+										<a href="/contents.do?mc=mma0002343">
+											취업맞춤특기병<br />통합안내
+										</a>
+									</li>
+<!-- 									<li class="menu2_3 mainfocusLastPoint"> -->
+<!-- 										<a href="/contents.do?mc=mma0001939&amp;gesipan_id=268"> -->
+<!-- 											취업맞춤특기병<br />바로-콜서비스 -->
+<!-- 										</a> -->
+<!-- 									</li> -->
+								</ul>
+						</div>
+					</li>
+					<li id="publicPart" class="naviClose">
+		<!-- 					<a href="/board/epeopleList.do?mc=mma0002280&amp;gesipan_id=315">국민참여마당(집단지성)</a> -->
+						<button onclick="naviClick('publicPart')" class="mma-main-trigger">국민참여마당(집단지성)</button>
+						<div>
+							<ul>
+								<!-- 20250928 이기광 수정 : 국민생각함 숨김, 순서 변경 -->
+								<li class="" style="margin-top: -13px !important;">
+								    <a href="/board/epeopleList.do?mc=mma0002280&amp;gesipan_id=315">국민생각함</a>
+								</li>
+								<li class="menu3_1">
+									<a href="/iFrame.do?mc=mma0000870">정책참여</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/iFrame.do?mc=mma0000870">정책토론</a>
+										</li>
+										<li>
+											<a href="/iFrame.do?mc=mma0000915">설문조사</a>
+										</li>
+										<li>
+											<a href="/iFrame.do?mc=mma0000872">전자공청회</a>
+										</li>
+									</ul>
+								</li>
+								
+								<li class="" style="margin-top: -13px !important;">
+									<a href="/iFrame.do?mc=mma0000917&amp;num=1">국민제안마당</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/iFrame.do?mc=mma0000917">제안신청</a>
+										</li>
+										<li>
+											<a href="/iFrame.do?mc=mma0000918">공개제안</a>
+										</li>
+										<li>
+											<a href="/iFrame.do?mc=mma0000919">나의제안</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0003733">병무분야 정상화 과제 국민제안</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0000920">안내</a>
+										</li>
+									</ul>
+								</li>
+								<li class="menu3_2">
+									<a href="/contents.do?mc=mma0002231">규제혁신</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=mma0002231">규제혁신건의</a>
+										</li>
+										<li>
+											<a href="https://open.mma.go.kr/caisGGGS/board/boardList.do?menu_id=mma0000127&gesipan_id=36" target="_blank" title="새 창으로 이동">규제개혁 과제정보</a>
+											<span class="new_windowN"></span>
+										</li>
+									</ul>
+								</li>
+								<li class="" style="margin-top: -13px !important;">
+									<a href="/contents.do?mc=mma0002350">적극행정</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=mma0002350">제도 소개</a>
+										</li>
+										<li>
+											<a href="http://www.mpm.go.kr/proactivePublicService/recommand/intro/" target="_blank" title="새 창으로 이동">국민참여 적극행정</a>
+											<span class="new_windowN"></span>
+										</li>
+										<li>
+											<a href="https://www.epeople.go.kr/nep/pttn/negativePttn/NegativePttnCotents.npaid" target="_blank" title="새 창으로 이동">국민참여 소극행정</a>
+											<span class="new_windowN"></span>
+										</li>
+										<li>
+											<a href="http://www.mpm.go.kr/proactivePublicService" target="_blank" title="새 창으로 이동">적극행정 자료실(전부처)</a>
+											<span class="new_windowN"></span>
+										</li>
+										<li>
+											<a href="/board/boardList.do?mc=mma0002407&amp;gesipan_id=339">적극행정 자료실(병무청)</a>
+										</li>
+										<li>
+											<a href="/board/boardList.do?mc=mma0002453&amp;gesipan_id=349">적극행정 우수공무원</a>
+										</li>
+									</ul>
+								</li>
+								<li class="menu130">
+									<a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22250" target="_blank" title="새 창으로 이동">칭찬합시다</a>
+								</li>
+								<li class="menu131">
+									<a href="/board/boardList.do?mc=usr0000039&amp;gesipan_id=1">자유게시판</a>
+								</li>
+								<li class="menu133">
+									<a href="/board/boardList.do?gesipan_id=87&amp;mc=usr0000164">
+										누리집 개선<br />및 신고
+									</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/board/boardList.do?mc=usr0000164&amp;gesipan_id=87">누리집 오류신고</a>
+										</li>
+									</ul>
+								</li>
+								<li class="menu134 mainfocusLastPoint">
+									<a href="https://www.safetyreport.go.kr/api?apiKey=130000087I9U9KKXL893MAV6AEQ" target="_blank" title="새 창으로 이동">안전신문고</a>
+								</li>
+							</ul>
+						</div>
+					</li>
+					<li id="militaryNews" class="naviClose">
+		<!-- 					<a href="/board/boardList.do?mc=usr0000379&amp;gesipan_id=2">병무소식</a> -->
+						<button onclick="naviClick('militaryNews')" class="mma-main-trigger">병무소식</button>
+						<div>
+							<ul>
+								<li class="menu13" style="margin-top: -13px !important;">
+									<a href="/board/boardList.do?mc=usr0000379&amp;gesipan_id=2">공지사항</a>
+								</li>
+		<!-- 							<li class="menu13_1"> -->
+		
+		<!-- 							</li> -->
+								<li class="menu15">
+									<a href="/board/boardList.do?gesipan_id=15&amp;mc=mma0000392">보도·설명자료</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/board/boardList.do?mc=mma0000392&amp;gesipan_id=15">보도자료</a>
+										</li>
+										<li>
+											<a href="/board/boardList.do?mc=mma0000393&amp;gesipan_id=14">설명자료</a>
+										</li>
+									</ul>
+								</li>
+								<li class="menu4_1" style="margin-top: -13px !important;">
+									<a href="/board/boardList.do?mc=usr0000241&amp;gesipan_id=78">포토뉴스</a>
+								</li>
+								<li class="menu18" style="margin-top: -13px !important;">
+									<a href="/board/boardList.do?mc=mma0003729&amp;gesipan_id=573">주요 국정성과</a>
+								</li>
+								<li class="menu47">
+									<a href="/contents.do?mc=mma0003727">주요 국정성과 목록</a>
+								</li>
+								<li class="menu19" style="margin-top: -13px !important;">
+									<a href="/board/boardList.do?mc=usr0000242&amp;gesipan_id=125">달라지는 제도</a>
+								</li>
+								<li class="menu20" style="margin-top: -13px !important;">
+									<a href="/board/boardList.do?gesipan_id=16&amp;mc=usr0000053">지방청 소식</a>
+									<ul class="skip_m">
+										<li class="mainfocusLastPoint">
+											<a href="/board/boardList.do?mc=usr0000053&amp;gesipan_id=16">공지사항</a>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					</li>
+					<li id="militaryIntroduction" class="naviClose">
+		<!-- 					<a href="/contents.do?mc=usr0000246">병무청소개</a> -->
+						<button onclick="naviClick('militaryIntroduction')" class="mma-main-trigger">병무청소개</button>
+						<div>
+							<ul>
+								<li class="menu20" style="margin-top: -13px !important;">
+									<a href="/contents.do?mc=usr0000246">병무청 소개</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=usr0000246">병무행정 개요</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000249">연혁</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0003724">미션&middot;비전 체계</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0003725">정책목표</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000248">상징</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0003446">브랜드 소개</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000250">병무청 공무원의 행동강령</a>
+										</li>
+									</ul>
+								</li>
+								<li class="menu21">
+									<a href="/contents.do?mc=usr0000253">청·차장 소개</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/contents.do?mc=usr0000253">인사말</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000254">청장약력</a>
+										</li>
+										<li>
+											<a href="/boncheong/cheongjang/schedule.do?mc=mma0002408">청장일정</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000255">차장약력</a>
+										</li>
+										<li>
+											<a href="/contents.do?mc=usr0000256">역대 병무청장 소개</a>
+										</li>
+									</ul>
+								</li>
+								<!-- <li class="menu22" style="margin-top: -13px !important;">
+									 <a href="/contents.do?mc=usr0000258">병무청 비전</a>
+									 <ul class="skip_m">
+										  <li>
+												<a href="/contents.do?mc=usr0000258">비전 체계</a>
+										  </li>
+										  <li>
+												<a href="/contents.do?mc=usr0000259">비전의미</a>
+										  </li>
+										  <li>
+												<a href="/contents.do?mc=usr0000260">병무청 정책목표</a>
+										  </li>
+									 </ul>
+								</li> -->
+								<li class="menu22" style="margin-top: -13px !important;">
+									 <a href="/contents.do?mc=mma0001001">조직 및 직원안내</a>
+									 <ul class="skip_m">
+										  <li>
+												<a href="/contents.do?mc=mma0001001">조직안내</a>
+										  </li>
+										  <li>
+												<a href="/boncheong/staffList.do?mc=usr0000263">직원안내</a>
+										  </li>
+									 </ul>
+								</li>
+								<li class="menu24" style="margin-top: -13px !important;">
+									<a href="/about/cyber/public_main.do?mc=usr0000265">사이버홍보관</a>
+									<ul class="skip_m">
+										<li>
+											<a href="/about/cyber/public_main.do?mc=usr0000265">홍보관 메인</a>
+										</li>
+										<li>
+											<a href="/www_mma3/photo/photo2025/index.html" target="_blank" title="새창">사진으로 본 병무사</a>
+											<span class="new_windowN"></span>
+										</li>
+										<li>
+											<a href="/archives/index.html" target="_blank" title="새창">병무역사기록전시관</a>
+											<span class="new_windowN"></span>
+										</li>
+										<li>
+											<a href="/board/boardList.do?mc=usr0000270&amp;gesipan_id=164">청춘예찬(기관사보)</a>
+										</li>
+										<li>
+											<a href="https://youtu.be/NEcyhNjFRu8?si=nmXBH3OEVUehY7KP" target="_blank" title="새창">홍보영상</a>
+											<span class="new_windowN"></span>
+										</li>
+										<li>
+											<!-- <a href="/www_mma3/ucc/ucc2025/index.html" target="_blank" title="새창">병역이야기 공모전</a> -->
+											<a href="https://www.mma9090.kr" target="_blank" title="새창">병역이야기 공모전</a>
+											<span class="new_windowN"></span>
+										</li>
+										<li>
+											<a href="/hall/index.do" target="_blank" title="새창">병역명문가 명예의 전당</a>
+											<span class="new_windowN"></span>
+										</li>
+										<li>
+											<a href="/contents.do?mc=mma0002016">사회복무요원 스토리</a>
+										</li>
+										<li>
+		<!-- 									<a href="/www_mma3/thankuletter/index.html">응원메시지 보내기</a> -->
+											<a href="/thankuletter/2025/index.do" target="_blank" title="새창">응원메시지 보내기</a>
+											<span class="new_windowN"></span>
+										</li>
+										<li>
+											<a href="/board/boardList.do?mc=usr0000273&amp;gesipan_id=170">e-book코너</a>
+										</li>
+										<li>
+											<a href="/board/boardList.do?mc=mma0001958&amp;gesipan_id=284">민원신청 맛보기</a>
+										</li>
+									</ul>
+								</li>
+								<li class="menu25" style="margin-top: -13px !important;">
+									 
+												<a href="/contents.do?mc=mma0003284">찾아오시는길</a>
+												<ul class="skip_m">
+													<li>
+														 <a href="/contents.do?mc=mma0003284">찾아오시는길</a>
+													</li>
+													<li>
+														 <a href="/contents.do?mc=mma0003291">층별안내</a>
+													</li>
+												</ul>
+										  
+								</li>
+								<li class="menu26">
+									 <a href="/contents.do?mc=usr0000276">지방청 안내</a>
+								</li>
+								<li class="menu27">
+									 <a href="/contents.do?mc=usr0000278">관련누리집</a>
+									 <ul class="skip_m">
+										  <li>
+												<a href="/contents.do?mc=usr0000278">중앙행정기관</a>
+										  </li>
+										  <li>
+												<a href="/boncheong/bannerList.do?mc=usr0000279">유관기관배너</a>
+										  </li>
+										  <li>
+												<a href="/contents.do?mc=usr0000280">장병소식,병영생활</a>
+										  </li>
+										  <li>
+												<a href="http://cafe.naver.com/mmafamily" target="_blank" title="새창">병무가족사랑방</a>
+												<span class="new_windowN"></span>
+										  </li>
+									 </ul>
+								</li>
+								<li class="menu28 mainfocusLastPoint">
+									 <a href="/contents.do?mc=usr0000281">고객센터안내</a>
+								</li>
+							</ul>
+						</div>
+					</li>
+				</ul>
+			</div>
+			
+		</div>
+		<!-- //헤더 컨텐츠 영역  -->
+		
+		<!-- 메인메뉴 : 모바일 -->
+		<div id="mobile-nav" class="krds-main-menu-mobile">
+			<div class="gnb-wrap">
+				<!-- gnb-header -->
+				<div class="gnb-header">
+					<!-- gnb-utils -->
+					<div class="header-utility">
+						<ul class="utility-list">
+							<li>
+								<a href="/eng/index.do" class="krds-btn small text" target="_blank" title="새 창 열기">
+									ENGLISH <i class="svg-icon ico-go"></i>
+								</a>
+							</li>
+	<!-- 						<li> -->
+	<!-- 							<a href="/etc/site_map.do?mc=usr0000286" class="krds-btn small text" target="_blank" title="새 창 열기"> -->
+	<!-- 								누리집 안내지도 <i class="svg-icon ico-go"></i> -->
+	<!-- 							</a> -->
+	<!-- 						</li> -->
+						</ul>
+					</div>
+					<!-- //검색 -->
+				</div>
+				<!-- //gnb-header -->
+				
+				<!-- gnb-body -->
+				<div class="gnb-body">
+					<!-- gnb-menu -->
+					<div class="gnb-menu">
+						<div class="menu-wrap">
+							<ul>
+								<li>
+									<a href="#mGnb-anchor1" class="gnb-main-trigger">병역이행안내</a>
+								</li>
+								<li>
+									<a href="#mGnb-anchor2" class="gnb-main-trigger">군지원<br>(입영신청)안내</a>
+								</li>
+								<li>
+									<a href="#mGnb-anchor3" class="gnb-main-trigger">국민참여마당<br>(집단지성)</a>
+								</li>
+								<li>
+									<a href="#mGnb-anchor4" class="gnb-main-trigger">병무소식</a>
+								</li>
+								<li>
+									<a href="#mGnb-anchor5" class="gnb-main-trigger">병무청소개</a>
+								</li>
+								<li>
+									<a href="#mGnb-anchor6" class="gnb-main-trigger">소속기관 바로가기</a>
+								</li>
+								<li>
+									<a href="#mGnb-anchor7" class="gnb-main-trigger">병무민원</a>
+								</li>
+								<li>
+									<a href="#mGnb-anchor8" class="gnb-main-trigger">공개/개방</a>
+								</li>
+								<li>
+									<a href="#mGnb-anchor9" class="gnb-main-trigger">병역진로설계</a>
+								</li>
+								
+							</ul>
+						</div>
+						<div class="submenu-wrap">
+							
+							<div class="gnb-sub-list" id="mGnb-anchor1">
+								<h2 class="sub-title">병역이행안내</h2>
+								<ul>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000041" class="gnb-sub-trigger" id="usr0000041">개요(총괄)</a>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000042" class="gnb-sub-trigger" id="usr0000042">병역이행일정안내</a>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0001998" class="gnb-sub-trigger" id="mma0001998">병역면탈 예방 및 단속</a>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0003141" class="gnb-sub-trigger" id="mma0003141">확인신체검사</a>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0002279" class="gnb-sub-trigger" id="mma0002279">병역기피자 등 병무사범 예방·단속</a>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000043" class="gnb-sub-trigger" id="usr0000043">병역준비역 편입</a>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000167" class="gnb-sub-trigger" id="usr0000138">병역판정검사</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000167" class="depth3-trigger" target="_self">병역판정검사 대상자
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000975" class="depth3-trigger" target="_self">병역판정검사과정 및 지참물
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000975" class="depth3-trigger" target="_self">검사과정 및 지참물
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000976" class="depth3-trigger" target="_self">과목·질환별 구비서류
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="http://www.law.go.kr/법령/병역판정신체검사등검사규칙" class="depth3-trigger" target="_blank">병역판정신체검사 규칙(국방부령)
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000169" class="depth3-trigger" target="_self">병역처분기준
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0001994" class="depth3-trigger" target="_self">신체등급 판정기준
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002218" class="depth3-trigger" target="_self">신체등급판정 심의위원회 등 운영
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000170" class="depth3-trigger" target="_self">우선병역판정검사
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000171" class="depth3-trigger" target="_self">병역판정검사 일자연기
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000172" class="depth3-trigger" target="_self">병역판정검사 없이 신청에 의한 전시근로역,병역면제
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000173" class="depth3-trigger" target="_self">질병·심신장애 및 학력에 의한 병역처분 변경원 출원
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0002909" class="gnb-sub-trigger" id="mma0002908">입영판정검사</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002909" class="depth3-trigger" target="_self">입영판정검사란?
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002910" class="depth3-trigger" target="_self">입영판정검사 일자‧장소 변경 및 연기
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002911" class="depth3-trigger" target="_self">입영판정검사 신청
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000139" class="gnb-sub-trigger" id="usr0000139">재병역판정검사</a>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0002458" class="gnb-sub-trigger" id="mma0002457">슈퍼힘찬이</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002458" class="depth3-trigger" target="_self">슈퍼힘찬이 프로젝트란
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000174" class="gnb-sub-trigger" id="usr0000140">재학생(입영연기,입영원)</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000174" class="depth3-trigger" target="_self">재학생 입영연기
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000175" class="depth3-trigger" target="_self">학적 변동자 처리
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000176" class="depth3-trigger" target="_self">재학생 입영원 출원
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000691" class="depth3-trigger" target="_self">재학생 입영원 취소 및 변경
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0000728" class="gnb-sub-trigger" id="usr0000141">복무제도</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000728" class="depth3-trigger" target="_self">현역병,상근예비역
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000744" class="depth3-trigger" target="_self">사회복무요원
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000752" class="depth3-trigger" target="_self">예술체육요원
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000760" class="depth3-trigger" target="_self">전문연구,산업기능요원
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000771" class="depth3-trigger" target="_self">승선근무예비역
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000777" class="depth3-trigger" target="_self">특수병과사관후보생,공중 보건의사등
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/simsa/contents.do?mc=mma0002438" class="depth3-trigger" target="_blank">대체복무요원
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000142" class="gnb-sub-trigger" id="usr0000142">병역의무자 여비</a>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000186" class="gnb-sub-trigger" id="usr0000143">국외여행,국외체재</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000186" class="depth3-trigger" target="_self">허가 절차 안내
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000787" class="depth3-trigger" target="_self">국외이주 목적 외 허가
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000801" class="depth3-trigger" target="_self">국외이주 허가
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0001993" class="depth3-trigger" target="_self">국외여행허가 취소
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000804" class="depth3-trigger" target="_self">미귀국자 제재등
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000921&amp;num=1&amp;mc1=usr0000192" class="depth3-trigger" target="_self">영주권자등 입영희망 신청 제도
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000198" class="gnb-sub-trigger" id="usr0000144">예비군편성 / 병력동원</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000198" class="depth3-trigger" target="_self">예비군편성
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="https://www.yebigun1.mil.kr" class="depth3-trigger" target="_blank">예비군 보류(해소)신청(국방부)
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000202" class="depth3-trigger" target="_self">병력동원소집
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002242" class="depth3-trigger" target="_self">병력동원훈련소집
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0003402" class="depth3-trigger" target="_self">자주하는 질문 모음(FAQ)
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0003144" class="gnb-sub-trigger" id="usr0000145">병역감면</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0003144" class="depth3-trigger" target="_self">제도 개요
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000209" class="depth3-trigger" target="_self">생계유지 곤란사유 병역감면
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000210" class="depth3-trigger" target="_self">수형사유 전시근로역 편입
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000211" class="depth3-trigger" target="_self">고아사유 등 전시근로역 편입
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000212" class="depth3-trigger" target="_self">귀화자사유 전시근로역 편입
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000213" class="depth3-trigger" target="_self">전 공상자 가족의 보충역 편입 및 복무기간
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000214" class="depth3-trigger" target="_self">성전환자 전시근로역 편입
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000215" class="depth3-trigger" target="_self">군사분계선 이북지역 이주사유 병역면제
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000146" class="gnb-sub-trigger" id="usr0000146">병적증명서 등 발급안내</a>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0003143" class="gnb-sub-trigger" id="mma0003207">병적별도관리제도</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0003143" class="depth3-trigger" target="_self">병적별도관리제도란
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="https://e4c.mma.go.kr/caisYGSG" class="depth3-trigger" target="_blank">병적별도관리 신고(대중문화예술인 및 체육선수)
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000147" class="gnb-sub-trigger" id="usr0000147">병무청 지정병원</a>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0002032" class="gnb-sub-trigger" id="usr0000148">찾아가는길</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002032" class="depth3-trigger" target="_self">병역판정검사장 가는길
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002049" class="depth3-trigger" target="_self">입영부대 가는길
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002083" class="depth3-trigger" target="_self">군사교육소집부대 가는길
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002096" class="depth3-trigger" target="_self">동원 표준훈련장 가는길
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002136" class="depth3-trigger" target="_self">육군 전문특기병 전형평가장소 가는길
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002315" class="depth3-trigger" target="_self">사회복무요원 교육 집결지 가는 길
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002517" class="depth3-trigger" target="_self">대체복무요원 소집장소 가는길
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0003356" class="gnb-sub-trigger" id="mma0003355">나라사랑 가게</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0003356" class="depth3-trigger" target="_self">나라사랑 가게란?
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/about/udgg/list.do?mc=mma0003357" class="depth3-trigger" target="_self">나라사랑 가게조회
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0003358" class="depth3-trigger" target="_self">나라사랑 가게 신청 안내
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0003365" class="gnb-sub-trigger" id="mma0003365">군번찾기(민원신청) 안내</a>
+									
+												  </li>
+											 
+								</ul>
+							</div>
+							
+							<div class="gnb-sub-list" id="mGnb-anchor2">
+								<h2 class="sub-title">군지원(입영신청)안내</h2>
+								<ul>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0003746" class="gnb-sub-trigger" id="mma0003405">군지원(입영신청) 안내</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0003746" class="depth3-trigger" target="_self">안내 및 신청(지원)
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/board/boardView.do?gesipan_id=507&amp;gsgeul_no=1521169&amp;mc=mma0003311" class="depth3-trigger" target="_blank">입영일자 본인선택 안내
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22059" class="depth3-trigger" target="_blank">현역/상근 민원신청
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/board/boardList.do?gesipan_id=69&amp;mc=usr0000127" class="depth3-trigger" target="_blank">모집병 지원 안내
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22041" class="depth3-trigger" target="_blank">지원서 작성/수정/취소
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22037" class="gnb-sub-trigger" id="mma0001037">군지원 서비스(민원/조회)</a>
+									
+										<li>
+											  <a href="/board/boardList.do?gesipan_id=69&amp;mc=usr0000127" class="gnb-sub-trigger" id="usr0000125">모집안내서비스</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=usr0000127&amp;gesipan_id=69" class="depth3-trigger" target="_self">공지사항
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000743" class="depth3-trigger" target="_self">이달의 모집계획
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000386" class="depth3-trigger" target="_self">안내 및 지원절차
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0003479" class="gnb-sub-trigger" id="mma0000391">군지원(입영신청) 담당자/주소</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0003479" class="depth3-trigger" target="_self">군지원(입영신청) 담당자/주소
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000814&amp;#anchor_address" class="depth3-trigger" target="_self">서울지방병무청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000815&amp;#anchor_address" class="depth3-trigger" target="_self">부산/울산지방병무청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000816&amp;#anchor_address" class="depth3-trigger" target="_self">대구/경북지방병무청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000817&amp;#anchor_address" class="depth3-trigger" target="_self">경인지방병무청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000818&amp;#anchor_address" class="depth3-trigger" target="_self">광주/전남지방병무청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000819&amp;#anchor_address" class="depth3-trigger" target="_self">대전/충남지방병무청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000820&amp;#anchor_address" class="depth3-trigger" target="_self">강원지방병무청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000821&amp;#anchor_address" class="depth3-trigger" target="_self">충북지방병무청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000822&amp;#anchor_address" class="depth3-trigger" target="_self">전북지방병무청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000823&amp;#anchor_address" class="depth3-trigger" target="_self">경남지방병무청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000824&amp;#anchor_address" class="depth3-trigger" target="_self">제주지방병무청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000980&amp;#anchor_address" class="depth3-trigger" target="_self">인천병무지청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000825&amp;#anchor_address" class="depth3-trigger" target="_self">경기북부병무지청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000826&amp;#anchor_address" class="depth3-trigger" target="_self">강원영동병무지청
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/board/boardList.do?gesipan_id=317&amp;mc=mma0002306" class="gnb-sub-trigger" id="usr0000154">자주하는 질문 모음(FAQ)</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=mma0002306&amp;gesipan_id=317" class="depth3-trigger" target="_self">각 군 공통 FAQ
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=usr0000155&amp;gesipan_id=118" class="depth3-trigger" target="_self">육군FAQ
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=usr0000156&amp;gesipan_id=119" class="depth3-trigger" target="_self">해군FAQ
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=usr0000157&amp;gesipan_id=120" class="depth3-trigger" target="_self">해병대FAQ
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=usr0000158&amp;gesipan_id=121" class="depth3-trigger" target="_self">공군FAQ
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=mma0002277&amp;gesipan_id=314" class="depth3-trigger" target="_self">취업맞춤특기병FAQ
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/board/boardList.do?gesipan_id=13&amp;mc=usr0000137" class="gnb-sub-trigger" id="usr0000136">장교부사관등 지원</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=usr0000137&amp;gesipan_id=13" class="depth3-trigger" target="_self">공지사항
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000292" class="depth3-trigger" target="_self">모집 누리집 안내
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000294" class="gnb-sub-trigger" id="usr0000293">입영 대상자가 알아야 할 사항</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000294" class="depth3-trigger" target="_self">입영시 유의사항
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000295" class="depth3-trigger" target="_self">현역병 선발취소 및 입영일자 연기신청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000296" class="depth3-trigger" target="_self">입영하기 전 건강관리
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0002343" class="gnb-sub-trigger" id="mma0002343">취업맞춤특기병 통합안내</a>
+									
+												  </li>
+											 
+								</ul>
+							</div>
+							
+							<div class="gnb-sub-list" id="mGnb-anchor3">
+								<h2 class="sub-title">국민참여마당(집단지성)</h2>
+								<ul>
+									
+										<li>
+											  <a href="/board/epeopleList.do?mc=mma0002280&amp;gesipan_id=315" class="gnb-sub-trigger" id="mma0002280">국민생각함</a>
+									
+										<li>
+											  <a href="/iFrame.do?mc=mma0000870" class="gnb-sub-trigger" id="mma0000869">정책참여</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/iFrame.do?mc=mma0000870" class="depth3-trigger" target="_self">정책토론
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/iFrame.do?mc=mma0000915" class="depth3-trigger" target="_self">설문조사
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/iFrame.do?mc=mma0000872" class="depth3-trigger" target="_self">전자공청회
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/iFrame.do?mc=mma0000917&amp;num=1" class="gnb-sub-trigger" id="mma0000914">국민제안마당</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/iFrame.do?mc=mma0000917" class="depth3-trigger" target="_self">제안신청
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/iFrame.do?mc=mma0000918" class="depth3-trigger" target="_self">공개제안
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/iFrame.do?mc=mma0000919" class="depth3-trigger" target="_self">나의제안
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0003733" class="depth3-trigger" target="_self">병무분야 정상화 과제 국민제안
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0000920" class="depth3-trigger" target="_self">안내
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002231" class="depth3-trigger" target="_self">규제혁신건의
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0002350" class="gnb-sub-trigger" id="mma0002344">적극행정</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002350" class="depth3-trigger" target="_self">제도 소개
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="http://www.mpm.go.kr/proactivePublicService" class="depth3-trigger" target="_blank">적극행정 자료실(전 부처)
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=mma0002407&amp;gesipan_id=339" class="depth3-trigger" target="_self">적극행정 자료실(병무청)
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=mma0002453&amp;gesipan_id=349" class="depth3-trigger" target="_self">적극행정 우수공무원
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22250" class="gnb-sub-trigger" id="usr0000058">칭찬합시다</a>
+									
+										<li>
+											  <a href="/board/boardList.do?mc=usr0000039&amp;gesipan_id=1" class="gnb-sub-trigger" id="usr0000039">자유게시판</a>
+									
+										<li>
+											  <a href="/board/boardList.do?gesipan_id=87&amp;mc=usr0000164" class="gnb-sub-trigger" id="usr0000163">누리집 개선 및 신고</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=usr0000164&amp;gesipan_id=87" class="depth3-trigger" target="_self">누리집 오류신고
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="https://www.safetyreport.go.kr/api?apiKey=130000087I9U9KKXL893MAV6AEQ" class="gnb-sub-trigger" id="mma0002204">안전신문고</a>
+									
+												  </li>
+											 
+								</ul>
+							</div>
+							
+							<div class="gnb-sub-list" id="mGnb-anchor4">
+								<h2 class="sub-title">병무소식</h2>
+								<ul>
+									
+										<li>
+											  <a href="/board/boardList.do?mc=usr0000379&amp;gesipan_id=2" class="gnb-sub-trigger" id="usr0000379">공지사항</a>
+									
+										<li>
+											  <a href="/board/boardList.do?gesipan_id=15&amp;mc=mma0000392" class="gnb-sub-trigger" id="usr0000050">보도·설명자료</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=mma0000392&amp;gesipan_id=15" class="depth3-trigger" target="_self">보도자료
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=mma0000393&amp;gesipan_id=14" class="depth3-trigger" target="_self">설명자료
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/board/boardList.do?mc=usr0000241&amp;gesipan_id=78" class="gnb-sub-trigger" id="usr0000241">포토뉴스</a>
+									
+										<li>
+											  <a href="/board/boardList.do?gesipan_id=573&amp;mc=mma0003729" class="gnb-sub-trigger" id="mma0003728">주요 국정성과</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=mma0003729&amp;gesipan_id=573" class="depth3-trigger" target="_self">대표성과
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=mma0003730&amp;gesipan_id=572" class="depth3-trigger" target="_self">전체성과
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0003727" class="gnb-sub-trigger" id="mma0003727">주요 국정성과 목록</a>
+									
+										<li>
+											  <a href="/board/boardList.do?mc=usr0000242&amp;gesipan_id=125" class="gnb-sub-trigger" id="usr0000242">달라지는 제도</a>
+									
+										<li>
+											  <a href="/board/boardList.do?gesipan_id=16&amp;mc=usr0000053" class="gnb-sub-trigger" id="usr0000052">지방청 소식</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=usr0000053&amp;gesipan_id=16" class="depth3-trigger" target="_self">공지사항
+												  </a>
+											 </li>
+										
+												  </ul>
+												  </div>
+												  </li>
+											 
+								</ul>
+							</div>
+							
+							<div class="gnb-sub-list" id="mGnb-anchor5">
+								<h2 class="sub-title">병무청소개</h2>
+								<ul>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000246" class="gnb-sub-trigger" id="usr0000245">병무청 소개</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000246" class="depth3-trigger" target="_self">병무행정 개요
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000249" class="depth3-trigger" target="_self">연혁
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0003724" class="depth3-trigger" target="_self">미션·비전 체계
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0003725" class="depth3-trigger" target="_self">정책목표
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000248" class="depth3-trigger" target="_self">상징
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0003446" class="depth3-trigger" target="_self">브랜드 소개
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000250" class="depth3-trigger" target="_self">병무청 공무원의 행동강령
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000253" class="gnb-sub-trigger" id="usr0000252">청·차장 소개</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000253" class="depth3-trigger" target="_self">인사말
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000254" class="depth3-trigger" target="_self">청장약력
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/boncheong/cheongjang/schedule.do?mc=mma0002408" class="depth3-trigger" target="_self">청장일정
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000255" class="depth3-trigger" target="_self">차장약력
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000256" class="depth3-trigger" target="_self">역대 병무청장 소개
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0001001" class="gnb-sub-trigger" id="usr0000261">조직 및 직원안내</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0001001" class="depth3-trigger" target="_self">조직안내
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/boncheong/staffList.do?mc=usr0000263" class="depth3-trigger" target="_self">직원안내
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/about/cyber/public_main.do?mc=usr0000265" class="gnb-sub-trigger" id="usr0000264">사이버홍보관</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/about/cyber/public_main.do?mc=usr0000265" class="depth3-trigger" target="_self">홍보관 메인
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="https://www.mma.go.kr/www_mma3/photo/photo2025/index.html" class="depth3-trigger" target="_blank">사진으로 본 병무사
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="https://www.mma.go.kr/archives" class="depth3-trigger" target="_blank">병무역사기록전시관
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=usr0000270&amp;gesipan_id=164" class="depth3-trigger" target="_self">청춘예찬(기관사보)
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="https://youtu.be/NEcyhNjFRu8?si=nmXBH3OEVUehY7KP" class="depth3-trigger" target="_blank">홍보영상
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="https://www.mma9090.kr" class="depth3-trigger" target="_blank">병역이야기 공모전
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/hall/index.do" class="depth3-trigger" target="_blank">병역명문가 명예의 전당
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0002016" class="depth3-trigger" target="_self">사회복무요원 스토리
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="https://www.mma.go.kr/thankuletter/2025/index.do" class="depth3-trigger" target="_blank">응원메시지 보내기
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=usr0000273&amp;gesipan_id=170" class="depth3-trigger" target="_self">e-book코너
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/board/boardList.do?mc=mma0001958&amp;gesipan_id=284" class="depth3-trigger" target="_self">민원신청 맛보기
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=mma0003284" class="gnb-sub-trigger" id="usr0000275">찾아오시는길</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0003284" class="depth3-trigger" target="_self">찾아오시는길
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=mma0003291" class="depth3-trigger" target="_self">층별안내
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000276" class="gnb-sub-trigger" id="usr0000276">지방청 안내</a>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000278" class="gnb-sub-trigger" id="usr0000277">관련누리집</a>
+									
+											<div class="depth3-wrap">
+											 <ul>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000278" class="depth3-trigger" target="_self">중앙행정기관
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/boncheong/bannerList.do?mc=usr0000279" class="depth3-trigger" target="_self">유관기관배너
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="/contents.do?mc=usr0000280" class="depth3-trigger" target="_self">장병소식,병영생활
+												  </a>
+											 </li>
+										
+											 <li>
+												  <a href="http://cafe.naver.com/mmafamily" class="depth3-trigger" target="_blank">병무가족사랑방
+															<i class="svg-icon ico-go"></i>
+														
+												  </a>
+											 </li>
+										
+									</ul>
+									</div>
+									</li>
+									
+										<li>
+											  <a href="/contents.do?mc=usr0000281" class="gnb-sub-trigger" id="usr0000281">고객센터안내</a>
+									
+												  </li>
+											 
+								</ul>
+							</div>
+							
+							
+							<div class="gnb-sub-list" id="mGnb-anchor6">
+								<h2 class="sub-title">소속기관 바로가기</h2>
+								<ul>
+									<li><a href="/seoul/index.do?mc=usr0000305" class="gnb-sub-trigger">서울지방병무청</a></li>
+									<li><a href="/busan/index.do?mc=usr0000309" class="gnb-sub-trigger">부산&middot;울산지방병무청</a></li>
+									<li><a href="/daegu/index.do?mc=usr0000313" class="gnb-sub-trigger">대구&middot;경북지방병무청</a></li>
+									<li><a href="/suwon/index.do?mc=usr0000318" class="gnb-sub-trigger">경인지방병무청</a></li>
+									<li><a href="/gwangju/index.do?mc=usr0000320" class="gnb-sub-trigger">광주&middot;전남지방병무청</a></li>
+									<li><a href="/daejeon/index.do?mc=usr0000321" class="gnb-sub-trigger">대전&middot;충남지방병무청</a></li>
+									<li><a href="/gangwon/index.do?mc=usr0000322" class="gnb-sub-trigger">강원지방병무청</a></li>
+									<li><a href="/chungbuk/index.do?mc=usr0000323" class="gnb-sub-trigger">충북지방병무청</a></li>
+									<li><a href="/jeonbuk/index.do?mc=usr0000324" class="gnb-sub-trigger">전북지방병무청</a></li>
+									<li><a href="/gyeongnam/index.do?mc=usr0000325" class="gnb-sub-trigger">경남지방병무청</a></li>
+									<li><a href="/jeju/index.do?mc=usr0000326" class="gnb-sub-trigger">제주지방병무청</a></li>
+									<li><a href="/incheon/index.do?mc=mma0000933" class="gnb-sub-trigger">인천병무지청</a></li>
+									<li><a href="/gyeonggibukbu/index.do?mc=usr0000327" class="gnb-sub-trigger">경기북부병무지청</a></li>
+									<li><a href="/gangwonyoungdong/index.do?mc=usr0000328" class="gnb-sub-trigger">강원영동병무지청</a></li>
+									<li><a href="/educenter/index.do?mc=mnu0000000" class="gnb-sub-trigger">사회복무연수센터</a></li>
+									<li><a href="/jungang/index.do?mc=usr0000329" class="gnb-sub-trigger">중앙병역판정검사소</a></li>
+									<li><a href="/minwon/index.do?mc=usr0000368" class="gnb-sub-trigger">병무민원상담소</a></li>
+									<li><a href="/simsa/index.do?mc=mma0002411" class="gnb-sub-trigger">대체역심사위원회</a></li>
+								</ul>
+							</div>
+							<div class="gnb-sub-list" id="mGnb-anchor7">
+								<h2 class="sub-title">병무민원</h2>
+								<ul>
+									<li><a href="https://mwpt.mma.go.kr" class="gnb-sub-trigger">병무민원 바로가기</a></li>
+								</ul>
+							</div>
+							<div class="gnb-sub-list" id="mGnb-anchor8">
+								<h2 class="sub-title">공개/개방</h2>
+								<ul>
+									<li><a href="https://open.mma.go.kr" class="gnb-sub-trigger">공개/개방 바로가기</a></li>
+								</ul>
+							</div>
+							<div class="gnb-sub-list" id="mGnb-anchor9">
+								<h2 class="sub-title">병역진로설계</h2>
+								<ul>
+									<li><a href="/byjr/01/index.do?mc=mma0002528" class="gnb-sub-trigger">병역진로설계 바로가기</a></li>
+								</ul>
+							</div>
+							
+						</div>
+					</div>
+					<!-- //gnb-menu -->
+					<!-- gnb-bottom -->
+	<!-- 				<div class="gnb-bottom"> -->
+	<!-- 					<a href="#" class="krds-btn medium text">메뉴명 <i class="svg-icon ico-angle right"></i></a> -->
+	<!-- 					<a href="#" class="krds-btn medium text" target="_blank" title="새 창 열기"> 메뉴명 <i class="svg-icon ico-go"></i></a> -->
+	<!-- 				</div> -->
+					<!-- //gnb-bottom -->
+				</div>
+				<!-- //gnb-body -->
+				
+				<!-- gnb-close -->
+				<button type="button" class="krds-btn medium icon" id="close-nav">
+					<span class="sr-only">전체메뉴 닫기</span>
+					<i class="svg-icon ico-popup-close"></i>
+				</button>
+				<!-- //gnb-close -->
+			</div>
+		</div>
+		
+		<!-- 모바일 본청 메뉴 -->
+		<div class="mobileMenu">
+			<div>
+				 <button type="button">닫기</button>
+			</div>
+			<ul>
+				<li class="menu01 jbcy">
+					<a href="#n">소속기관 바로가기</a>
+					<ul>
+						<li class="disPlus">
+							<a href="/seoul/index.do?mc=usr0000305">서울지방병무청</a>
+						</li>
+						<li class="disPlus">
+							<a href="/busan/index.do?mc=usr0000309">부산&middot;울산지방병무청</a>
+						</li>
+						<li class="disPlus">
+							<a href="/daegu/index.do?mc=usr0000313">대구&middot;경북지방병무청</a>
+						</li>
+						<li class="disPlus">
+							<a href="/suwon/index.do?mc=usr0000318">경인지방병무청</a>
+						</li>
+						<li class="disPlus">
+							<a href="/gwangju/index.do?mc=usr0000320">광주&middot;전남지방병무청</a>
+						</li>
+						<li class="disPlus">
+							<a href="/daejeon/index.do?mc=usr0000321">대전&middot;충남지방병무청</a>
+						</li>
+						<li class="disPlus">
+							<a href="/gangwon/index.do?mc=usr0000322">강원지방병무청</a>
+						</li>
+						<li class="disPlus">
+							<a href="/chungbuk/index.do?mc=usr0000323">충북지방병무청</a>
+						</li>
+						<li class="disPlus">
+							<a href="/jeonbuk/index.do?mc=usr0000324">전북지방병무청</a>
+						</li>
+						<li class="disPlus">
+							<a href="/gyeongnam/index.do?mc=usr0000325">경남지방병무청</a>
+						</li>
+						<li class="disPlus">
+							<a href="/jeju/index.do?mc=usr0000326">제주지방병무청</a>
+						</li>
+						<li class="disPlus">
+							<a href="/incheon/index.do?mc=mma0000933">인천병무지청</a>
+						</li>
+						<li class="disPlus">
+							<a href="/gyeonggibukbu/index.do?mc=usr0000327">경기북부병무지청</a>
+						</li>
+						<li class="disPlus">
+							<a href="/gangwonyoungdong/index.do?mc=usr0000328">강원영동병무지청</a>
+						</li>
+						<li class="disPlus">
+							<a href="/educenter/index.do?mc=mnu0000000">사회복무연수센터</a>
+						</li>
+						<li class="disPlus">
+							<a href="/jungang/index.do?mc=usr0000329">중앙병역판정검사소</a>
+						</li>
+						<li class="disPlus">
+							<a href="/minwon/index.do?mc=usr0000368">병무민원상담소</a>
+						</li>
+						<li class="disPlus">
+							<a href="/simsa/index.do?mc=mma0002411">대체역심사위원회</a>
+						</li>
+					</ul>
+				</li>
+				<!-- <li class="menu02">
+					<a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22253">나만의 누리집(민원)</a>
+				</li> -->
+				<li class="menu02">
+					<a href="/contents.do?mc=usr0000041">병역이행안내</a>
+					<ul>
+							
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000041">개요(총괄)</a>
+			
+				</li>
+				
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000042">병역이행일정안내</a>
+			
+				</li>
+				
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0001998">병역면탈 예방 및 단속</a>
+			
+				</li>
+				
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0003141">확인신체검사</a>
+			
+				</li>
+				
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0002279">병역기피자 등 병무사범 예방·단속</a>
+			
+				</li>
+				
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000043">병역준비역 편입</a>
+			
+				</li>
+				
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000167">병역판정검사</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000167" target="_self">병역판정검사 대상자
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000975" target="_self">병역판정검사과정 및 지참물
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000975" target="_self">검사과정 및 지참물
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000976" target="_self">과목·질환별 구비서류
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="http://www.law.go.kr/법령/병역판정신체검사등검사규칙" target="_blank">병역판정신체검사 규칙(국방부령)
+								<span class="new_windowN"></span>
+							
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000169" target="_self">병역처분기준
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0001994" target="_self">신체등급 판정기준
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002218" target="_self">신체등급판정 심의위원회 등 운영
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000170" target="_self">우선병역판정검사
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000171" target="_self">병역판정검사 일자연기
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000172" target="_self">병역판정검사 없이 신청에 의한 전시근로역,병역면제
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000173" target="_self">질병·심신장애 및 학력에 의한 병역처분 변경원 출원
+					  </a>
+				 </li>
+			
+			</ul>
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0002909">입영판정검사</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002909" target="_self">입영판정검사란?
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002910" target="_self">입영판정검사 일자‧장소 변경 및 연기
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002911" target="_self">입영판정검사 신청
+					  </a>
+				 </li>
+			
+			</ul>
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000139">재병역판정검사</a>
+			
+				</li>
+				
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0002458">슈퍼힘찬이</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002458" target="_self">슈퍼힘찬이 프로젝트란
+					  </a>
+				 </li>
+			
+			</ul>
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000174">재학생(입영연기,입영원)</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000174" target="_self">재학생 입영연기
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000175" target="_self">학적 변동자 처리
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000176" target="_self">재학생 입영원 출원
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000691" target="_self">재학생 입영원 취소 및 변경
+					  </a>
+				 </li>
+			
+			</ul>
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0000728">복무제도</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000728" target="_self">현역병,상근예비역
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000744" target="_self">사회복무요원
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000752" target="_self">예술체육요원
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000760" target="_self">전문연구,산업기능요원
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000771" target="_self">승선근무예비역
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000777" target="_self">특수병과사관후보생,공중 보건의사등
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/simsa/contents.do?mc=mma0002438" target="_blank">대체복무요원
+								<span class="new_windowN"></span>
+							
+					  </a>
+				 </li>
+			
+			</ul>
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000142">병역의무자 여비</a>
+			
+				</li>
+				
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000186">국외여행,국외체재</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000186" target="_self">허가 절차 안내
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000787" target="_self">국외이주 목적 외 허가
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000801" target="_self">국외이주 허가
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0001993" target="_self">국외여행허가 취소
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000804" target="_self">미귀국자 제재등
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000921&amp;num=1&amp;mc1=usr0000192" target="_self">영주권자등 입영희망 신청 제도
+					  </a>
+				 </li>
+			
+			</ul>
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000198">예비군편성 / 병력동원</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000198" target="_self">예비군편성
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="https://www.yebigun1.mil.kr" target="_blank">예비군 보류(해소)신청(국방부)
+								<span class="new_windowN"></span>
+							
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000202" target="_self">병력동원소집
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002242" target="_self">병력동원훈련소집
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0003402" target="_self">자주하는 질문 모음(FAQ)
+					  </a>
+				 </li>
+			
+			</ul>
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0003144">병역감면</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0003144" target="_self">제도 개요
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000209" target="_self">생계유지 곤란사유 병역감면
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000210" target="_self">수형사유 전시근로역 편입
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000211" target="_self">고아사유 등 전시근로역 편입
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000212" target="_self">귀화자사유 전시근로역 편입
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000213" target="_self">전 공상자 가족의 보충역 편입 및 복무기간
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000214" target="_self">성전환자 전시근로역 편입
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000215" target="_self">군사분계선 이북지역 이주사유 병역면제
+					  </a>
+				 </li>
+			
+			</ul>
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000146">병적증명서 등 발급안내</a>
+			
+				</li>
+				
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0003143">병적별도관리제도</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0003143" target="_self">병적별도관리제도란
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="https://e4c.mma.go.kr/caisYGSG" target="_blank">병적별도관리 신고(대중문화예술인 및 체육선수)
+								<span class="new_windowN"></span>
+							
+					  </a>
+				 </li>
+			
+			</ul>
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000147">병무청 지정병원</a>
+			
+				</li>
+				
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0002032">찾아가는길</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002032" target="_self">병역판정검사장 가는길
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002049" target="_self">입영부대 가는길
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002083" target="_self">군사교육소집부대 가는길
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002096" target="_self">동원 표준훈련장 가는길
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002136" target="_self">육군 전문특기병 전형평가장소 가는길
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002315" target="_self">사회복무요원 교육 집결지 가는 길
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002517" target="_self">대체복무요원 소집장소 가는길
+					  </a>
+				 </li>
+			
+			</ul>
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0003356">나라사랑 가게</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0003356" target="_self">나라사랑 가게란?
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/about/udgg/list.do?mc=mma0003357" target="_self">나라사랑 가게조회
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0003358" target="_self">나라사랑 가게 신청 안내
+					  </a>
+				 </li>
+			
+			</ul>
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0003365">군번찾기(민원신청) 안내</a>
+			
+					  </li>
+				 
+			</ul>
+			</li>
+			<li class="menu03">
+				 <a href="/contents.do?mc=mma0003405">군지원(입영신청)안내</a>
+				 <ul>
+					  
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0003746">군지원(입영신청) 안내</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0003746" target="_self">안내 및 신청(지원)
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/board/boardView.do?gesipan_id=507&amp;gsgeul_no=1521169&amp;mc=mma0003311" target="_blank">입영일자 본인선택 안내
+								<span class="new_windowN"></span>
+							
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22059" target="_blank">현역/상근 민원신청
+								<span class="new_windowN"></span>
+							
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/board/boardList.do?gesipan_id=69&amp;mc=usr0000127" target="_blank">모집병 지원 안내
+								<span class="new_windowN"></span>
+							
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22041" target="_blank">지원서 작성/수정/취소
+								<span class="new_windowN"></span>
+							
+					  </a>
+				 </li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22037">군지원 서비스(민원/조회)</a>
+			
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/board/boardList.do?gesipan_id=69&amp;mc=usr0000127">모집안내서비스</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=usr0000127&amp;gesipan_id=69" target="_self">공지사항
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000743" target="_self">이달의 모집계획
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000386" target="_self">안내 및 지원절차
+					  </a>
+				 </li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0003479">군지원(입영신청) 담당자/주소</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0003479" target="_self">군지원(입영신청) 담당자/주소
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000814&amp;#anchor_address" target="_self">서울지방병무청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000815&amp;#anchor_address" target="_self">부산/울산지방병무청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000816&amp;#anchor_address" target="_self">대구/경북지방병무청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000817&amp;#anchor_address" target="_self">경인지방병무청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000818&amp;#anchor_address" target="_self">광주/전남지방병무청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000819&amp;#anchor_address" target="_self">대전/충남지방병무청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000820&amp;#anchor_address" target="_self">강원지방병무청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000821&amp;#anchor_address" target="_self">충북지방병무청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000822&amp;#anchor_address" target="_self">전북지방병무청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000823&amp;#anchor_address" target="_self">경남지방병무청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000824&amp;#anchor_address" target="_self">제주지방병무청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000980&amp;#anchor_address" target="_self">인천병무지청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000825&amp;#anchor_address" target="_self">경기북부병무지청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000826&amp;#anchor_address" target="_self">강원영동병무지청
+					  </a>
+				 </li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/board/boardList.do?gesipan_id=317&amp;mc=mma0002306">자주하는 질문 모음(FAQ)</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=mma0002306&amp;gesipan_id=317" target="_self">각 군 공통 FAQ
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=usr0000155&amp;gesipan_id=118" target="_self">육군FAQ
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=usr0000156&amp;gesipan_id=119" target="_self">해군FAQ
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=usr0000157&amp;gesipan_id=120" target="_self">해병대FAQ
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=usr0000158&amp;gesipan_id=121" target="_self">공군FAQ
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=mma0002277&amp;gesipan_id=314" target="_self">취업맞춤특기병FAQ
+					  </a>
+				 </li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/board/boardList.do?gesipan_id=13&amp;mc=usr0000137">장교부사관등 지원</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=usr0000137&amp;gesipan_id=13" target="_self">공지사항
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000292" target="_self">모집 누리집 안내
+					  </a>
+				 </li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000294">입영 대상자가 알아야 할 사항</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000294" target="_self">입영시 유의사항
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000295" target="_self">현역병 선발취소 및 입영일자 연기신청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=usr0000296" target="_self">입영하기 전 건강관리
+					  </a>
+				 </li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0002343">취업맞춤특기병 통합안내</a>
+			
+					  </li>
+				 
+			</ul>
+			</li>
+			<li class="menu04">
+				 <a href="/iFrame.do?mc=mma0000870">국민참여마당(집단지성)</a>
+				 <ul>
+					  
+				 <li class="disPlus">
+					  <a href="/board/epeopleList.do?mc=mma0002280&amp;gesipan_id=315">국민생각함</a>
+			
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/iFrame.do?mc=mma0000870">정책참여</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/iFrame.do?mc=mma0000870" target="_self">정책토론
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/iFrame.do?mc=mma0000915" target="_self">설문조사
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/iFrame.do?mc=mma0000872" target="_self">전자공청회
+					  </a>
+				 </li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/iFrame.do?mc=mma0000917&amp;num=1">국민제안마당</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/iFrame.do?mc=mma0000917" target="_self">제안신청
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/iFrame.do?mc=mma0000918" target="_self">공개제안
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/iFrame.do?mc=mma0000919" target="_self">나의제안
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0003733" target="_self">병무분야 정상화 과제 국민제안
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0000920" target="_self">안내
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002231" target="_self">규제혁신건의
+					  </a>
+				 </li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0002350">적극행정</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/contents.do?mc=mma0002350" target="_self">제도 소개
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="http://www.mpm.go.kr/proactivePublicService" target="_blank">적극행정 자료실(전 부처)
+								<span class="new_windowN"></span>
+							
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=mma0002407&amp;gesipan_id=339" target="_self">적극행정 자료실(병무청)
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=mma0002453&amp;gesipan_id=349" target="_self">적극행정 우수공무원
+					  </a>
+				 </li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22250">칭찬합시다</a>
+			
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/board/boardList.do?mc=usr0000039&amp;gesipan_id=1">자유게시판</a>
+			
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/board/boardList.do?gesipan_id=87&amp;mc=usr0000164">누리집 개선 및 신고</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=usr0000164&amp;gesipan_id=87" target="_self">누리집 오류신고
+					  </a>
+				 </li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="https://www.safetyreport.go.kr/api?apiKey=130000087I9U9KKXL893MAV6AEQ">안전신문고</a>
+			
+					  </li>
+				 
+			</ul>
+			</li>
+			<li class="menu05">
+				 <a href="/board/boardList.do?mc=usr0000379&amp;gesipan_id=2">병무소식</a>
+				 <ul>
+					  
+				 <li class="disPlus">
+					  <a href="/board/boardList.do?mc=usr0000379&amp;gesipan_id=2">공지사항</a>
+			
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/board/boardList.do?gesipan_id=15&amp;mc=mma0000392">보도·설명자료</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=mma0000392&amp;gesipan_id=15" target="_self">보도자료
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=mma0000393&amp;gesipan_id=14" target="_self">설명자료
+					  </a>
+				 </li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/board/boardList.do?mc=usr0000241&amp;gesipan_id=78">포토뉴스</a>
+			
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/board/boardList.do?gesipan_id=573&amp;mc=mma0003729">주요 국정성과</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=mma0003729&amp;gesipan_id=573" target="_self">대표성과
+					  </a>
+				 </li>
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=mma0003730&amp;gesipan_id=572" target="_self">전체성과
+					  </a>
+				 </li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0003727">주요 국정성과 목록</a>
+			
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/board/boardList.do?mc=usr0000242&amp;gesipan_id=125">달라지는 제도</a>
+			
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/board/boardList.do?gesipan_id=16&amp;mc=usr0000053">지방청 소식</a>
+			
+				 <ul class="theird">
+			
+				 <li>
+					  <a href="/board/boardList.do?mc=usr0000053&amp;gesipan_id=16" target="_self">공지사항
+					  </a>
+				 </li>
+			
+					  </ul>
+					  </li>
+				 
+			</ul>
+			</li>
+			<li class="menu06">
+				 <a href="/contents.do?mc=usr0000246">병무청소개</a>
+				 <ul>
+					  
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000246">병무청 소개</a>
+			
+				 <ul class="theird">
+			
+				<li>
+					<a href="/contents.do?mc=usr0000246" target="_self">병무행정 개요
+					</a>
+				</li>
+			
+				<li>
+					<a href="/contents.do?mc=usr0000249" target="_self">연혁
+					</a>
+				</li>
+			
+				<li>
+					<a href="/contents.do?mc=mma0003724" target="_self">미션·비전 체계
+					</a>
+				</li>
+			
+				<li>
+					<a href="/contents.do?mc=mma0003725" target="_self">정책목표
+					</a>
+				</li>
+			
+				<li>
+					<a href="/contents.do?mc=usr0000248" target="_self">상징
+					</a>
+				</li>
+			
+				<li>
+					<a href="/contents.do?mc=mma0003446" target="_self">브랜드 소개
+					</a>
+				</li>
+			
+				<li>
+					<a href="/contents.do?mc=usr0000250" target="_self">병무청 공무원의 행동강령
+					</a>
+				</li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000253">청·차장 소개</a>
+			
+				 <ul class="theird">
+			
+				<li>
+					<a href="/contents.do?mc=usr0000253" target="_self">인사말
+					</a>
+				</li>
+			
+				<li>
+					<a href="/contents.do?mc=usr0000254" target="_self">청장약력
+					</a>
+				</li>
+			
+				<li>
+					<a href="/boncheong/cheongjang/schedule.do?mc=mma0002408" target="_self">청장일정
+					</a>
+				</li>
+			
+				<li>
+					<a href="/contents.do?mc=usr0000255" target="_self">차장약력
+					</a>
+				</li>
+			
+				<li>
+					<a href="/contents.do?mc=usr0000256" target="_self">역대 병무청장 소개
+					</a>
+				</li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0001001">조직 및 직원안내</a>
+			
+				 <ul class="theird">
+			
+				<li>
+					<a href="/contents.do?mc=mma0001001" target="_self">조직안내
+					</a>
+				</li>
+			
+				<li>
+					<a href="/boncheong/staffList.do?mc=usr0000263" target="_self">직원안내
+					</a>
+				</li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/about/cyber/public_main.do?mc=usr0000265">사이버홍보관</a>
+			
+				 <ul class="theird">
+			
+				<li>
+					<a href="/about/cyber/public_main.do?mc=usr0000265" target="_self">홍보관 메인
+					</a>
+				</li>
+			
+				<li>
+					<a href="https://www.mma.go.kr/www_mma3/photo/photo2025/index.html" target="_blank">사진으로 본 병무사
+							<span class="new_windowN"></span>
+						
+					</a>
+				</li>
+			
+				<li>
+					<a href="https://www.mma.go.kr/archives" target="_blank">병무역사기록전시관
+							<span class="new_windowN"></span>
+						
+					</a>
+				</li>
+			
+				<li>
+					<a href="/board/boardList.do?mc=usr0000270&amp;gesipan_id=164" target="_self">청춘예찬(기관사보)
+					</a>
+				</li>
+			
+				<li>
+					<a href="https://youtu.be/NEcyhNjFRu8?si=nmXBH3OEVUehY7KP" target="_blank">홍보영상
+							<span class="new_windowN"></span>
+						
+					</a>
+				</li>
+			
+				<li>
+					<a href="https://www.mma9090.kr" target="_blank">병역이야기 공모전
+							<span class="new_windowN"></span>
+						
+					</a>
+				</li>
+			
+				<li>
+					<a href="/hall/index.do" target="_blank">병역명문가 명예의 전당
+							<span class="new_windowN"></span>
+						
+					</a>
+				</li>
+			
+				<li>
+					<a href="/contents.do?mc=mma0002016" target="_self">사회복무요원 스토리
+					</a>
+				</li>
+			
+				<li>
+					<a href="https://www.mma.go.kr/thankuletter/2025/index.do" target="_blank">응원메시지 보내기
+							<span class="new_windowN"></span>
+						
+					</a>
+				</li>
+			
+				<li>
+					<a href="/board/boardList.do?mc=usr0000273&amp;gesipan_id=170" target="_self">e-book코너
+					</a>
+				</li>
+			
+				<li>
+					<a href="/board/boardList.do?mc=mma0001958&amp;gesipan_id=284" target="_self">민원신청 맛보기
+					</a>
+				</li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=mma0003284">찾아오시는길</a>
+			
+				 <ul class="theird">
+			
+				<li>
+					<a href="/contents.do?mc=mma0003284" target="_self">찾아오시는길
+					</a>
+				</li>
+			
+				<li>
+					<a href="/contents.do?mc=mma0003291" target="_self">층별안내
+					</a>
+				</li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000276">지방청 안내</a>
+			
+			</li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000278">관련누리집</a>
+			
+				 <ul class="theird">
+			
+				<li>
+					<a href="/contents.do?mc=usr0000278" target="_self">중앙행정기관
+					</a>
+				</li>
+			
+				<li>
+					<a href="/boncheong/bannerList.do?mc=usr0000279" target="_self">유관기관배너
+					</a>
+				</li>
+			
+				<li>
+					<a href="/contents.do?mc=usr0000280" target="_self">장병소식,병영생활
+					</a>
+				</li>
+			
+				<li>
+					<a href="http://cafe.naver.com/mmafamily" target="_blank">병무가족사랑방
+							<span class="new_windowN"></span>
+						
+					</a>
+				</li>
+			
+				 </ul>
+				 </li>
+			
+				 <li class="disPlus">
+					  <a href="/contents.do?mc=usr0000281">고객센터안내</a>
+			
+					  </li>
+				 
+			</ul>
+			</li>
+			<li class="menu00 syjy">
+				 <a href="https://mwpt.mma.go.kr">병무민원 바로가기</a>
+			</li>
+			<li class="menu00 syjy">
+				 <a href="https://open.mma.go.kr">공개/개방 바로가기</a>
+			</li>
+			<li class="menu00 syjy">
+				 <a href="/byjr/01/index.do?mc=mma0002528">병역진로설계</a>
+			</li>
+			</ul>
+			<div>
+				 <button type="button">닫기</button>
+			</div>
+		</div>
+				<!-- 모바일 메뉴 종료 -->
+	
+	
+	<!-- //메인메뉴 : 모바일 -->
+	<script>
+	var mma01_mobile_3depth = ['usr0000138','mma0002908','mma0002402','mma0002457','usr0000140','usr0000141','usr0000143','usr0000144','usr0000145','usr0000148','mma0003207','mma0003355'];
+	var mma02_mobile_3depth = ['mma0003405','usr0000125','mma0000391','usr0000154','usr0000136','usr0000159','usr0000293'];
+	var mma03_mobile_3depth = ['mma0000869','mma0000914','mma0002230','mma0002344','usr0000163'];
+	var mma04_mobile_3depth = ['usr0000050','usr0000052'];
+	var mma05_mobile_3depth = ['usr0000245','usr0000252','usr0000257','usr0000261','usr0000264','usr0000275','usr0000277'];
+	
+	$(document).ready(function(){
+		for(var k=0; k<mma01_mobile_3depth.length;k++){
+			var id = mma01_mobile_3depth[k];
+			$('#'+id).addClass("has-depth3");
+			$('#'+id).prop('href','javascript:void(0)');
+		}
+		for(var k=0; k<mma02_mobile_3depth.length;k++){
+			var id = mma02_mobile_3depth[k];
+			$('#'+id).addClass("has-depth3");
+			$('#'+id).prop('href','javascript:void(0)');
+		}
+		for(var k=0; k<mma03_mobile_3depth.length;k++){
+			var id = mma03_mobile_3depth[k];
+			$('#'+id).addClass("has-depth3");
+			$('#'+id).prop('href','javascript:void(0)');
+		}
+		for(var k=0; k<mma04_mobile_3depth.length;k++){
+			var id = mma04_mobile_3depth[k];
+			$('#'+id).addClass("has-depth3");
+			$('#'+id).prop('href','javascript:void(0)');
+		}
+		for(var k=0; k<mma05_mobile_3depth.length;k++){
+			var id = mma05_mobile_3depth[k];
+			$('#'+id).addClass("has-depth3");
+			$('#'+id).prop('href','javascript:void(0)');
+		}
+
+	});
+	
+	function f_search(){
+		if(!beScan_api(document.searchForm)){
+			return false;
+		}
+	//return $('#search').isStringNullCheck();
+	}
+	
+	</script>
+
+
+						
+				</header>
+			</div>
+			<div id="secrion" class="wrap clearfix mma-main-menu">
+				<div id="path">
+					<nav class="krds-breadcrumb-wrap" aria-label="현재 경로" id="breadcrumb">
+						<ol class="breadcrumb">
+							<li class="home"><a href="/index.do" class="txt">홈</a></li>
+	<!-- 						<li><a href="#" class="txt">서비스 신청</a></li> -->
+	<!-- 						<li><a href="#" class="txt">서비스 신청2</a></li> -->
+							
+							
+													<li>
+														<a href="/contents.do?mc=usr0000041" class="txt" target="_self" >병역이행안내
+														</a>
+													</li>
+													
+													<li>
+														<a href="/contents.do?mc=mma0000728" class="txt" target="_self" >복무제도
+														</a>
+													</li>
+													
+													<li>
+														<a href="/contents.do?mc=mma0000744" class="txt" target="_self" >사회복무요원
+														</a>
+													</li>
+													
+													<li>
+														<a href="/contents.do?mc=mma0000909&amp;mc1=usr0000179&amp;num=6" class="txt" target="_self" >사회복무요원복무안내
+														</a>
+													</li>
+													
+										<li><a href="/contents.do?mc=mma0000910&amp;mc1=usr0000179&amp;num=6" class="txt">보수 및 권익보장</a></li>
+									
+							
+						</ol>
+					</nav>
+					<!-- 
+					
+					<p>
+						<a href="/index.do"><img src="/images/syjy/sub/home.gif" width="14" height="14" alt="홈" /></a>&gt;
+	
+						
+													<span>
+														<a href="/contents.do?mc=usr0000041" target="_self" >병역이행안내</a>
+													</span>
+													
+													&gt;
+												
+													<span>
+														<a href="/contents.do?mc=mma0000728" target="_self" >복무제도</a>
+													</span>
+													
+													&gt;
+												
+													<span>
+														<a href="/contents.do?mc=mma0000744" target="_self" >사회복무요원</a>
+													</span>
+													
+													&gt;
+												
+													<span>
+														<a href="/contents.do?mc=mma0000909&amp;mc1=usr0000179&amp;num=6" target="_self" >사회복무요원복무안내</a>
+													</span>
+													
+													&gt;
+												<strong><a href="/contents.do?mc=mma0000910&amp;mc1=usr0000179&amp;num=6">보수 및 권익보장</a></strong>
+					</p>
+					 -->
+				</div>
+				<div id="container" class="wraps">
+					<div class="text_bg">
+						<!-- side_menu 시작 -->
+						
+    
+    <div id="side">
+        
+                <script>
+                    /* var top_menu_code   = ["usr0000300", "usr0000033", "usr0000034", "usr0000035", "usr0000049", "usr0000244"]; */
+                    var top_menu_code   = ["usr0000033", "usr0000034", "usr0000035", "usr0000049", "usr0000244"];
+                    var top_menu_focus  = $('#nav > ul > li');
+                    var top_menu_point  = $('#nav > ul > li > a');
+                    var left_menu_nm    = "병역이행안내";
+                    
+                    var left_menu_id    = "usr0000033";
+                    
+                    /* for(var i=0; i< $(top_menu_point).length; i++){
+                    	if($(top_menu_point[i]).text() == left_menu_nm){
+                    		$(top_menu_focus[i]).addClass('on');
+                    		break;
+                    	}
+                    } */
+                    
+                    
+                    for(var i=0; i< top_menu_code.length; i++){
+                        if(top_menu_code[i] == left_menu_id){
+                            $(top_menu_focus[i]).addClass('on_s');
+                            break;
+                        }
+                    }
+                </script>
+                    <!-- 첫번째 행 -->
+        <div id="side_title">
+            <h2>병역이행안내<br /><span>INFORMATION</span></h2>
+        </div>
+        <div id="side_menu">
+            <ul>
+                
+                                        <li>
+                                            <a href="/contents.do?mc=usr0000041" target="_self" >개요(총괄)</a>
+                                            
+                                    </li>
+                                    
+                                        <li>
+                                            <a href="/contents.do?mc=usr0000042" target="_self" >병역이행일정안내</a>
+                                            
+                                    </li>
+                                    
+                                        <li>
+                                            <a href="/contents.do?mc=mma0001998" target="_self" >병역면탈 예방 및 단속</a>
+                                            
+                                    </li>
+                                    
+                                        <li>
+                                            <a href="/contents.do?mc=mma0003141" target="_self" >확인신체검사</a>
+                                            
+                                    </li>
+                                    
+                                        <li>
+                                            <a href="/contents.do?mc=mma0002279" target="_self" >병역기피자 등 병무사범 예방·단속</a>
+                                            
+                                    </li>
+                                    
+                                        <li>
+                                            <a href="/contents.do?mc=usr0000043" target="_self" >병역준비역 편입</a>
+                                            
+                                    </li>
+                                    
+                                        <li>
+                                            <a href="/contents.do?mc=usr0000167" target="_self" >병역판정검사</a>
+                                            
+                                        <ul class="clearfix off">
+                                    
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000167" target="_self" >병역판정검사 대상자</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0000975" target="_self" >검사과정 및 지참물</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0000976" target="_self" >과목·질환별 구비서류</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="http://www.law.go.kr/법령/병역판정신체검사등검사규칙" target="_blank" title="새창으로 이동">병역판정신체검사 규칙(국방부령)</a>
+                                        <span class="new_window" ></span>
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000169" target="_self" >병역처분기준</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0001994" target="_self" >신체등급 판정기준</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0002218" target="_self" >신체등급판정 심의위원회 등 운영</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000170" target="_self" >우선병역판정검사</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000171" target="_self" >병역판정검사 일자연기</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000172" target="_self" >병역판정검사 없이 신청에 의한 전시근로역,병역면제</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000173" target="_self" >질병·심신장애 및 학력에 의한 병역처분 변경원 출원</a>
+                                        
+                                    </li>
+                                
+                                </ul>
+                                </li>
+                                
+                                        <li>
+                                            <a href="/contents.do?mc=mma0002909" target="_self" >입영판정검사</a>
+                                            
+                                        <ul class="clearfix off">
+                                    
+                                    <li>
+                                        <a href="/contents.do?mc=mma0002909" target="_self" >입영판정검사란?</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0002910" target="_self" >입영판정검사 일자‧장소 변경 및 연기</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0002911" target="_self" >입영판정검사 신청</a>
+                                        
+                                    </li>
+                                
+                                </ul>
+                                </li>
+                                
+                                        <li>
+                                            <a href="/contents.do?mc=usr0000139" target="_self" >재병역판정검사</a>
+                                            
+                                    </li>
+                                    
+                                        <li>
+                                            <a href="/contents.do?mc=mma0002458" target="_self" >슈퍼힘찬이</a>
+                                            
+                                        <ul class="clearfix off">
+                                    
+                                    <li>
+                                        <a href="/contents.do?mc=mma0002458" target="_self" >슈퍼힘찬이 프로젝트란</a>
+                                        
+                                    </li>
+                                
+                                </ul>
+                                </li>
+                                
+                                        <li>
+                                            <a href="/contents.do?mc=usr0000174" target="_self" >재학생(입영연기,입영원)</a>
+                                            
+                                        <ul class="clearfix off">
+                                    
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000174" target="_self" >재학생 입영연기</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000175" target="_self" >학적 변동자 처리</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000176" target="_self" >재학생 입영원 출원</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0000691" target="_self" >재학생 입영원 취소 및 변경</a>
+                                        
+                                    </li>
+                                
+                                </ul>
+                                </li>
+                                  
+                                        <li class="on">
+                                            <span>
+                                                <a href="/contents.do?mc=mma0000728" target="_self" >복무제도</a>
+                                            </span>
+                                            
+                                        <ul class="clearfix on">
+                                    
+                                    <li>
+                                        <a href="/contents.do?mc=mma0000728" target="_self" >현역병,상근예비역</a>
+                                        
+                                    </li>
+                                  
+                                    <li class="li_on">
+                                        <a href="/contents.do?mc=mma0000744" target="_self" >사회복무요원</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0000752" target="_self" >예술체육요원</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0000760" target="_self" >전문연구,산업기능요원</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0000771" target="_self" >승선근무예비역</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0000777" target="_self" >특수병과사관후보생,공중 보건의사등</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/simsa/contents.do?mc=mma0002438" target="_blank" title="새창으로 이동">대체복무요원</a>
+                                        <span class="new_window" ></span>
+                                    </li>
+                                
+                                </ul>
+                                </li>
+                                
+                                        <li>
+                                            <a href="/contents.do?mc=usr0000142" target="_self" >병역의무자 여비</a>
+                                            
+                                    </li>
+                                    
+                                        <li>
+                                            <a href="/contents.do?mc=usr0000186" target="_self" >국외여행,국외체재</a>
+                                            
+                                        <ul class="clearfix off">
+                                    
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000186" target="_self" >허가 절차 안내</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0000787" target="_self" >국외이주 목적 외 허가</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0000801" target="_self" >국외이주 허가</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0001993" target="_self" >국외여행허가 취소</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0000804" target="_self" >미귀국자 제재등</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0000921&amp;num=1&amp;mc1=usr0000192" target="_self" >영주권자등 입영희망 신청 제도</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000193" target="_self" >복수국적과 병역의무</a>
+                                        
+                                    </li>
+                                
+                                </ul>
+                                </li>
+                                
+                                        <li>
+                                            <a href="/contents.do?mc=usr0000198" target="_self" >예비군편성 / 병력동원</a>
+                                            
+                                        <ul class="clearfix off">
+                                    
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000198" target="_self" >예비군편성</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="https://www.yebigun1.mil.kr" target="_blank" title="새창으로 이동">예비군 보류(해소)신청(국방부)</a>
+                                        <span class="new_window" ></span>
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000202" target="_self" >병력동원소집</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0002242" target="_self" >병력동원훈련소집</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0003402" target="_self" >자주하는 질문 모음(FAQ)</a>
+                                        
+                                    </li>
+                                
+                                </ul>
+                                </li>
+                                
+                                        <li>
+                                            <a href="/contents.do?mc=mma0003144" target="_self" >병역감면</a>
+                                            
+                                        <ul class="clearfix off">
+                                    
+                                    <li>
+                                        <a href="/contents.do?mc=mma0003144" target="_self" >제도 개요</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000209" target="_self" >생계유지 곤란사유 병역감면</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000210" target="_self" >수형사유 전시근로역 편입</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000211" target="_self" >고아사유 등 전시근로역 편입</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000212" target="_self" >귀화자사유 전시근로역 편입</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000213" target="_self" >전 공상자 가족의 보충역 편입 및 복무기간</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000214" target="_self" >성전환자 전시근로역 편입</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000215" target="_self" >군사분계선 이북지역 이주사유 병역면제</a>
+                                        
+                                    </li>
+                                
+                                </ul>
+                                </li>
+                                
+                                        <li>
+                                            <a href="/contents.do?mc=usr0000146" target="_self" >병적증명서 등 발급안내</a>
+                                            
+                                    </li>
+                                    
+                                        <li>
+                                            <a href="/contents.do?mc=mma0003143" target="_self" >병적별도관리제도</a>
+                                            
+                                        <ul class="clearfix off">
+                                    
+                                    <li>
+                                        <a href="/contents.do?mc=mma0003143" target="_self" >병적별도관리제도란</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="https://e4c.mma.go.kr/caisYGSG" target="_blank" title="새창으로 이동">병적별도관리 신고(대중문화예술인 및 체육선수)</a>
+                                        <span class="new_window" ></span>
+                                    </li>
+                                
+                                </ul>
+                                </li>
+                                
+                                        <li>
+                                            <a href="/contents.do?mc=usr0000147" target="_self" >병무청 지정병원</a>
+                                            
+                                    </li>
+                                    
+                                        <li>
+                                            <a href="/contents.do?mc=mma0002032" target="_self" >찾아가는길</a>
+                                            
+                                        <ul class="clearfix off">
+                                    
+                                    <li>
+                                        <a href="/contents.do?mc=mma0002032" target="_self" >병역판정검사장 가는길</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0002049" target="_self" >입영부대 가는길</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0002083" target="_self" >군사교육소집부대 가는길</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0002096" target="_self" >동원 표준훈련장 가는길</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0002136" target="_self" >육군 전문특기병 전형평가장소 가는길</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=usr0000218" target="_self" >사회복무연수센터 가는길</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0002315" target="_self" >사회복무요원 교육 집결지 가는 길</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0002517" target="_self" >대체복무요원 소집장소 가는길</a>
+                                        
+                                    </li>
+                                
+                                </ul>
+                                </li>
+                                
+                                        <li>
+                                            <a href="/contents.do?mc=mma0003356" target="_self" >나라사랑 가게</a>
+                                            
+                                        <ul class="clearfix off">
+                                    
+                                    <li>
+                                        <a href="/contents.do?mc=mma0003356" target="_self" >나라사랑 가게란?</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/about/udgg/list.do?mc=mma0003357" target="_self" >나라사랑 가게조회</a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        <a href="/contents.do?mc=mma0003358" target="_self" >나라사랑 가게 신청 안내</a>
+                                        
+                                    </li>
+                                
+                                </ul>
+                                </li>
+                                
+                                        <li>
+                                            <a href="/contents.do?mc=mma0003365" target="_self" >군번찾기(민원신청) 안내</a>
+                                            </li>
+            </ul> <!-- <div id="side_menu"> <ul> -->        
+        </div> <!-- <div id="side_menu"> -->
+    </div> <!-- <div id="side"> -->
+						<!-- side_menu 끝 -->
+						<div id="colgroup">
+							<div id="sub_head">
+								<h2>보수 및 권익보장</h2>
+							</div>
+							<!--  탭메뉴 시작 -->
+							
+								<div class="tab_common">
+									<ul>
+										
+											<!-- 모바일 QR로 인한 메뉴는 제외 -->
+											
+													<li id="mma0000744" class="">
+														
+																		<a href="/contents.do?mc=mma0000744" target="_self"
+																			>
+																			소집제도
+																		</a>
+																	
+													</li>
+													
+											<!-- 모바일 QR로 인한 메뉴는 제외 -->
+											
+													<li id="mma0000745" class="">
+														
+																		<a href="/contents.do?mc=mma0000745" target="_self"
+																			>
+																			소집일자 및 복무기관 결정
+																		</a>
+																	
+													</li>
+													
+											<!-- 모바일 QR로 인한 메뉴는 제외 -->
+											
+													<li id="mma0000746" class="">
+														
+																		<a href="/contents.do?mc=mma0000746" target="_self"
+																			>
+																			소집일자연기
+																		</a>
+																	
+													</li>
+													
+											<!-- 모바일 QR로 인한 메뉴는 제외 -->
+											
+													<li id="mma0000748" class="">
+														
+																		<a href="/contents.do?mc=mma0000748" target="_self"
+																			>
+																			국외왕래선원소집연기
+																		</a>
+																	
+													</li>
+													
+											<!-- 모바일 QR로 인한 메뉴는 제외 -->
+											
+													<li id="mma0000750" class="">
+														
+																		<a href="/contents.do?mc=mma0000750" target="_self"
+																			>
+																			장기대기 사유 전시근로역 처분제도 안내
+																		</a>
+																	
+													</li>
+													
+											<!-- 모바일 QR로 인한 메뉴는 제외 -->
+											
+													<li id="mma0000751" class="">
+														
+																		<a href="/contents.do?mc=mma0000909&amp;mc1=usr0000179&amp;num=6" target="_self"
+																			>
+																			사회복무요원복무안내
+																		</a>
+																	
+													</li>
+													
+											<!-- 모바일 QR로 인한 메뉴는 제외 -->
+											
+													<li id="mma0001990" class="">
+														
+																		<a href="/contents.do?mc=mma0001990" target="_self"
+																			>
+																			사회복무요원 헌장
+																		</a>
+																	
+													</li>
+													
+											<!-- 모바일 QR로 인한 메뉴는 제외 -->
+											
+													<li id="mma0001991" class="">
+														
+																		<a href="/contents.do?mc=mma0001991" target="_self"
+																			>
+																			사회복무가(歌)
+																		</a>
+																	
+													</li>
+													
+									</ul>
+								</div>
+							
+							<!--  탭메뉴 끝 -->
+							<div id="sub">
+								<div id="contents">
+									<!-- 컨탠츠 페이지 시작 -->
+									<div class="layout_h3">
+<h3>사회복무요원복무안내</h3>
+
+<div class="tab_text">
+<ul>
+	<li><a href="/contents.do?mc=mma0000909&amp;mc1=usr0000179&amp;num=6">사회복무요원의 복무</a></li>
+	<li class="on"><a href="/contents.do?mc=mma0000910&amp;mc1=usr0000179&amp;num=6">보수 및 권익보장</a></li>
+	<li><a href="/contents.do?mc=mma0000911&amp;mc1=usr0000179&amp;num=6">금지행위 및 벌칙등</a></li>
+	<li><a href="/contents.do?mc=mma0000912&amp;mc1=usr0000179&amp;num=6">소집해제</a></li>
+</ul>
+</div>
+
+<div class="layout_h4">
+<h4>보수</h4>
+
+<div class="layout_h5">
+<h5>현역병의 봉급에 상당하는 보수 지급</h5>
+
+<dl class="list">
+	<dt>소집월로부터 2월까지 :</dt>
+	<dd>이등병 보수</dd>
+	<dt>소집월로부터 3월~8월까지 :</dt>
+	<dd>일등병 보수</dd>
+	<dt>소집월로부터 9월~14월까지 :</dt>
+	<dd>상등병 보수</dd>
+	<dt>소집월로부터 15월이상 :</dt>
+	<dd>병장 보수</dd>
+</dl>
+
+<p class="mb10px">※ 복무이탈일과 통산연가일수초과 결근일 및 통산 30일초과 병가일에 대해서는 지급하지 아니함.</p>
+</div>
+</div>
+
+<div class="layout_h4">
+<h4>교통비,급식비</h4>
+
+<ul class="list">
+	<li>실제 근무일에 대해 실비 지급</li>
+	<li>휴가, 결근 등 비근무일 미지급</li>
+	<li>격일제 야간근무자는 근무일수 2일분 지급</li>
+</ul>
+</div>
+
+<div class="layout_h4">
+<h4>근무복 지급</h4>
+
+<p class="mb10px">복무기관장은 병역법시행령 제62조 제5항과 사회복무요원복제규정(병무청훈령) 의거 제복(근무복, 점퍼, 모자 등) 지급</p>
+</div>
+
+<div class="layout_h4">
+<h4>휴가</h4>
+
+<div class="layout_h5">
+<h5>연 가</h5>
+
+<p class="mb10px">복무기간에 따라 통틀어 31일 이내 [복무기간이 21개월인 경우 통틀어 28일, 연가는 복무기관장이 동일시기에 과도하게 집중하거나 업무공백이 발생되지 않도록 계획을 수립하여 시행, 특별한 사정 등 불가피한 사유가 인정되는 경우를 제외하고는 다음해로 조정 또는 합산 불가]</p>
+</div>
+
+<div class="layout_h5">
+<h5>청원휴가</h5>
+
+<ul class="list">
+	<li>본인이 결혼하는 경우: 5일이내</li>
+	<li>배우자가 사망하거나 본인 및 배우자의 부모가 사망한 경우: 5일이내</li>
+	<li>직계비속이 사망하거나 본인 또는 배우자의 조부모&middot;외조부모가 사망한 경우: 3일 이내</li>
+	<li>본인 또는 배우자의 형제자매가 사망한 경우: 3일이내</li>
+	<li>배우자가 출산한 경우: 20일(한 번에 둘 이상의 자녀를 출산한 경우에는 25일) 이내</li>
+	<li>배우자가 유산하거나 사산한 경우: 3일</li>
+	<li>다음의 어느 하나에 해당하는 경우: 연 10일 이내
+	<ul>
+		<li>어린이집, 유치원 및 학교의 휴업&middot;휴원&middot;휴교, 그 밖에 이에 준하는 사유로 자녀를 돌봐야 하는 경우</li>
+		<li>자녀가 다니는 어린이집등의 공식 행사나 교사와의 상담에 참여하는 경우</li>
+		<li>미성년자 또는 장애인인 자녀의 병원 진료에 동행하는 경우</li>
+		<li>질병, 사고, 노령 등의 사유로 조부모, 외조부모, 부모(배우자의 부모를 포함한다), 배우자 또는 자녀를 돌봐야 하는 경우</li>
+	</ul>
+	</li>
+	<li>8세 이하 또는 초등학교 2학년 이하의 자녀가 있는 경우: 1일 최대 2시간</li>
+	<li>재난으로 피해(배우자, 부모) 또는 자녀가 입은 피해를 입은 경우: 5일(대규모재난으로 피해를 입은 경우로서 장기간 피해 수습이 필요한 경우: 10일) 이내</li>
+	<li>인공수정 또는 체외수정 등 난임치료 시술을 받는 경우: 정자 채취일에 1일</li>
+</ul>
+</div>
+<!--<p class="mb10px">기타 경조사는 연가활용</p>-->
+
+<div class="layout_h5">
+<h5>병가</h5>
+
+<ul class="list">
+	<li>종류 및 기간
+	<ul>
+		<li>공무상 질병 또는 부상으로 인하여 직무를 수행할 수 없을 경우 해당기간</li>
+		<li>공무 외의 질병 또는 부상으로 인하여 직무를 수행할 수 없을 경우 해당기간</li>
+	</ul>
+	</li>
+	<li>병가기간의 복무기간 산입
+	<ul>
+		<li>공무상 질병 또는 부상으로 인한 병가기간은 복무기간에 포함</li>
+		<li>공무 외의 질병 또는 부상으로 인한 병가기간 중 30일 이내는 복무기간에 포함, 30일을 초과한 기간은 연장복무함</li>
+	</ul>
+	</li>
+	<li>신청
+	<ul>
+		<li>의료기관의 진단서, 입&middot;퇴원 확인서 등을 첨부하여 복무기관의 장에게 신청</li>
+		<li>복무기관의 장은 사회복무요원의 질병상태를 종합적으로 판단하여 병가 허가</li>
+	</ul>
+	</li>
+</ul>
+</div>
+
+<div class="layout_h5">
+<h5>공가</h5>
+
+<ul class="list">
+	<li>공무에 관하여 국회, 법원, 공소청, 그 밖의 국가기관에 소환되었을 때</li>
+	<li>법률의 규정에 따라 투표에 참가할 때</li>
+	<li>천재지변, 교통 두절, 그 밖의 사유로 출근이 불가능할 때</li>
+	<li>복무기관 등 재지정을 통지받은 사회복무요원이 재지정된 복무기관으로 이동할 때</li>
+	<li>「산업안전보건법」제129조부터 제131조까지의 규정에 따른 건강진단, 「국민건강보험법」제52조에 따른 건강검진 또는 「결핵예방법」제11조제1항에 따른 결핵검진등을 받을 때</li>
+	<li>헌혈(다녀온 시간만큼)</li>
+	<li>올림픽, 전국체전 등 국가적인 행사에 참가할 때</li>
+	<li>「감염병의 예방 및 관리에 관한 법률」에 따른 제1급감염병에 대하여 같은 법 제24조 또는 제25조에 따라 필수예방접종 또는 임시예방접종을 받거나 같은 법 제42조제2항제3호에 따라 감염 여부 검사를 받을 때</li>
+</ul>
+</div>
+
+<div class="layout_h5">
+<h5>특별휴가</h5>
+
+<ul class="list">
+	<li><strong>근무성적이 극히 우수하여 모범이 된 경우 :</strong> 연 5일 이내</li>
+	<li><strong>선행행위 등으로 표창을 받은 경우 :</strong> 연 5일 이내</li>
+	<li><strong>「사회복지사업법 」에 따른 사회복지시설 또는 「장애인 등에 대한 특수교육법」에&nbsp;따른 특수교육대상자의 활동을 지원하기 위하여 유치원이나 초ㆍ중ㆍ고등학교 등에서 근무하는 경우 </strong>: 연 10일 이내&nbsp;</li>
+	<li><strong>위 사회복지시설 근무자 외에 특별한 근무 분야 또는 근무 형편이 열악한 분야의 복무자를 위로할 필요성이 있는 경우 :</strong> 연 5일 이내</li>
+</ul>
+</div>
+</div>
+
+<div class="layout_h4">
+<h4>보상 및 치료</h4>
+
+<dl class="list">
+	<dt>순직 및 공상자 보상 :</dt>
+	<dd>복무중 순직 또는 공상으로 소집이 해제된 경우에는「국가유공자등예우및지원에관한법률」또는「보훈보상대상자지원에관한법률」에 의거 보상(연금 등 지급)</dd>
+	<dt>사망보상금 :</dt>
+	<dd>기준 소득월액의 24배</dd>
+	<dt>장애보상금 :</dt>
+	<dd>장애등급(1~4급)에 따라 기준 소득월액의 9~3배 지급</dd>
+	<dt>가료 :</dt>
+	<dd>복무중 직무수행과 관련한 질병 또는 부상한 경우 복무기관의 부담으로 의료시설에서 치료 [사망&middot;상이(질병&middot;부상)가 직무수행중 발생하였다 하더라도 본인의 고의나 중과실, 관련법령 위반, 근무지 이탈상태 또는 사적 행위가 원인이 된 경우에는 보상 및 가료대상에 해당되지 아니함. 공무상 상이에 해당되는지 여부는 비용부담 주체인 당해 복무기관의 장이 판단, 결정]</dd>
+</dl>
+
+<div class="layout_h5">
+<h5>국가유공자 및 보훈보상대상자 등록 및 치료절차</h5>
+
+<ul class="list">
+	<li>신청(민원인 : 관할보훈청) &rarr; 조사의뢰(관할보훈청&rarr;지방병무청&rarr;복무기관) &rarr; 입증서류 지방병무청 통보(복무기관) &rarr; 요건관련 사실확인서 국가보훈처 송부(지방병무청) &rarr; 해당여부 심의&middot;의결(보훈심사위원회) &rarr; 상이등급 구분 신체검사 실시 및 보훈대상자 해당 여부 결정(관할 보훈청)</li>
+	<li>치료 : 의료기관장에게 치료신청 &rarr; 의료시설에서 치료(사회복무요원) &rarr; 치료비용 청구(의료기관장) &rarr; 치료비용 지급(복무기관장)</li>
+</ul>
+</div>
+</div>
+
+<div class="layout_h4">
+<h4>권익보장</h4>
+
+<ul class="list">
+	<li>복무전 직장 복직 또는 학교에 복학 보장, 사회복무요원 복무기간을 재직기간(근무경력)으로 인정하여 연금 합산 등 혜택, 공무원연금법, 제대군인지원에관한법률에 규정</li>
+	<li>사회복무요원 복무만료자의 채용시험 응시상한연령 연장 혜택. 공무원 시험, 20인이상 고용하는 공&middot;사기업체 채용시험 응시시 복무기간에 상응하는 만큼 제한연령 연장
+	<ul>
+		<li>2년이상 복무 : 3세, 1년이상 2년미만 복무 : 2세, 1년미만 복무 : 1세</li>
+	</ul>
+	</li>
+	<li>사회복무요원 국민건강보험료 국고지원(2014. 1. 1. 시행)</li>
+	<li>건강보험 지역가입자 및 직장가입자 중 휴직자에 대해 복무기간중에 부담해야 하는 건강보험료 지원 단, 복무이탈 또는 징역&middot;금고 등 형(形) 집행기간, 분할복무로 인한 복무중단기간은 건강보험료 지원 제외</li>
+	<li>국외영주권복무자 영주권 유지 목적 왕복항공료 지급, 영주권 취득국가별 제3국 체재기간을 고려, 왕복항공료 지급</li>
+</ul>
+</div>
+
+<div class="layout_h4">
+<h4>사회복무요원의 고충처리</h4>
+
+<ul class="list">
+	<li>신상문제등에 관하여 상담이나 고충의 심사를 복무기관의 장에게 청구할 수 있고 이를 이유로 불이익한 처우를 받지 아니함</li>
+	<li>청구를 받은 복무기관의 장은 고충처리반을 운영, 정당한 절차에 따라 심사하거나 상담을 거쳐 고충의 해소 등 공정한 처리의무</li>
+	<li>복무기관장은 고충처리반에서 해결할 수 없는 사항이 있을 경우 관할 지방병무청에 통보</li>
+	<li>청구사항 : 소속기관 직원등의 부당한 대우, 복무관리규정 미준수, 애로 및 건의사항, 제도개선사항 등</li>
+	<li>고충심사청구서식 (병역법시행규칙 별지 제38호의2 서식)</li>
+</ul>
+</div>
+</div>
+									<!-- 컨탠츠 페이지 끝 -->
+								</div>
+								<form name="manjokdoForm" id="manjokdoForm">
+									<div class="page_info">
+										<div class="customer">
+											<div class="title">병무민원상담</div>
+											<ul>
+												<li id="minwonTel" class="tel"><span class="skip skip_m skip_t">전화번호</span> 1588-9090</li>
+												<!--<li id="minwonSms" class="sms"><span class="skip skip_m skip_t">문자보내기</span> #1110-9090</li> -->
+											</ul>
+										</div>
+										<div class="research">
+											<ul>
+												<li class="txt">현재 페이지의 정보에 만족하십니까?</li>
+												<li class="radio">
+													<span>
+														<input id="manjokdo_cd1" name="manjokdo_cd" type="radio" value="5" />
+														<label for="manjokdo_cd1">매우만족</label>
+													</span>
+													<span>
+														<input id="manjokdo_cd2" name="manjokdo_cd" type="radio" value="4" />
+														<label for="manjokdo_cd2">만족</label>
+													</span>
+													<span>
+														<input id="manjokdo_cd3" name="manjokdo_cd" type="radio" value="3" />
+														<label for="manjokdo_cd3">보통</label>
+													</span>
+													<span>
+														<input id="manjokdo_cd4" name="manjokdo_cd" type="radio" value="2" />
+														<label for="manjokdo_cd4">불만족</label>
+													</span>
+													<span>
+														<input id="manjokdo_cd5" name="manjokdo_cd" type="radio" value="1" />
+														<label for="manjokdo_cd5">매우불만족</label>
+													</span>
+												</li>
+												<li class="input">
+													<label for="gtuigyeon_cn" class="skip_label">의견 입력란</label>
+													<input id="gtuigyeon_cn" name="gtuigyeon_cn" value="" type="text" onfocus="gtuigyeonChk();" onblur="gtuigyeonChk();" />
+													<span class="button middle gray3">
+														<input value="반영" type="button" onclick="manjokdoInsert()" class="btn_button" />
+													</span>
+												</li>
+											</ul>
+										</div>
+										<div class="info">
+											<ul>
+												<li id="ddbuseo_nm"><strong>담당정보 : </strong></li>
+												<li id="ddjikwon_fnm"><strong>담당자명 : </strong></li>
+												<li id="cjdatabyeongyeong_dtm"><strong>자료기준 : </strong></li>
+											</ul>
+										</div>
+									</div>
+								</form>
+								<form name="certPopFrm" id="certPopFrm">
+									<input type="hidden" name="SYS_CD" value="MMA"/>
+									<input type="hidden" name="oacx" value="Y"/>
+									<input type="hidden" name="brci" value="Y"/>
+									<input type="hidden" name="kftc" value="Y"/>
+									<input type="hidden" name="one" value="Y"/>
+									<input type="hidden" name="mobileid" value="Y"/>
+								</form>
+								<!-- container -->
+							</div>
+						</div>
+					</div>
+				</div>
+	
+				<div id="container_box3" class="skip_m ">
+					<div id="important_site">
+						<h2>
+							<img src="/images/syjy/main/link4_h2.gif" width="116" height="43" alt="주요누리집 바로가기" />
+						</h2>
+						<ul>
+							<li><a href="http://sbm.mma.go.kr" target="_blank" title="새창으로 이동">사회복무</a></li>
+							<li><a href="http://work.mma.go.kr" target="_blank" title="새창으로 이동">산업지원 병역일터</a></li>
+							<li><a href="http://www.narasarang.or.kr" target="_blank" title="새창으로 이동">나라사랑</a></li>
+							<li><a href="https://e4c.mma.go.kr" target="_blank" title="새 창으로 이동">병적 별도관리</a></li>
+							<li><a href="http://blog.naver.com/mma9090" target="_blank" title="새창으로 이동">청춘예찬</a></li>
+							<li><a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22311" target="_blank" title="새 창으로 이동">취업맞춤특기병 취업지원</a></li>
+							<!-- <li><a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22295" target="_blank" title="새창으로 이동">청춘디딤돌, 병역진로설계</a></li> -->
+							<li><a href="/archives/index.html" target="_blank" title="새창으로 이동">병무역사기록전시관</a></li>
+							<li><a href="https://www.mma9090.kr" target="_blank" title="새창">병역이야기 공모전</a></li>
+	<!-- 						<li><a href="/www_mma3/ucc/ucc2025/index.html" target="_blank" title="새창">병역이야기 공모전</a></li> -->
+	<!-- 						<li><a href="/www_mma3/thankuletter/index.html" target="_blank" title="새창">응원메시지 보내기</a></li> -->
+							<li><a href="/thankuletter/2025/index.do" target="_blank" title="새창">응원메시지 보내기</a></li>
+							<li><a href="/festival/index.do" target="_blank" title="새창으로 이동">현역병 입영문화제</a></li>
+							<li><a href="https://www.acrc.go.kr/menu.es?mid=a10202010100" target="_blank" title="새창으로 이동">부패공익신고</a></li>
+							<li><a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22356" target="_blank" title="새 창으로 이동">신고 및 제보</a></li>
+							<li><a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22232" target="_blank" title="새 창으로 이동">찾아가는 민원서비스</a></li>
+							<li><a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22210" target="_blank" title="새 창으로 이동">민원서식</a></li>
+							<li><a href="https://open.mma.go.kr/caisGGGS/board/boardList.do?menu_id=mma0000050&gesipan_id=80" target="_blank" title="새 창으로 이동">사전정보공표</a></li>
+							<li><a href="https://open.mma.go.kr/caisGGGS/board/boardList.do?menu_id=mma0000241&gesipan_id=77" target="_blank" title="새 창으로 이동" style="letter-spacing:-0.05em;">비공개 대상정보 세부기준</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		
+<!-- 20250709 이기광 : KRDS Footer -->
+<!-- footer -->
+<footer id="krds-footer">
+	<div class="foot-quick">
+		<div class="inner mma-max-width">
+			<button type="button" class="link open-modal" title="홍보관" data-target="modal_promotion">홍보관</button>
+			<button type="button" class="link open-modal" title="업무포털" data-target="modal_work">업무포털</button>
+			<button type="button" class="link open-modal" title="사전정보공표(공개/개방)" data-target="modal_public">사전정보공표<br>(공개/개방)</button>
+			<button type="button" class="link open-modal" title="관계기관" data-target="modal_related">관계기관</button>
+			<button type="button" class="link open-modal" title="소속기관" data-target="modal_affiliation">소속기관</button>
+		</div>
+	</div>
+	<div class="inner mma-max-width">
+		<div class="f-logo">
+			<span class="sr-only">MMA - Military Manpower Administration</span>
+		</div>
+		<div class="f-cnt">
+			<div class="f-info">
+				<p class="info-addr"> (우)35208 대전광역시 서구 청사로 189, 정부대전청사 2동</p>
+				<ul class="info-cs">
+					<li><strong class="strong">대표전화 1588-9090</strong><span class="span">(유료, 평일 09시~18시)</span></li>
+					<!-- <li><strong class="strong">해외이용 82-33-811-2001</strong><span class="span">(유료, 평일 09시~18시)</span></li> -->
+				</ul>
+			</div>
+			
+			<div class="f-link">
+				<div class="link-go">
+					
+					<a href="/etc/site_map.do?mc=usr0000286" class="krds-btn medium text">누리집 안내지도<i class="svg-icon ico-angle right"></i></a>
+					<a href="/contents.do?mc=mma0003284" class="krds-btn medium text">찾아오시는 길 <i class="svg-icon ico-angle right"></i></a>
+					<a href="/contents.do?mc=mma0001002" class="krds-btn medium text">이용안내 <i class="svg-icon ico-angle right"></i></a>
+					<a href="/board/boardList.do?mc=usr0000285&amp;gesipan_id=169" class="krds-btn medium text">프로그램 내려받기<i class="svg-icon ico-angle right"></i></a>
+				</div>
+				<div class="link-sns">
+					<a href="https://www.instagram.com/mma_go_kr/" class="krds-btn xlarge icon border" target="_blank" title="새 창 열기">
+						<span class="sr-only">인스타그램</span>
+						<i class="svg-icon ico-instagram"></i>
+					</a>
+					<a href="http://www.youtube.com/user/MMA15889090" class="krds-btn xlarge icon border" target="_blank" title="새 창 열기">
+						<span class="sr-only">유튜브</span>
+						<i class="svg-icon ico-youtube"></i>
+					</a>
+					<a href="http://www.facebook.com/pages/%eb%b3%91%eb%ac%b4%ec%b2%admilitary-manpower-administration/100187910073139" class="krds-btn xlarge icon border" target="_blank" title="새 창 열기">
+						<span class="sr-only">페이스북</span>
+						<i class="svg-icon ico-facebook"></i>
+					</a>
+					<a href="http://blog.naver.com/mma9090" class="krds-btn xlarge icon border" target="_blank" title="새 창 열기">
+						<span class="sr-only">블로그</span>
+						<i class="svg-icon ico-blog"></i>
+					</a>
+				</div>
+			</div>
+		</div>
+		
+		<div class="f-btm">
+			<div class="f-btm-text">
+				<div class="f-menu">
+					<a href="/contents.do?mc=usr0000283" class="point">개인정보처리방침</a>
+					<a href="/contents.do?mc=usr0000284">저작권 정책</a>
+					<a href="https://mwpt.mma.go.kr/caisBMHS/index_mwps.jsp?menuNo=22009" target="_blank" title="새 창으로 이동">병무민원 헌장</a>
+					<a href="/board/boardList.do?mc=usr0000164&gesipan_id=87">누리집 오류신고</a>
+				</div>
+				<p class="f-copy">Copyrightⓒ Military Manpower Administration. All Rights Reserved.</p>
+			</div>
+<!-- 			<div class="krds-identifier"> -->
+<!-- 				<span class="logo"> -->
+<!-- 					<span class="sr-only">KRDS - Korea Design System</span> -->
+<!-- 				</span> -->
+<!-- 				<span class="ban-txt">이 누리집은 보건복지부 산하기관 누리집입니다.</span> -->
+<!-- 			</div> -->
+		</div>
+	</div>
+	
+	<!-- modal 홍보관 -->
+	<section id="modal_promotion" class="krds-modal fade" role="dialog" aria-labelledby="tit_modal_promotion">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<!-- modal title -->
+				<div class="modal-header">
+					<h2 id="tit_modal_promotion" class="modal-title">
+						홍보관
+					</h2>
+				</div>
+				<!-- //modal title -->
+				<!-- modal contents -->
+				<div class="modal-conts">
+					<ul class="pop-foot-links">
+						<li>
+							<a href="https://www.mma.go.kr/hall/index.do" target="_blank" title="새 창으로 이동" class="krds-btn link">병역명문가 명예의전당<i class="svg-icon ico-go"></i></a>
+						</li>
+						<li>
+							<a href="https://www.mma.go.kr/archives/index.html" target="_blank" title="새 창으로 이동" class="krds-btn link">병무역사기록전시관<i class="svg-icon ico-go"></i></a>
+						</li>
+						<li>
+							<a href="https://www.mma.go.kr/festival/index.do" target="_blank" title="새 창으로 이동" class="krds-btn link">현역병 입영문화제<i class="svg-icon ico-go"></i></a>
+						</li>
+						<li>
+<!-- 							<a href="https://www.mma.go.kr/www_mma3/ucc/ucc2024/index.html" target="_blank" title="새 창으로 이동" class="krds-btn link">병역이야기 공모전<i class="svg-icon ico-go"></i>	</a> -->
+							<a href="https://www.mma9090.kr" target="_blank" title="새 창으로 이동" class="krds-btn link">병역이야기 공모전<i class="svg-icon ico-go"></i>	</a>
+						</li>
+						<li>
+<!-- 							<a href="https://www.mma.go.kr/www_mma3/thankuletter/index.html" target="_blank" title="새 창으로 이동" class="krds-btn link">응원메시지 보내기<i class="svg-icon ico-go"></i></a> -->
+							<a href="/thankuletter/2025/index.do" target="_blank" title="새 창으로 이동" class="krds-btn link">응원메시지 보내기<i class="svg-icon ico-go"></i></a>
+						</li>
+					</ul>
+				</div>
+				<!-- //modal contents -->
+				<!-- modal btn -->
+				<!-- <div class="modal-btn btn-wrap">
+					<button type="button" class="krds-btn medium primary close-modal">닫기</button>
+				</div> -->
+				<!-- //modal btn -->
+				<!-- close button -->
+				<button type="button" class="krds-btn medium icon btn-close close-modal">
+					<span class="sr-only">닫기</span>
+					<i class="svg-icon ico-popup-close"></i>
+				</button>
+				<!-- //close button -->
+			</div>
+		</div>
+		<div class="modal-back"></div>
+	</section>
+	
+				<!-- 업무포털 -->
+	<section id="modal_work" class="krds-modal fade" role="dialog" aria-labelledby="tit_modal_work">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2 id="tit_modal_work" class="modal-title">
+						업무포털 
+					</h2>
+				</div>
+				<div class="modal-conts">
+					<ul class="pop-foot-links">
+						<li>
+							<a href="https://mwpt.mma.go.kr/caisBMHS" target="_blank" title="새 창으로 이동" class="krds-btn link">민원포털<i class="svg-icon ico-go"></i></a>
+						</li>
+						<li>
+							<a href="https://open.mma.go.kr/caisGGGS" target="_blank" title="새 창으로 이동" class="krds-btn link">공개/개방포털<i class="svg-icon ico-go"></i></a>
+						</li>
+						<li>
+							<a href="https://sbm.mma.go.kr" target="_blank" title="새 창으로 이동" class="krds-btn link">사회복무포털<i class="svg-icon ico-go"></i></a>
+						</li>
+						<li>
+							<a href="https://work.mma.go.kr" target="_blank" title="새 창으로 이동" class="krds-btn link">산업지원 병역일터<i class="svg-icon ico-go"></i>	</a>
+						</li>
+						<li>
+							<a href="https://e4c.mma.go.kr" target="_blank" title="새 창으로 이동" class="krds-btn link">병적별도관리<i class="svg-icon ico-go"></i></a>
+						</li>
+					</ul>
+				</div>
+				<button type="button" class="krds-btn medium icon btn-close close-modal">
+					<span class="sr-only">닫기</span>
+					<i class="svg-icon ico-popup-close"></i>
+				</button>
+			</div>
+		</div>
+		<div class="modal-back"></div>
+	</section>
+
+				<!-- 사전정보공표 -->
+	<section id="modal_public" class="krds-modal fade" role="dialog" aria-labelledby="tit_modal_public">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2 id="tit_modal_public" class="modal-title">
+						사전정보공표 (공개/개방)
+					</h2>
+				</div>
+				<div class="modal-conts">
+					<ul class="pop-foot-links">
+						<li>
+							<a href="https://open.mma.go.kr/caisGGGS/board/boardList.do?menu_id=mma0000050&gesipan_id=80" target="_blank" title="새 창으로 이동" class="krds-btn link">사전정보공표<i class="svg-icon ico-go"></i></a>
+						</li>
+						<li>
+							<a href="https://open.mma.go.kr/caisGGGS" target="_blank" title="새 창으로 이동" class="krds-btn link">공개/개방포털<i class="svg-icon ico-go"></i></a>
+						</li>
+						<li>
+							<a href="https://open.mma.go.kr/contents/html/view.do?menu_id=mma0000163" target="_blank" title="새 창으로 이동" class="krds-btn link">병역사항공개(고위공직자 등)<i class="svg-icon ico-go"></i></a>
+						</li>
+						<li>
+							<a href="https://open.mma.go.kr/caisGGGS/board/boardList.do?menu_id=mma0000241&gesipan_id=77" target="_blank" title="새 창으로 이동" class="krds-btn link">비공개대상정보 세부기준<i class="svg-icon ico-go"></i>	</a>
+						</li>
+					</ul>
+				</div>
+				<button type="button" class="krds-btn medium icon btn-close close-modal">
+					<span class="sr-only">닫기</span>
+					<i class="svg-icon ico-popup-close"></i>
+				</button>
+			</div>
+		</div>
+		<div class="modal-back"></div>
+	</section>
+
+				<!-- 관계기관 -->
+	<section id="modal_related" class="krds-modal fade" role="dialog" aria-labelledby="tit_modal_related">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2 id="tit_modal_related" class="modal-title">
+						관계기관
+					</h2>
+				</div>
+				<div class="modal-conts">
+					<ul class="pop-foot-links">
+						<li>
+							<a href="https://www.mnd.go.kr" target="_blank" title="새 창으로 이동" class="krds-btn link">대한민국 국방부<i class="svg-icon ico-go"></i></a>
+						</li>
+						<li>
+							<a href="https://www.yebigun1.mil.kr" target="_blank" title="새 창으로 이동" class="krds-btn link">예비군 홈페이지<i class="svg-icon ico-go"></i></a>
+						</li>
+						<li>
+							<a href="http://www.army.mil.kr" target="_blank" title="새 창으로 이동" class="krds-btn link">대한민국육군<i class="svg-icon ico-go"></i></a>
+						</li>
+						<li>
+							<a href="http://www.navy.mil.kr" target="_blank" title="새 창으로 이동" class="krds-btn link">대한민국해군<i class="svg-icon ico-go"></i>	</a>
+						</li>
+						<li>
+							<a href="https://rokaf.airforce.mil.kr" target="_blank" title="새 창으로 이동" class="krds-btn link">대한민국공군<i class="svg-icon ico-go"></i>	</a>
+						</li>
+						<li>
+							<a href="http://www.rokmc.mil.kr" target="_blank" title="새 창으로 이동" class="krds-btn link">대한민국해병대<i class="svg-icon ico-go"></i>	</a>
+						</li>
+						<li>
+							<a href="http://www.army.mil.kr/unitarng/searchRST.do" target="_blank" title="새 창으로 이동" class="krds-btn link">육군 신병부대배치조회<i class="svg-icon ico-go"></i>	</a>
+						</li>
+						<li>
+							<a href="http://www.edunavy.mil.kr" target="_blank" title="새 창으로 이동" class="krds-btn link">해군 신병부대배치조회<i class="svg-icon ico-go"></i>	</a>
+						</li>
+						<li>
+							<a href="https://www.airforce.mil.kr/user/indexSub.action?codyMenuSeq=147914956&siteId=atc&menuUIType=sub" target="_blank" title="새 창으로 이동" class="krds-btn link">공군 신병부대배치조회<i class="svg-icon ico-go"></i>	</a>
+						</li>
+						<li>
+							<a href="https://etg.rokmc.mil.kr:10006/unitorder/form.do?sMenuKey=64" target="_blank" title="새 창으로 이동" class="krds-btn link">해병대 신병부대배치조회<i class="svg-icon ico-go"></i>	</a>
+						</li>
+					</ul>
+				</div>
+				<button type="button" class="krds-btn medium icon btn-close close-modal">
+					<span class="sr-only">닫기</span>
+					<i class="svg-icon ico-popup-close"></i>
+				</button>
+			</div>
+		</div>
+		<div class="modal-back"></div>
+	</section>
+
+				<!-- 소속기관 -->
+	<section id="modal_affiliation" class="krds-modal fade" role="dialog" aria-labelledby="tit_modal_affiliation">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2 id="tit_modal_affiliation" class="modal-title">
+						소속기관
+					</h2>
+				</div>
+				<div class="modal-conts">
+					<ul class="pop-foot-links">
+						<li><a href="/seoul/index.do?mc=usr0000305" target="_blank" title="새 창으로 이동" class="krds-btn link">서울지방병무청<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/busan/index.do?mc=usr0000309" target="_blank" title="새 창으로 이동" class="krds-btn link">부산&middot;울산지방병무청<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/daegu/index.do?mc=usr0000313" target="_blank" title="새 창으로 이동" class="krds-btn link">대구&middot;경북지방병무청<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/suwon/index.do?mc=usr0000318" target="_blank" title="새 창으로 이동" class="krds-btn link">경인지방병무청<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/gwangju/index.do?mc=usr0000320" target="_blank" title="새 창으로 이동" class="krds-btn link">광주&middot;전남지방병무청<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/daejeon/index.do?mc=usr0000321" target="_blank" title="새 창으로 이동" class="krds-btn link">대전&middot;충남지방병무청<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/gangwon/index.do?mc=usr0000322" target="_blank" title="새 창으로 이동" class="krds-btn link">강원지방병무청<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/chungbuk/index.do?mc=usr0000323" target="_blank" title="새 창으로 이동" class="krds-btn link">충북지방병무청<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/jeonbuk/index.do?mc=usr0000324" target="_blank" title="새 창으로 이동" class="krds-btn link">전북지방병무청<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/gyeongnam/index.do?mc=usr0000325" target="_blank" title="새 창으로 이동" class="krds-btn link">경남지방병무청<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/jeju/index.do?mc=usr0000326" target="_blank" title="새 창으로 이동" class="krds-btn link">제주지방병무청<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/incheon/index.do?mc=mma0000933" target="_blank" title="새 창으로 이동" class="krds-btn link">인천병무지청<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/gyeonggibukbu/index.do?mc=usr0000327" target="_blank" title="새 창으로 이동" class="krds-btn link">경기북부병무지청<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/gangwonyoungdong/index.do?mc=usr0000328" target="_blank" title="새 창으로 이동" class="krds-btn link">강원영동병무지청<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/educenter/index.do?mc=mnu0000000" target="_blank" title="새 창으로 이동" class="krds-btn link">사회복무연수센터<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/jungang/index.do?mc=usr0000329" target="_blank" title="새 창으로 이동" class="krds-btn link">중앙병역판정검사소<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/minwon/index.do?mc=usr0000368" target="_blank" title="새 창으로 이동" class="krds-btn link">병무민원상담소<i class="svg-icon ico-go"></i></a></li>
+						<li><a href="/simsa/index.do?mc=mma0002411" target="_blank" title="새 창으로 이동" class="krds-btn link">대체역심사위원회<i class="svg-icon ico-go"></i></a></li>
+						
+					</ul>
+				</div>
+				<button type="button" class="krds-btn medium icon btn-close close-modal">
+					<span class="sr-only">닫기</span>
+					<i class="svg-icon ico-popup-close"></i>
+				</button>
+			</div>
+		</div>
+		<div class="modal-back"></div>
+	</section>
+</footer>
+<!-- //footer -->
+		<script src="/js/logAnalysis.js?version=1.1"></script>
+		<script>
+			//<![CDATA[
+			<!--
+				 try{ statsServer.execute('mma0000910'); }catch (e){}
+			//-->
+			//]]>
+		</script>
+	</body>
+</html>

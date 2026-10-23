@@ -1,7 +1,7 @@
 "use client";
 
 import { LockKeyhole, MapPin, TriangleAlert } from "lucide-react";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useMemo, useState } from "react";
 
 import {
   PRIOR_SERVICE_BASES,
@@ -16,6 +16,10 @@ import {
   type UserData,
   type UserDataStore,
 } from "@super-gongik/domain";
+import {
+  type InstitutionAmountSuggestion,
+  suggestInstitutionRates,
+} from "@super-gongik/rules";
 
 import { BackupPanel, downloadFullBackup } from "@/components/backup-panel";
 import { CloudSyncPanel } from "@/components/cloud-sync-panel";
@@ -236,6 +240,11 @@ function ProfileForm({
   const [commuteCost, setCommuteCost] = useState(
     profile.defaultCommuteCost?.toString() ?? "",
   );
+  const [institutionName, setInstitutionName] = useState(
+    profile.institutionName ?? "",
+  );
+  const [institutionFilled, setInstitutionFilled] = useState(false);
+  const [lastFareApplied, setLastFareApplied] = useState<string | null>(null);
   const [residenceRegion, setResidenceRegion] = useState(
     profile.residenceRegion ?? "",
   );
@@ -275,6 +284,66 @@ function ProfileForm({
   const [mealRate, setMealRate] = useState(
     profile.defaultMealAllowanceOverride?.toString() ?? "",
   );
+  const [customMeal, setCustomMeal] = useState(
+    profile.defaultMealAllowanceOverride !== null,
+  );
+  const institutionRates = useMemo(
+    () =>
+      institutionName.trim() === ""
+        ? null
+        : suggestInstitutionRates(institutionName, {
+            year: new Date().getFullYear(),
+          }),
+    [institutionName],
+  );
+
+  /**
+   * Typing a registered institution fills only the amounts still empty, and
+   * only ones the rules allow: never below the 2026 meal minimum, and a meal
+   * amount equal to the minimum is already the default.
+   */
+  function changeInstitution(value: string) {
+    setInstitutionName(value);
+    setInstitutionFilled(false);
+    if (value.trim() === "") return;
+    const found = suggestInstitutionRates(value, {
+      year: new Date().getFullYear(),
+    });
+    if (found.status !== "MATCHED") return;
+    let filled = false;
+    if (mealRate === "" && found.meal?.applicable && found.meal.amount > 9000) {
+      setMealRate(String(found.meal.amount));
+      setCustomMeal(true);
+      filled = true;
+    }
+    if (commuteCost === "" && found.transport?.applicable) {
+      setCommuteCost(String(found.transport.amount));
+      filled = true;
+    }
+    setInstitutionFilled(filled);
+  }
+
+  function reportInstitutionUrl() {
+    const name = institutionName.trim();
+    const body = [
+      `기관명: ${name}`,
+      `1일 중식비: ${mealRate === "" ? "(모름)" : `${mealRate}원`}`,
+      `1일 교통비: ${commuteCost === "" ? "(모름)" : `${commuteCost}원`}`,
+      "휴가·결근일 식비/교통비 지급 여부:",
+      "단수처리(예: 10원 미만 절사):",
+      "급여 지급일:",
+      "근거 자료(공문·지침 링크나 문서명, 게시일):",
+      "",
+      "※ 개인정보(이름, 계좌, 소집일 등)는 적지 마세요. 이 글은 공개돼요.",
+    ].join("\n");
+    const params = new URLSearchParams({
+      title: `기관 규칙 제보: ${name}`,
+      body,
+      labels: "institution-rules",
+    });
+    return `https://github.com/club-paradiso/super-gongik/issues/new?${params.toString()}`;
+  }
+
   const [liveProgressEnabled, setLiveProgressEnabled] = useState(
     profile.liveProgressEnabled ?? false,
   );
@@ -313,6 +382,7 @@ function ProfileForm({
           callUpDate,
           expectedDischargeDate,
           serviceCategory: serviceCategory.trim() || null,
+          institutionName: institutionName.trim() || null,
           residenceRegion: residenceRegion || null,
           defaultCommuteCost: commuteCost === "" ? null : Number(commuteCost),
           defaultMealAllowanceOverride:
@@ -603,21 +673,175 @@ function ProfileForm({
             </div>
           ) : null}
 
-          <label className="form-field">
-            <span>1일 중식비 (기관이 더 줄 때만)</span>
+          <div className="form-field">
+            <label htmlFor="institution-name">
+              <span>복무기관</span>
+            </label>
             <input
-              inputMode="numeric"
-              min="0"
-              placeholder="비우면 최소기준 9,000원"
-              type="number"
-              value={mealRate}
-              onChange={(event) => setMealRate(event.target.value)}
+              id="institution-name"
+              autoComplete="off"
+              maxLength={80}
+              placeholder="예: 경기도교육청, 서울특별시 성북구"
+              type="text"
+              value={institutionName}
+              onChange={(event) => changeInstitution(event.target.value)}
             />
             <small>
-              병무청 2026년 지급 기준은 1일 9,000원이 최소이고, 기관이 예산
-              범위에서 더 줄 수 있어요. 더 받는 경우에만 그 금액을 넣으세요.
+              기관명을 입력하면 등록된 공식 자료에서 중식비·교통비 기준을 찾아
+              보여드려요. 값은 확인 후 저장해야 반영돼요.
             </small>
-          </label>
+            {institutionRates?.status === "MATCHED" ? (
+              <div className="institution-rates" role="status">
+                <strong>{institutionRates.institution.name}</strong>
+                <small>{institutionRates.institution.scopeNote}</small>
+                {(
+                  [
+                    ["중식비", institutionRates.meal, setMealRate, mealRate],
+                    [
+                      "교통비",
+                      institutionRates.transport,
+                      setCommuteCost,
+                      commuteCost,
+                    ],
+                  ] as Array<
+                    [
+                      string,
+                      InstitutionAmountSuggestion | null,
+                      (value: string) => void,
+                      string,
+                    ]
+                  >
+                ).map(([label, amount, apply, current]) =>
+                  amount ? (
+                    <p key={label}>
+                      {label} {amount.amount.toLocaleString("ko-KR")}원 ·{" "}
+                      {amount.effectiveYear}년 · {amount.sourceTitle}
+                      {amount.applicable &&
+                      current !== String(amount.amount) ? (
+                        <>
+                          {" "}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              apply(String(amount.amount));
+                              if (label === "중식비") setCustomMeal(true);
+                            }}
+                          >
+                            적용
+                          </button>
+                        </>
+                      ) : null}
+                      {amount.caution ? <small> {amount.caution}</small> : null}
+                    </p>
+                  ) : null,
+                )}
+                {institutionRates.meal === null &&
+                institutionRates.transport === null ? (
+                  <small>
+                    이 기관의 중식비·교통비 금액 근거는 아직 없어요. 직접 입력해
+                    주세요.
+                  </small>
+                ) : null}
+                {institutionFilled ? (
+                  <small>
+                    비어 있던 칸을 기관 기준으로 채웠어요. 저장하기 전에 확인해
+                    주세요.
+                  </small>
+                ) : null}
+                {institutionRates.notes.length > 0 ? (
+                  <details>
+                    <summary>
+                      이 기관의 확인된 규칙 {institutionRates.notes.length}건
+                    </summary>
+                    <ul>
+                      {institutionRates.notes.map((note) => (
+                        <li
+                          key={`${note.field}|${note.text}|${note.sourceTitle}`}
+                        >
+                          {INSTITUTION_FIELD_LABELS[note.field] ??
+                            "그 밖의 규칙"}
+                          : {note.text}{" "}
+                          <small>
+                            ({note.effectiveYear}년 · {note.sourceTitle})
+                          </small>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : null}
+              </div>
+            ) : institutionRates?.status === "UNKNOWN_INSTITUTION" ? (
+              <div className="institution-rates" role="status">
+                {institutionRates.suggestions.length > 0 ? (
+                  <>
+                    <small>혹시 이 기관인가요?</small>
+                    {institutionRates.suggestions.slice(0, 5).map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => changeInstitution(item.name)}
+                      >
+                        {item.name}
+                      </button>
+                    ))}
+                  </>
+                ) : (
+                  <small>
+                    등록된 기관 근거가 없어요. 중식비·교통비는 직접 입력해
+                    주세요.
+                  </small>
+                )}
+                <a
+                  href={reportInstitutionUrl()}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  우리 기관 기준 제보하기
+                </a>
+              </div>
+            ) : null}
+          </div>
+
+          <fieldset className="form-field">
+            <legend>중식비</legend>
+            <label>
+              <input
+                checked={!customMeal}
+                name="meal-mode"
+                type="radio"
+                onChange={() => {
+                  setCustomMeal(false);
+                  setMealRate("");
+                }}
+              />
+              기본 9,000원
+            </label>
+            <label>
+              <input
+                checked={customMeal}
+                name="meal-mode"
+                type="radio"
+                onChange={() => setCustomMeal(true)}
+              />
+              기관이 더 줘요
+            </label>
+            {customMeal ? (
+              <input
+                aria-label="기관 1일 중식비"
+                inputMode="numeric"
+                min="9000"
+                placeholder="기관 1일 중식비(원)"
+                type="number"
+                value={mealRate}
+                onChange={(event) => setMealRate(event.target.value)}
+              />
+            ) : null}
+            <small>
+              {customMeal
+                ? "기관이 주는 1일 중식비를 넣어 주세요. 9,000원보다 낮은 금액은 쓸 수 없어요."
+                : "병무청 기준 1일 9,000원으로 매달 자동 계산해요. 기관이 더 주는 경우에만 바꾸세요."}
+            </small>
+          </fieldset>
 
           <label className="form-field">
             <span>
@@ -630,8 +854,13 @@ function ProfileForm({
                 const region = event.target.value;
                 setResidenceRegion(region);
                 const suggestion = regionalFareSuggestion(region || null);
-                if (suggestion) {
-                  setCommuteCost(String(suggestion.dailyRoundTripFare));
+                if (
+                  suggestion &&
+                  (commuteCost === "" || commuteCost === lastFareApplied)
+                ) {
+                  const applied = String(suggestion.dailyRoundTripFare);
+                  setCommuteCost(applied);
+                  setLastFareApplied(applied);
                 }
               }}
             >
@@ -644,7 +873,8 @@ function ProfileForm({
             </select>
             <small>
               지역 기본 시내버스 운임이 검증된 경우 1일 교통비를 자동으로
-              제안해요. 실제 통근 경로가 다르면 아래 금액을 직접 고치세요.
+              채워요. 직접 입력한 금액은 바꾸지 않아요. 한 번만 정해 두면 매달
+              자동으로 계산해요.
             </small>
           </label>
 
@@ -693,6 +923,18 @@ function ProfileForm({
     </form>
   );
 }
+
+const INSTITUTION_FIELD_LABELS: Record<string, string> = {
+  TRANSPORT_METHOD: "교통비 지급 방식",
+  MEAL_ON_LEAVE: "휴가 시 중식비",
+  TRANSPORT_ON_LEAVE: "휴가 시 교통비",
+  MEAL_ON_ABSENCE: "결근 시 중식비",
+  TRANSPORT_ON_ABSENCE: "결근 시 교통비",
+  MEAL_ON_PARTIAL_DAY: "반일·시간 단위 중식비",
+  ROUNDING: "단수처리",
+  PAY_DAY: "급여 지급일",
+  WORK_DAYS_RULE: "근무일수 규칙",
+};
 
 /**
  * Theme picker. Applies at once and is stored in this browser only, outside

@@ -24,6 +24,7 @@ function profile(
       expectedDischargeDate,
       serviceCategory: null,
       workplaceType: null,
+      institutionName: null,
       defaultCommuteCost: null,
       defaultMealAllowanceOverride: null,
       timezone: "Asia/Seoul",
