@@ -75,15 +75,19 @@ describe("institution registry provenance", () => {
   it("finds every quote verbatim (ignoring whitespace) in its stored extract", () => {
     const facts = knownFacts(INSTITUTION_REGISTRY);
     expect(facts.length).toBeGreaterThan(0);
+    const squashed = new Map<string, string>();
     for (const { institution, field, fact } of facts) {
       for (const evidence of fact.evidence) {
         const source = sources.get(evidence.sourceId)!;
-        const text = readFileSync(
-          resolve(repoRoot, source.extract.file),
-          "utf8",
-        );
+        let text = squashed.get(source.extract.file);
+        if (text === undefined) {
+          text = squash(
+            readFileSync(resolve(repoRoot, source.extract.file), "utf8"),
+          );
+          squashed.set(source.extract.file, text);
+        }
         expect(
-          squash(text).includes(squash(evidence.quote)),
+          text.includes(squash(evidence.quote)),
           `${institution.id}.${field} quote not in ${source.extract.file}`,
         ).toBe(true);
       }

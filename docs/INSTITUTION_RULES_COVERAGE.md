@@ -711,12 +711,11 @@ The importer re-checks every candidate fact and drops it rather than repairing i
 
 The 병무청's own page "보수 및 권익보장" (mma.go.kr) states, verbatim,
 "교통비,급식비 실제 근무일에 대해 실비 지급 휴가, 결근 등 비근무일 미지급".
-경기도교육청's 2025 복무관리 매뉴얼 and 인천광역시교육청's 2026 지침 say the same.
-`docs/COMPENSATION_POLICY_2026.md` currently classifies full-day leave as
-AMBIGUOUS and leaves the decision to the user. That page is an official
-explanatory page, not a regulation (confidence MEDIUM here). Whether it should
-turn the leave-day default into "not paid" is a policy decision for the
-compensation bundle owner and is **not** made in this change.
+경기도교육청's 2025 복무관리 매뉴얼, 인천광역시교육청's 2026 지침 and
+서울특별시교육청's 2026 매뉴얼 say the same. **Applied on 2026-10-23** as the
+병무청 공통 규정: the calculator now treats a full day of leave or absence as
+earning no 중식비·교통비 (`docs/COMPENSATION_POLICY_2026.md`); a user can still
+record a per-day decision for an institution that pays differently.
 
 ## Re-running and extending
 
