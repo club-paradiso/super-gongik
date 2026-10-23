@@ -4,7 +4,7 @@
   "version": "2026",
   "effectiveFrom": "2026-01-01",
   "effectiveUntil": "2026-12-31",
-  "verifiedAt": "2026-09-24",
+  "verifiedAt": "2026-10-23",
   "status": "VERIFIED_CONTEXTUAL",
   "jurisdiction": "KR",
   "currency": "KRW",
@@ -79,6 +79,18 @@
       "excerptFile": "docs/sources/2026/mma-2026-bosu-jigeup-gijun.extracted.txt",
       "excerptSha256": "36b2e8c4065da309701f55553847066a0f38e8b32c829554f04ce18628b8d7f8",
       "usage": "Confirms the base-pay table, the 2026 daily meal minimum (9,000 KRW) and the transport fare basis. Silent on proration, rounding, 근무일수, non-payable days and night duty."
+    },
+    {
+      "title": "병역이행안내 > 사회복무요원 > 보수 및 권익보장",
+      "authority": "병무청",
+      "sourceType": "OFFICIAL_WEB_PAGE",
+      "url": "https://www.mma.go.kr/contents.do?mc=mma0000910&mc1=usr0000179&num=7",
+      "retrievedAt": "2026-10-22",
+      "artifactFile": "docs/sources/institutions/mma-pay-page/original.html",
+      "artifactSha256": "db9053bf17556858430fccd59db25b91bcc9df6064bfa4f3c41746e9fb72d3cb",
+      "excerptFile": "docs/sources/institutions/mma-pay-page/extract.txt",
+      "excerptSha256": "1b106b11190219b57773610709daeac02752d5fd149945cedbe58b21ad96b7f1",
+      "usage": "States the nationwide rule for 교통비·급식비: '실제 근무일에 대해 실비 지급 휴가, 결근 등 비근무일 미지급'. Applied as the 병무청 공통 규정 for full days of leave and absence (product decision 2026-10-23)."
     }
   ],
   "basePay": {
@@ -214,17 +226,18 @@
     "supportedWorkPattern": "WEEKDAY_DAYTIME",
     "unsupportedWorkPatterns": ["NIGHT_SHIFT_ROTATION", "RESIDENTIAL", "OTHER"],
     "unsupportedReason": "제41조④ 단서 counts a night-rotation day as two days and 제18조①6호 residential service provides board in kind; neither is modelled.",
-    "fullDayLeaveTreatment": "REQUIRES_USER_DECISION",
-    "fullDayLeaveBasis": "No primary source states per leave type (연가·병가·공가·특별휴가·청원휴가) whether 중식비·교통비 are paid on a full day of leave: 제41조④ says only '실비', and the MMA 2026 standard gives rates, not eligible days. Institution guidance (e.g. a 경기도교육청 accounting guideline reported to state 휴가일 미지급) is institution-specific, so the day is classified FULL_DAY_LEAVE and the user decides.",
+    "fullDayLeaveTreatment": "NOT_PAID_MMA_COMMON_RULE",
+    "fullDayLeaveBasis": "병무청 '보수 및 권익보장' (mma.go.kr): '교통비,급식비 실제 근무일에 대해 실비 지급 휴가, 결근 등 비근무일 미지급'. Applied as the nationwide 병무청 공통 규정 (product decision 2026-10-23): a full day of leave (연가·병가·공가·특별휴가·청원휴가) or of absence (복무중단·복무이탈·연가초과 결근) earns no 중식비·교통비. An institution that pays differently is corrected by the user's own per-day decision or a user report.",
     "partialDayTreatment": "REQUIRES_USER_DECISION",
     "holidayTreatment": "USER_CONFIRMED_PER_MONTH",
     "mmaAttachmentFinding": "NOT_FOUND: the 2026 MMA payment standard states per-day amounts but not which days qualify.",
     "leaveTypeEvidence": {
-      "ANNUAL_LEAVE": "AMBIGUOUS",
-      "SICK_LEAVE": "AMBIGUOUS",
-      "OFFICIAL_LEAVE": "AMBIGUOUS",
-      "SPECIAL_LEAVE": "AMBIGUOUS",
-      "COMPASSIONATE_LEAVE": "AMBIGUOUS"
-    }
+      "ANNUAL_LEAVE": "NOT_PAID",
+      "SICK_LEAVE": "NOT_PAID",
+      "OFFICIAL_LEAVE": "NOT_PAID",
+      "SPECIAL_LEAVE": "NOT_PAID",
+      "COMPASSIONATE_LEAVE": "NOT_PAID"
+    },
+    "fullDayAbsenceTreatment": "NOT_PAID_MMA_COMMON_RULE"
   }
 }

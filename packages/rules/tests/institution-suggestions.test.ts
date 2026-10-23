@@ -76,8 +76,14 @@ describe("suggestInstitutionRates", () => {
   });
 
   it("returns suggestions, never a guess, for an unregistered name", () => {
-    const result = suggestInstitutionRates("경기도", { year: 2026 });
+    // "경기" names no registry record; 경기도 and 경기도교육청 only contain it.
+    const result = suggestInstitutionRates("경기", { year: 2026 });
     expect(result.status).toBe("UNKNOWN_INSTITUTION");
+    if (result.status !== "UNKNOWN_INSTITUTION")
+      throw new Error("expected unknown");
+    expect(result.suggestions.map((item) => item.id)).toEqual(
+      expect.arrayContaining(["edu-gyeonggi", "metro-gyeonggi"]),
+    );
     const none = suggestInstitutionRates("없는기관123", { year: 2026 });
     expect(none).toMatchObject({
       status: "UNKNOWN_INSTITUTION",

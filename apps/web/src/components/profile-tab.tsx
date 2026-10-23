@@ -6,11 +6,14 @@ import { type FormEvent, useMemo, useState } from "react";
 import {
   PRIOR_SERVICE_BASES,
   PRIOR_SERVICE_BASIS_LABELS,
+  SERVICE_DAY_METRIC_LABELS,
+  SERVICE_DAY_METRICS,
   calculateExpectedDischargeDate,
   editProfile,
   isDateOnly,
   type PriorServiceBasis,
   type DateOnly,
+  type ServiceDayMetric,
   type LeaveLedger,
   type ServiceProfile,
   type UserData,
@@ -347,6 +350,9 @@ function ProfileForm({
   const [liveProgressEnabled, setLiveProgressEnabled] = useState(
     profile.liveProgressEnabled ?? false,
   );
+  const [serviceDayMetrics, setServiceDayMetrics] = useState<
+    ServiceDayMetric[]
+  >(profile.serviceDayMetrics ?? [...SERVICE_DAY_METRICS]);
   const [error, setError] = useState("");
 
   function toggleWeekday(day: number) {
@@ -409,6 +415,7 @@ function ProfileForm({
               ? weekdays
               : null,
           liveProgressEnabled,
+          serviceDayMetrics,
         },
         context,
       ),
@@ -598,6 +605,32 @@ function ProfileForm({
               갱신해요. 끄면 기존처럼 일 단위로 표시해요.
             </small>
           </div>
+          <fieldset className="form-field">
+            <legend>홈 화면에 보여 줄 실질 복무일수</legend>
+            {SERVICE_DAY_METRICS.map((metric) => (
+              <label className="check-row" key={metric}>
+                <input
+                  checked={serviceDayMetrics.includes(metric)}
+                  onChange={(event) =>
+                    setServiceDayMetrics((current) =>
+                      event.target.checked
+                        ? SERVICE_DAY_METRICS.filter(
+                            (item) => item === metric || current.includes(item),
+                          )
+                        : current.filter((item) => item !== metric),
+                    )
+                  }
+                  type="checkbox"
+                />
+                {SERVICE_DAY_METRIC_LABELS[metric]}
+              </label>
+            ))}
+            <small className="field-hint">
+              주말·공휴일(한국천문연구원 특일 정보)과 휴가·결근일을 빼고 세요.
+              급여 계산은 이 공휴일을 쓰지 않고, 달마다 확인한 휴무일을 그대로
+              써요.
+            </small>
+          </fieldset>
         </SettingsGroup>
 
         <SettingsGroup title="보수 계산 기준">

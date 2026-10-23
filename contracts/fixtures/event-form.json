@@ -1644,7 +1644,7 @@
               "version": "2026",
               "effectiveFrom": "2026-01-01",
               "effectiveUntil": "2026-12-31",
-              "verifiedAt": "2026-09-24",
+              "verifiedAt": "2026-10-23",
               "sources": [
                 {
                   "title": "병역법 시행령 제62조(사회복무요원의 보수 등)",
@@ -1675,6 +1675,12 @@
                   "authority": "병무청 사회복무국",
                   "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
                   "sha256": "f4bff691605807f8b20ac2c7034b0dbb052f899a2417236424cdf0faf1bfb158"
+                },
+                {
+                  "title": "병역이행안내 > 사회복무요원 > 보수 및 권익보장",
+                  "authority": "병무청",
+                  "url": "https://www.mma.go.kr/contents.do?mc=mma0000910&mc1=usr0000179&num=7",
+                  "sha256": "db9053bf17556858430fccd59db25b91bcc9df6064bfa4f3c41746e9fb72d3cb"
                 }
               ]
             },
@@ -2117,7 +2123,7 @@
               "version": "2026",
               "effectiveFrom": "2026-01-01",
               "effectiveUntil": "2026-12-31",
-              "verifiedAt": "2026-09-24",
+              "verifiedAt": "2026-10-23",
               "sources": [
                 {
                   "title": "병역법 시행령 제62조(사회복무요원의 보수 등)",
@@ -2148,6 +2154,12 @@
                   "authority": "병무청 사회복무국",
                   "url": "https://open.mma.go.kr/caisGGGS/board/boardView.do?gesipan_id=16&gsgeul_no=1517395",
                   "sha256": "f4bff691605807f8b20ac2c7034b0dbb052f899a2417236424cdf0faf1bfb158"
+                },
+                {
+                  "title": "병역이행안내 > 사회복무요원 > 보수 및 권익보장",
+                  "authority": "병무청",
+                  "url": "https://www.mma.go.kr/contents.do?mc=mma0000910&mc1=usr0000179&num=7",
+                  "sha256": "db9053bf17556858430fccd59db25b91bcc9df6064bfa4f3c41746e9fb72d3cb"
                 }
               ]
             },

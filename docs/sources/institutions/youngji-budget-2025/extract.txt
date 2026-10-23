@@ -1,0 +1,1089 @@
+<u>2025학년도 세입예산명세서</u>
+
+<u>2025학년도 세출예산명세서</u>
+
+2025 학년도
+
+제주영지학교 회계 세입 • 세출 예산서 (2025.02.13)
+
+(본예산)
+
+
+# <u>제주영지학교 회계 세입·세출 예산서</u>
+
+본예산
+
+예산구분 :
+
+
+### <u>예산 총칙</u>
+
+| 예산확정일자 | 2025-02-13 | 예산액 | 3,537,479,000 |
+| --- | --- | --- | --- |
+
+
+### 제1조(목적) 2025학년도 제주영지학교회계 세입·세출 예산은 예산의 효율적 집행을 도모하고, 학교교육계획과
+
+연계한 사업별 예산의 적기 집행을 목적으로 한다.
+
+
+### 제2조(예산의 규모) 2025학년도 제주영지학교회계 본예산 세입·세출 예산총액은 3,537,479,000원이고
+
+세입세출의 명세는 "세입·세출 예산서"와 같다.
+
+
+### 제3조(명시이월사업) 해당없음
+
+
+### 제4조(계속비 사업) 해당 없음
+
+
+### 제5조(성립전 예산) 국가 또는 지방자치단체 등으로부터 그 용도가 지정되고 소요전액이 교부된 경비 또는 수
+
+익자부담경비는 추가경정예산의 성립전에 사용할 수 있으며, 이는 차기 추가경정예산에 반영한다. 다만, 회계
+
+연도 말에 목적지정지원금이 교부되어 추가경정예산을 편성하지 못할 경우 학교운영위원회의 심의를 받은 것으
+
+로 간주처리하되, 차기 학교운영위원회에 보고하여야 한다.
+
+
+### 제6조(예산의 이용) 다음의 경비에 부족이 생겼을 때에는 제주특별자치도 공립학교회계 규칙 제17조 단서규정
+
+에 의하여 비목 상호간 또는 타 비목으로부터 이용할 수 있다.
+
+1. 교육공무직원의 인건비
+
+2. 각종 공과금
+
+
+### 제7조(예산의 전용) 추가경정예산을 편성하기 어려운 사유가 발생한 경우 예산집행의 목적을 달성하기 위해서
+
+인건비와 시설비를 제외한 예산의 동일한 정책사업 내의 단위사업간 목의 금액은 전용할 수 있다. 다만, 회계
+
+연도 경과 후 또는 업무추진비에 충당하기 위하여 다른 목에서의 전용은 할 수 없다.
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">과 목</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교증감</th><th colspan="2" rowspan="2">산출기초(원)</th><th rowspan="2">비고</th></tr>
+<tr><td>장</td><td>관</td><td>항</td><td>목</td><td>원가통계비목</td></tr>
+<tr><td colspan="5">1.이전수입</td><td>3,360,587</td><td>2,677,112</td><td>683,475</td><td></td><td></td><td></td></tr>
+<tr><td></td><td colspan="4">1.지방교육행정기관이전수입</td><td>3,360,587</td><td>2,677,112</td><td>683,475</td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.교육비특별회계전입금수입</td><td>3,360,587</td><td>2,677,112</td><td>683,475</td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.교육비특별회계전입금</td><td>3,360,587</td><td>2,677,112</td><td>683,475</td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.학교운영비전입금</td><td>1,632,380</td><td>1,739,766</td><td>-107,386</td><td>학교운영기본경비 : 932,316,000원 * 1개교 =</td><td>932,316,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학교운영기본경비 통합사업비 : 700,064,000원<br>* 1개교 =</td><td>700,064,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.목적사업비전입금</td><td>1,728,207</td><td>937,346</td><td>790,861</td><td>각급학교 장애인일자리 운영 : 108,000,000원<br>* 1개교 =</td><td>108,000,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>특수교육대상자 통학비지원 : 20,000,000원 *<br>1개교 =</td><td>20,000,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>특수학교자원봉사자 운영 : 200,000,000원 * 1<br>개교 =</td><td>200,000,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>사회복무요원인건비 : 280,000,000원 * 1개교<br>=</td><td>280,000,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>장애학생통학편의지원 : 100,000,000원 * 1개<br>교 =</td><td>100,000,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>통학버스 교체구입비 지원 : 536,822,000원 *<br>1개교 =</td><td>536,822,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>행동중재프로그램운영지원 : 8,000,000원 * 1<br>개교 =</td><td>8,000,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학교급식비 지원 : 259,755,000원 * 1개교 =</td><td>259,755,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>장애학생부모자조모임 : 4,000,000원 * 1개교<br>=</td><td>4,000,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>중도중복장애학생맞춤형교육지원 : 8,000,000<br>원 * 1개교 =</td><td>8,000,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>수학여행비 추가 지원 : 13,330,000원 * 1개교<br>=</td><td>13,330,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>진로직업특화교육운영 : 9,000,000원 * 1개교<br>=</td><td>9,000,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>산업체연계현장실습 : 17,000,000원 * 1개교 =</td><td>17,000,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>장애학생미래교육역량강화 : 30,000,000원 * 1<br>개교 =</td><td>30,000,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>장애학생맞춤형건강체육활동지원 : 5,500,000<br>원 * 1개교 =</td><td>5,500,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>장애학생문화예술교육지원 : 12,000,000원 * 1<br>개교 =</td><td>12,000,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>특수학교늘봄학교운영 : 86,000,000원 * 1개교<br>=</td><td>86,000,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>제3종시설물안전점검 : 14,800,000원 * 1개교<br>=</td><td>14,800,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>고교학점제 운영 지원 : 16,000,000원 * 1개교<br>=</td><td>16,000,000</td><td></td></tr>
+<tr><td colspan="5">2.자체수입</td><td>158,892</td><td>152,628</td><td>6,264</td><td></td><td></td><td></td></tr>
+<tr><td></td><td colspan="4">1.학부모부담수입</td><td>135,892</td><td>127,628</td><td>8,264</td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.수익자부담수입</td><td>135,892</td><td>127,628</td><td>8,264</td><td></td><td></td><td></td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">과 목</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교증감</th><th colspan="3" rowspan="2">산출기초(원)</th><th rowspan="2">비고</th></tr>
+<tr><td>장</td><td>관</td><td>항</td><td>목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.급식비</td><td>135,892</td><td>127,628</td><td>8,264</td><td></td><td colspan="2"></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.급식비</td><td>135,892</td><td>127,628</td><td>8,264</td><td>교직원급식비 : 5,620원*130명*186일=</td><td colspan="2">135,892,000</td><td></td></tr>
+<tr><td></td><td colspan="4">2.행정활동수입</td><td>23,000</td><td>25,000</td><td>-2,000</td><td></td><td colspan="2"></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.기타행정활동수입</td><td>23,000</td><td>25,000</td><td>-2,000</td><td></td><td colspan="2"></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.이자수입</td><td>15,000</td><td>15,000</td><td>0</td><td></td><td colspan="2"></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.이자수입</td><td>15,000</td><td>15,000</td><td>0</td><td>이자수입 : 3,000,000원*5회=</td><td colspan="2">15,000,000</td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.기타행정활동수입</td><td>8,000</td><td>10,000</td><td>-2,000</td><td></td><td colspan="2"></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.기타행정활동수입</td><td>8,000</td><td>10,000</td><td>-2,000</td><td>전공과 실습수입 : 1,000,000원*8회=</td><td colspan="2">8,000,000</td><td></td></tr>
+<tr><td colspan="5">3.기타수입</td><td>18,000</td><td>20,000</td><td>-2,000</td><td></td><td colspan="2"></td><td></td></tr>
+<tr><td></td><td colspan="4">1.전년도이월금</td><td>18,000</td><td>20,000</td><td>-2,000</td><td></td><td colspan="2"></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.순세계잉여금</td><td>18,000</td><td>20,000</td><td>-2,000</td><td></td><td colspan="2"></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.순세계잉여금</td><td>18,000</td><td>20,000</td><td>-2,000</td><td></td><td colspan="2"></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.순세계잉여금</td><td>18,000</td><td>20,000</td><td>-2,000</td><td>순세계잉여금 : 18,000,000원*1회=</td><td colspan="2">18,000,000</td><td></td></tr>
+<tr><td colspan="5">세입합계</td><td>3,537,479</td><td>2,849,740</td><td>687,739</td><td colspan="2"></td><td></td><td></td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td colspan="5">1.인적자원 운용</td><td>60,832</td><td>72,028</td><td>-11,196</td><td></td><td></td></tr>
+<tr><td></td><td colspan="4">1.기타 교직원보수</td><td>0</td><td>2,862</td><td>-2,862</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.교직원대체인건비</td><td>0</td><td>2,862</td><td>-2,862</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.지방공무원대체인건비</td><td>0</td><td>2,862</td><td>-2,862</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.기간제근로자인건비</td><td>0</td><td>2,658</td><td>-2,658</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.기간제근로자법정부담금</td><td>0</td><td>204</td><td>-204</td><td></td><td></td></tr>
+<tr><td></td><td colspan="4">2.교직원 복지 및 역량강화</td><td>60,832</td><td>69,166</td><td>-8,334</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.교직원역량강화</td><td>22,132</td><td>22,766</td><td>-634</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.직무연수</td><td>12,000</td><td>12,250</td><td>-250</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교직원복지비</td><td>12,000</td><td>12,250</td><td>-250</td><td>(보정)교원직무연수경비 : 250,000원*48학<br>급=</td><td>12,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.연구수업운영</td><td>2,890</td><td>3,360</td><td>-470</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반업무추진비</td><td>2,890</td><td>3,360</td><td>-470</td><td>수업연구동아리 간담회 : 15,000원*83명*2<br>회=</td><td>2,490,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>멘토링 운영 간담회 : 20,000원*10명*2회<br>=</td><td>400,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.퇴직예정자연수</td><td>1,200</td><td>500</td><td>700</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교직원복지비</td><td>1,200</td><td>500</td><td>700</td><td>퇴직예정자교육 : 600,000원*2명=</td><td>1,200,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.교원능력개발평가연수</td><td>2,100</td><td>2,100</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>1,800</td><td>1,800</td><td>0</td><td>강사료 : 900,000원*2회=</td><td>1,800,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.일반업무추진비</td><td>300</td><td>300</td><td>0</td><td>평가관리위원회 간담회 : 150,000원*2회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.성폭력예방교육연수</td><td>262</td><td>256</td><td>6</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>262</td><td>256</td><td>6</td><td>강사료 : 262,000원*1회=</td><td>262,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">6.학교안수업연구동아리운영</td><td>2,560</td><td>3,180</td><td>-620</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>900</td><td>1,500</td><td>-600</td><td>(권장)강사료 : 300,000원*3회=</td><td>900,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교직원복지비</td><td>1,660</td><td>1,680</td><td>-20</td><td>(권장)연구수업운영도서구입 : 20,000원<br>*83명*1회=</td><td>1,660,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">7.교직원심폐소생술 및 응급처<br>치교육</td><td>1,120</td><td>1,120</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>1,120</td><td>1,120</td><td>0</td><td>강사료 : 160,000원*7회=</td><td>1,120,000</td></tr>
+<tr><td></td><td></td><td colspan="3">2.교직원복지</td><td>38,700</td><td>46,400</td><td>-7,700</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.퇴임식,스승의날행사</td><td>1,000</td><td>0</td><td>1,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>1,000</td><td>0</td><td>1,000</td><td>퇴임식 행사 : 500,000원*2회=</td><td>1,000,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.교직원문화행사</td><td>31,300</td><td>41,600</td><td>-10,300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.여비</td><td>18,000</td><td>28,200</td><td>-10,200</td><td>교직원 선진지 시찰 및 문화체험경비 :<br>300,000원*60명*1회=</td><td>18,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교직원복지비</td><td>13,300</td><td>13,400</td><td>-100</td><td>교직원 문화 행사 및 체육행사 : 50,000원<br>*133명*2회=</td><td>13,300,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.교직원 생일기념 경비</td><td>4,500</td><td>4,800</td><td>-300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교직원복지비</td><td>4,500</td><td>4,800</td><td>-300</td><td>교직원 생일기념 경비 : 30,000원*150명=</td><td>4,500,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.교직원심리적소진예방지원</td><td>1,900</td><td>0</td><td>1,900</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>500</td><td>0</td><td>500</td><td>강사료 : 500,000원*1회=</td><td>500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.여비</td><td>400</td><td>0</td><td>400</td><td>강사여비 : 400,000원*1회=</td><td>400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.교직원복지비</td><td>1,000</td><td>0</td><td>1,000</td><td>심리검사비 : 10,000원*100명=</td><td>1,000,000</td></tr>
+<tr><td colspan="5">2.학생복지/교육격차 해소</td><td>1,224,087</td><td>725,265</td><td>498,822</td><td></td><td></td></tr>
+<tr><td></td><td colspan="4">1.급식 관리</td><td>426,891</td><td>392,960</td><td>33,931</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.학교급식운영</td><td>426,891</td><td>392,960</td><td>33,931</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.급식재료구입비</td><td>0</td><td>224,183</td><td>-224,183</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.급식용식재료비</td><td>0</td><td>224,183</td><td>-224,183</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.급식운영비</td><td>290,599</td><td>40,744</td><td>249,855</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>20,301</td><td>23,714</td><td>-3,413</td><td>가스 법정검사 : 30,000원*1회=</td><td>30,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>급식용소모품 구입 : 1,197,200원*5회=</td><td>5,986,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>급식기구 수리 : 1,000,000원*4회=</td><td>4,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>급식시설 소규모 수선비 : 500,000원*2회=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학교급식 전자조달시스템 이용수수료 :<br>60,000원*10회=</td><td>600,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학교급식모니터요원급식비 : 5,310원*2명<br>*8회=</td><td>85,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>영양교육자료 구입 : 20,000원*10회=</td><td>200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(권장)조리실위험작업구간위탁청소용역비<br>: 1,000,000원*2회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(목적)급식용소모품 구입(학생) :<br>1,280,000원*5회=</td><td>6,400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.운영수당</td><td>100</td><td>100</td><td>0</td><td>급식교육 강사수당 : 100,000원*1회=</td><td>100,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.연료비</td><td>14,500</td><td>14,000</td><td>500</td><td>급식실 가스사용료 : 1,450,000원*10회=</td><td>14,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.기타공공요금</td><td>20</td><td>20</td><td>0</td><td>가스배상책임보험 : 20,000원*1회=</td><td>20,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>5.급식용식재료비</td><td>253,462</td><td>210</td><td>253,252</td><td>급식공개의날 식재료 구입 : 5,310원*20명<br>*1회=</td><td>107,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(목적)급식용식재료 구입(학생) :<br>25,335,500원*10회=</td><td>253,355,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>6.교직원복지비</td><td>416</td><td>450</td><td>-34</td><td>급식관련 법정 교육비 : 40,000원*2회=</td><td>80,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>역량강화연수경비 : 300,000원*1명*1회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>건강진단결과서 발급비용 : 3,000원*6명*2<br>회=</td><td>36,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>7.일반업무추진비</td><td>300</td><td>250</td><td>50</td><td>급식종사자 평가회 : 300,000원*1회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>8.비품구입비</td><td>1,500</td><td>2,000</td><td>-500</td><td>HACCP급식기구 구입 : 500,000원*3회=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.(통합)음식물류폐기물감량기<br>임차및유지관리</td><td>400</td><td>405</td><td>-5</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>400</td><td>405</td><td>-5</td><td>음식물류폐기물감량기유지관리비 :<br>400,000원*1회=</td><td>400,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.수익자부담급식비</td><td>135,892</td><td>127,628</td><td>8,264</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.기간제근로자인건비</td><td>3,373</td><td>3,199</td><td>174</td><td>조리종사자 대체인건비(교직원) : 93,680<br>원*36회=</td><td>3,373,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.일반수용비</td><td>3,200</td><td>2,431</td><td>769</td><td>급식용소모품 구입(교직원) : 640,000원*5<br>회=</td><td>3,200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.급식용식재료비</td><td>129,121</td><td>121,928</td><td>7,193</td><td>급식용식재료 구입(교직원) :<br>12,912,100*10회=</td><td>129,121,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.기간제근로자법정부담금</td><td>198</td><td>70</td><td>128</td><td>대체근로자 사회보험기관부담금 : 5,500원<br>*36회=</td><td>198,000</td></tr>
+<tr><td></td><td colspan="4">2.보건관리</td><td>52,916</td><td>56,138</td><td>-3,222</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.학생및교직원보건안전관리</td><td>28,374</td><td>34,487</td><td>-6,113</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.응급학생후송비</td><td>100</td><td>100</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.여비</td><td>100</td><td>100</td><td>0</td><td>응급학생 수송비 : 20,000원*5회=</td><td>100,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.학생건강검사</td><td>3,120</td><td>2,407</td><td>713</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.학생복지비</td><td>3,120</td><td>2,407</td><td>713</td><td>학생 건강검진비 : 30,000원*84명=</td><td>2,520,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>구강검진비 : 10,000원*60명=</td><td>600,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.보건실운영</td><td>4,300</td><td>4,000</td><td>300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>1,790</td><td>3,700</td><td>-1,910</td><td>보건실 운영물품 구입 : 500,000원*3회=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>보건실 침구류세탁비 : 100,000*2회=</td><td>200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>자동심장충격기(AED) 소모품 : 90,000원*1<br>회=</td><td>90,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교직원복지비</td><td>1,110</td><td>100</td><td>1,010</td><td>교직원 결핵 검사 등 지원 : 50,000원*20<br>명=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>간호사 보수교육비 : 110,000원*1회=</td><td>110,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.학생복지비</td><td>1,400</td><td>0</td><td>1,400</td><td>(권장)구강진료 용품구입 : 200,000원*7회<br>=</td><td>1,400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.일반업무추진비</td><td>0</td><td>200</td><td>-200</td><td></td><td></td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.보건실약품구입</td><td>1,800</td><td>1,800</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>0</td><td>1,800</td><td>-1,800</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.학생복지비</td><td>1,800</td><td>0</td><td>1,800</td><td>보건실약품구입 : 600,000원*3회=</td><td>1,800,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.감염병예방관리</td><td>6,004</td><td>7,380</td><td>-1,376</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>6,004</td><td>7,380</td><td>-1,376</td><td>(권장)감염병 예방 용품 구입 : 500,000원<br>*5회=</td><td>2,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(권장)학교방역물품 구입 : 876,000원*4회<br>=</td><td>3,504,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">6.건강증진및비만관리</td><td>3,000</td><td>0</td><td>3,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>3,000</td><td>0</td><td>3,000</td><td>(권장)건강체력교실(비만예방) 운영용품<br>구입 : 100,000원*10종*3회=</td><td>3,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">8.건강체력교실운영</td><td>0</td><td>4,300</td><td>-4,300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>0</td><td>4,000</td><td>-4,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>0</td><td>300</td><td>-300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">10.(통합)중대재해예방안전보건<br>관리비</td><td>7,700</td><td>11,000</td><td>-3,300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>4,400</td><td>11,000</td><td>-6,600</td><td>중대재해 예방 시설물 수선 : 2,200,000원<br>*2회=</td><td>4,400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교직원복지비</td><td>3,300</td><td>0</td><td>3,300</td><td>산업안전보건물품 구입 : 150,000원*11명<br>*2회=</td><td>3,300,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">11.(통합)학생건강증진활동지원</td><td>1,350</td><td>1,500</td><td>-150</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>1,250</td><td>1,500</td><td>-250</td><td>운영용품구입비 : 125,000원*10회=</td><td>1,250,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.목적사업업무추진비</td><td>100</td><td>0</td><td>100</td><td>학생건강증진활동 평가회 : 20,000원*5명=</td><td>100,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">12.(통합)생리용품구입</td><td>1,000</td><td>2,000</td><td>-1,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>1,000</td><td>2,000</td><td>-1,000</td><td>생리용품 구입 : 500,000원*2회=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td colspan="3">2.학교환경위생관리</td><td>24,542</td><td>21,651</td><td>2,891</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.먹는물관리</td><td>5,972</td><td>2,000</td><td>3,972</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>5,972</td><td>2,000</td><td>3,972</td><td>저수조청소료 : 750,000원*2회=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>수질검사 : 500,000원*1회=</td><td>500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>정수기임대 및 관리 : 100,000원*12월=</td><td>1,200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>음수대 유지관리 : 693,000원*4회=</td><td>2,772,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.방역관리</td><td>1,920</td><td>1,500</td><td>420</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>1,920</td><td>1,500</td><td>420</td><td>방역용역비 : 320,000원*6회=</td><td>1,920,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.어린이활동공간관리</td><td>400</td><td>0</td><td>400</td><td></td><td></td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>300</td><td>0</td><td>300</td><td>어린이놀이시설 정기검사비 : 150,000원*2<br>회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교직원복지비</td><td>100</td><td>0</td><td>100</td><td>어린이놀이시설 관리자 안전교육 : 50,000<br>원*2회=</td><td>100,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.(통합)실내공기질개선</td><td>16,250</td><td>18,151</td><td>-1,901</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>16,250</td><td>18,151</td><td>-1,901</td><td>공기청정기임차료 : 25,000원*65대*10월=</td><td>16,250,000</td></tr>
+<tr><td></td><td colspan="4">3.학생복지</td><td>744,280</td><td>276,167</td><td>468,113</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.학생복지운영</td><td>744,280</td><td>276,167</td><td>468,113</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.졸업앨범제작</td><td>0</td><td>6,750</td><td>-6,750</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>0</td><td>750</td><td>-750</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.학생복지비</td><td>0</td><td>6,000</td><td>-6,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.통학차량운영지원</td><td>592,865</td><td>59,320</td><td>533,545</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.기간제근로자인건비</td><td>3,300</td><td>0</td><td>3,300</td><td>운전원 대체인력 인건비 : 220,000원*15일<br>=</td><td>3,300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.일반수용비</td><td>14,247</td><td>13,960</td><td>287</td><td>차량정비 및 관리용품구입 : 1,378,700원<br>*10회=</td><td>13,787,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>정기검사수수료 : 200,000원*2회=</td><td>400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>유류공동구매 수수료 : 30,000원*2회=</td><td>60,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.연료비</td><td>33,000</td><td>40,000</td><td>-7,000</td><td>통학차량 유류비 : 3,300,000원*10월=</td><td>33,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.기타공공요금</td><td>3,420</td><td>3,360</td><td>60</td><td>휴대전화요금 : 100,000원*12월=</td><td>1,200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>자동차세 : 150,000원*2회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>자동차보험료 : 640,000원*3대=</td><td>1,920,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>5.기간제근로자법정부담금</td><td>76</td><td>0</td><td>76</td><td>대체인력 사회보험료 : 3,300,000원*2.3%=</td><td>76,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>6.비품구입비</td><td>538,822</td><td>2,000</td><td>536,822</td><td>차량비품구입 : 1,000,000원*2종=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(목적)통학버스 교체 : 268,411,000원*2대<br>=</td><td>536,822,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.교복구입</td><td>0</td><td>14,671</td><td>-14,671</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.학생복지비</td><td>0</td><td>14,671</td><td>-14,671</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.기타학생복지</td><td>800</td><td>800</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>500</td><td>0</td><td>500</td><td>이미용실 운영 물품 구입 : 100,000원*5회<br>=</td><td>500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.학생복지비</td><td>300</td><td>800</td><td>-500</td><td>학생조의금 : 50,000원*6회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.특수교육대상자지원(교통비,<br>치료비)</td><td>20,000</td><td>30,100</td><td>-10,100</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.학생복지비</td><td>20,000</td><td>30,100</td><td>-10,100</td><td>(목적)특수교육대상자 통학비 지원 :<br>2,000,000원*10월=</td><td>20,000,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">6.통학차량안전지도요원운영</td><td>2,100</td><td>2,100</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>600</td><td>600</td><td>0</td><td>안전지도용 물품 구입 : 30,000원*5종*4회<br>=</td><td>600,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교직원복지비</td><td>900</td><td>900</td><td>0</td><td>안전실무원피복비 : 300,000원*3명=</td><td>900,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.일반업무추진비</td><td>600</td><td>600</td><td>0</td><td>통학버스 안전지도 탑승자 협의회 :<br>300,000원*2회=</td><td>600,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">7.통학차량임차료</td><td>100,000</td><td>145,920</td><td>-45,920</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>100,000</td><td>145,920</td><td>-45,920</td><td>(목적)통학버스 임차용역 : 100,000,000원<br>*1대=</td><td>100,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">8.(통합)특수학교학생교과서구<br>입</td><td>19,725</td><td>16,506</td><td>3,219</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.학생복지비</td><td>19,725</td><td>16,506</td><td>3,219</td><td>교과서 구입 : 75,000원*263명*1회=</td><td>19,725,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">9.(통합)졸업앨범비지원</td><td>8,790</td><td>0</td><td>8,790</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>750</td><td>0</td><td>750</td><td>학교보관용 졸업앨범제작 : 150,000원*5부<br>=</td><td>750,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.학생복지비</td><td>8,040</td><td>0</td><td>8,040</td><td>(통합)학생 졸업앨범 제작 : 70,000원*51<br>명=</td><td>3,570,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(자체)학생 졸업앨범 제작 : 74,500원*60<br>명=</td><td>4,470,000</td></tr>
+<tr><td colspan="5">3.기본적 교육활동</td><td>1,014,550</td><td>1,017,241</td><td>-2,691</td><td></td><td></td></tr>
+<tr><td></td><td colspan="4">1.교과 활동</td><td>781,654</td><td>844,431</td><td>-62,777</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.교과활동지원</td><td>91,000</td><td>79,040</td><td>11,960</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.학습준비물구입</td><td>9,200</td><td>57,800</td><td>-48,600</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>0</td><td>28,800</td><td>-28,800</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.학습준비물</td><td>9,200</td><td>29,000</td><td>-19,800</td><td>학습준비물구입(초,중,고) : 40,000원*230<br>명=</td><td>9,200,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.교사용교과서(지도서)구입</td><td>6,000</td><td>600</td><td>5,400</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>6,000</td><td>600</td><td>5,400</td><td>교사용지도서 구입 : 6,000,000원*1회=</td><td>6,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.보결(대강)수업관리</td><td>3,000</td><td>3,000</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.기타수당</td><td>3,000</td><td>0</td><td>3,000</td><td>중등보결수업수당 : 15,000원*100시간=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>초등보결수업수당 : 15,000원*100시간=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.운영수당</td><td>0</td><td>3,000</td><td>-3,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.보건교과운영</td><td>0</td><td>600</td><td>-600</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>0</td><td>600</td><td>-600</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.고교학점제운영</td><td>16,000</td><td>10,000</td><td>6,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>0</td><td>600</td><td>-600</td><td></td><td></td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.여비</td><td>1,450</td><td>2,600</td><td>-1,150</td><td>(목적)도외여비 : 125,000원*10명*1회=</td><td>1,250,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(목적)도내여비 : 20,000원*10명*1회=</td><td>200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.교직원복지비</td><td>340</td><td>0</td><td>340</td><td>(목적)교원연수비 : 34,000원*10명*1회=</td><td>340,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.교육운영비</td><td>14,210</td><td>6,000</td><td>8,210</td><td>(목적)프로그램 운영 : 367,300원*20회=</td><td>7,346,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(목적)프로그램 체험경비 : 36,000원*88명<br>*1회=</td><td>3,168,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(목적)학습자료구입 : 174,000원*4회=</td><td>696,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(목적)차량임차비 : 750,000원*4대*1회=</td><td>3,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>5.목적사업업무추진비</td><td>0</td><td>800</td><td>-800</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">6.교과활동지원</td><td>50,800</td><td>5,240</td><td>45,560</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>50,800</td><td>5,240</td><td>45,560</td><td>교재교구구입 : 300,000원*10종=</td><td>3,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>교구기자재수리비 : 300,000원*1회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학습자료제작 및 구입 : 260,000원*20종*5<br>회=</td><td>26,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>유료학습사이트계정 : 150,000원*10계정=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>전담교과학습자료 : 200,000원*20명*5회=</td><td>20,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">7.보건교과운영</td><td>500</td><td>1,800</td><td>-1,300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>0</td><td>1,800</td><td>-1,800</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>500</td><td>0</td><td>500</td><td>보건교육 학습자료 구입 : 250,000원*2회=</td><td>500,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">8.(보정)교육과정연계도서구입</td><td>5,500</td><td>0</td><td>5,500</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>5,500</td><td>0</td><td>5,500</td><td>교육과정연계도서구입 : 20,000원*275명=</td><td>5,500,000</td></tr>
+<tr><td></td><td></td><td colspan="3">2.과학 교과활동</td><td>3,200</td><td>2,940</td><td>260</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.교과운영</td><td>3,200</td><td>2,940</td><td>260</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>3,200</td><td>2,940</td><td>260</td><td>과학 학습자료 구입 : 20,000원*4종*40학<br>급=</td><td>3,200,000</td></tr>
+<tr><td></td><td></td><td colspan="3">3.체육 교과활동</td><td>10,840</td><td>2,990</td><td>7,850</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.교과운영</td><td>2,080</td><td>2,540</td><td>-460</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>2,000</td><td>2,500</td><td>-500</td><td>체육교구 수리 : 300,000원*5회=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>체육교과 교구교재 구입 : 100,000원*5회=</td><td>500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.일반업무추진비</td><td>80</td><td>40</td><td>40</td><td>자전거수리 봉사자 간식비 : 40,000원*2회<br>=</td><td>80,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.어린이놀이시설관리</td><td>0</td><td>450</td><td>-450</td><td></td><td></td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>0</td><td>400</td><td>-400</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교직원복지비</td><td>0</td><td>50</td><td>-50</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.(통합)생존수영교육운영</td><td>3,260</td><td>0</td><td>3,260</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>3,260</td><td>0</td><td>3,260</td><td>운영물품 구입 : 100,000원*3종=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>입장료 : 20,000원*148명=</td><td>2,960,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.(목적)장애학생맞춤형건강체<br>육활동지원</td><td>5,500</td><td>0</td><td>5,500</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>5,500</td><td>0</td><td>5,500</td><td>체육활동 운영용품구입 : 500,000원*11종</td><td>5,500,000</td></tr>
+<tr><td></td><td></td><td colspan="3">4.예술 교과활동</td><td>7,200</td><td>8,000</td><td>-800</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.음악교과운영</td><td>2,200</td><td>2,700</td><td>-500</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>2,200</td><td>2,700</td><td>-500</td><td>교재교구 구입 : 150,000원*10종=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>악기수리비 : 350,000원*2회=</td><td>700,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.음악실운영</td><td>0</td><td>300</td><td>-300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>0</td><td>300</td><td>-300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.미술교과운영</td><td>5,000</td><td>5,000</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>5,000</td><td>5,000</td><td>0</td><td>교재교구구입 : 50,000원*20종*5회=</td><td>5,000,000</td></tr>
+<tr><td></td><td></td><td colspan="3">5.특수교육교과활동</td><td>656,349</td><td>739,396</td><td>-83,047</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.교과운영</td><td>4,000</td><td>4,000</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>2,000</td><td>2,000</td><td>0</td><td>(권장)중증장애학생 지도 소모품 구입 :<br>1,000,000원*2회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.비품구입비</td><td>2,000</td><td>2,000</td><td>0</td><td>(권장)중증장애학생 보조기기 구입 :<br>1,000,000원*2회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.사회복무요원인건비</td><td>280,000</td><td>310,600</td><td>-30,600</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.기간제근로자인건비</td><td>276,194</td><td>307,200</td><td>-31,006</td><td>(목적)사회복무요원 교통비 : 2,400원*22<br>명*20일*12월=</td><td>12,672,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(목적)사회복무요원 급량비 : 8,000원*3명<br>*20일*12월</td><td>5,760,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(목적)사회복무요원 보수 : 816,371원*22<br>명*12월=</td><td>215,522,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(목적)사회복무요원 식비 : 8,000원*22명<br>*20일*12월=</td><td>42,240,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.기타공공요금</td><td>400</td><td>400</td><td>0</td><td>(목적)사회복무요원 보상책임 보험료 :<br>400,000원*1회=</td><td>400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.교직원복지비</td><td>3,406</td><td>3,000</td><td>406</td><td>(목적)사회복무요원 피복비 : 309,600원<br>*11회=</td><td>3,406,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.직업실습지원</td><td>0</td><td>5,000</td><td>-5,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>0</td><td>2,500</td><td>-2,500</td><td></td><td></td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.학생복지비</td><td>0</td><td>2,500</td><td>-2,500</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.특수교육자원봉사자운용</td><td>200,000</td><td>152,950</td><td>47,050</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>200,000</td><td>152,950</td><td>47,050</td><td>(목적)특수학교자원봉사자운영 : 40,000원<br>*50명*100일=</td><td>200,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.(통합)특수교육대상자성교육</td><td>4,155</td><td>3,920</td><td>235</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>3,840</td><td>3,920</td><td>-80</td><td>(자체)강사료 : 80,000원*1명*15회=</td><td>1,200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>강사료 : 80,000원*1명*33회=</td><td>2,640,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.기간제근로자법정부담금</td><td>90</td><td>0</td><td>90</td><td>(자체)강사 사회보험기관부담금 :<br>3,875,000*2.3%=</td><td>90,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.목적사업업무추진비</td><td>225</td><td>0</td><td>225</td><td>외부강사 지원용 차재료 구입 : 112,500원<br>*2회=</td><td>225,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">6.특수교육대상자직무역량강화</td><td>0</td><td>105,477</td><td>-105,477</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.기간제근로자인건비</td><td>0</td><td>88,607</td><td>-88,607</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.운영수당</td><td>0</td><td>300</td><td>-300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.교육운영비</td><td>0</td><td>5,370</td><td>-5,370</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.기간제근로자법정부담금</td><td>0</td><td>11,200</td><td>-11,200</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">7.(통합)특수순회교육운영</td><td>16,824</td><td>18,400</td><td>-1,576</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.여비</td><td>12,800</td><td>15,200</td><td>-2,400</td><td>순회교사 여비 : 20,000원*4명*160일=</td><td>12,800,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>4,024</td><td>3,200</td><td>824</td><td>(자체)교육자료 구입 : 480,000원*4학급=</td><td>1,920,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>교육자료 구입 : 526,000원*4학급=</td><td>2,104,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">8.(통합)특수학급직업교육운영</td><td>48,360</td><td>46,000</td><td>2,360</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>11,500</td><td>10,000</td><td>1,500</td><td>(자체)현장실습운영위원회 참석수당 :<br>100,000원*2명*2회=</td><td>400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(자체)강사수당 : 40,000원*3시간*2명*15<br>회=</td><td>3,600,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>진로교육 강사수당 : 200,000원*1회=</td><td>200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>진로교육 강사원고료 : 100,000원*1회=</td><td>100,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>강사수당 : 40,000원*3시간*2명*30회=</td><td>7,200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.여비</td><td>1,000</td><td>1,000</td><td>0</td><td>(자체)도내여비 : 20,000원*5명*5회=</td><td>500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(자체)도외여비 : 100,000원*5회=</td><td>500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.교직원복지비</td><td>1,130</td><td>2,000</td><td>-870</td><td>직업교육 담당교원 연수경비 : 226,000원<br>*5명=</td><td>1,130,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.교육운영비</td><td>29,509</td><td>31,500</td><td>-1,991</td><td>(자체)학습자료구입비 : 800,000원*4실=</td><td>3,200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>진로교육자료 : 300,000원*10회=</td><td>3,000,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>진로상담실 운영물품 : 150,000원*2회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>교내실습 운영비 : 2,000,000원*4실=</td><td>8,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>교구 및 기자재 수리 : 250,000원*2회=</td><td>500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학습자료비 : 831,250원*4회*4실=</td><td>13,300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>직업기능경기대회 참가 훈련비 : 120,900<br>원*5명*2회=</td><td>1,209,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>5.기간제근로자법정부담금</td><td>221</td><td>0</td><td>221</td><td>강사 법정부담금 : 9,600,000원*2.3%=</td><td>221,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>6.목적사업업무추진비</td><td>3,000</td><td>500</td><td>2,500</td><td>진로직업관련 협의회 : 300,000원*1회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>진로직업교육평가회 : 30,000원*90명*1회=</td><td>2,700,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>7.비품구입비</td><td>2,000</td><td>1,000</td><td>1,000</td><td>(자체)직업교육 기자재 구입 : 1,000,000<br>원*2회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">9.(통합)특수학교전공과운영</td><td>37,520</td><td>54,000</td><td>-16,480</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>400</td><td>600</td><td>-200</td><td>입학전형 운영 : 400,000원*1회=</td><td>400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.운영수당</td><td>4,800</td><td>7,200</td><td>-2,400</td><td>입학전형 심사및관리 수당 : 80,000원*25<br>명*1회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>전환교육 강사수당 : 40,000원*4명*15회=</td><td>2,400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>현장실습운영위원회 참석수당 : 100,000원<br>*2명*2회=</td><td>400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.여비</td><td>3,780</td><td>5,700</td><td>-1,920</td><td>도내출장 여비 : 20,000원*8명*18회=</td><td>2,880,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>도외출장 여비 : 300,000원*3회=</td><td>900,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.교직원복지비</td><td>2,625</td><td>3,400</td><td>-775</td><td>교사 연수경비 : 300,000원*8명*1회=</td><td>2,400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>입학전형 시험종사자 매식비 : 9,000원*25<br>명*1회=</td><td>225,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>5.교육운영비</td><td>21,915</td><td>29,900</td><td>-7,985</td><td>학습자료 구입 : 156,150원*10종*10회=</td><td>15,615,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>기자재 수리 : 100,000원*3회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>현장학습 운영 경비 : 30,000원*20명*10회<br>=</td><td>6,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>6.목적사업업무추진비</td><td>3,000</td><td>2,200</td><td>800</td><td>입학전형 간담회비 : 30,000원*30명*1회=</td><td>900,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>산학협동협의회 및 운영 평가회 : 30,000<br>원*20명*2회=</td><td>1,200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>현장실습운영위원회 협의회비 : 30,000원<br>*15명*2회=</td><td>900,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>7.비품구입비</td><td>1,000</td><td>5,000</td><td>-4,000</td><td>기자재구입비 : 1,000,000원*1대=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">10.장애인식개선교육</td><td>4,800</td><td>3,969</td><td>831</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>4,800</td><td>3,969</td><td>831</td><td>(권장)장애인식개선 교육 운영비 :<br>100,000원*48학급=</td><td>4,800,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">11.(통합)통합형직업교육거점학<br>교운영</td><td>2,450</td><td>0</td><td>2,450</td><td></td><td></td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>2,450</td><td>0</td><td>2,450</td><td>교외실습 운영비 : 245,000원*10회=</td><td>2,450,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">12.(통합)특수학교자유학기(년)<br>제운영</td><td>11,340</td><td>8,100</td><td>3,240</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>4,800</td><td>3,200</td><td>1,600</td><td>프로그램 강사료 : 40,000원*20회*6강좌=</td><td>4,800,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교직원복지비</td><td>1,340</td><td>580</td><td>760</td><td>전문적학습공동체 연수경비 : 16,750원*10<br>명*8회=</td><td>1,340,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.교육운영비</td><td>4,889</td><td>4,120</td><td>769</td><td>프로그램 운영물품 : 767,800원*5회=</td><td>3,839,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>체험활동경비 : 25,000원*42명=</td><td>1,050,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.기간제근로자법정부담금</td><td>111</td><td>0</td><td>111</td><td>강사 사회보험기관부담금 : 4,800,000원<br>*2.3%=</td><td>111,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>5.목적사업업무추진비</td><td>200</td><td>200</td><td>0</td><td>운영협의회비 : 100,000원*2회=</td><td>200,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">13.(통합)특수학급과학체험프로<br>그램</td><td>4,000</td><td>8,100</td><td>-4,100</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>4,000</td><td>8,100</td><td>-4,100</td><td>과학체험프로그램운영물품 구입 : 8,000원<br>*250명=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>프로그램강사비 : 50,000원*4회*10명=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">14.(목적)진로직업특화교육과정<br>운영</td><td>9,000</td><td>3,100</td><td>5,900</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>6,500</td><td>0</td><td>6,500</td><td>고등 특화 교육과정 강사비 : 40,000원*60<br>회*1명=</td><td>2,400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>전공과 특화 교육과정 강사비 : 40,000원<br>*60회*1명=</td><td>2,400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>교사 연수 강사비 : 170,000원*10회=</td><td>1,700,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>2,389</td><td>3,100</td><td>-711</td><td>특화 교육과정 운영비 : 188,900원*10회=</td><td>1,889,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>교사 연수 재료비 : 50,000원*10회=</td><td>500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.기간제근로자법정부담금</td><td>111</td><td>0</td><td>111</td><td>특화교육과정강사 사회보험료 : 4,800,000<br>원*2.3%=</td><td>111,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">15.(목적)장애학생미래교육역량<br>강화지원</td><td>30,000</td><td>15,780</td><td>14,220</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>180</td><td>0</td><td>180</td><td>디지털 기기 소모품구입등 : 45,000원*4회<br>=</td><td>180,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.운영수당</td><td>9,820</td><td>10,240</td><td>-420</td><td>전공과 AI･SW 교육 프로그램 강사비 :<br>35,000원*180회=</td><td>6,300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>뉴로피드백 강사 수당 : 40,000원*88회=</td><td>3,520,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.교육운영비</td><td>7,900</td><td>5,540</td><td>2,360</td><td>전공과 AI･SW 교육 프로그램 운영비 :<br>70,000원*10회=</td><td>700,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>교육정보부 AI･SW 교육 프로그램 체험비 :<br>20,000원*12명*30회=</td><td>7,200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.학생복지비</td><td>874</td><td>0</td><td>874</td><td>자격증 취득 응시료 : 87,400원*10회=</td><td>874,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>5.기간제근로자법정부담금</td><td>226</td><td>0</td><td>226</td><td>강사 고용산재보험료 : 9,820,000원*2.3%=</td><td>226,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>6.비품구입비</td><td>11,000</td><td>0</td><td>11,000</td><td>전공과 디지털 기기 구입비 : 1,000,000원<br>*7대=</td><td>7,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>교육정보부 디지털 기기 구입비 :<br>1,000,000원*4대=</td><td>4,000,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">16.학생적응 및 일상생활 활동<br>운영</td><td>3,900</td><td>0</td><td>3,900</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>3,900</td><td>0</td><td>3,900</td><td>적응행동진단검사비용 : 6,000원*50명*1회<br>=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>일상생활 활동 운영 : 300,000원*12학급=</td><td>3,600,000</td></tr>
+<tr><td></td><td></td><td colspan="3">6.유치원 교과활동</td><td>12,065</td><td>12,065</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.교과운영</td><td>10,465</td><td>10,465</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>8,965</td><td>8,965</td><td>0</td><td>학습교구구입비 : 250,000원*8명*2회=</td><td>4,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학습자료구입비 : 25,000원*8명*12월=</td><td>2,400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>간식비 : 1,500원*9명*190일=</td><td>2,565,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.비품구입비</td><td>1,500</td><td>1,500</td><td>0</td><td>비품 구입비 : 300,000원*5종=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.학습준비물지원</td><td>1,600</td><td>1,600</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.학습준비물</td><td>1,600</td><td>1,600</td><td>0</td><td>학습준비물구입 : 100,000원*8명*2회=</td><td>1,600,000</td></tr>
+<tr><td></td><td></td><td colspan="3">7.정보교과활동</td><td>1,000</td><td>0</td><td>1,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.(통합)정보통신윤리교육운영</td><td>1,000</td><td>0</td><td>1,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>1,000</td><td>0</td><td>1,000</td><td>정보통신윤리교육 : 500,000원*2회=</td><td>1,000,000</td></tr>
+<tr><td></td><td colspan="4">2.창의적 체험활동</td><td>232,896</td><td>172,810</td><td>60,086</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.자율·자치활동</td><td>102,110</td><td>72,685</td><td>29,425</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.학예회</td><td>8,875</td><td>0</td><td>8,875</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>2,000</td><td>0</td><td>2,000</td><td>영지행복예술축제 방송장비 대여 :<br>1,000,000원*1일=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>영지행복예술축제 무대 장식 경비 :<br>1,000,000원*1일=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>6,875</td><td>0</td><td>6,875</td><td>영지행복예술축제운영물품 구입 : 20,000<br>원*275명=</td><td>5,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>영지행복예술축제 간식비 : 5,000원*275명<br>=</td><td>1,375,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.학급운영비</td><td>23,700</td><td>22,050</td><td>1,650</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>23,700</td><td>22,050</td><td>1,650</td><td>학급운영비 : 493,750원*48학급=</td><td>23,700,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.체육대회</td><td>1,210</td><td>1,350</td><td>-140</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>210</td><td>350</td><td>-140</td><td>현수막제작 : 70,000원*3개=</td><td>210,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>1,000</td><td>1,000</td><td>0</td><td>각종체육대회 참가비 : 50,000원*20명=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.4.3평화.인권교육</td><td>2,400</td><td>2,450</td><td>-50</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>2,400</td><td>2,450</td><td>-50</td><td>(권장)4.3평화인권교육자료구입 : 50,000<br>원*48학급=</td><td>2,400,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.학교신문, 문집 제작</td><td>2,650</td><td>2,650</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>2,450</td><td>2,450</td><td>0</td><td>학교 신문 인쇄비 : 7,000원*350부=</td><td>2,450,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.일반업무추진비</td><td>200</td><td>200</td><td>0</td><td>학교 신문 및 졸업앨범 제작 협의회 :<br>20,000원*10명=</td><td>200,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">6.(통합)찾아가는인권교육운영</td><td>1,200</td><td>1,200</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>0</td><td>1,200</td><td>-1,200</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>1,200</td><td>0</td><td>1,200</td><td>인권교육 운영비 : 600,000원*2회=</td><td>1,200,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">7.(통합)학교생태텃밭꽃밭운영</td><td>1,190</td><td>2,300</td><td>-1,110</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>1,190</td><td>2,300</td><td>-1,110</td><td>학교텃밭꽃밭운영 : 119,000원*10회=</td><td>1,190,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">8.(통합)학생자치활동운영지원</td><td>1,400</td><td>2,000</td><td>-600</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>0</td><td>2,000</td><td>-2,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.학생복지비</td><td>1,400</td><td>0</td><td>1,400</td><td>학생자치회 운영비 : 350,000원*4회=</td><td>1,400,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">9.창의적체험활동</td><td>19,600</td><td>6,500</td><td>13,100</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>0</td><td>6,500</td><td>-6,500</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>19,600</td><td>0</td><td>19,600</td><td>고등 창의적체험활동교육자료 구입비 :<br>400,000원*11학급=</td><td>4,400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>중학 창의적체험활동교육자료 구입비 :<br>400,000원*13학급=</td><td>5,200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>초등 창의적체험활동교육자료구입비 :<br>400,000원*20학급=</td><td>8,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>창의적체험활동운영비 : 1,000,000원*2회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">10.(권장)제주어교육운영</td><td>2,500</td><td>13,385</td><td>-10,885</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>0</td><td>13,385</td><td>-13,385</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>2,500</td><td>0</td><td>2,500</td><td>(권장)제주어교육 자료구입비 : 50,000원<br>*25종*2회=</td><td>2,500,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">11.(권장)제주이해교육</td><td>4,000</td><td>18,800</td><td>-14,800</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>4,000</td><td>18,800</td><td>-14,800</td><td>(권장)제주이해교육 자료구입비 : 80,000<br>원*25종*2회=</td><td>4,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">12.(목적)중도중복학생맞춤형교<br>육지원</td><td>8,000</td><td>0</td><td>8,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>6,000</td><td>0</td><td>6,000</td><td>초등 창의적체험활동 강사료 : 40,000원*5<br>학급*30주=</td><td>6,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>1,862</td><td>0</td><td>1,862</td><td>창의적체험활동 프로그램 운영 : 372,400<br>원*5회=</td><td>1,862,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.기간제근로자법정부담금</td><td>138</td><td>0</td><td>138</td><td>강사 사회보험기관부담금 : 6,000,000원<br>*2.3%=</td><td>138,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">13.(목적)장애학생문화예술교육<br>지원</td><td>12,000</td><td>0</td><td>12,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>12,000</td><td>0</td><td>12,000</td><td>문화예술공연 운영 : 2,000,000원*5회=</td><td>10,000,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>문화예술교육 운영물품 구입 : 200,000원<br>*10회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">14.영지가족한마당</td><td>13,385</td><td>0</td><td>13,385</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>70</td><td>0</td><td>70</td><td>현수막 제작 : 70,000원*1개=</td><td>70,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>13,315</td><td>0</td><td>13,315</td><td>운영물품 구입 : 100,000원*5종=</td><td>500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학생 간식비 : 5,000원*243명=</td><td>1,215,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>상품비 : 10,000원*260개=</td><td>2,600,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>레크레이션 및 장비임차 경비 : 4,500,000<br>원*2종=</td><td>9,000,000</td></tr>
+<tr><td></td><td></td><td colspan="3">2.현장체험학습활동</td><td>101,555</td><td>86,825</td><td>14,730</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.수련활동</td><td>5,700</td><td>0</td><td>5,700</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>5,700</td><td>0</td><td>5,700</td><td>인성교육 체험학습 차량 임차료 : 700,000<br>원*7대=</td><td>4,900,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>인성교육 체험학습 인솔자 식비 : 10,000<br>원*80명*1회=</td><td>800,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.현장학습체험운영</td><td>13,550</td><td>0</td><td>13,550</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.여비</td><td>13,550</td><td>0</td><td>13,550</td><td>(중고)수학여행인솔자 여비 : 400,000원<br>*20명=</td><td>8,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(초)수학여행 인솔자 여비 : 150,000원*5<br>명=</td><td>750,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>현장체험학습 인솔자 여비 : 10,000원*160<br>명*3회=</td><td>4,800,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.(통합)수학여행·수련활동운<br>영</td><td>19,600</td><td>33,445</td><td>-13,845</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>16,400</td><td>1,980</td><td>14,420</td><td>(중고등)위탁대행용역비 : 400,000원*41명<br>=</td><td>16,400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.여비</td><td>0</td><td>8,000</td><td>-8,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.교육운영비</td><td>3,200</td><td>23,465</td><td>-20,265</td><td>(초등)여행자보험료 및 제경비 : 1,750원<br>*8명=</td><td>14,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(초등)차량임차료 : 513,000원*1대*2일=</td><td>1,026,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(초등)학생식비 : 15,000원*2회*8명=</td><td>240,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(초등)학생간식비 : 10,000원*2일*8명=</td><td>160,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(초등)학생숙식비 : 80,000원*1박*8명=</td><td>640,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(초등)입장료 및 체험비 : 70,000원*2일*8<br>명=</td><td>1,120,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.현장체험학습운영(고등)</td><td>12,180</td><td>0</td><td>12,180</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>12,180</td><td>0</td><td>12,180</td><td>학생입장료 : 10,000원*62명*6회=</td><td>3,720,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>인솔자입장료 : 10,000원*50명*6회=</td><td>3,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학생간식비 : 5,000원*62명*6회=</td><td>1,860,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>차량임차료 : 600,000원*1대*6회=</td><td>3,600,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.현장체험학습운영(중등)</td><td>11,430</td><td>0</td><td>11,430</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>11,430</td><td>0</td><td>11,430</td><td>학생입장료 : 10,000원*67명*6회=</td><td>4,020,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>인솔자입장료 : 10,000원*50명*6회=</td><td>3,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학생간식비 : 5,000원*67명*6회=</td><td>2,010,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>차량임차료 : 600,000원*2대*2회=</td><td>2,400,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">6.현장체험학습운영(유초)</td><td>19,740</td><td>18,960</td><td>780</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>19,740</td><td>18,960</td><td>780</td><td>학생입장료 : 10,000원*106명*6회=</td><td>6,360,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>인솔자입장료 : 10,000원*60명*6회=</td><td>3,600,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학생간식비 : 5,000원*106명*6회=</td><td>3,180,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>차량임차료 : 550,000원*3대*4회=</td><td>6,600,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">7.(목적)수학여행특수학교추가<br>지원</td><td>13,330</td><td>18,330</td><td>-5,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>12,000</td><td>0</td><td>12,000</td><td>(중고등)위탁대행용역비 : 300,000원*40명<br>=</td><td>12,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>1,330</td><td>18,330</td><td>-17,000</td><td>(중고등)학생간식비 : 10,000원*3일*41명=</td><td>1,230,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(중고등)여행자보험료및제경비 : 2,500원<br>*40명=</td><td>100,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">8.교내체험활동운영</td><td>6,025</td><td>10,130</td><td>-4,105</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.여비</td><td>0</td><td>1,000</td><td>-1,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>6,025</td><td>9,130</td><td>-3,105</td><td>교내체험활동운영비 : 25,000원*241명*1회<br>=</td><td>6,025,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">9.교내체험활동</td><td>0</td><td>5,960</td><td>-5,960</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>0</td><td>5,960</td><td>-5,960</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">3.동아리활동</td><td>29,231</td><td>13,300</td><td>15,931</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.동아리활동</td><td>0</td><td>10,300</td><td>-10,300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>0</td><td>4,000</td><td>-4,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>0</td><td>6,300</td><td>-6,300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.문화예술동아리</td><td>7,701</td><td>0</td><td>7,701</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>2,640</td><td>0</td><td>2,640</td><td>(권장)동아리운영 강사료 : 40,000원*3명<br>*22시간=</td><td>2,640,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>5,000</td><td>0</td><td>5,000</td><td>(권장)동아리운영물품구입 : 250,000원*20<br>학급=</td><td>5,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.기간제근로자법정부담금</td><td>61</td><td>0</td><td>61</td><td>(권장)강사 사회보험기관부담금 :<br>2,640,000원*2.3%=</td><td>61,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.1교1스포츠활동</td><td>2,000</td><td>3,000</td><td>-1,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>2,000</td><td>3,000</td><td>-1,000</td><td>용품구입 : 50,000원*10종*4회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.(통합)학교스포츠클럽활성화</td><td>19,530</td><td>0</td><td>19,530</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>2,970</td><td>0</td><td>2,970</td><td>스포츠클럽내부강사수당 : 33,000원*45회<br>*2명=</td><td>2,970,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교직원복지비</td><td>600</td><td>0</td><td>600</td><td>피복 구입 : 200,000원*3명=</td><td>600,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.교육운영비</td><td>15,960</td><td>0</td><td>15,960</td><td>스포츠클럽학생유니폼구입 : 32,000원*280<br>명=</td><td>8,960,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>스포츠클럽 학생간식비 : 5,000원*100명=</td><td>500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>스포츠클럽축전 상품구입비 : 662,500원*4<br>회=</td><td>2,650,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>스포츠클럽 운영용품구입비 : 385,000원<br>*10회=</td><td>3,850,000</td></tr>
+<tr><td colspan="5">4.선택적 교육활동</td><td>574,632</td><td>533,005</td><td>41,627</td><td></td><td></td></tr>
+<tr><td></td><td colspan="4">1.방과후학교 운영</td><td>416,000</td><td>483,665</td><td>-67,665</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.방과후학교운영</td><td>416,000</td><td>483,665</td><td>-67,665</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.(통합)특수학생방과후교육</td><td>330,000</td><td>483,665</td><td>-153,665</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>15,300</td><td>26,345</td><td>-11,045</td><td>운영용품 구입 : 500,000원*2회=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>방과후강사 채용신체검사비 : 40,000원*25<br>명=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>계절학교 자원봉사자 활동비 : 36,000원<br>*15명*20일=</td><td>10,800,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>계절학교 운영물품 구입 : 1,250,000원*2<br>회=</td><td>2,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.운영수당</td><td>270,100</td><td>375,340</td><td>-105,240</td><td>방과후강사수당 : 36,500원*150시간*36주=</td><td>197,100,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>계절학교 강사수당 : 36,500원*5시간*20명<br>*20일=</td><td>73,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.연료비</td><td>3,000</td><td>4,000</td><td>-1,000</td><td>계절학교 통학차량유류비 : 1,000,000원*2<br>회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>계절학교 급식용 가스비 : 500,000원*2회=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.급식용식재료비</td><td>16,800</td><td>14,300</td><td>2,500</td><td>계절학교 식품비 : 6,000원*140명*20일=</td><td>16,800,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>5.교육운영비</td><td>17,600</td><td>60,400</td><td>-42,800</td><td>학습자료 구입 : 2,000,000원*5회=</td><td>10,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>계절학교 학습자료 구입 : 20,000원*140명<br>*2회=</td><td>5,600,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(자체)방과후 학습자료 구입 : 500,000원<br>*4회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>6.기간제근로자법정부담금</td><td>1,800</td><td>1,200</td><td>600</td><td>방과후강사 사회보험기관부담금 : 150,000<br>원*12개월=</td><td>1,800,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>7.목적사업업무추진비</td><td>5,400</td><td>2,080</td><td>3,320</td><td>방과후학교 평가회 : 750,000원*2회=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>방과후학교 지원인력 간담회 : 500,000원<br>*3회=</td><td>1,500,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>계절학교 평가회의비 : 1,200,000원*2회=</td><td>2,400,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.(목적)특수학교늘봄학교운영</td><td>86,000</td><td>0</td><td>86,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>86,000</td><td>0</td><td>86,000</td><td>늘봄(방과후)강사수당 : 40,000원*2,150시<br>간=</td><td>86,000,000</td></tr>
+<tr><td></td><td colspan="4">2.직업교육</td><td>125,000</td><td>14,280</td><td>110,720</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.직업교육운영</td><td>125,000</td><td>14,280</td><td>110,720</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.직업교육운영</td><td>0</td><td>14,280</td><td>-14,280</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>0</td><td>14,280</td><td>-14,280</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.(목적)산업체연계현장실습</td><td>17,000</td><td>0</td><td>17,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>8,000</td><td>0</td><td>8,000</td><td>산업체 연계 세탁물 위탁 처리 :<br>1,000,000원*8월=</td><td>8,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>9,000</td><td>0</td><td>9,000</td><td>현장실습 물품 구입 : 1,000,000원*7회=</td><td>7,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>현장 실습 식비, 간식비 : 50,000원*10명<br>*4회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.(목적)각급학교내장애인일자<br>리운영</td><td>108,000</td><td>0</td><td>108,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.기간제근로자인건비</td><td>96,000</td><td>0</td><td>96,000</td><td>장애인 일자리사업 기본급 : 1,220,000원<br>*10명*7.6월=</td><td>92,720,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>장애인 일자리사업 연차수당 : 65,600원<br>*10명*5일=</td><td>3,280,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.기간제근로자법정부담금</td><td>12,000</td><td>0</td><td>12,000</td><td>장애인 일자리사업 4대보험료 : 150,000원<br>*10명*8월=</td><td>12,000,000</td></tr>
+<tr><td></td><td colspan="4">3.독서활동</td><td>33,632</td><td>35,060</td><td>-1,428</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.독서활동운영</td><td>33,632</td><td>35,060</td><td>-1,428</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.도서구입</td><td>10,000</td><td>10,000</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.도서구입비</td><td>10,000</td><td>10,000</td><td>0</td><td>도서구입 : 5,000,000원*2회=</td><td>10,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.도서관운영</td><td>4,740</td><td>5,260</td><td>-520</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>3,000</td><td>3,000</td><td>0</td><td>도서관운영물품구입 : 300,000원*3회=</td><td>900,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>바코드 제작 : 450,000원*2회=</td><td>900,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>장서점검비 : 900,000원*1회=</td><td>900,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>현대화기기 유지관리비 : 300,000원*1회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>1,740</td><td>2,260</td><td>-520</td><td>도서관활용수업준비물 구입 : 50,000원*4<br>종=</td><td>200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>독서의 달 행사용품구입 : 35,000원*44학<br>급=</td><td>1,540,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.독서프로그램운영</td><td>6,092</td><td>6,900</td><td>-808</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>4,000</td><td>4,900</td><td>-900</td><td>동화구연 강사수당 : 50,000원*2회*40학급<br>=</td><td>4,000,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>2,000</td><td>2,000</td><td>0</td><td>(권장)학교맞춤형 독서인문교육운영 :<br>50,000원*40학급=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.기간제근로자법정부담금</td><td>92</td><td>0</td><td>92</td><td>강사 사회보험기관부담금 : 4,000,000원<br>*2.3%=</td><td>92,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.(통합)학부모독서동아리운영</td><td>800</td><td>900</td><td>-100</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>800</td><td>900</td><td>-100</td><td>학부모독서동아리운영 : 800,000원*1회=</td><td>800,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.학교도서관자원봉사자운영</td><td>12,000</td><td>12,000</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>12,000</td><td>12,000</td><td>0</td><td>(권장)도서관자원봉사자 활동비 : 30,000<br>원*2명*200일=</td><td>12,000,000</td></tr>
+<tr><td colspan="5">5.교육활동 지원</td><td>271,458</td><td>188,926</td><td>82,532</td><td></td><td></td></tr>
+<tr><td></td><td colspan="4">1.교무업무 운영</td><td>33,190</td><td>32,830</td><td>360</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.교무학사운영</td><td>33,190</td><td>32,830</td><td>360</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.교무학사운영</td><td>8,200</td><td>8,600</td><td>-400</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>5,100</td><td>5,600</td><td>-500</td><td>중등 시간표 작성 및 관리 프로그램 구입<br>: 300,000원 * 1회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>업무용 수첩 구입 : 15,000원*100부=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학교요람인쇄 : 5,000원*300부=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>교육계획서 인쇄 : 18,000원*100부=</td><td>1,800,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.일반업무추진비</td><td>3,100</td><td>3,000</td><td>100</td><td>학교평가 및 학부모 상담 차재료구입 :<br>200,000원*2회=</td><td>400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>교육과정설명회 다과구입 : 300,000원*1회<br>=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>교직원 및 부장협의회 : 300,000원*8회=</td><td>2,400,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.교육활동홍보</td><td>600</td><td>600</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>600</td><td>600</td><td>0</td><td>홍보자료제작용품구입 : 150,000원*4회=</td><td>600,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.입학식 및 졸업식</td><td>7,700</td><td>7,600</td><td>100</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>7,200</td><td>7,200</td><td>0</td><td>입학식 관련 운영 용품 구입 : 1,200,000<br>원*1회=</td><td>1,200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>입학식 기념품 구입 : 20,000원*50명*1회=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>졸업식 운영용품 구입 : 250,000원*20종*1<br>회=</td><td>5,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.일반업무추진비</td><td>500</td><td>400</td><td>100</td><td>입학식 다과구입 : 200,000원*1회=</td><td>200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>졸업식 다과구입 : 300,000원*1회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.교육과정평가</td><td>3,600</td><td>3,600</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반업무추진비</td><td>3,600</td><td>3,600</td><td>0</td><td>교직원워크숍 경비 : 20,000원*100명*1회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>교육과정수립주간 식비 : 8,000원*100명*2<br>회=</td><td>1,600,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.환경정리</td><td>13,090</td><td>12,430</td><td>660</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>13,090</td><td>12,430</td><td>660</td><td>교실환경정리 용품구입 : 90,000원*48학급<br>=</td><td>4,320,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학급 청소용품 구입 : 90,000원*48학급=</td><td>4,320,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>현황판교체(교장실,중앙현관) : 500,000원<br>*3회=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>각종 게시판 교체 : 350,000원*7종=</td><td>2,450,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학급 기자재 수리 : 100,000원*5회=</td><td>500,000</td></tr>
+<tr><td></td><td colspan="4">2.생활지도운영</td><td>50,268</td><td>49,036</td><td>1,232</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.학생생활상담지도</td><td>36,711</td><td>29,313</td><td>7,398</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.학생생활지도 운영</td><td>300</td><td>200</td><td>100</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반업무추진비</td><td>300</td><td>200</td><td>100</td><td>학생생활지도 협의회 : 25,000원*6명*2회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.안전지킴이운영</td><td>2,531</td><td>0</td><td>2,531</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>2,250</td><td>0</td><td>2,250</td><td>방학중 안전지킴이 활동비 : 45,000원*2명<br>*25일=</td><td>2,250,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교직원복지비</td><td>281</td><td>0</td><td>281</td><td>방학중 안전지킴이 급량비 : 5,620원*2명<br>*25일=</td><td>281,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.(통합)안전지킴이운영</td><td>19,880</td><td>19,880</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>0</td><td>17,664</td><td>-17,664</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.운영수당</td><td>17,280</td><td>0</td><td>17,280</td><td>안전지킴이 활동비 : 45,000원*2명*192일=</td><td>17,280,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.교직원복지비</td><td>2,400</td><td>2,016</td><td>384</td><td>안전지킴이 급량비 : 5,620원*2명*192일=</td><td>2,159,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>안전지킴이 운영 물품 구입 : 60,250원*4<br>회=</td><td>241,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.목적사업업무추진비</td><td>200</td><td>200</td><td>0</td><td>안전지킴이 운영 업무추진비 : 25,000원*2<br>명*4회=</td><td>200,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.(통합)Wee클래스운영</td><td>1,700</td><td>2,430</td><td>-730</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>1,000</td><td>1,500</td><td>-500</td><td>운영물품비 : 500,000원*2회=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>700</td><td>930</td><td>-230</td><td>간식비 : 350,000원*2회=</td><td>700,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.(통합)생명존중문화조성</td><td>1,000</td><td>810</td><td>190</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>0</td><td>330</td><td>-330</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.운영수당</td><td>0</td><td>480</td><td>-480</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.교육운영비</td><td>1,000</td><td>0</td><td>1,000</td><td>자료구입비 : 5,000원*200명*1회=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">6.(목적)행동중재프로그램운영<br>지원</td><td>8,000</td><td>3,480</td><td>4,520</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>0</td><td>480</td><td>-480</td><td></td><td></td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교육운영비</td><td>8,000</td><td>3,000</td><td>5,000</td><td>행동중재 프로그램 운영 학급 물품 구입 :<br>90,000원*48학급</td><td>4,320,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>행동중재 프로그램 운영 물품 구입 :<br>368,000원*10회</td><td>3,680,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">7.상담치유프로그램운영</td><td>3,300</td><td>2,513</td><td>787</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>800</td><td>2,250</td><td>-1,450</td><td>상담치유프로그램운영물품구입 : 200,000<br>원*4회=</td><td>800,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.교직원복지비</td><td>0</td><td>263</td><td>-263</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.교육운영비</td><td>2,500</td><td>0</td><td>2,500</td><td>상담치유프로그램운영자료구입 : 500,000<br>원*5회=</td><td>2,500,000</td></tr>
+<tr><td></td><td></td><td colspan="3">2.학교폭력예방</td><td>13,557</td><td>18,523</td><td>-4,966</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.학교폭력관련연수지원</td><td>0</td><td>724</td><td>-724</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.운영수당</td><td>0</td><td>724</td><td>-724</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.(통합)학교폭력예방사업지원</td><td>9,100</td><td>2,025</td><td>7,075</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>9,100</td><td>2,025</td><td>7,075</td><td>(자체)찾아가는 문화예술 공연 운영비 :<br>2,500,000원*1회=</td><td>2,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>행복교실 체험학습 운영비 : 2,300,000원<br>*2회=</td><td>4,600,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>찾아가는 문화예술 공연 운영비 :<br>2,000,000원*1회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.학교폭력책임교사업무경감</td><td>4,457</td><td>5,874</td><td>-1,417</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.기간제근로자인건비</td><td>0</td><td>5,874</td><td>-5,874</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.운영수당</td><td>4,224</td><td>0</td><td>4,224</td><td>(자체)시간강사 수당 : 33,000원*4시간*32<br>주=</td><td>4,224,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.기간제근로자법정부담금</td><td>233</td><td>0</td><td>233</td><td>(자체)강사 사회보험기관부담금 :<br>10,098,000원*2.3%=</td><td>233,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.(자체)생활지도교사 업무경감</td><td>0</td><td>9,900</td><td>-9,900</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.기간제근로자인건비</td><td>0</td><td>9,900</td><td>-9,900</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">3.학생안전교육</td><td>0</td><td>1,200</td><td>-1,200</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.안전교육</td><td>0</td><td>1,200</td><td>-1,200</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.교육운영비</td><td>0</td><td>1,200</td><td>-1,200</td><td></td><td></td></tr>
+<tr><td></td><td colspan="4">3.학습지원실 운영</td><td>14,900</td><td>47,060</td><td>-32,160</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.방송실운영</td><td>800</td><td>800</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.방송장비구입</td><td>400</td><td>400</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.비품구입비</td><td>400</td><td>400</td><td>0</td><td>방송실 비품구입 : 200000원*2회=</td><td>400,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.방송실운영</td><td>400</td><td>400</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>400</td><td>400</td><td>0</td><td>방송장비 수리 : 200,000원*2회=</td><td>400,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td colspan="3">2.정보화실운영</td><td>14,100</td><td>46,260</td><td>-32,160</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.정보화업무 운영</td><td>14,100</td><td>46,260</td><td>-32,160</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>14,000</td><td>31,100</td><td>-17,100</td><td>인쇄용 소모품 구입 : 300,000원*4종*10월<br>=</td><td>12,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>정보화기기 소모품 구입 : 500,000원*4회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.기타공공요금</td><td>0</td><td>4,800</td><td>-4,800</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.교육운영비</td><td>100</td><td>100</td><td>0</td><td>정보화대회 운영비 : 100,000원*1회=</td><td>100,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.비품구입비</td><td>0</td><td>10,260</td><td>-10,260</td><td></td><td></td></tr>
+<tr><td></td><td colspan="4">4.교육여건 개선</td><td>173,100</td><td>60,000</td><td>113,100</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.교육환경개선</td><td>173,100</td><td>60,000</td><td>113,100</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.교실환경개선</td><td>30,000</td><td>10,000</td><td>20,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.비품구입비</td><td>30,000</td><td>10,000</td><td>20,000</td><td>교육활동 비품구입 : 1,000,000원*6종*5회<br>=</td><td>30,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.(통합)노후정보화기기교체</td><td>131,100</td><td>0</td><td>131,100</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.비품구입비</td><td>131,100</td><td>0</td><td>131,100</td><td>전자칠판구입 : 5,700,000원*23대=</td><td>131,100,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.(목적)내외부환경개선</td><td>0</td><td>50,000</td><td>-50,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.시설비</td><td>0</td><td>50,000</td><td>-50,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.정보화기기 구입</td><td>12,000</td><td>0</td><td>12,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.비품구입비</td><td>12,000</td><td>0</td><td>12,000</td><td>정보화기기 구입 : 800,000원*3종*5대=</td><td>12,000,000</td></tr>
+<tr><td colspan="5">6.학교 일반운영</td><td>388,920</td><td>310,026</td><td>78,894</td><td></td><td></td></tr>
+<tr><td></td><td colspan="4">1.학교기관 운영</td><td>84,343</td><td>53,506</td><td>30,837</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.부서기본운영</td><td>84,343</td><td>53,506</td><td>30,837</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.행정실운영</td><td>84,343</td><td>53,506</td><td>30,837</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>35,305</td><td>15,010</td><td>20,295</td><td>사무용품 구입 : 30,000원*120명=</td><td>3,600,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>프린터기 및 복합기 임대료 : 2,185,000원<br>*9월=</td><td>19,665,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>복사용지 구입 : 500,000원*6회=</td><td>3,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>사무기기토너 구입 : 200,000원*6회=</td><td>1,200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>신문구독료(중앙지) : 20,000원*2종*12월=</td><td>480,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>신문구독료(지방지) : 10,000원*5종*12월=</td><td>600,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>각종 수수료 : 30,000원*12회=</td><td>360,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>현수막및안내판 등 제작 : 200,000원*2회=</td><td>400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>부서운영 용품구입 : 500,00원*10종*4회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>주차장 토지사용료 : 3,000,000원*1회=</td><td>3,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>행정장비 유지보수 : 250,000원*4회=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.기타공공요금</td><td>120</td><td>150</td><td>-30</td><td>회계공무원 재정보증보험료 : 40,000원*3<br>명=</td><td>120,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.여비</td><td>27,600</td><td>17,500</td><td>10,100</td><td>근무지내출장여비 : 20,000원*80명*12회=</td><td>19,200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>근무지외출장여비 : 35,000원*30명*6회=</td><td>6,300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>도외출장여비 : 350,000원*3명*2회=</td><td>2,100,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.교직원복지비</td><td>7,020</td><td>6,240</td><td>780</td><td>특근매식비 : 9,000원*10명*12회=</td><td>1,080,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>상시초과근무자(운전원) 특근매식비 :<br>9,000원*3명*220일=</td><td>5,940,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>5.일반업무추진비</td><td>7,570</td><td>7,830</td><td>-260</td><td>교육협조인사와의 협의회 : 300,000원*4회<br>=</td><td>1,200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>교직원격려 물품 구입 및 간담회 :<br>1,200,000원*2회=</td><td>2,400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>교직원 경조사비 : 50,000원*8회=</td><td>400,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>차재료 구입 : 300,000원*5회=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>소집해제 사회복무요원 기념품 및 기타직<br>격려품 : 50,000원*7명=</td><td>350,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>사회복무요원 간담회 : 20,000원*21명=</td><td>420,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>유관기관 방문 물품구입 : 75,000원*4회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>행정업무 협의회 : 250,000원*4회=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>6.직책급업무수행경비</td><td>4,728</td><td>4,776</td><td>-48</td><td>직책급업무수행경비 : 394,000원*12월=</td><td>4,728,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>7.비품구입비</td><td>2,000</td><td>2,000</td><td>0</td><td>업무용 비품 구입 : 1,000,000원*2대=</td><td>2,000,000</td></tr>
+<tr><td></td><td colspan="4">2.시설 장비 유지</td><td>288,657</td><td>240,300</td><td>48,357</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.학교시설장비유지</td><td>288,657</td><td>240,300</td><td>48,357</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.공공요금및제세공과금</td><td>118,046</td><td>95,360</td><td>22,686</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.전기요금</td><td>84,000</td><td>66,000</td><td>18,000</td><td>전기요금 : 7,000,000원*12월=</td><td>84,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.상하수도료</td><td>24,000</td><td>24,000</td><td>0</td><td>수도요금 : 2,000,000원*12월=</td><td>24,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.기타공공요금</td><td>10,046</td><td>5,360</td><td>4,686</td><td>전화요금 : 400,000원*12월=</td><td>4,800,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>우표구입 : 100,000원*2회=</td><td>200,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>KCTV시청료 : 30,000원*12월=</td><td>360,000</td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>인터넷통신비 : 390,440원*12월=</td><td>4,686,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.시설관리용역</td><td>26,128</td><td>26,884</td><td>-756</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>26,128</td><td>26,884</td><td>-756</td><td>전기안전관리용역 : 440,000원*12월=</td><td>5,280,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>소방시설관리용역 : 300,000원*12월=</td><td>3,600,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>승강기관리용역 : 210,000원*12월=</td><td>2,520,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>키폰유지보수용역 : 99,000원*12월=</td><td>1,188,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(보정)CCTV 유지보수용역 : 220,000원*12<br>월=</td><td>2,640,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>오수정화조수거용역 : 650,000원*2회=</td><td>1,300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>폐기물 처리용역 : 800,000원*12월=</td><td>9,600,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.시설일반관리</td><td>89,283</td><td>84,856</td><td>4,427</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.기간제근로자인건비</td><td>937</td><td>0</td><td>937</td><td>일용인부임 : 93,680원*10명=</td><td>937,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.일반수용비</td><td>84,924</td><td>81,456</td><td>3,468</td><td>(보정)CCTV설비 유지보수 : 200,000원*5회<br>=</td><td>1,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>방화관리자 협회비 : 50,000원*1회=</td><td>50,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>시설관리용품 : 130,000원*20종*5회=</td><td>13,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학교시설물 유지보수 : 2,696,800원*10회=</td><td>26,968,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(보정)냉난방기 유지관리 : 132,000원*108<br>대=</td><td>14,256,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>승강기 정기검사수수료 : 150,000원*1회=</td><td>150,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>별도폐기물처리 일반경비 : 1,000,000원<br>*2회=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>환경정리물품 : 500,000원*5회=</td><td>2,500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>학교내외부대청소용역 : 25,000,000원*1회<br>=</td><td>25,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.교직원복지비</td><td>1,400</td><td>1,400</td><td>0</td><td>시설관련교육비 : 100,000원*5회=</td><td>500,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>시설관리자 피복비 : 300,000원*3명=</td><td>900,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.기간제근로자법정부담금</td><td>22</td><td>0</td><td>22</td><td>일용인부 사회보험료 : 937,000원*2.3%=</td><td>22,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>5.비품구입비</td><td>2,000</td><td>2,000</td><td>0</td><td>시설관리 비품구입 : 1,000,000원*2종=</td><td>2,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.화장실관리</td><td>17,400</td><td>10,200</td><td>7,200</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>17,400</td><td>10,200</td><td>7,200</td><td>화장실(교실포함) 소모품구입 : 1,500,000<br>원*10회=</td><td>15,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>청소용 소모품구입 : 600,000원*4회=</td><td>2,400,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.체육관관리</td><td>11,000</td><td>11,000</td><td>0</td><td></td><td></td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>3,000</td><td>7,000</td><td>-4,000</td><td>(보정)체육관유지보수 : 1,500,000원*2회=</td><td>3,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.전기요금</td><td>8,000</td><td>0</td><td>8,000</td><td>(보정)체육관전기요금 : 800,000원*10회=</td><td>8,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.비품구입비</td><td>0</td><td>4,000</td><td>-4,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">6.당직관리</td><td>3,000</td><td>3,000</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>3,000</td><td>3,000</td><td>0</td><td>무인기계경비위탁용역 : 250,000원*12월=</td><td>3,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">7.천연잔디/마사토운동장관리</td><td>9,000</td><td>9,000</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>9,000</td><td>9,000</td><td>0</td><td>천연잔디운동장 관리용역 : 900,000원*10<br>월=</td><td>9,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">8.(목적)제3종시설물정기안전점<br>검</td><td>14,800</td><td>0</td><td>14,800</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>14,800</td><td>0</td><td>14,800</td><td>제3조시설물안전점검용역 : 14,800,000원<br>*1회=</td><td>14,800,000</td></tr>
+<tr><td></td><td colspan="4">3.학교운영 협력</td><td>15,920</td><td>16,220</td><td>-300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.학교운영위원회운영</td><td>5,120</td><td>4,820</td><td>300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.학교운영위원회운영</td><td>5,120</td><td>4,820</td><td>300</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>300</td><td>0</td><td>300</td><td>학교운영위원회 선출관리 : 300,000원*1교<br>=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>2.운영수당</td><td>3,000</td><td>3,000</td><td>0</td><td>운영위원회 참석수당 : 100,000원*6명*5회<br>=</td><td>3,000,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>3.기타공공요금</td><td>20</td><td>20</td><td>0</td><td>운영위원장 재정보증보험료 : 20,000원*1<br>명=</td><td>20,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>4.여비</td><td>300</td><td>300</td><td>0</td><td>운영위원 출장여비 : 10,000원*6명*5회=</td><td>300,000</td></tr>
+<tr><td></td><td></td><td></td><td></td><td>5.일반업무추진비</td><td>1,500</td><td>1,500</td><td>0</td><td>학교운영위원 협의회비 : 300,000원*5회=</td><td>1,500,000</td></tr>
+<tr><td></td><td></td><td colspan="3">2.학부모협력</td><td>9,800</td><td>10,400</td><td>-600</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.학부모회운영</td><td>900</td><td>900</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반업무추진비</td><td>900</td><td>900</td><td>0</td><td>학부모 운영협의회비 : 100,000원*9회=</td><td>900,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">2.(통합)학부모학교참여활동비<br>지원</td><td>2,800</td><td>2,700</td><td>100</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>2,800</td><td>2,700</td><td>100</td><td>학교교육모니터링 및 교육기부활동비 :<br>2,800,000원*1회=</td><td>2,800,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">3.학부모동아리활동</td><td>4,000</td><td>5,000</td><td>-1,000</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>4,000</td><td>5,000</td><td>-1,000</td><td>(목적)특수학교학생 부모자조모임 :<br>4,000,000원*1회=</td><td>4,000,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">4.(통합)학부모동아리운영</td><td>2,100</td><td>900</td><td>1,200</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>2,100</td><td>900</td><td>1,200</td><td>학부모동아리 운영 지원 : 2,100,000원*1<br>회=</td><td>2,100,000</td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">5.(통합)교육가족이함께하는프<br>로그램운영</td><td>0</td><td>900</td><td>-900</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>0</td><td>900</td><td>-900</td><td></td><td></td></tr>
+</table>
+
+예산구분 : 본예산 (단위 : 천원)
+
+<table>
+<tr><th colspan="5">사업</th><th rowspan="2">예산액</th><th rowspan="2">전년도<br>예산액</th><th rowspan="2">비교<br>증감</th><th colspan="2" rowspan="2">산출기초(원)</th></tr>
+<tr><td>정책</td><td>단위</td><td>세부</td><td>세부항목</td><td>원가통계비목</td></tr>
+<tr><td></td><td></td><td colspan="3">3.관계기관협력</td><td>1,000</td><td>1,000</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.평생교육운영</td><td>1,000</td><td>1,000</td><td>0</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.일반수용비</td><td>1,000</td><td>1,000</td><td>0</td><td>(권장)1교1강좌평생교육프로그램 운영비 :<br>200,000원*5회=</td><td>1,000,000</td></tr>
+<tr><td colspan="5">8.학교 재무활동</td><td>3,000</td><td>3,249</td><td>-249</td><td></td><td></td></tr>
+<tr><td></td><td colspan="4">1.예비비</td><td>3,000</td><td>3,249</td><td>-249</td><td></td><td></td></tr>
+<tr><td></td><td></td><td colspan="3">1.예비비</td><td>3,000</td><td>3,249</td><td>-249</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td colspan="2">1.예비비</td><td>3,000</td><td>3,249</td><td>-249</td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>1.예비비</td><td>3,000</td><td>3,249</td><td>-249</td><td>예비비 : 3,000,000원*1회=</td><td>3,000,000</td></tr>
+<tr><td colspan="5">세출합계</td><td>3,537,479</td><td>2,849,740</td><td>687,739</td><td colspan="2"></td></tr>
+</table>
+
+제주영지학교
+
+2
+현지선 2025년 02월 13일 16시 07분 24초
+제주특별자치도교육청 제주영지학교
+
+3
+현지선 2025년 02월 13일 16시 07분 26초
+제주특별자치도교육청 제주영지학교
+
+4
+현지선 2025년 02월 13일 16시 07분 26초
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+5
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+6
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+7
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+8
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+9
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+10
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+11
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+12
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+13
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+14
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+15
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+16
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+17
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+18
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+19
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+20
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+21
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+22
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+23
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+24
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+25
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+26
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+27
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+28
+제주특별자치도교육청 제주영지학교
+
+현지선 2025년 02월 13일 16시 07분 27초
+29
+제주특별자치도교육청 제주영지학교

@@ -23,3 +23,6 @@ apps/ios/*.xcodeproj/
 xcuserdata/
 *.xcuserstate
 apps/ios/Config/Local.xcconfig
+
+# Raw 병무청 복무기관 list (scripts/fetch-mma-service-institutions.cjs); census.csv is committed instead.
+docs/sources/mma-roster/roster.json

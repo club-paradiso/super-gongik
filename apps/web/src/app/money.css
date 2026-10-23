@@ -494,7 +494,8 @@
   font-weight: 700;
 }
 
-.day-toggle[data-kind="FULL_DAY_LEAVE"] small {
+.day-toggle[data-kind="FULL_DAY_LEAVE"] small,
+.day-toggle[data-kind="FULL_DAY_ABSENCE"] small {
   color: var(--cat-leave-fg);
   font-weight: 700;
 }

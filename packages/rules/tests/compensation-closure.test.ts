@@ -411,17 +411,27 @@ describe("eligible service days", () => {
     expect(days.transportEligibleDays).toBe(20);
   });
 
-  it("finds a leave's charged days over a weekend but still asks about allowances", () => {
+  it("finds a leave's charged days over a weekend and pays no allowances on them", () => {
     const leave = event("ANNUAL_LEAVE", "2026-10-16", "2026-10-19", allDay(2));
-    const undecided = deriveMonthServiceDays({
+    const unpaid = deriveMonthServiceDays({
       profile: serving,
       month: "2026-10" as YearMonth,
       // Fri 16th – Mon 19th, 2 charged days = the two scheduled weekdays.
       events: [leave],
       attendance: attendance("2026-10"),
     });
-    expect(undecided.undecidedDates).toEqual(["2026-10-16", "2026-10-19"]);
-    expect(undecided.days.find((d) => d.date === "2026-10-17")?.kind).toBe(
+    expect(unpaid.undecidedDates).toEqual([]);
+    expect(unpaid.status).toBe("READY");
+    expect(unpaid.mealEligibleDays).toBe(20);
+    for (const date of ["2026-10-16", "2026-10-19"]) {
+      expect(unpaid.days.find((d) => d.date === date)).toMatchObject({
+        kind: "FULL_DAY_LEAVE",
+        requiresDecision: false,
+        mealEligible: false,
+        transportEligible: false,
+      });
+    }
+    expect(unpaid.days.find((d) => d.date === "2026-10-17")?.kind).toBe(
       "NOT_SCHEDULED",
     );
     const decided = deriveMonthServiceDays({
@@ -589,22 +599,24 @@ describe("allowance eligibility by leave and attendance category", () => {
     "SPECIAL_LEAVE",
     "COMPASSIONATE_LEAVE",
   ] as const)(
-    "full-day %s is FULL_DAY_LEAVE with undecided allowances and blocks the total",
+    "full-day %s is FULL_DAY_LEAVE and earns no allowances (병무청 공통 규정)",
     (eventType) => {
       const events = [event(eventType, date, date, allDay(1))];
-      const pending = monthOf(events);
-      const day = pending.serviceDays?.days.find((d) => d.date === date);
+      const result = monthOf(events);
+      const day = result.serviceDays?.days.find((d) => d.date === date);
       expect(day).toMatchObject({
         kind: "FULL_DAY_LEAVE",
-        requiresDecision: true,
-        mealEligible: null,
-        transportEligible: null,
+        requiresDecision: false,
+        mealEligible: false,
+        transportEligible: false,
+        decidedByUser: false,
       });
-      expect(pending.components[1]?.status).toBe("NEEDS_INPUT");
-      expect(pending.components[2]?.status).toBe("NEEDS_INPUT");
-      expect(pending.total).toBeNull();
+      expect(result.status).toBe("COMPLETE");
+      expect(result.components[1]?.eligibleDays).toBe(21);
+      expect(result.components[2]?.eligibleDays).toBe(21);
+      expect(result.total).toBe(1_200_000 + 9000 * 21 + 2800 * 21);
 
-      // The user's decision resolves it, including a split decision.
+      // A user whose institution pays differently can still decide per day.
       const decided = monthOf(events, {
         dayOverrides: [{ date, mealEligible: false, transportEligible: true }],
       });
@@ -612,6 +624,27 @@ describe("allowance eligibility by leave and attendance category", () => {
       expect(decided.components[1]?.eligibleDays).toBe(21);
       expect(decided.components[2]?.eligibleDays).toBe(22);
       expect(decided.total).toBe(1_200_000 + 9000 * 21 + 2800 * 22);
+    },
+  );
+
+  it.each([
+    "SERVICE_SUSPENSION",
+    "SERVICE_ABSENCE",
+    "EXCESS_ANNUAL_ABSENCE",
+  ] as const)(
+    "full-day %s is FULL_DAY_ABSENCE and earns no allowances",
+    (eventType) => {
+      const result = monthOf([event(eventType, date, date, allDay(1))]);
+      expect(
+        result.serviceDays?.days.find((d) => d.date === date),
+      ).toMatchObject({
+        kind: "FULL_DAY_ABSENCE",
+        requiresDecision: false,
+        mealEligible: false,
+        transportEligible: false,
+      });
+      expect(result.components[1]?.eligibleDays).toBe(21);
+      expect(result.components[2]?.eligibleDays).toBe(21);
     },
   );
 
@@ -914,7 +947,7 @@ describe("compensation rule provenance", () => {
       expect(createHash("sha256").update(text).digest("hex")).toBe(
         source.excerptSha256,
       );
-      expect(source.retrievedAt).toBe("2026-09-24");
+      expect(String(source.retrievedAt) <= bundle!.verifiedAt).toBe(true);
     }
   });
 
