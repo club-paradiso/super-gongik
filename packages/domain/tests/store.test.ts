@@ -53,6 +53,7 @@ const legacyProfile = {
   expectedDischargeDate: "2027-08-02",
   serviceCategory: null,
   workplaceType: null,
+  institutionName: null,
   defaultCommuteCost: null,
   defaultMealAllowanceOverride: null,
   timezone: "Asia/Seoul",

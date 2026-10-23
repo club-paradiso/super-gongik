@@ -467,6 +467,7 @@ describe("independent devices: revision counters are not a clock", () => {
           expectedDischargeDate: "2028-02-03",
           serviceCategory: null,
           workplaceType: null,
+          institutionName: null,
           defaultCommuteCost: 4200,
           defaultMealAllowanceOverride: null,
           timezone: "Asia/Seoul",

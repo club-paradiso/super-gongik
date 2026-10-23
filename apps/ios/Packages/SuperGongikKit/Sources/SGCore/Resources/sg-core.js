@@ -14982,14 +14982,21 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	const institutionConfidenceSchema = _enum(["HIGH", "MEDIUM"]);
 	const dateOnlySchema = string().refine(isDateOnly, "Dates must use a valid YYYY-MM-DD value.");
 	const sha256Schema = string().regex(/^[0-9a-f]{64}$/);
+	/**
+	* zod's .url() builds a \`URL\`, which JavaScriptCore (the iOS bundle) does
+	* not provide, so the registry would fail to parse there. A plain http(s)
+	* prefix check stands in for it (some stored links carry download hints
+	* after the address).
+	*/
+	const httpUrlSchema = string().regex(/^https?:\/\/\S/, "Invalid URL");
 	const repoPathSchema = string().regex(/^docs\/sources\/institutions\//);
 	const institutionSourceSchema = object({
 		id: string().regex(/^src-[a-z0-9-]+$/),
 		title: string().min(1),
 		publisher: string().min(1),
 		sourceType: institutionSourceTypeSchema,
-		url: string().url(),
-		pageUrl: string().url().nullable(),
+		url: httpUrlSchema,
+		pageUrl: httpUrlSchema.nullable(),
 		publishedDate: dateOnlySchema.nullable(),
 		retrievedAt: dateOnlySchema,
 		documentYear: number().int().min(2e3).max(2100),
