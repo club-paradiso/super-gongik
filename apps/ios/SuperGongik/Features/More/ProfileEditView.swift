@@ -23,12 +23,54 @@ struct ProfileEditView: View {
         let verifiedAt: String
     }
 
+    /// Cited rates for a typed 기관명 from the shared rules registry. Nothing
+    /// here is a calculation: the user still confirms and saves the amounts.
+    struct InstitutionRates: Decodable, Sendable {
+        struct Amount: Decodable, Sendable {
+            let amount: Double
+            let valueKind: String
+            let effectiveYear: Int
+            let sourceTitle: String
+            let quote: String
+            let applicable: Bool
+            let caution: String?
+        }
+
+        struct Note: Decodable, Sendable, Identifiable {
+            let field: String
+            let text: String
+            let effectiveYear: Int
+            let sourceTitle: String
+            var id: String { "\(field)|\(text)|\(sourceTitle)" }
+        }
+
+        struct Institution: Decodable, Sendable {
+            let name: String
+            let scopeNote: String
+        }
+
+        struct Suggestion: Decodable, Sendable, Hashable {
+            let id: String
+            let name: String
+        }
+
+        let status: String
+        let institution: Institution?
+        let meal: Amount?
+        let transport: Amount?
+        let notes: [Note]?
+        let suggestions: [Suggestion]?
+    }
+
     @Environment(AppModel.self) private var model
+    @Environment(\.openURL) private var openURL
     @ScaledMetric(relativeTo: .body) private var fieldScale: CGFloat = 1
     @Environment(\.dismiss) private var dismiss
     @State private var options: Options?
     @State private var draft = Draft()
     @State private var fare: FareSuggestion?
+    @State private var rates: InstitutionRates?
+    @State private var autoFilled = false
     @State private var issues: [EventIssue] = []
     @State private var loaded = false
 
@@ -36,6 +78,7 @@ struct ProfileEditView: View {
         var callUp = Date.now
         var discharge = Date.now
         var category = ""
+        var institution = ""
         var workHours = ""
         var workMinutes = ""
         var startTime = ""
@@ -129,6 +172,17 @@ struct ProfileEditView: View {
                 }
 
                 Section {
+                    TextField("예: 경기도교육청, 서울특별시 성북구", text: $draft.institution)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    institutionResult
+                } header: {
+                    Text("복무기관")
+                } footer: {
+                    Text("기관명을 입력하면 등록된 공식 자료에서 중식비·교통비 기준을 찾아 보여드려요. 값은 확인 후 저장해야 반영돼요.")
+                }
+
+                Section {
                     LabeledContent("1일 중식비 (기관이 더 줄 때만)") {
                         HStack(spacing: SGSpacing.xxs) { numberField("원", $draft.meal, width: 80); Text("원") }
                     }
@@ -187,10 +241,145 @@ struct ProfileEditView: View {
             options = await model.pure("profileOptions", [], as: Options.self)
             loadDraft()
         }
+        .task(id: draft.institution) {
+            await lookupInstitution()
+        }
         .task(id: draft.region) {
             fare = draft.region.isEmpty ? nil
                 : await model.pure("regionalFareSuggestion", [.string(draft.region)], as: FareSuggestion?.self) ?? nil
         }
+    }
+
+
+    private var institutionResult: some View {
+        Group {
+            if let rates, rates.status == "MATCHED", let institution = rates.institution {
+                VStack(alignment: .leading, spacing: SGSpacing.xxs) {
+                    Label(institution.name, systemImage: "checkmark.seal")
+                        .font(SGTypography.label)
+                    Text(institution.scopeNote).font(SGTypography.caption)
+                        .foregroundStyle(.sg(SGColor.textTertiary))
+                }
+                if let meal = rates.meal { amountRow("중식비", meal, apply: { draft.meal = String(Int(meal.amount)) }, applied: draft.meal) }
+                if let transport = rates.transport { amountRow("교통비", transport, apply: { draft.commute = String(Int(transport.amount)) }, applied: draft.commute) }
+                if rates.meal == nil && rates.transport == nil {
+                    Text("이 기관의 중식비·교통비 금액 근거는 아직 없어요. 직접 입력해 주세요.")
+                        .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+                }
+                if autoFilled {
+                    Text("비어 있던 칸을 기관 기준으로 채웠어요. 저장하기 전에 확인해 주세요.")
+                        .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+                }
+                if let notes = rates.notes, !notes.isEmpty {
+                    DisclosureGroup("이 기관의 확인된 규칙 \(notes.count)건") {
+                        ForEach(notes) { note in
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(Self.fieldLabel(note.field)).font(SGTypography.caption.weight(.semibold))
+                                Text(note.text).font(SGTypography.caption)
+                                Text("\(note.effectiveYear)년 · \(note.sourceTitle)").font(SGTypography.caption)
+                                    .foregroundStyle(.sg(SGColor.textTertiary))
+                            }
+                            .padding(.vertical, 2)
+                        }
+                    }
+                }
+            } else if let rates, rates.status == "UNKNOWN_INSTITUTION", !draft.institution.trimmingCharacters(in: .whitespaces).isEmpty {
+                if let list = rates.suggestions, !list.isEmpty {
+                    Text("혹시 이 기관인가요?").font(SGTypography.caption)
+                    ForEach(list.prefix(5), id: \.self) { item in
+                        Button(item.name) { draft.institution = item.name }
+                    }
+                } else {
+                    Text("등록된 기관 근거가 없어요. 중식비·교통비는 직접 입력해 주세요.")
+                        .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+                }
+                Button("우리 기관 기준 제보하기") { reportInstitution() }
+                    .font(SGTypography.caption)
+            }
+        }
+    }
+
+    private func amountRow(_ label: String, _ amount: InstitutionRates.Amount, apply: @escaping () -> Void, applied: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack {
+                Text("\(label) \(Formatters.won(amount.amount))").font(SGTypography.label)
+                Spacer()
+                if amount.applicable {
+                    if applied == String(Int(amount.amount)) {
+                        Text("적용됨").font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+                    } else {
+                        Button("적용", action: apply)
+                    }
+                }
+            }
+            Text("\(amount.effectiveYear)년 · \(amount.sourceTitle)").font(SGTypography.caption)
+                .foregroundStyle(.sg(SGColor.textTertiary))
+            if let caution = amount.caution {
+                Text(caution).font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+            }
+        }
+    }
+
+    private static func fieldLabel(_ field: String) -> String {
+        switch field {
+        case "TRANSPORT_METHOD": "교통비 지급 방식"
+        case "MEAL_ON_LEAVE": "휴가 시 중식비"
+        case "TRANSPORT_ON_LEAVE": "휴가 시 교통비"
+        case "MEAL_ON_ABSENCE": "결근 시 중식비"
+        case "TRANSPORT_ON_ABSENCE": "결근 시 교통비"
+        case "MEAL_ON_PARTIAL_DAY": "반일·시간 단위 중식비"
+        case "ROUNDING": "단수처리"
+        case "PAY_DAY": "급여 지급일"
+        case "WORK_DAYS_RULE": "근무일수 규칙"
+        default: "그 밖의 규칙"
+        }
+    }
+
+    /// Looks the typed name up and, the first time a registered institution
+    /// matches, fills only the amounts the user has not entered. Applicable
+    /// amounts only: nothing below the 2026 minimum, nothing invented.
+    private func lookupInstitution() async {
+        let name = draft.institution.trimmingCharacters(in: .whitespaces)
+        guard !name.isEmpty else { rates = nil; return }
+        try? await Task.sleep(for: .milliseconds(350))
+        guard !Task.isCancelled else { return }
+        let year = Calendar.seoul.component(.year, from: .now)
+        let result = await model.pure("suggestInstitutionRates", [.string(name), .number(Double(year))], as: InstitutionRates.self)
+        guard !Task.isCancelled else { return }
+        rates = result
+        guard let result, result.status == "MATCHED" else { return }
+        var filled = false
+        if draft.meal.isEmpty, let meal = result.meal, meal.applicable, meal.amount > 9000 {
+            draft.meal = String(Int(meal.amount)); filled = true
+        }
+        if draft.commute.isEmpty, let transport = result.transport, transport.applicable {
+            draft.commute = String(Int(transport.amount)); filled = true
+        }
+        if filled { autoFilled = true }
+    }
+
+    /// Opens a prefilled public GitHub issue. Only what the user typed on this
+    /// form goes into it, and they review and submit it themselves.
+    private func reportInstitution() {
+        let name = draft.institution.trimmingCharacters(in: .whitespaces)
+        let body = """
+        기관명: \(name)
+        1일 중식비: \(draft.meal.isEmpty ? "(모름)" : draft.meal + "원")
+        1일 교통비: \(draft.commute.isEmpty ? "(모름)" : draft.commute + "원")
+        휴가·결근일 식비/교통비 지급 여부:
+        단수처리(예: 10원 미만 절사):
+        급여 지급일:
+        근거 자료(공문·지침 링크나 문서명, 게시일):
+
+        ※ 개인정보(이름, 계좌, 소집일 등)는 적지 마세요. 이 글은 공개돼요.
+        """
+        var components = URLComponents(string: "https://github.com/club-paradiso/super-gongik/issues/new")!
+        components.queryItems = [
+            URLQueryItem(name: "title", value: "기관 규칙 제보: \(name)"),
+            URLQueryItem(name: "body", value: body),
+            URLQueryItem(name: "labels", value: "institution-rules"),
+        ]
+        if let url = components.url { openURL(url) }
     }
 
     private func datePicker(_ title: String, _ value: Binding<Date>) -> some View {
@@ -237,6 +426,7 @@ struct ProfileEditView: View {
         draft.callUp = Formatters.date(from: profile.callUpDate)
         draft.discharge = Formatters.date(from: profile.expectedDischargeDate)
         draft.category = profile.serviceCategory ?? ""
+        draft.institution = profile.institutionName ?? ""
         if let minutes = profile.workdayMinutes {
             draft.workHours = String(minutes / 60)
             draft.workMinutes = String(minutes % 60)
@@ -265,6 +455,7 @@ struct ProfileEditView: View {
             "callUpDate": .string(Formatters.civilDate(from: draft.callUp).description),
             "expectedDischargeDate": .string(Formatters.civilDate(from: draft.discharge).description),
             "serviceCategory": optionalString(draft.category),
+            "institutionName": optionalString(draft.institution.trimmingCharacters(in: .whitespaces)),
             "workdayMinutes": workday,
             "workdayStartTime": optionalString(draft.startTime),
             "workdayEndTime": optionalString(draft.endTime),

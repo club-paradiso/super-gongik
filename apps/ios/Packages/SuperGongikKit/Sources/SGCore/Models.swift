@@ -54,6 +54,7 @@ public struct ServiceProfile: Codable, Sendable, Equatable {
     public let callUpDate: CivilDate
     public let expectedDischargeDate: CivilDate
     public let serviceCategory: String?
+    public let institutionName: String?
     public let residenceRegion: String?
     public let defaultCommuteCost: Double?
     public let defaultMealAllowanceOverride: Double?
