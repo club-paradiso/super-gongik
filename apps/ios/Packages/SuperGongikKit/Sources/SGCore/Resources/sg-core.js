@@ -16983,7 +16983,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		"TRAINING"
 	]);
 	/** 결근 types: an all-day record is a FULL_DAY_ABSENCE, anything else a decision. */
-	const ABSENCE_EVENT_TYPES = /* @__PURE__ */ new Set([
+	const ABSENCE_EVENT_TYPES$1 = /* @__PURE__ */ new Set([
 		"SERVICE_SUSPENSION",
 		"SERVICE_ABSENCE",
 		"EXCESS_ANNUAL_ABSENCE"
@@ -17081,7 +17081,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					const charged = chargedDates(event, isScheduledWorkingDay);
 					if (charged === null) kind = "NEEDS_DECISION";
 					else if (charged.has(date) && kind !== "NEEDS_DECISION") kind = "FULL_DAY_LEAVE";
-				} else if (ABSENCE_EVENT_TYPES.has(event.eventType)) {
+				} else if (ABSENCE_EVENT_TYPES$1.has(event.eventType)) {
 					if (event.timing.kind !== "ALL_DAY") kind = "NEEDS_DECISION";
 					else if (kind !== "NEEDS_DECISION") kind = "FULL_DAY_ABSENCE";
 				} else if (DECISION_EVENT_TYPES.has(event.eventType)) kind = "NEEDS_DECISION";
