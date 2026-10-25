@@ -31,6 +31,10 @@ struct EventEditorSheet: View {
     @State private var feedbackRevision = 0
     @State private var viewingConflict: ServiceEvent?
     @AccessibilityFocusState private var feedbackFocused: Bool
+    /// The form as loaded; closing with a different form asks first.
+    @State private var original: EventFormState?
+    @State private var saved = false
+    @State private var confirmingDiscard = false
 
     private static let feedbackAnchor = "event-editor-feedback"
 
@@ -47,7 +51,9 @@ struct EventEditorSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("닫기") { dismiss() }
+                    Button("닫기") {
+                        if hasUnsavedChanges { confirmingDiscard = true } else { dismiss() }
+                    }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(showsWarnings ? "확인했어요, 저장" : "저장") { Task { await save() } }
@@ -60,6 +66,10 @@ struct EventEditorSheet: View {
             }
         }
         .presentationDetents([.large])
+        // Pulling the sheet down with unsaved edits is blocked so 닫기 can ask;
+        // without edits it closes as before (IOS-08).
+        .interactiveDismissDisabled(hasUnsavedChanges)
+        .discardChangesDialog(isPresented: $confirmingDiscard) { dismiss() }
         .task { await load() }
     }
 
@@ -69,6 +79,10 @@ struct EventEditorSheet: View {
 
     private var showsWarnings: Bool {
         !(evaluation?.validation.warnings.isEmpty ?? true) && acknowledgedWarnings == warningsKey
+    }
+
+    private var hasUnsavedChanges: Bool {
+        EditorDismissGuard.needsConfirmation(original: original, current: form, saved: saved)
     }
 
     /// Stored records the refused save collides with (only for conflict codes).
@@ -350,6 +364,7 @@ struct EventEditorSheet: View {
                                         as: EventFormState.self) {
             form = typed
         }
+        original = form
         await evaluate()
     }
 
@@ -397,6 +412,7 @@ struct EventEditorSheet: View {
             issues = await model.run("createServiceEvent", [evaluation.draft])
         }
         if issues.isEmpty {
+            saved = true
             UIAccessibility.post(notification: .announcement, argument: "저장했어요")
             dismiss()
         } else {
@@ -413,6 +429,7 @@ struct EventEditorSheet: View {
 
     private func delete(_ event: ServiceEvent) async {
         if await model.run("deleteServiceEvent", [.string(event.id)]).isEmpty {
+            saved = true
             dismiss()
         }
     }

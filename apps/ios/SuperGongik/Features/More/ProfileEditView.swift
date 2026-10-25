@@ -85,6 +85,10 @@ struct ProfileEditView: View {
     @State private var lastFareApplied: String?
     @State private var issues: [EventIssue] = []
     @State private var loaded = false
+    /// The draft as loaded; closing with a different draft asks first.
+    @State private var original: Draft?
+    @State private var saved = false
+    @State private var confirmingDiscard = false
 
     struct Draft: Equatable {
         var callUp = Date.now
@@ -211,14 +215,21 @@ struct ProfileEditView: View {
                 Button("저장") { Task { await save() } }.disabled(model.isReadOnly)
             }
             ToolbarItem(placement: .cancellationAction) {
-                Button("닫기") { dismiss() }
+                Button("닫기") {
+                    if hasUnsavedChanges { confirmingDiscard = true } else { dismiss() }
+                }
             }
         }
+        // Pulling the sheet down with unsaved edits is blocked so 닫기 can ask;
+        // without edits it closes as before (IOS-08).
+        .interactiveDismissDisabled(hasUnsavedChanges)
+        .discardChangesDialog(isPresented: $confirmingDiscard) { dismiss() }
         .task {
             guard !loaded else { return }
             loaded = true
             options = await model.pure("profileOptions", [], as: Options.self)
             loadDraft()
+            original = draft
         }
         .task(id: draft.institution) {
             await lookupInstitution()
@@ -506,6 +517,10 @@ struct ProfileEditView: View {
         }
     }
 
+    private var hasUnsavedChanges: Bool {
+        EditorDismissGuard.needsConfirmation(original: original, current: draft, saved: saved)
+    }
+
     private func loadDraft() {
         guard let profile = model.profile else { return }
         draft.callUp = Formatters.date(from: profile.callUpDate)
@@ -557,7 +572,10 @@ struct ProfileEditView: View {
             "defaultCommuteCost": optionalNumber(draft.commute),
             "liveProgressEnabled": .bool(draft.live),
         ])
-        if issues.isEmpty { dismiss() }
+        if issues.isEmpty {
+            saved = true
+            dismiss()
+        }
     }
 }
 
