@@ -31,6 +31,20 @@ targets:
     # Entitlements come from CODE_SIGN_ENTITLEMENTS ($(SG_APP_ENTITLEMENTS),
     # Config/Base.xcconfig) so a free personal team can switch them off.
     # Edit SuperGongik/SuperGongik.entitlements directly.
+    # A Beta/Release build must carry a real stamp (SG_BUILD_NUMBER / COMMIT /
+    # CHANNEL on the xcodebuild command line); the placeholders in
+    # Config/Base.xcconfig are refused. Debug builds always pass.
+    preBuildScripts:
+      - name: Check build provenance
+        shell: /bin/bash
+        script: |
+          "$SRCROOT/scripts/check-build-provenance.sh" && touch "$SCRIPT_OUTPUT_FILE_0"
+        inputFiles:
+          - $(SRCROOT)/scripts/check-build-provenance.sh
+          - $(SRCROOT)/Config/build-ledger.tsv
+        outputFiles:
+          - $(DERIVED_FILE_DIR)/build-provenance.stamp
+        basedOnDependencyAnalysis: false
     dependencies:
       - target: SuperGongikWidgets
       - package: SuperGongikKit

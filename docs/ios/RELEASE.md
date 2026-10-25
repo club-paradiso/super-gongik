@@ -28,6 +28,7 @@ requires explicit authorization and the credentials listed below.
 | Team              | `SG_DEVELOPMENT_TEAM` (empty)                              | `Config/Local.xcconfig` (git-ignored) |
 | Capabilities      | App Groups, Sign in with Apple (declared in `project.yml`) | Apple Developer portal                |
 | Deployment target | iOS 18.0; built with the iOS 26.2 SDK (Xcode 26.3)         | `project.yml`                         |
+| Build ledger      | every distributed `CFBundleVersion`, commit and channel    | `Config/build-ledger.tsv`             |
 
 The bundle id and App Group are placeholders: confirm the final identifiers
 (and whether the product name stays SUPER-GONGIK) before registering them.
@@ -57,8 +58,21 @@ a bug.
 1. Register the app id, widget id and App Group in the developer portal.
 2. `cp apps/ios/Config/Local.xcconfig.example apps/ios/Config/Local.xcconfig`
    and set `SG_BUNDLE_ID`, `SG_DEVELOPMENT_TEAM`.
-3. Use `cd apps/ios && xcodegen generate`, then create the Release archive with an explicit, never-reused `SG_BUILD_NUMBER` (higher than the latest App Store Connect/TestFlight build) and `SG_BUILD_COMMIT` equal to the checked-out short Git SHA, with `-dirty` for tracked **or untracked** local app changes. Pass both values and `SG_BUILD_CHANNEL=Release` as `xcodebuild archive` overrides. Inspect the archive app's Info.plist values for CFBundleVersion, SGBuildCommit and SGBuildChannel before distribution. The default Xcode GUI Product → Archive uses placeholder `2`/`local` stamps and is not an eligible release artifact. The same commit archived twice must use two different SG_BUILD_NUMBER values.
-4. Upload to App Store Connect only after authorization.
+3. From a clean checkout run `cd apps/ios && scripts/release-archive.sh`. It
+   stamps the archive with `SG_BUILD_NUMBER` = `git rev-list --count HEAD`,
+   `SG_BUILD_COMMIT` = the short Git SHA and `SG_BUILD_CHANNEL=Release`, then
+   reads the archived app's Info.plist back and fails unless CFBundleVersion,
+   SGBuildCommit and SGBuildChannel match. A build phase
+   (`scripts/check-build-provenance.sh`) refuses any Beta or Release build that
+   still carries the `2` / `local` placeholders, a `-dirty` Release commit, or a
+   build number already listed in — or not higher than — `Config/build-ledger.tsv`.
+   The Xcode GUI Product → Archive therefore fails on purpose until the stamps
+   are passed on the command line. Before the first upload, compare the ledger
+   with the highest build number App Store Connect already holds for the
+   release bundle id and add that number to the ledger if it is higher.
+4. Upload to App Store Connect only after authorization. Afterwards append the
+   build to `Config/build-ledger.tsv` (`scripts/release-archive.sh --record`
+   does it) and commit, so the number is never reused.
 
 ## Before any submission
 
