@@ -171,6 +171,18 @@ describe("day count basis (suggestion vs. confirmed value)", () => {
         workWeekdays: [2, 3, 4, 5, 6],
       })?.confirmation?.code,
     ).toBe("DAY_COUNT_WORK_PATTERN_UNCONFIRMED");
+    expect(
+      describeDayCount(form, {
+        ...weekdayDaytime,
+        workWeekdays: null,
+      })?.confirmation?.code,
+    ).toBe("DAY_COUNT_WORK_PATTERN_UNCONFIRMED");
+    expect(
+      describeDayCount(form, {
+        ...weekdayDaytime,
+        workWeekdays: [],
+      })?.confirmation?.code,
+    ).toBe("DAY_COUNT_WORK_PATTERN_UNCONFIRMED");
     // Shift workers who type the day count themselves are not nagged, and the
     // typed value survives later date edits.
     const typed = applyFormPatch(form, {
