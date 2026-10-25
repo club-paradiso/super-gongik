@@ -23,8 +23,6 @@ struct MoreView: View {
     @State private var showingCloud = Self.debugOpenCloud
     @State private var showingCard = Self.debugFlag("SGOpenMemorialCard")
     @State private var showingWidgetStyle = Self.debugFlag("SGOpenWidgetStyle")
-    @AppStorage(WidgetPreset.key, store: ThemePreference.store) private var widgetPreset = WidgetPreset.twilight.rawValue
-    @State private var activityOn = DutyActivityController.isRunning
 
     /// DEBUG-only screenshot hook: `-SGOpenMemorialCard YES`.
     private static func debugFlag(_ key: String) -> Bool {
@@ -114,136 +112,30 @@ struct MoreView: View {
                         }
                     }
 
-                    Section {
-                        Picker("화면 테마", selection: $theme) {
-                            ForEach(SGTheme.allCases) { option in
-                                VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
-                                    Text(option.title)
-                                    Text(option.summary)
-                                        .font(SGTypography.caption)
-                                        .foregroundStyle(.sg(SGColor.textTertiary))
-                                }
-                                .tag(option)
-                            }
-                        }
-                        .pickerStyle(.inline)
-                    } header: {
-                        Text("화면")
-                    } footer: {
-                        Text("테마는 색과 분위기만 바꿔요. 숫자와 계산, 기록은 그대로예요. 이 기기에만 저장돼요.")
-                    }
-
-                    BackupExportView()
-
-                    CSVExportSection()
-
-                    RecordSummarySection()
-
-                    Section {
-                        NavigationLink { BackupRestoreView() } label: { Label("백업에서 복원", systemImage: "arrow.counterclockwise") }
-                        NavigationLink { RecordImportView() } label: { Label("기관 기록 가져오기", systemImage: "tray.and.arrow.down") }
-                    }
-
-                    Section {
-                        LabeledContent { Text("이 기기") } label: { Label("저장 위치", systemImage: "internaldrive") }
-                        if model.cloud.isConfigured {
-                            NavigationLink {
-                                CloudSyncView()
-                            } label: {
-                                LabeledContent { Text(model.cloud.view?.label.text ?? "로컬 전용") } label: { Label("클라우드 동기화", systemImage: "icloud") }
-                            }
-                        }
-                    } header: {
-                        header("저장", world: "DATA ARCHIVE")
-                    } footer: {
-                        Text(model.cloud.isConfigured
-                             ? "기록은 이 기기에 먼저 저장돼요. 로그인하고 동기화를 켜야만 클라우드에 올라가요. 로그인하지 않으면 네트워크를 쓰지 않아요."
-                             : "모든 기록은 이 기기에만 저장돼요. 기기를 바꿀 때는 백업 파일로 옮겨 주세요.")
-                    }
-
-                    if let profile = model.profile, let hero = model.projection?.home?.hero {
-                        Section {
-                            Toggle(isOn: Binding(
-                                get: { activityOn },
-                                set: { value in Task {
-                                    if value {
-                                        activityOn = await DutyActivityController.start(profile: profile, hero: hero)
-                                    } else {
-                                        await DutyActivityController.end()
-                                        activityOn = false
-                                    }
-                                } })) { Label("잠금 화면에 오늘 근무 표시", systemImage: "lock.display") }
-                            .disabled(!DutyActivityController.isAvailable && !activityOn)
-                        } header: {
-                            header("잠금 화면", world: "LIVE HUD")
-                        } footer: {
-                            Text(profile.workdayEndTime == nil
-                                 ? "다이내믹 아일랜드와 잠금 화면에 D-day와 진행률을 보여요. 복무 설정에 근무 종료 시각을 넣으면 퇴근까지 남은 시간도 보여요. 기록 내용은 나오지 않아요."
-                                 : "다이내믹 아일랜드와 잠금 화면에 퇴근까지 남은 시간, D-day, 진행률을 보여요. 기록 내용은 나오지 않아요.")
-                        }
-                    }
-
+                    // Purpose-grouped entry points (IOS-06): everything that used
+                    // to follow the 복무 sections in one long list now sits one
+                    // tap away, under the purpose it serves. Nothing was removed.
                     Section {
                         NavigationLink {
-                            WidgetStyleView()
+                            DisplaySettingsView()
                         } label: {
-                            LabeledContent { Text((WidgetPreset(rawValue: widgetPreset) ?? .twilight).title) } label: { Label("위젯 스타일", systemImage: "square.grid.2x2") }
+                            hubRow("화면", detail: theme.title, symbol: "paintpalette")
                         }
-                    } header: {
-                        header("홈 화면 위젯", world: "WIDGET HUD")
-                    }
-
-                    Section {
-                        ForEach(ReminderScheduler.Category.allCases) { category in
-                            Toggle(isOn: Binding(
-                                get: { model.reminders.isEnabled(category) },
-                                set: { value in Task {
-                                    await model.reminders.setEnabled(category, value)
-                                    await model.reproject()
-                                } })) {
-                                VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
-                                    Text(category.title)
-                                    Text(category.detail).font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
-                                }
-                            }
-                        }
-                        if model.reminders.authorizationDenied {
-                            Text("알림이 꺼져 있어요. 설정 앱 > 슈퍼공익 > 알림에서 켤 수 있어요.")
-                                .font(SGTypography.caption).foregroundStyle(.sg(SGColor.warning))
-                        }
-                    } header: {
-                        Text("알림")
-                    } footer: {
-                        Text("잠금 화면에는 ‘휴가’·‘근태’ 같은 분류만 보여요. 메모나 병가 여부는 알림에 넣지 않아요.")
-                    }
-
-                    Section {
-                        Toggle(isOn: Binding(
-                            get: { lock.lockEnabled },
-                            set: { value in Task { await lock.setLockEnabled(value) } })) { Label("\(lock.methodName)로 앱 잠금", systemImage: "lock") }
-                        .disabled(!lock.isAvailable && !lock.lockEnabled)
-                        Toggle(isOn: Binding(
-                            get: { lock.coverEnabled || lock.lockEnabled },
-                            set: { lock.coverEnabled = $0 })) { Label("앱 전환 화면에서 내용 가리기", systemImage: "eye.slash") }
-                        .disabled(lock.lockEnabled)
-                        if let error = lock.lastError {
-                            Text(error).font(SGTypography.caption).foregroundStyle(.sg(SGColor.warning))
-                        }
-                    } header: {
-                        Text("개인정보 보호")
-                    } footer: {
-                        Text(lock.isAvailable
-                             ? "잠금을 켜면 앱을 다시 열 때 \(lock.methodName)로 확인해요. 인식이 안 되면 기기 암호로 열 수 있어요."
-                             : "기기 암호를 설정하면 앱 잠금을 쓸 수 있어요.")
-                    }
-
-                    Section("데이터") {
                         NavigationLink {
-                            DataDeletionView()
+                            DataSettingsView()
                         } label: {
-                            Label("이 기기의 모든 데이터 지우기", systemImage: "trash")
-                                .foregroundStyle(.sg(SGColor.danger))
+                            hubRow("데이터", detail: model.cloud.isConfigured ? (model.cloud.view?.label.text ?? "로컬 전용") : "이 기기",
+                                   symbol: "externaldrive")
                         }
+                        NavigationLink {
+                            ProtectionSettingsView()
+                        } label: {
+                            hubRow("보호·알림", detail: protectionSummary, symbol: "lock.shield")
+                        }
+                    } header: {
+                        header("설정", world: "SYSTEMS")
+                    } footer: {
+                        Text("화면: 테마·위젯·잠금 화면 표시. 데이터: 백업·복원·가져오기·내보내기·지우기. 보호·알림: 앱 잠금과 알림.")
                     }
 
                     Section {
@@ -283,6 +175,38 @@ struct MoreView: View {
 
 extension MoreView {
     private func header(_ title: String, world: String) -> some View {
+        MoreSectionHeader(title, world: world)
+    }
+
+    private func hubRow(_ title: String, detail: String, symbol: String) -> some View {
+        LabeledContent {
+            Text(detail).font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+                .lineLimit(1)
+        } label: {
+            Label(title, systemImage: symbol)
+        }
+    }
+
+    /// "잠금 켜짐 · 알림 2개" — the one-line state of the 보호·알림 screen.
+    private var protectionSummary: String {
+        let lockText = lock.lockEnabled ? "잠금 켜짐" : "잠금 꺼짐"
+        let reminders = ReminderScheduler.Category.allCases.filter { model.reminders.isEnabled($0) }.count
+        return reminders == 0 ? "\(lockText) · 알림 없음" : "\(lockText) · 알림 \(reminders)개"
+    }
+}
+
+/// Section header with the Stitch world eyebrow, shared by 내 정보 and its
+/// purpose screens.
+struct MoreSectionHeader: View {
+    let title: String
+    let world: String
+
+    init(_ title: String, world: String) {
+        self.title = title
+        self.world = world
+    }
+
+    var body: some View {
         HStack(spacing: SGSpacing.xs) {
             Text(title)
             SGWorldEyebrow(world)
@@ -453,5 +377,199 @@ struct AboutView: View {
         }
         .sgGroupedChrome()
         .navigationTitle("계산 기준과 출처")
+    }
+}
+
+// MARK: Purpose screens (IOS-06)
+
+/// 화면: theme, home-screen widget style and the lock-screen Live Activity.
+struct DisplaySettingsView: View {
+    @Environment(AppModel.self) private var model
+    @AppStorage(ThemePreference.key, store: ThemePreference.store) private var theme: SGTheme = .standard
+    @AppStorage(WidgetPreset.key, store: ThemePreference.store) private var widgetPreset = WidgetPreset.twilight.rawValue
+    @State private var activityOn = DutyActivityController.isRunning
+
+    var body: some View {
+        List {
+            Group {
+            Section {
+                Picker("화면 테마", selection: $theme) {
+                    ForEach(SGTheme.allCases) { option in
+                        VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
+                            Text(option.title)
+                            Text(option.summary)
+                                .font(SGTypography.caption)
+                                .foregroundStyle(.sg(SGColor.textTertiary))
+                        }
+                        .tag(option)
+                    }
+                }
+                .pickerStyle(.inline)
+            } header: {
+                Text("화면")
+            } footer: {
+                Text("테마는 색과 분위기만 바꿔요. 숫자와 계산, 기록은 그대로예요. 이 기기에만 저장돼요.")
+            }
+            if let profile = model.profile, let hero = model.projection?.home?.hero {
+                Section {
+                    Toggle(isOn: Binding(
+                        get: { activityOn },
+                        set: { value in Task {
+                            if value {
+                                activityOn = await DutyActivityController.start(profile: profile, hero: hero)
+                            } else {
+                                await DutyActivityController.end()
+                                activityOn = false
+                            }
+                        } })) { Label("잠금 화면에 오늘 근무 표시", systemImage: "lock.display") }
+                    .disabled(!DutyActivityController.isAvailable && !activityOn)
+                } header: {
+                    header("잠금 화면", world: "LIVE HUD")
+                } footer: {
+                    Text(profile.workdayEndTime == nil
+                         ? "다이내믹 아일랜드와 잠금 화면에 D-day와 진행률을 보여요. 복무 설정에 근무 종료 시각을 넣으면 퇴근까지 남은 시간도 보여요. 기록 내용은 나오지 않아요."
+                         : "다이내믹 아일랜드와 잠금 화면에 퇴근까지 남은 시간, D-day, 진행률을 보여요. 기록 내용은 나오지 않아요.")
+                }
+            }
+
+            Section {
+                NavigationLink {
+                    WidgetStyleView()
+                } label: {
+                    LabeledContent { Text((WidgetPreset(rawValue: widgetPreset) ?? .twilight).title) } label: { Label("위젯 스타일", systemImage: "square.grid.2x2") }
+                }
+            } header: {
+                header("홈 화면 위젯", world: "WIDGET HUD")
+            }
+            }
+            .sgListRowSurface()
+        }
+        .sgGroupedChrome()
+        .navigationTitle("화면")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func header(_ title: String, world: String) -> some View { MoreSectionHeader(title, world: world) }
+}
+
+/// 데이터: where records live, backup, restore, import, exports and wipe.
+struct DataSettingsView: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        List {
+            Group {
+            BackupExportView()
+
+            CSVExportSection()
+
+            RecordSummarySection()
+
+            Section {
+                NavigationLink { BackupRestoreView() } label: { Label("백업에서 복원", systemImage: "arrow.counterclockwise") }
+                NavigationLink { RecordImportView() } label: { Label("기관 기록 가져오기", systemImage: "tray.and.arrow.down") }
+            }
+
+            Section {
+                LabeledContent { Text("이 기기") } label: { Label("저장 위치", systemImage: "internaldrive") }
+                if model.cloud.isConfigured {
+                    NavigationLink {
+                        CloudSyncView()
+                    } label: {
+                        LabeledContent { Text(model.cloud.view?.label.text ?? "로컬 전용") } label: { Label("클라우드 동기화", systemImage: "icloud") }
+                    }
+                }
+            } header: {
+                header("저장", world: "DATA ARCHIVE")
+            } footer: {
+                Text(model.cloud.isConfigured
+                     ? "기록은 이 기기에 먼저 저장돼요. 로그인하고 동기화를 켜야만 클라우드에 올라가요. 로그인하지 않으면 네트워크를 쓰지 않아요."
+                     : "모든 기록은 이 기기에만 저장돼요. 기기를 바꿀 때는 백업 파일로 옮겨 주세요.")
+            }
+                Section("데이터 지우기") {
+                    NavigationLink {
+                        DataDeletionView()
+                    } label: {
+                        Label("이 기기의 모든 데이터 지우기", systemImage: "trash")
+                            .foregroundStyle(.sg(SGColor.danger))
+                    }
+                }
+            }
+            .sgListRowSurface()
+        }
+        .sgGroupedChrome()
+        .navigationTitle("데이터")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func header(_ title: String, world: String) -> some View { MoreSectionHeader(title, world: world) }
+}
+
+/// 보호·알림: app lock, the app-switcher cover and reminders.
+struct ProtectionSettingsView: View {
+    @Environment(AppModel.self) private var model
+    @Environment(PrivacyLock.self) private var lock
+
+    var body: some View {
+        List {
+            Group {
+            Section {
+                ForEach(ReminderScheduler.Category.allCases) { category in
+                    Toggle(isOn: Binding(
+                        get: { model.reminders.isEnabled(category) },
+                        set: { value in Task {
+                            await model.reminders.setEnabled(category, value)
+                            await model.reproject()
+                        } })) {
+                        VStack(alignment: .leading, spacing: SGSpacing.xxxs) {
+                            Text(category.title)
+                            Text(category.detail).font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+                        }
+                    }
+                }
+                if model.reminders.authorizationDenied {
+                    Text("알림이 꺼져 있어요. 설정 앱 > 슈퍼공익 > 알림에서 켤 수 있어요.")
+                        .font(SGTypography.caption).foregroundStyle(.sg(SGColor.warning))
+                }
+            } header: {
+                Text("알림")
+            } footer: {
+                Text("잠금 화면에는 ‘휴가’·‘근태’ 같은 분류만 보여요. 메모나 병가 여부는 알림에 넣지 않아요.")
+            }
+
+            Section {
+                Toggle(isOn: Binding(
+                    get: { lock.lockEnabled },
+                    set: { value in Task { await lock.setLockEnabled(value) } })) { Label("\(lock.methodName)로 앱 잠금", systemImage: "lock") }
+                .disabled(!lock.isAvailable && !lock.lockEnabled)
+                Toggle(isOn: Binding(
+                    get: { lock.coverEnabled || lock.lockEnabled },
+                    set: { lock.coverEnabled = $0 })) { Label("앱 전환 화면에서 내용 가리기", systemImage: "eye.slash") }
+                .disabled(lock.lockEnabled)
+                if let error = lock.lastError {
+                    Text(error).font(SGTypography.caption).foregroundStyle(.sg(SGColor.warning))
+                }
+            } header: {
+                Text("개인정보 보호")
+            } footer: {
+                Text(lock.isAvailable
+                     ? "잠금을 켜면 앱을 다시 열 때 \(lock.methodName)로 확인해요. 인식이 안 되면 기기 암호로 열 수 있어요."
+                     : "기기 암호를 설정하면 앱 잠금을 쓸 수 있어요.")
+            }
+
+            Section("데이터") {
+                NavigationLink {
+                    DataDeletionView()
+                } label: {
+                    Label("이 기기의 모든 데이터 지우기", systemImage: "trash")
+                        .foregroundStyle(.sg(SGColor.danger))
+                }
+            }
+            }
+            .sgListRowSurface()
+        }
+        .sgGroupedChrome()
+        .navigationTitle("보호·알림")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

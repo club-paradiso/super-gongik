@@ -47,6 +47,13 @@ struct TodayView: View {
                                     openPay: { openTab(.pay) },
                                     addRecord: { editorType = nil; editorDate = model.today })
                                     .padding(.top, -SGSpacing.sm)
+                            }
+                            // What is happening today or next comes before the
+                            // status ledger: after the actions, the agenda is the
+                            // first thing a day-to-day visit needs (IOS-06).
+                            AgendaSection(home: home, projection: projection, openCalendar: { openTab(.calendar) })
+                                .padding(.top, home.completed ? SGSpacing.md : 0)
+                            if !home.completed {
                                 LedgerGrid(home: home, projection: projection,
                                            openLedger: { showingLedger = true },
                                            openPay: { openTab(.pay) },
@@ -55,8 +62,6 @@ struct TodayView: View {
                                     WorkdaySection(workdays: workdays)
                                 }
                             }
-                            AgendaSection(home: home, projection: projection, openCalendar: { openTab(.calendar) })
-                                .padding(.top, home.completed ? SGSpacing.md : 0)
                             if home.hero.phase == "IN_SERVICE" {
                                 JourneyNote(hero: home.hero)
                             }
