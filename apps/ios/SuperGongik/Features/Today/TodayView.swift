@@ -415,33 +415,10 @@ private struct TrailPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SGSpacing.sm) {
-            // "다음 50% · 19일 후" is the panel's one number worth reading:
-            // it never truncates. At large sizes it takes its own line, and
-            // the decorative JOURNEY TRAIL eyebrow is dropped before anything
-            // else is squeezed (it read as "다음 D-50…" at accessibility sizes).
-            if typeSize.isAccessibilitySize {
-                VStack(alignment: .leading, spacing: SGSpacing.xxs) {
-                    Text("복무 이정표")
-                        .font(SGTypography.micro)
-                        .foregroundStyle(.sg(SGColor.heroForeground2))
-                    if let next = trail.next { nextLabel(next) }
-                }
-            } else {
-                ViewThatFits(in: .horizontal) {
-                    header(eyebrow: true)
-                    header(eyebrow: false)
-                }
-            }
+            heading
             if typeSize.isAccessibilitySize {
                 // Large text: a list reads better than a squeezed track.
-                VStack(alignment: .leading, spacing: SGSpacing.xxs) {
-                    ForEach(trail.nodes) { node in
-                        Label(node.title, systemImage: node.state == .passed ? "checkmark.circle.fill"
-                              : node.state == .current ? "location.circle.fill" : "circle")
-                            .font(SGTypography.caption)
-                            .foregroundStyle(.sg(node.state == .upcoming ? SGColor.heroForeground3 : SGColor.heroForeground))
-                    }
-                }
+                nodeList
             } else {
                 track
             }
@@ -460,6 +437,45 @@ private struct TrailPanel: View {
             case .upcoming: "\(node.title) 예정"
             }
         }.joined(separator: ", "))
+    }
+
+    /// "다음 50% · 19일 후" is the panel's one number worth reading: it never
+    /// truncates. At large sizes it takes its own line, and the decorative
+    /// JOURNEY TRAIL eyebrow is dropped before anything else is squeezed (it
+    /// read as "다음 D-50…" at accessibility sizes).
+    @ViewBuilder
+    private var heading: some View {
+        if typeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: SGSpacing.xxs) {
+                Text("복무 이정표")
+                    .font(SGTypography.micro)
+                    .foregroundStyle(.sg(SGColor.heroForeground2))
+                if let next = trail.next { nextLabel(next) }
+            }
+        } else {
+            ViewThatFits(in: .horizontal) {
+                header(eyebrow: true)
+                header(eyebrow: false)
+            }
+        }
+    }
+
+    private var nodeList: some View {
+        VStack(alignment: .leading, spacing: SGSpacing.xxs) {
+            ForEach(trail.nodes) { node in
+                Label(node.title, systemImage: nodeSymbol(node))
+                    .font(SGTypography.caption)
+                    .foregroundStyle(.sg(node.state == .upcoming ? SGColor.heroForeground3 : SGColor.heroForeground))
+            }
+        }
+    }
+
+    private func nodeSymbol(_ node: JourneyTrail.Node) -> String {
+        switch node.state {
+        case .passed: "checkmark.circle.fill"
+        case .current: "location.circle.fill"
+        case .upcoming: "circle"
+        }
     }
 
     private func header(eyebrow: Bool) -> some View {
