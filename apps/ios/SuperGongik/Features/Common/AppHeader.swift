@@ -169,24 +169,51 @@ struct StitchIcon: View {
 
 /// Stitch screen title under the app header: the Korean title, the world
 /// label (Warrior only, via `SGWorldEyebrow`) and trailing controls.
+///
+/// The title never wraps or shrinks: at accessibility text sizes the controls
+/// move to a second row instead, so "캘린더" cannot break into "캘린 / 더"
+/// beside three buttons (seen at accessibility-extra-extra-large on 393 pt).
+/// The decorative world chip is the first thing to go when room is short.
 struct ScreenTitle<Trailing: View>: View {
     let title: String
     var world: String? = nil
     @ViewBuilder var trailing: Trailing
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    /// Two rows from the first accessibility size on; one row below it.
+    static func stacks(_ size: DynamicTypeSize) -> Bool { size.isAccessibilitySize }
 
     var body: some View {
-        HStack(alignment: .center, spacing: SGSpacing.xs) {
-            // Stitch: the world label sits beside the title as a chip.
-            HStack(spacing: SGSpacing.xs) {
-                Text(title)
-                    .font(SGTypography.title1)
-                    .foregroundStyle(.sg(SGColor.textPrimary))
-                    .accessibilityAddTraits(.isHeader)
-                if let world { SGWorldTag(world) }
+        if Self.stacks(typeSize) {
+            VStack(alignment: .leading, spacing: SGSpacing.xs) {
+                heading(world: nil)
+                HStack(spacing: SGSpacing.xs) {
+                    trailing
+                    Spacer(minLength: 0)
+                }
             }
-            .layoutPriority(1)
-            Spacer(minLength: SGSpacing.xs)
-            trailing
+        } else {
+            HStack(alignment: .center, spacing: SGSpacing.xs) {
+                // Stitch: the world label sits beside the title as a chip.
+                ViewThatFits(in: .horizontal) {
+                    heading(world: world)
+                    heading(world: nil)
+                }
+                .layoutPriority(1)
+                Spacer(minLength: SGSpacing.xs)
+                trailing
+            }
+        }
+    }
+
+    private func heading(world: String?) -> some View {
+        HStack(spacing: SGSpacing.xs) {
+            Text(title)
+                .font(SGTypography.title1)
+                .foregroundStyle(.sg(SGColor.textPrimary))
+                .fixedSize(horizontal: true, vertical: false)
+                .accessibilityAddTraits(.isHeader)
+            if let world { SGWorldTag(world) }
         }
     }
 }
