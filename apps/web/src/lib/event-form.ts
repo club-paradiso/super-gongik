@@ -292,12 +292,14 @@ export function describeDayCount(
     };
     return basis;
   }
-  if (profile.workWeekdays && !isMondayToFriday(profile.workWeekdays)) {
+  if (!profile.workWeekdays || !isMondayToFriday(profile.workWeekdays)) {
     basis.confirmation = {
       code: "DAY_COUNT_WORK_PATTERN_UNCONFIRMED",
       field: "dayCount",
       message:
-        "설정한 근무 요일이 월~금과 달라 평일 수 제안이 맞지 않을 수 있어요. 실제 근무일 수를 확인하고 저장해 주세요.",
+        profile.workWeekdays == null
+          ? "근무 요일이 아직 확인되지 않아 평일 수 제안이 맞지 않을 수 있어요. 실제 근무일 수를 확인하고 저장해 주세요."
+          : "설정한 근무 요일이 월~금과 달라 평일 수 제안이 맞지 않을 수 있어요. 실제 근무일 수를 확인하고 저장해 주세요.",
     };
   }
   return basis;
