@@ -345,7 +345,16 @@ public struct MonthlyCompensation: Decodable, Sendable {
     public struct Component: Decodable, Sendable, Identifiable {
         public let key: String
         public let label: String
+        /// Source-backed calculation completeness and missing workday inputs.
+    public struct ServiceDays: Decodable, Sendable {
         public let status: String
+        public let missing: [String]
+        public let explanation: String
+        public let mealEligibleDays: Double?
+        public let transportEligibleDays: Double?
+    }
+
+    public let status: String
         public let monthlyAmount: Double?
         public let dailyRate: Double?
         public let eligibleDays: Double?
@@ -384,6 +393,7 @@ public struct MonthlyCompensation: Decodable, Sendable {
     public let unresolved: [String]
     public let assumptions: [String]?
     public let warnings: [String]?
+    public let serviceDays: ServiceDays?
 }
 
 public struct PayBandSchedule: Decodable, Sendable {
