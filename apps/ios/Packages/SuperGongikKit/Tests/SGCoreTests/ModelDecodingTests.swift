@@ -44,6 +44,33 @@ struct ModelDecodingTests {
         }
     }
 
+    @Test("the editor evaluation carries the day-count basis and its confirmation warning")
+    func eventFormEvaluationDecodes() throws {
+        let suite = try Fixtures.load("event-form")
+        let evaluations = suite.cases.filter { $0.function == "eventFormEvaluate" }
+        #expect(!evaluations.isEmpty)
+        var sawWeekendConfirmation = false
+        var sawTypedValue = false
+        for fixture in evaluations {
+            let evaluation = try JSONDecoder().decode(EventFormEvaluation.self, from: Data(fixture.expected["value"]!.jsonText.utf8))
+            if fixture.id == "evaluate weekend-only leave asks for confirmation" {
+                let basis = try #require(evaluation.dayCount)
+                #expect(basis.source == "WEEKDAYS" && basis.weekdays == 0 && basis.isSuggested)
+                #expect(basis.confirmation?.code == "DAY_COUNT_WEEKEND_ONLY")
+                #expect(evaluation.validation.warnings.contains { $0.code == "DAY_COUNT_WEEKEND_ONLY" && $0.field == "dayCount" })
+                #expect(evaluation.validation.errors.isEmpty)
+                sawWeekendConfirmation = true
+            }
+            if fixture.id == "evaluate typed day count is never flagged" {
+                let basis = try #require(evaluation.dayCount)
+                #expect(basis.source == "USER" && !basis.isSuggested && basis.confirmation == nil)
+                #expect(!evaluation.validation.warnings.contains { $0.code.hasPrefix("DAY_COUNT_W") })
+                sawTypedValue = true
+            }
+        }
+        #expect(sawWeekendConfirmation && sawTypedValue)
+    }
+
     @Test("a store opens on empty storage and round-trips a command")
     func storeLifecycle() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("sg-core-\(UUID().uuidString)")

@@ -30,6 +30,8 @@ import { DateInput } from "@/components/ui/date-input";
 import { EVENT_TYPE_GROUPS } from "@/lib/event-display";
 import {
   applyFormPatch,
+  describeDayCount,
+  withDayCountConfirmation,
   buildDraft,
   initialState,
   timingFromForm,
@@ -85,17 +87,24 @@ export function EventEditor({
     ],
   );
   const draft = useMemo(() => buildDraft(form, profile), [form, profile]);
+  const dayCountBasis = useMemo(
+    () => describeDayCount(form, profile),
+    [form, profile],
+  );
   const validation = useMemo(
     () =>
-      validateServiceEventDraft(draft, {
-        existingEvents: events,
-        editingId: event?.id ?? null,
-        servicePeriod: {
-          callUpDate: profile.callUpDate,
-          expectedDischargeDate: profile.expectedDischargeDate,
-        },
-      }),
-    [draft, event?.id, events, profile],
+      withDayCountConfirmation(
+        validateServiceEventDraft(draft, {
+          existingEvents: events,
+          editingId: event?.id ?? null,
+          servicePeriod: {
+            callUpDate: profile.callUpDate,
+            expectedDischargeDate: profile.expectedDischargeDate,
+          },
+        }),
+        dayCountBasis,
+      ),
+    [dayCountBasis, draft, event?.id, events, profile],
   );
   const warningsKey = validation.warnings
     .map((issue) => issue.message)
@@ -294,9 +303,10 @@ export function EventEditor({
                   }
                 />
                 <small>
-                  {isCompensationNonPayableEventType(form.eventType)
-                    ? "선택한 날짜 범위를 그대로 셌어요. 일부 날짜만 해당하면 기록을 나눠 주세요."
-                    : "주말은 빼고 자동으로 셌어요. 공휴일은 직접 확인해 주세요."}
+                  {dayCountBasis?.hint ??
+                    (isCompensationNonPayableEventType(form.eventType)
+                      ? "선택한 날짜 범위를 그대로 셌어요. 일부 날짜만 해당하면 기록을 나눠 주세요."
+                      : "주말은 빼고 자동으로 셌어요. 공휴일은 직접 확인해 주세요.")}
                 </small>
               </label>
             </div>

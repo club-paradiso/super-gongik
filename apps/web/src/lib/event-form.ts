@@ -13,7 +13,9 @@ import {
   inclusiveDaySpan,
   isDateOnly,
   isCompensationNonPayableEventType,
+  isLeaveEventType,
   type DateOnly,
+  type EventIssue,
   type ServiceEvent,
   type ServiceEventType,
   type ServiceProfile,
@@ -193,4 +195,123 @@ export function applyFormPatch(
     }
   }
   return next;
+}
+
+/**
+ * Where an all-day record's day count came from, so the editor can tell a
+ * suggestion from a value the user typed, and ask for confirmation before a
+ * suggested leave charge is saved on an unverified working-day assumption.
+ *
+ * The suggestion itself is unchanged: weekdays (Monday–Friday) for leave,
+ * every calendar day for non-payable absences, never below 1. What is new is
+ * that a suggestion is flagged when it cannot have come from the person's
+ * actual working days — the range holds no weekday at all, or the profile's
+ * work pattern is not a confirmed Monday–Friday daytime schedule — because
+ * saving it unread would charge leave the institution may count differently.
+ */
+export type DayCountBasis = {
+  /** `WEEKDAYS` / `CALENDAR_DAYS`: suggested by the form; `USER`: typed. */
+  source: "WEEKDAYS" | "CALENDAR_DAYS" | "USER";
+  weekdays: number;
+  calendarDays: number;
+  /** Shown under the field, for every source. */
+  hint: string;
+  /** A warning the editor must have acknowledged before saving, or null. */
+  confirmation: EventIssue | null;
+};
+
+const WEEKDAYS_MONDAY_TO_FRIDAY = [1, 2, 3, 4, 5];
+
+function isMondayToFriday(weekdays: readonly number[] | null | undefined) {
+  if (!weekdays) return false;
+  const sorted = [...weekdays].sort((a, b) => a - b);
+  return (
+    sorted.length === WEEKDAYS_MONDAY_TO_FRIDAY.length &&
+    sorted.every((day, index) => day === WEEKDAYS_MONDAY_TO_FRIDAY[index])
+  );
+}
+
+export function describeDayCount(
+  form: FormState,
+  profile: Pick<ServiceProfile, "workPattern" | "workWeekdays">,
+): DayCountBasis | null {
+  if (
+    form.mode !== "ALL_DAY" ||
+    !isDateOnly(form.startDate) ||
+    !isDateOnly(form.endDate) ||
+    form.startDate > form.endDate
+  ) {
+    return null;
+  }
+  const weekdays = countWeekdays(form.startDate, form.endDate);
+  const calendarDays = inclusiveDaySpan(form.startDate, form.endDate);
+  if (form.dayCountTouched) {
+    return {
+      source: "USER",
+      weekdays,
+      calendarDays,
+      hint: "직접 입력한 일수예요.",
+      confirmation: null,
+    };
+  }
+  if (isCompensationNonPayableEventType(form.eventType)) {
+    return {
+      source: "CALENDAR_DAYS",
+      weekdays,
+      calendarDays,
+      hint: "선택한 날짜 범위를 그대로 셌어요. 일부 날짜만 해당하면 기록을 나눠 주세요.",
+      confirmation: null,
+    };
+  }
+  const basis: DayCountBasis = {
+    source: "WEEKDAYS",
+    weekdays,
+    calendarDays,
+    hint: "주말은 빼고 자동으로 셌어요. 공휴일은 직접 확인해 주세요.",
+    confirmation: null,
+  };
+  if (!isLeaveEventType(form.eventType)) return basis;
+
+  if (weekdays === 0) {
+    basis.confirmation = {
+      code: "DAY_COUNT_WEEKEND_ONLY",
+      field: "dayCount",
+      message:
+        "선택한 날짜가 모두 주말이에요. 평일 수로는 0일이라 1일로만 제안했어요. 복무기관의 근무표에 따라 차감 일수를 확인하고 저장해 주세요.",
+    };
+    return basis;
+  }
+  if (profile.workPattern !== "WEEKDAY_DAYTIME") {
+    basis.confirmation = {
+      code: "DAY_COUNT_WORK_PATTERN_UNCONFIRMED",
+      field: "dayCount",
+      message:
+        profile.workPattern === null || profile.workPattern === undefined
+          ? "복무형태를 아직 설정하지 않아 주말을 뺀 평일 수로 제안했어요. 교대·합숙 근무면 실제 근무일에 맞게 고치고 저장해 주세요."
+          : "복무형태가 주간 출퇴근이 아니어서 평일 수 제안이 맞지 않을 수 있어요. 실제 근무일에 맞게 확인하고 저장해 주세요.",
+    };
+    return basis;
+  }
+  if (!profile.workWeekdays || !isMondayToFriday(profile.workWeekdays)) {
+    basis.confirmation = {
+      code: "DAY_COUNT_WORK_PATTERN_UNCONFIRMED",
+      field: "dayCount",
+      message:
+        profile.workWeekdays == null
+          ? "근무 요일이 아직 확인되지 않아 평일 수 제안이 맞지 않을 수 있어요. 실제 근무일 수를 확인하고 저장해 주세요."
+          : "설정한 근무 요일이 월~금과 달라 평일 수 제안이 맞지 않을 수 있어요. 실제 근무일 수를 확인하고 저장해 주세요.",
+    };
+  }
+  return basis;
+}
+
+/** The shared validation plus the day-count confirmation, as the editors show it. */
+export function withDayCountConfirmation<
+  Validation extends { errors: EventIssue[]; warnings: EventIssue[] },
+>(validation: Validation, basis: DayCountBasis | null): Validation {
+  if (!basis?.confirmation) return validation;
+  return {
+    ...validation,
+    warnings: [...validation.warnings, basis.confirmation],
+  };
 }
