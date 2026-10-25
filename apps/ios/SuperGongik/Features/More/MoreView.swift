@@ -253,6 +253,10 @@ struct MoreView: View {
                         // install came from, so an old build on a phone is
                         // never mistaken for the current design. No secrets.
                         LabeledContent { Text(Bundle.main.buildText).monospaced() } label: { Label("빌드", systemImage: "hammer") }
+                        LabeledContent {
+                            Text(Bundle.main.bundleIdentifier ?? "-").monospaced().font(SGTypography.caption)
+                                .multilineTextAlignment(.trailing)
+                        } label: { Label("앱 식별자", systemImage: "number") }
                         LabeledContent { Text(theme.title) } label: { Label("화면 테마", systemImage: "paintpalette") }
                     } header: {
                         header("정보", world: "CIVIC CODEX")

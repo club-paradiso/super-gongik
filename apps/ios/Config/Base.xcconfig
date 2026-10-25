@@ -36,7 +36,9 @@ SG_SIGN_IN_NAVER = NO
 // told apart from the code on main. Scripts pass the real values on the
 // xcodebuild command line (apps/ios/scripts/install-device.sh):
 // SG_BUILD_NUMBER = `git rev-list --count HEAD`, SG_BUILD_COMMIT = short SHA,
-// SG_BUILD_CHANNEL = Debug / Beta / Release.
+// SG_BUILD_CHANNEL = Debug / Beta / Release. A Beta or Release build with
+// these placeholders fails (scripts/check-build-provenance.sh, run as a
+// build phase; distributed numbers are listed in Config/build-ledger.tsv).
 SG_BUILD_NUMBER = 2
 SG_BUILD_COMMIT = local
 SG_BUILD_CHANNEL = Debug

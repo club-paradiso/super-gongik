@@ -62,3 +62,38 @@ with the same bundle id keeps it. Do **not** delete the app before installing,
 and do not change `SG_BUNDLE_ID`: a different id is a different app with an
 empty store. If the id ever has to change, export a backup first
 (내 정보 › 전체 백업 파일 만들기) and restore it in the new app.
+
+## Follow-up (2026-10-25, `794e489`)
+
+An external audit of `794e489` compared two builds on the iPhone 16 simulator:
+
+| Build                                       | 내 정보 › 정보                 | Notes                                                                           |
+| ------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------- |
+| Existing install (`app.supergongik.ios.yaho`) | `0.2.0 (2)`, `Debug · local`   | Placeholder stamp: built from Xcode without `SG_BUILD_*`. Its commit is unknown. |
+| Audit build (`app.supergongik.audit20261025`) | `0.2.0 (2026102501)`, `Audit · 794e489` | Explicit stamps on the command line; separate bundle id, not a release.    |
+
+The existing install lacked the 실질 복무일수 settings that `794e489` shows, so
+it predates PR #75, but the stamp cannot say which commit it was. The placeholder
+had done exactly what it was meant to prevent.
+
+What changed:
+
+- `scripts/check-build-provenance.sh` runs as a pre-build phase of the app
+  target. Debug builds pass unchanged. A Beta or Release build fails when the
+  commit is empty, `local` or not a short SHA, when a Release commit is
+  `-dirty`, or when the build number is already in `Config/build-ledger.tsv` or
+  not higher than the last one there. `--self-test` exercises the rules and
+  runs in the `verify` CI job.
+- `scripts/release-archive.sh` stamps a Release archive from Git, refuses to
+  archive when the guard fails, and verifies the stamp in the archive's
+  Info.plist. `--record` appends the build to the ledger after distribution.
+- `scripts/install-device.sh` runs the same guard before a Beta build.
+- 내 정보 › 정보 shows the bundle identifier under 버전/빌드, so a personal-team
+  or audit install is told apart from the release app without a Mac.
+
+Still unconfirmed (needs App Store Connect / developer portal access): the
+release bundle id, team and the highest build number already uploaded, if any.
+Until those are read, `Config/build-ledger.tsv` only knows the two local builds
+above and the release bundle id stays `app.supergongik.ios` from
+`Config/Base.xcconfig`. Do not delete an installed app to "upgrade" it; the same
+bundle id installs over the old copy and keeps its store.

@@ -25,6 +25,9 @@ COMMIT="$(git rev-parse --short HEAD)"
 if ! git diff --quiet HEAD -- . || [[ -n "$(git ls-files --others --exclude-standard -- .)" ]]; then
   COMMIT="$COMMIT-dirty"
 fi
+# Refuses a number already distributed or lower than the last one in
+# Config/build-ledger.tsv (the Xcode build phase checks the same).
+"$(dirname "$0")/check-build-provenance.sh" --channel Beta --commit "$COMMIT" --number "$NUMBER"
 echo "building 0.2.0 ($NUMBER) Beta · $COMMIT for $UDID"
 
 xcodegen generate --quiet
