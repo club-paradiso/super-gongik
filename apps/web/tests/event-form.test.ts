@@ -1,7 +1,18 @@
-import { buildServiceProfile } from "@super-gongik/domain";
+import {
+  buildServiceProfile,
+  type DateOnly,
+  type EventIssue,
+  type ServiceEvent,
+} from "@super-gongik/domain";
 import { describe, expect, it } from "vitest";
 
-import { applyFormPatch, buildDraft, initialState } from "@/lib/event-form";
+import {
+  applyFormPatch,
+  buildDraft,
+  describeDayCount,
+  initialState,
+  withDayCountConfirmation,
+} from "@/lib/event-form";
 import {
   attendanceEditorDays,
   attendanceMonthInput,
@@ -82,6 +93,148 @@ describe("event form model", () => {
     );
     expect(draft.eventType).toBe("ANNUAL_LEAVE");
     expect(draft.timing).toEqual({ kind: "HALF_DAY", half: "AM" });
+  });
+});
+
+describe("day count basis (suggestion vs. confirmed value)", () => {
+  // 2026-10-25 is a Sunday: the audit saved a 1-day leave on it unread.
+  const weekdayDaytime = {
+    ...profile,
+    workPattern: "WEEKDAY_DAYTIME" as const,
+    workWeekdays: [1, 2, 3, 4, 5],
+  };
+  const unknownPattern = { ...profile, workPattern: null, workWeekdays: null };
+  const nightShift = {
+    ...profile,
+    workPattern: "NIGHT_SHIFT_ROTATION" as const,
+    workWeekdays: null,
+  };
+  const leave = (start: DateOnly, end: DateOnly = start) =>
+    applyFormPatch(initialState(null, start), { endDate: end });
+
+  it("a weekday for a confirmed Monday–Friday schedule is a plain suggestion", () => {
+    const basis = describeDayCount(leave("2026-10-26"), weekdayDaytime);
+    expect(basis).toMatchObject({
+      source: "WEEKDAYS",
+      weekdays: 1,
+      calendarDays: 1,
+      confirmation: null,
+    });
+    expect(leave("2026-10-26").dayCount).toBe("1");
+  });
+
+  it("a weekend-only range keeps the 1-day floor but must be confirmed", () => {
+    const form = leave("2026-10-25");
+    expect(form.dayCount).toBe("1");
+    const basis = describeDayCount(form, weekdayDaytime);
+    expect(basis?.weekdays).toBe(0);
+    expect(basis?.confirmation?.code).toBe("DAY_COUNT_WEEKEND_ONLY");
+    expect(basis?.confirmation?.field).toBe("dayCount");
+    // Saturday–Sunday likewise.
+    expect(
+      describeDayCount(leave("2026-10-24", "2026-10-25"), weekdayDaytime)
+        ?.confirmation?.code,
+    ).toBe("DAY_COUNT_WEEKEND_ONLY");
+  });
+
+  it("Friday to Monday counts two weekdays and needs no confirmation on a confirmed schedule", () => {
+    const form = leave("2026-10-23", "2026-10-26");
+    expect(form.dayCount).toBe("2");
+    expect(describeDayCount(form, weekdayDaytime)).toMatchObject({
+      source: "WEEKDAYS",
+      weekdays: 2,
+      calendarDays: 4,
+      confirmation: null,
+    });
+  });
+
+  it("a range over a public holiday still counts weekdays and says holidays are the user's to check", () => {
+    // 2026-10-09 (한글날) is a Friday; the form has no holiday calendar.
+    const form = leave("2026-10-05", "2026-10-09");
+    expect(form.dayCount).toBe("5");
+    const basis = describeDayCount(form, weekdayDaytime);
+    expect(basis?.confirmation).toBeNull();
+    expect(basis?.hint).toContain("공휴일은 직접 확인");
+  });
+
+  it("an unset or non-daytime work pattern asks for confirmation; a typed value never does", () => {
+    const form = leave("2026-10-26", "2026-10-30");
+    expect(describeDayCount(form, unknownPattern)?.confirmation?.code).toBe(
+      "DAY_COUNT_WORK_PATTERN_UNCONFIRMED",
+    );
+    expect(describeDayCount(form, nightShift)?.confirmation?.message).toContain(
+      "주간 출퇴근이 아니어서",
+    );
+    expect(
+      describeDayCount(form, {
+        ...weekdayDaytime,
+        workWeekdays: [2, 3, 4, 5, 6],
+      })?.confirmation?.code,
+    ).toBe("DAY_COUNT_WORK_PATTERN_UNCONFIRMED");
+    // Shift workers who type the day count themselves are not nagged, and the
+    // typed value survives later date edits.
+    const typed = applyFormPatch(form, {
+      dayCount: "3",
+      dayCountTouched: true,
+    });
+    expect(describeDayCount(typed, nightShift)).toMatchObject({
+      source: "USER",
+      confirmation: null,
+    });
+    expect(applyFormPatch(typed, { endDate: "2026-11-06" }).dayCount).toBe("3");
+  });
+
+  it("existing records load as a confirmed value, so old data is never flagged", () => {
+    const stored = initialState(
+      {
+        id: "e",
+        eventType: "ANNUAL_LEAVE",
+        startDate: "2026-10-25",
+        endDate: "2026-10-25",
+        timing: { kind: "ALL_DAY", dayCount: 1 },
+        title: null,
+        note: null,
+        deletedAt: null,
+        updatedAt: "2026-10-25T00:00:00.000Z",
+        source: { kind: "MANUAL" },
+      } as unknown as ServiceEvent,
+      "2026-10-25",
+    );
+    expect(describeDayCount(stored, unknownPattern)).toMatchObject({
+      source: "USER",
+      confirmation: null,
+    });
+  });
+
+  it("non-payable absences and non-leave records are never asked to confirm", () => {
+    const absence = applyFormPatch(initialState(null, "2026-10-24"), {
+      eventType: "SERVICE_ABSENCE",
+      endDate: "2026-10-25",
+    });
+    expect(describeDayCount(absence, unknownPattern)).toMatchObject({
+      source: "CALENDAR_DAYS",
+      calendarDays: 2,
+      confirmation: null,
+    });
+    const education = applyFormPatch(initialState(null, "2026-10-25"), {
+      eventType: "EDUCATION",
+    });
+    expect(
+      describeDayCount(education, unknownPattern)?.confirmation,
+    ).toBeNull();
+  });
+
+  it("folds the confirmation into the warnings the editors already acknowledge", () => {
+    const validation: { errors: EventIssue[]; warnings: EventIssue[] } = {
+      errors: [],
+      warnings: [],
+    };
+    const basis = describeDayCount(leave("2026-10-25"), unknownPattern);
+    const merged = withDayCountConfirmation(validation, basis);
+    expect(merged.warnings.map((issue) => issue.code)).toEqual([
+      "DAY_COUNT_WEEKEND_ONLY",
+    ]);
+    expect(withDayCountConfirmation(validation, null)).toBe(validation);
   });
 });
 

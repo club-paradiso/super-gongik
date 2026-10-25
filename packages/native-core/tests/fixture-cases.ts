@@ -726,6 +726,38 @@ const eventForm: FixtureSuite = {
       existing,
       null,
     ),
+    // 2026-10-25 is a Sunday: the weekday count is 0, the suggestion is the
+    // 1-day floor, and saving must be confirmed first.
+    call(
+      "evaluate weekend-only leave asks for confirmation",
+      "eventFormEvaluate",
+      { ...blankForm, startDate: "2026-10-25", endDate: "2026-10-25" },
+      workday.profile,
+      existing,
+      null,
+    ),
+    call(
+      "evaluate weekday leave without a work pattern asks for confirmation",
+      "eventFormEvaluate",
+      { ...blankForm, startDate: "2026-10-26", endDate: "2026-10-30" },
+      workday.profile,
+      existing,
+      null,
+    ),
+    call(
+      "evaluate typed day count is never flagged",
+      "eventFormEvaluate",
+      {
+        ...blankForm,
+        startDate: "2026-10-25",
+        endDate: "2026-10-25",
+        dayCount: "1",
+        dayCountTouched: true,
+      },
+      workday.profile,
+      existing,
+      null,
+    ),
     call("profile options", "profileOptions"),
     call("fare suggestion seoul", "regionalFareSuggestion", "서울특별시"),
     call(

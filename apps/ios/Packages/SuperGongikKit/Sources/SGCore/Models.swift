@@ -455,12 +455,28 @@ public struct EventFormEvaluation: Decodable, Sendable {
         public let automatic: Bool
     }
 
+    /// Where an all-day record's day count came from (web `describeDayCount`):
+    /// a weekday or calendar-day suggestion, or the user's own value. A
+    /// suggestion that rests on an unverified working-day assumption carries a
+    /// `confirmation`, which the facade also appends to `validation.warnings`.
+    public struct DayCountBasis: Decodable, Sendable, Equatable {
+        public let source: String
+        public let weekdays: Int
+        public let calendarDays: Int
+        public let hint: String
+        public let confirmation: EventIssue?
+
+        public var isSuggested: Bool { source != "USER" }
+    }
+
     public let draft: JSONValue
     public let validation: Validation
     public let classification: Classification?
     public let isLeave: Bool
     public let isAnnualCharge: Bool
     public let isNonPayable: Bool
+    /// Nil outside all-day mode or while a date is incomplete.
+    public let dayCount: DayCountBasis?
 }
 
 /// `evaluateMoneyMonth` (web lib/money-model.ts).

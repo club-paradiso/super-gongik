@@ -20901,6 +20901,75 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		}
 		return next;
 	}
+	const WEEKDAYS_MONDAY_TO_FRIDAY = [
+		1,
+		2,
+		3,
+		4,
+		5
+	];
+	function isMondayToFriday(weekdays) {
+		if (!weekdays) return false;
+		const sorted = [...weekdays].sort((a, b) => a - b);
+		return sorted.length === WEEKDAYS_MONDAY_TO_FRIDAY.length && sorted.every((day, index) => day === WEEKDAYS_MONDAY_TO_FRIDAY[index]);
+	}
+	function describeDayCount(form, profile) {
+		if (form.mode !== "ALL_DAY" || !isDateOnly(form.startDate) || !isDateOnly(form.endDate) || form.startDate > form.endDate) return null;
+		const weekdays = countWeekdays(form.startDate, form.endDate);
+		const calendarDays = inclusiveDaySpan(form.startDate, form.endDate);
+		if (form.dayCountTouched) return {
+			source: "USER",
+			weekdays,
+			calendarDays,
+			hint: "직접 입력한 일수예요.",
+			confirmation: null
+		};
+		if (isCompensationNonPayableEventType(form.eventType)) return {
+			source: "CALENDAR_DAYS",
+			weekdays,
+			calendarDays,
+			hint: "선택한 날짜 범위를 그대로 셌어요. 일부 날짜만 해당하면 기록을 나눠 주세요.",
+			confirmation: null
+		};
+		const basis = {
+			source: "WEEKDAYS",
+			weekdays,
+			calendarDays,
+			hint: "주말은 빼고 자동으로 셌어요. 공휴일은 직접 확인해 주세요.",
+			confirmation: null
+		};
+		if (!isLeaveEventType(form.eventType)) return basis;
+		if (weekdays === 0) {
+			basis.confirmation = {
+				code: "DAY_COUNT_WEEKEND_ONLY",
+				field: "dayCount",
+				message: "선택한 날짜가 모두 주말이에요. 평일 수로는 0일이라 1일로만 제안했어요. 복무기관의 근무표에 따라 차감 일수를 확인하고 저장해 주세요."
+			};
+			return basis;
+		}
+		if (profile.workPattern !== "WEEKDAY_DAYTIME") {
+			basis.confirmation = {
+				code: "DAY_COUNT_WORK_PATTERN_UNCONFIRMED",
+				field: "dayCount",
+				message: profile.workPattern === null || profile.workPattern === void 0 ? "복무형태를 아직 설정하지 않아 주말을 뺀 평일 수로 제안했어요. 교대·합숙 근무면 실제 근무일에 맞게 고치고 저장해 주세요." : "복무형태가 주간 출퇴근이 아니어서 평일 수 제안이 맞지 않을 수 있어요. 실제 근무일에 맞게 확인하고 저장해 주세요."
+			};
+			return basis;
+		}
+		if (profile.workWeekdays && !isMondayToFriday(profile.workWeekdays)) basis.confirmation = {
+			code: "DAY_COUNT_WORK_PATTERN_UNCONFIRMED",
+			field: "dayCount",
+			message: "설정한 근무 요일이 월~금과 달라 평일 수 제안이 맞지 않을 수 있어요. 실제 근무일 수를 확인하고 저장해 주세요."
+		};
+		return basis;
+	}
+	/** The shared validation plus the day-count confirmation, as the editors show it. */
+	function withDayCountConfirmation(validation, basis) {
+		if (!basis?.confirmation) return validation;
+		return {
+			...validation,
+			warnings: [...validation.warnings, basis.confirmation]
+		};
+	}
 
 //#endregion
 //#region ../../apps/web/src/lib/regional-transit-fares.ts
@@ -21028,16 +21097,18 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		* shared validation and the automatic usage classification. */
 		eventFormEvaluate: (form, profile, events, editingId) => {
 			const draft = buildDraft(form, profile);
+			const dayCount = describeDayCount(form, profile);
 			return {
 				draft,
-				validation: validateServiceEventDraft(draft, {
+				validation: withDayCountConfirmation(validateServiceEventDraft(draft, {
 					existingEvents: events,
 					editingId,
 					servicePeriod: {
 						callUpDate: profile.callUpDate,
 						expectedDischargeDate: profile.expectedDischargeDate
 					}
-				}),
+				}), dayCount),
+				dayCount,
 				classification: classifyAnnualLeaveUsage({
 					eventType: form.eventType,
 					timing: timingFromForm(form),

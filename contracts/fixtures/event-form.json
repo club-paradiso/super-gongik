@@ -621,6 +621,7 @@
               "sickLeaveCategory": null
             }
           },
+          "dayCount": null,
           "classification": {
             "kind": "HALF_DAY",
             "label": "오전 반가",
@@ -786,6 +787,7 @@
               "sickLeaveCategory": null
             }
           },
+          "dayCount": null,
           "classification": {
             "kind": "FULL_DAY",
             "label": "종일 연가",
@@ -943,7 +945,13 @@
                 "field": "startDate"
               }
             ],
-            "warnings": [],
+            "warnings": [
+              {
+                "code": "DAY_COUNT_WORK_PATTERN_UNCONFIRMED",
+                "field": "dayCount",
+                "message": "복무형태를 아직 설정하지 않아 주말을 뺀 평일 수로 제안했어요. 교대·합숙 근무면 실제 근무일에 맞게 고치고 저장해 주세요."
+              }
+            ],
             "draft": {
               "eventType": "ANNUAL_LEAVE",
               "startDate": "2026-07-01",
@@ -955,6 +963,17 @@
               "title": null,
               "note": null,
               "sickLeaveCategory": null
+            }
+          },
+          "dayCount": {
+            "source": "WEEKDAYS",
+            "weekdays": 1,
+            "calendarDays": 1,
+            "hint": "주말은 빼고 자동으로 셌어요. 공휴일은 직접 확인해 주세요.",
+            "confirmation": {
+              "code": "DAY_COUNT_WORK_PATTERN_UNCONFIRMED",
+              "field": "dayCount",
+              "message": "복무형태를 아직 설정하지 않아 주말을 뺀 평일 수로 제안했어요. 교대·합숙 근무면 실제 근무일에 맞게 고치고 저장해 주세요."
             }
           },
           "classification": {
@@ -1108,7 +1127,13 @@
           },
           "validation": {
             "errors": [],
-            "warnings": [],
+            "warnings": [
+              {
+                "code": "DAY_COUNT_WORK_PATTERN_UNCONFIRMED",
+                "field": "dayCount",
+                "message": "복무형태를 아직 설정하지 않아 주말을 뺀 평일 수로 제안했어요. 교대·합숙 근무면 실제 근무일에 맞게 고치고 저장해 주세요."
+              }
+            ],
             "draft": {
               "eventType": "SICK_LEAVE",
               "startDate": "2026-07-13",
@@ -1122,9 +1147,561 @@
               "sickLeaveCategory": "UNKNOWN"
             }
           },
+          "dayCount": {
+            "source": "WEEKDAYS",
+            "weekdays": 1,
+            "calendarDays": 1,
+            "hint": "주말은 빼고 자동으로 셌어요. 공휴일은 직접 확인해 주세요.",
+            "confirmation": {
+              "code": "DAY_COUNT_WORK_PATTERN_UNCONFIRMED",
+              "field": "dayCount",
+              "message": "복무형태를 아직 설정하지 않아 주말을 뺀 평일 수로 제안했어요. 교대·합숙 근무면 실제 근무일에 맞게 고치고 저장해 주세요."
+            }
+          },
           "classification": null,
           "isLeave": true,
           "isAnnualCharge": false,
+          "isNonPayable": false
+        }
+      }
+    },
+    {
+      "id": "evaluate weekend-only leave asks for confirmation",
+      "kind": "call",
+      "fn": "eventFormEvaluate",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "mode": "ALL_DAY",
+          "startDate": "2026-10-25",
+          "endDate": "2026-10-25",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        },
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "institutionName": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": 480,
+          "workdayStartTime": "09:00",
+          "workdayEndTime": "18:00",
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        [
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-08",
+            "endDate": "2026-07-08",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "AM"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-2",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "OUTING",
+            "startDate": "2026-07-09",
+            "endDate": "2026-07-09",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 60,
+              "startTime": "13:00",
+              "endTime": "14:00"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-3",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          }
+        ],
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-10-25",
+            "endDate": "2026-10-25",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "sickLeaveCategory": null
+          },
+          "validation": {
+            "errors": [],
+            "warnings": [
+              {
+                "code": "DAY_COUNT_WEEKEND_ONLY",
+                "field": "dayCount",
+                "message": "선택한 날짜가 모두 주말이에요. 평일 수로는 0일이라 1일로만 제안했어요. 복무기관의 근무표에 따라 차감 일수를 확인하고 저장해 주세요."
+              }
+            ],
+            "draft": {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-10-25",
+              "endDate": "2026-10-25",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "sickLeaveCategory": null
+            }
+          },
+          "dayCount": {
+            "source": "WEEKDAYS",
+            "weekdays": 0,
+            "calendarDays": 1,
+            "hint": "주말은 빼고 자동으로 셌어요. 공휴일은 직접 확인해 주세요.",
+            "confirmation": {
+              "code": "DAY_COUNT_WEEKEND_ONLY",
+              "field": "dayCount",
+              "message": "선택한 날짜가 모두 주말이에요. 평일 수로는 0일이라 1일로만 제안했어요. 복무기관의 근무표에 따라 차감 일수를 확인하고 저장해 주세요."
+            }
+          },
+          "classification": {
+            "kind": "FULL_DAY",
+            "label": "종일 연가",
+            "eventType": "ANNUAL_LEAVE",
+            "automatic": true,
+            "halfDayPart": null,
+            "reason": "하루 단위 연가로 기록해요."
+          },
+          "isLeave": true,
+          "isAnnualCharge": true,
+          "isNonPayable": false
+        }
+      }
+    },
+    {
+      "id": "evaluate weekday leave without a work pattern asks for confirmation",
+      "kind": "call",
+      "fn": "eventFormEvaluate",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "mode": "ALL_DAY",
+          "startDate": "2026-10-26",
+          "endDate": "2026-10-30",
+          "dayCount": "1",
+          "dayCountTouched": false,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        },
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "institutionName": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": 480,
+          "workdayStartTime": "09:00",
+          "workdayEndTime": "18:00",
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        [
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-08",
+            "endDate": "2026-07-08",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "AM"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-2",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "OUTING",
+            "startDate": "2026-07-09",
+            "endDate": "2026-07-09",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 60,
+              "startTime": "13:00",
+              "endTime": "14:00"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-3",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          }
+        ],
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-10-26",
+            "endDate": "2026-10-30",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "sickLeaveCategory": null
+          },
+          "validation": {
+            "errors": [],
+            "warnings": [
+              {
+                "code": "DAY_COUNT_DIFFERS_FROM_WEEKDAYS",
+                "message": "기간 안의 평일은 5일인데 차감 일수는 1일이에요. 기관에서 차감한 일수와 같은지 확인해 주세요.",
+                "field": "dayCount"
+              },
+              {
+                "code": "DAY_COUNT_WORK_PATTERN_UNCONFIRMED",
+                "field": "dayCount",
+                "message": "복무형태를 아직 설정하지 않아 주말을 뺀 평일 수로 제안했어요. 교대·합숙 근무면 실제 근무일에 맞게 고치고 저장해 주세요."
+              }
+            ],
+            "draft": {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-10-26",
+              "endDate": "2026-10-30",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "sickLeaveCategory": null
+            }
+          },
+          "dayCount": {
+            "source": "WEEKDAYS",
+            "weekdays": 5,
+            "calendarDays": 5,
+            "hint": "주말은 빼고 자동으로 셌어요. 공휴일은 직접 확인해 주세요.",
+            "confirmation": {
+              "code": "DAY_COUNT_WORK_PATTERN_UNCONFIRMED",
+              "field": "dayCount",
+              "message": "복무형태를 아직 설정하지 않아 주말을 뺀 평일 수로 제안했어요. 교대·합숙 근무면 실제 근무일에 맞게 고치고 저장해 주세요."
+            }
+          },
+          "classification": {
+            "kind": "FULL_DAY",
+            "label": "종일 연가",
+            "eventType": "ANNUAL_LEAVE",
+            "automatic": true,
+            "halfDayPart": null,
+            "reason": "하루 단위 연가로 기록해요."
+          },
+          "isLeave": true,
+          "isAnnualCharge": true,
+          "isNonPayable": false
+        }
+      }
+    },
+    {
+      "id": "evaluate typed day count is never flagged",
+      "kind": "call",
+      "fn": "eventFormEvaluate",
+      "args": [
+        {
+          "eventType": "ANNUAL_LEAVE",
+          "mode": "ALL_DAY",
+          "startDate": "2026-10-25",
+          "endDate": "2026-10-25",
+          "dayCount": "1",
+          "dayCountTouched": true,
+          "half": "AM",
+          "startTime": "",
+          "endTime": "",
+          "hours": "",
+          "minutes": "",
+          "durationTouched": false,
+          "sickLeaveCategory": "",
+          "title": "",
+          "note": ""
+        },
+        {
+          "callUpDate": "2026-05-04",
+          "expectedDischargeDate": "2028-02-03",
+          "serviceCategory": null,
+          "workplaceType": null,
+          "institutionName": null,
+          "residenceRegion": null,
+          "defaultCommuteCost": null,
+          "defaultMealAllowanceOverride": null,
+          "timezone": "Asia/Seoul",
+          "liveProgressEnabled": false,
+          "workdayMinutes": 480,
+          "workdayStartTime": "09:00",
+          "workdayEndTime": "18:00",
+          "priorServiceCredit": null,
+          "priorServiceBasis": null,
+          "priorServiceCreditedMonths": null,
+          "priorServiceCreditHasPartialMonth": false,
+          "workPattern": null,
+          "workWeekdays": null,
+          "id": "profile-1",
+          "ownerId": null,
+          "localProfileId": "profile-1",
+          "createdAt": "2026-05-04T00:00:00.000Z",
+          "updatedAt": "2026-05-04T00:00:00.000Z"
+        },
+        [
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-01",
+            "endDate": "2026-07-01",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-1",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-07-08",
+            "endDate": "2026-07-08",
+            "timing": {
+              "kind": "HALF_DAY",
+              "half": "AM"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-2",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          },
+          {
+            "eventType": "OUTING",
+            "startDate": "2026-07-09",
+            "endDate": "2026-07-09",
+            "timing": {
+              "kind": "PARTIAL",
+              "durationMinutes": 60,
+              "startTime": "13:00",
+              "endTime": "14:00"
+            },
+            "title": null,
+            "note": null,
+            "id": "ev-3",
+            "serviceProfileId": "profile-1",
+            "status": "CONFIRMED",
+            "source": {
+              "kind": "MANUAL"
+            },
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "updatedAt": "2026-09-01T00:00:00.000Z",
+            "deletedAt": null,
+            "revision": 1,
+            "deviceId": "device-fixture"
+          }
+        ],
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "draft": {
+            "eventType": "ANNUAL_LEAVE",
+            "startDate": "2026-10-25",
+            "endDate": "2026-10-25",
+            "timing": {
+              "kind": "ALL_DAY",
+              "dayCount": 1
+            },
+            "title": null,
+            "note": null,
+            "sickLeaveCategory": null
+          },
+          "validation": {
+            "errors": [],
+            "warnings": [],
+            "draft": {
+              "eventType": "ANNUAL_LEAVE",
+              "startDate": "2026-10-25",
+              "endDate": "2026-10-25",
+              "timing": {
+                "kind": "ALL_DAY",
+                "dayCount": 1
+              },
+              "title": null,
+              "note": null,
+              "sickLeaveCategory": null
+            }
+          },
+          "dayCount": {
+            "source": "USER",
+            "weekdays": 0,
+            "calendarDays": 1,
+            "hint": "직접 입력한 일수예요.",
+            "confirmation": null
+          },
+          "classification": {
+            "kind": "FULL_DAY",
+            "label": "종일 연가",
+            "eventType": "ANNUAL_LEAVE",
+            "automatic": true,
+            "halfDayPart": null,
+            "reason": "하루 단위 연가로 기록해요."
+          },
+          "isLeave": true,
+          "isAnnualCharge": true,
           "isNonPayable": false
         }
       }

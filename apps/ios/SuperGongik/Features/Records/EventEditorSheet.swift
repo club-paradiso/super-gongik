@@ -117,6 +117,17 @@ struct EventEditorSheet: View {
                                 Text("\(form.dayCount)일").monospacedDigit()
                             }
                         }
+                        // The shared form tells a suggestion from a typed value;
+                        // a suggestion on an unverified schedule also arrives as
+                        // a warning, so 저장 first asks "확인했어요, 저장".
+                        if let basis = evaluation?.dayCount {
+                            Label(basis.isSuggested ? "제안값 · \(basis.hint)" : basis.hint,
+                                  systemImage: basis.confirmation == nil ? "info.circle" : SGTone.warning.symbol)
+                                .font(SGTypography.caption)
+                                .foregroundStyle(.sg(basis.confirmation == nil ? SGColor.textSecondary : SGColor.warning))
+                                .fixedSize(horizontal: false, vertical: true)
+                                .listRowSeparator(.hidden)
+                        }
                     case "HALF_DAY":
                         datePicker("날짜", \.startDate)
                         Picker("오전 또는 오후", selection: binding(\.half)) {

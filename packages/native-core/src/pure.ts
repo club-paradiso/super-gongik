@@ -21,8 +21,10 @@ import {
 import {
   applyFormPatch,
   buildDraft,
+  describeDayCount,
   initialState,
   timingFromForm,
+  withDayCountConfirmation,
   type FormState,
 } from "@/lib/event-form";
 import { evaluateMoneyMonth } from "@/lib/money-model";
@@ -137,16 +139,21 @@ const PURE = {
     editingId: string | null,
   ) => {
     const draft = buildDraft(form, profile);
+    const dayCount = describeDayCount(form, profile);
     return {
       draft,
-      validation: domain.validateServiceEventDraft(draft, {
-        existingEvents: events,
-        editingId,
-        servicePeriod: {
-          callUpDate: profile.callUpDate,
-          expectedDischargeDate: profile.expectedDischargeDate,
-        },
-      }),
+      validation: withDayCountConfirmation(
+        domain.validateServiceEventDraft(draft, {
+          existingEvents: events,
+          editingId,
+          servicePeriod: {
+            callUpDate: profile.callUpDate,
+            expectedDischargeDate: profile.expectedDischargeDate,
+          },
+        }),
+        dayCount,
+      ),
+      dayCount,
       classification: domain.classifyAnnualLeaveUsage({
         eventType: form.eventType,
         timing: timingFromForm(form) as domain.ServiceEvent["timing"],
