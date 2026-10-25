@@ -345,16 +345,7 @@ public struct MonthlyCompensation: Decodable, Sendable {
     public struct Component: Decodable, Sendable, Identifiable {
         public let key: String
         public let label: String
-        /// Source-backed calculation completeness and missing workday inputs.
-    public struct ServiceDays: Decodable, Sendable {
         public let status: String
-        public let missing: [String]
-        public let explanation: String
-        public let mealEligibleDays: Double?
-        public let transportEligibleDays: Double?
-    }
-
-    public let status: String
         public let monthlyAmount: Double?
         public let dailyRate: Double?
         public let eligibleDays: Double?
@@ -378,6 +369,18 @@ public struct MonthlyCompensation: Decodable, Sendable {
         public let effectiveUntil: String?
         public let verifiedAt: String?
         public let sources: [Source]
+    }
+
+    /// `deriveMonthServiceDays` (packages/rules/service-days.ts): whether the
+    /// meal/transport day count could be derived and which inputs it lacks
+    /// (`WORK_PATTERN`, `WORK_WEEKDAYS`, `MONTH_CONFIRMATION`,
+    /// `MONTH_RECONFIRMATION`, `DAY_DECISIONS`).
+    public struct ServiceDays: Decodable, Sendable {
+        public let status: String
+        public let missing: [String]
+        public let explanation: String
+        public let mealEligibleDays: Double?
+        public let transportEligibleDays: Double?
     }
 
     public let status: String
