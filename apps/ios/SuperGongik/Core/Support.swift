@@ -18,6 +18,8 @@ enum ErrorCopy {
     static let startup = "앱을 시작하지 못했어요. 이 기기에 저장된 기록은 그대로 있어요. 앱을 다시 열어 주세요."
     static let saveFailed = "저장하지 못했어요. 바뀐 내용은 없어요. 다시 시도해 주세요."
     static let readOnly = "새 버전 앱에서 저장한 데이터라 이 버전에서는 바꿀 수 없어요. 앱을 업데이트해 주세요."
+    static let payUnavailable = "급여 계산을 불러오지 못했어요. 기록은 그대로 있어요. 다시 시도해 주세요."
+    static let payStale = "최신 계산을 불러오지 못했어요. 마지막으로 계산한 결과를 보여 드려요."
 }
 
 enum Formatters {

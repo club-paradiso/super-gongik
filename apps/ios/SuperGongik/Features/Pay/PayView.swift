@@ -7,11 +7,16 @@ import SwiftUI
 /// (`evaluateMoneyMonth`). A total appears only when the rules return one,
 /// i.e. when every component is calculated; otherwise the screen shows which
 /// inputs are missing. Legal bases and sources are always shown.
+///
+/// Loading, loaded and failed are distinct (`LoadCycle`): a failed evaluation
+/// shows a notice with 다시 시도 instead of a spinner, and a failed refresh
+/// keeps the month's last result on screen under the notice.
 struct PayView: View {
     @Environment(AppModel.self) private var model
     let openTab: (AppTab) -> Void
     @State private var month: CivilDate = SeoulClock.today(at: .now)
-    @State private var money: MoneyMonth?
+    @State private var load = LoadCycle<MoneyMonth>()
+    @State private var retries = 0
     @State private var showingProfile = false
     @State private var showingAttendance = false
 
@@ -28,7 +33,10 @@ struct PayView: View {
                                        tint: SGColor.accent)
                         ScreenTitle(title: "급여") { monthSwitcher }
                     }
-                    if let money {
+                    if case .failed(let failure) = load.phase {
+                        LoadFailureNotice(failure: failure, hasResult: shownMoney != nil, retry: retry)
+                    }
+                    if let money = shownMoney {
                         SummaryCard(money: money, isCurrentMonth: isCurrentMonth)
                         if !money.compensation.unresolved.isEmpty {
                             UnresolvedCard(items: money.compensation.unresolved) { showingProfile = true }
@@ -45,7 +53,7 @@ struct PayView: View {
                         AssumptionsCard(items: (money.compensation.assumptions ?? []) + (money.compensation.warnings ?? []),
                                         title: "계산 기준과 주의")
                         if let rule = money.compensation.rule { RuleCard(rule: rule) }
-                    } else {
+                    } else if !isFailed {
                         SGLoadingState()
                     }
                 }
@@ -58,8 +66,8 @@ struct PayView: View {
             .sgScreenChrome()
             .navigationTitle("급여")
             .toolbar(.hidden, for: .navigationBar)
-            .task(id: TaskKey(month: month.description, revision: model.document?.documentRevision ?? 0, today: model.today)) {
-                await load()
+            .task(id: TaskKey(month: monthText, revision: model.document?.documentRevision ?? 0, today: model.today, retries: retries)) {
+                await loadMonth()
             }
             .sheet(isPresented: $showingProfile) {
                 NavigationStack { ProfileEditView() }
@@ -80,9 +88,16 @@ struct PayView: View {
         let month: String
         let revision: Int
         let today: CivilDate
+        let retries: Int
     }
 
     private var isCurrentMonth: Bool { month.year == model.today.year && month.month == model.today.month }
+    private var monthText: String { String(format: "%04d-%02d", month.year, month.month) }
+    /// This month's latest result, or its last good one while a refresh failed.
+    private var shownMoney: MoneyMonth? { load.value(for: monthText) }
+    private var isFailed: Bool { if case .failed = load.phase { true } else { false } }
+
+    private func retry() { retries += 1 }
 
     /// The month between tinted chevron tiles, on the title row.
     private var monthSwitcher: some View {
@@ -113,15 +128,50 @@ struct PayView: View {
         month = CivilDate(year: month.year, month: month.month, day: 1)!.adding(months: amount)
     }
 
-    private func load() async {
-        guard model.profile != nil, let runtime = model.core else { return }
-        let monthText = String(format: "%04d-%02d", month.year, month.month)
+    private func loadMonth() async {
+        guard model.profile != nil, let runtime = model.core else { load.idle(); return }
+        let key = monthText
+        let attempt = load.begin()
         do {
-            money = try await runtime.moneyMonth(monthText, today: model.today)
+            #if DEBUG
+            // Screenshot/QA hook: `-SGFailMoneyMonth YES` makes every evaluation
+            // fail so the failure notice and retry can be seen (DEBUG only).
+            if UserDefaults.standard.bool(forKey: "SGFailMoneyMonth") {
+                throw CoreError.javaScript("injected by -SGFailMoneyMonth")
+            }
+            #endif
+            let result = try await runtime.moneyMonth(key, today: model.today)
+            guard !Task.isCancelled else { return }
+            load.succeed(attempt, key: key, result)
         } catch {
+            guard !Task.isCancelled else { return }
             AppLog.error("money month failed: \(error)")
-            money = nil
+            load.fail(attempt, key: key, error: error, message: ErrorCopy.payUnavailable)
         }
+    }
+}
+
+/// The evaluation failed: what happened, that records are untouched, a retry,
+/// and a privacy-free diagnosis. With an older result still on screen the
+/// notice says that result is the last successful one.
+private struct LoadFailureNotice: View {
+    let failure: LoadCycle<MoneyMonth>.Failure
+    let hasResult: Bool
+    let retry: () -> Void
+
+    var body: some View {
+        SGCard {
+            VStack(alignment: .leading, spacing: SGSpacing.sm) {
+                SGNotice(.warning, title: hasResult ? ErrorCopy.payStale : failure.message,
+                         message: hasResult ? "기록은 그대로 있어요. 다시 시도해 주세요." : nil)
+                Button("다시 시도", systemImage: "arrow.clockwise", action: retry)
+                    .buttonStyle(SGSecondaryButtonStyle())
+                Text("진단: \(failure.diagnosis)")
+                    .font(SGTypography.micro).monospacedDigit()
+                    .foregroundStyle(.sg(SGColor.textTertiary))
+            }
+        }
+        .accessibilityElement(children: .contain)
     }
 }
 
