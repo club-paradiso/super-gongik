@@ -67,10 +67,10 @@ empty store. If the id ever has to change, export a backup first
 
 An external audit of `794e489` compared two builds on the iPhone 16 simulator:
 
-| Build                                       | 내 정보 › 정보                 | Notes                                                                           |
-| ------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------- |
-| Existing install (`app.supergongik.ios.yaho`) | `0.2.0 (2)`, `Debug · local`   | Placeholder stamp: built from Xcode without `SG_BUILD_*`. Its commit is unknown. |
-| Audit build (`app.supergongik.audit20261025`) | `0.2.0 (2026102501)`, `Audit · 794e489` | Explicit stamps on the command line; separate bundle id, not a release.    |
+| Build                                         | 내 정보 › 정보                          | Notes                                                                            |
+| --------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------- |
+| Existing install (`app.supergongik.ios.yaho`) | `0.2.0 (2)`, `Debug · local`            | Placeholder stamp: built from Xcode without `SG_BUILD_*`. Its commit is unknown. |
+| Audit build (`app.supergongik.audit20261025`) | `0.2.0 (2026102501)`, `Audit · 794e489` | Explicit stamps on the command line; separate bundle id, not a release.          |
 
 The existing install lacked the 실질 복무일수 settings that `794e489` shows, so
 it predates PR #75, but the stamp cannot say which commit it was. The placeholder
