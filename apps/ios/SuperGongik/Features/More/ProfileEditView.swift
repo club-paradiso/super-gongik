@@ -6,6 +6,25 @@ import SwiftUI
 /// 복무 설정: the same fields as the web profile form. Saving patches the
 /// stored profile through the core; the shared schema validates it.
 struct ProfileEditView: View {
+    /// Stable destinations for pay-setup deep links.
+    enum Section: String, CaseIterable, Hashable {
+        case period, workHours, workPattern, priorService, institution, meal, transport, display
+        var title: String {
+            switch self {
+            case .period: "복무 기간"
+            case .workHours: "근무 시간"
+            case .workPattern: "복무형태"
+            case .priorService: "이전 복무 경력"
+            case .institution: "복무기관"
+            case .meal: "중식비"
+            case .transport: "교통비"
+            case .display: "표시"
+            }
+        }
+    }
+
+    var focus: Section? = nil
+
     struct Options: Decodable, Sendable {
         struct Basis: Decodable, Sendable, Hashable {
             let value: String
@@ -121,9 +140,22 @@ struct ProfileEditView: View {
     ]
 
     var body: some View {
+        ScrollViewReader { proxy in
+            form
+                .onChange(of: loaded) {
+                    guard loaded, let focus else { return }
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(80))
+                        withAnimation(.easeInOut) { proxy.scrollTo(focus, anchor: .top) }
+                    }
+                }
+        }
+    }
+
+    private var form: some View {
         Form {
             Group {
-                Section {
+                SwiftUI.Section {
                     datePicker("소집일", $draft.callUp)
                     datePicker("소집해제 예정일", $draft.discharge)
                     Picker("복무 분야", selection: $draft.category) {
@@ -134,8 +166,9 @@ struct ProfileEditView: View {
                 } footer: {
                     Text("소집해제 예정일이 연장 등으로 바뀌었다면 직접 고쳐 주세요.")
                 }
+                .id(Section.period)
 
-                Section {
+                SwiftUI.Section {
                     LabeledContent("1일 근무시간") {
                         HStack(spacing: SGSpacing.xxs) {
                             numberField("시간", $draft.workHours, width: 36)
@@ -151,8 +184,9 @@ struct ProfileEditView: View {
                 } footer: {
                     Text("근무시간은 시간 단위 휴가를 일수와 합칠 때만 써요. 근무 시각은 시간 연가를 허가지각·허가조퇴·허가외출로 자동 구분할 때 쓰는 기준이에요. 직접 확인한 값만 넣어 주세요.")
                 }
+                .id(Section.workHours)
 
-                Section {
+                SwiftUI.Section {
                     Picker("복무형태", selection: $draft.workPattern) {
                         ForEach(Self.patterns, id: \.0) { Text($0.1).tag($0.0) }
                     }
@@ -164,8 +198,9 @@ struct ProfileEditView: View {
                 } footer: {
                     Text("중식비·교통비 근무일 계산은 주간 출퇴근만 지원해요. 야간 교대는 근무일수를 2일로 보는 별도 규정이 있어 계산하지 않아요.")
                 }
+                .id(Section.workPattern)
 
-                Section {
+                SwiftUI.Section {
                     Picker("이전 복무 경력 인정", selection: $draft.priorCredit) {
                         Text("없어요").tag("NONE")
                         Text("있어요").tag("HAS_PRIOR_SERVICE")
@@ -186,22 +221,24 @@ struct ProfileEditView: View {
                 } footer: {
                     Text("병역법 시행령 제62조제2항의 7가지 경우에만 기간이 합산돼요. ‘잘 모르겠어요’면 기본 보수를 계산하지 않아요. 기간은 복무기관에 확인한 값을 넣어 주세요.")
                 }
+                .id(Section.priorService)
 
                 // Type-erased: the nested conditionals of these sections made the
                 // compiler's IR generation run out of capacity when inlined here.
                 AnyView(institutionSection)
                 AnyView(ratesSections)
 
-                Section {
+                SwiftUI.Section {
                     Toggle("초 단위 진행률", isOn: $draft.live)
                 } header: {
                     Text("표시")
                 } footer: {
                     Text("켜면 오늘 화면이 열려 있는 동안 1초마다 남은 시간과 복무율을 갱신해요. 위젯은 이렇게 자주 갱신되지 않아요.")
                 }
+                .id(Section.display)
 
                 if !issues.isEmpty {
-                    Section { ForEach(issues, id: \.self) { SGNotice(.danger, title: $0.message) } }
+                    SwiftUI.Section { ForEach(issues, id: \.self) { SGNotice(.danger, title: $0.message) } }
                         .listRowBackground(Color.clear)
                 }
             }
@@ -248,7 +285,7 @@ struct ProfileEditView: View {
 
     @ViewBuilder
     private var institutionSection: some View {
-        Section {
+        SwiftUI.Section {
             TextField("예: 경기도교육청, 서울특별시 성북구", text: $draft.institution)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
@@ -258,11 +295,12 @@ struct ProfileEditView: View {
         } footer: {
             Text("기관명을 입력하면 등록된 공식 자료에서 중식비·교통비 기준을 찾아 보여드려요. 값은 확인 후 저장해야 반영돼요.")
         }
+        .id(Section.institution)
     }
 
     @ViewBuilder
     private var ratesSections: some View {
-        Section {
+        SwiftUI.Section {
             Picker("중식비", selection: Binding(get: { customMeal }, set: { setCustomMeal($0) })) {
                 Text("기본 9,000원").tag(false)
                 Text("기관이 더 줘요").tag(true)
@@ -280,8 +318,9 @@ struct ProfileEditView: View {
                 ? "기관이 주는 1일 중식비를 넣어 주세요. 9,000원보다 낮은 금액은 쓸 수 없어요."
                 : "병무청 기준 1일 9,000원으로 매달 자동 계산해요. 기관이 더 주는 경우에만 바꾸세요.")
         }
+        .id(Section.meal)
 
-        Section {
+        SwiftUI.Section {
             Picker("거주 지역", selection: $draft.region) {
                 Text("지역 선택").tag("")
                 ForEach(options?.residenceRegions ?? [], id: \.self) { Text($0).tag($0) }
@@ -301,6 +340,7 @@ struct ProfileEditView: View {
         } footer: {
             Text("한 번만 정해 두면 매달 자동으로 계산해요. 병무청 기준은 시내버스 왕복 현금요금이고, 환승·지하철 장거리는 교통카드 실비예요.")
         }
+        .id(Section.transport)
     }
 
     private var institutionResult: some View {

@@ -17,8 +17,15 @@ struct PayView: View {
     @State private var month: CivilDate = SeoulClock.today(at: .now)
     @State private var load = LoadCycle<MoneyMonth>()
     @State private var retries = 0
-    @State private var showingProfile = false
+    @State private var profileSheet: ProfileSheet?
     @State private var showingAttendance = false
+
+    /// The profile sheet, opened at the section a missing input names.
+    struct ProfileSheet: Identifiable {
+        let focus: ProfileEditView.Section?
+        var id: String { focus?.rawValue ?? "all" }
+    }
+
 
     var body: some View {
         NavigationStack {
@@ -39,7 +46,16 @@ struct PayView: View {
                     if let money = shownMoney {
                         SummaryCard(money: money, isCurrentMonth: isCurrentMonth)
                         if !money.compensation.unresolved.isEmpty {
-                            UnresolvedCard(items: money.compensation.unresolved) { showingProfile = true }
+                            UnresolvedCard(items: money.compensation.unresolved,
+                                           actions: PaySetupActions.actions(for: money.compensation),
+                                           readOnly: model.isReadOnly) { target in
+                                switch target {
+                                case .profile(let section): profileSheet = ProfileSheet(focus: section)
+                                case .attendance: showingAttendance = true
+                                }
+                            } onOpenProfile: {
+                                profileSheet = ProfileSheet(focus: nil)
+                            }
                         }
                         Button {
                             showingAttendance = true
@@ -69,8 +85,8 @@ struct PayView: View {
             .task(id: TaskKey(month: monthText, revision: model.document?.documentRevision ?? 0, today: model.today, retries: retries)) {
                 await loadMonth()
             }
-            .sheet(isPresented: $showingProfile) {
-                NavigationStack { ProfileEditView() }
+            .sheet(item: $profileSheet) { sheet in
+                NavigationStack { ProfileEditView(focus: sheet.focus) }
             }
             .onAppear {
                 #if DEBUG
@@ -313,6 +329,9 @@ private struct ComponentTile: View {
 
 private struct UnresolvedCard: View {
     let items: [String]
+    let actions: [PaySetupActions.Action]
+    let readOnly: Bool
+    let open: (PaySetupActions.Target) -> Void
     let onOpenProfile: () -> Void
 
     var body: some View {
@@ -326,10 +345,42 @@ private struct UnresolvedCard: View {
                         Image(systemName: "exclamationmark.circle").foregroundStyle(.sg(SGColor.warning))
                     }
                 }
-                Button("복무 설정 열기", action: onOpenProfile)
-                    .buttonStyle(SGSecondaryButtonStyle())
-
+                if actions.isEmpty {
+                    Button("복무 설정 열기", action: onOpenProfile)
+                        .buttonStyle(SGSecondaryButtonStyle())
+                } else {
+                    VStack(spacing: SGSpacing.xs) {
+                        ForEach(actions) { action in
+                            Button {
+                                open(action.target)
+                            } label: {
+                                Label(action.title, systemImage: symbol(action.target))
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(SGSecondaryButtonStyle())
+                            .accessibilityHint(hint(action.target))
+                        }
+                        Button("복무 설정 전체 열기", action: onOpenProfile)
+                            .font(SGTypography.caption)
+                            .frame(minHeight: SGSpacing.minimumHitTarget)
+                    }
+                }
             }
+        }
+        .disabled(readOnly)
+    }
+
+    private func symbol(_ target: PaySetupActions.Target) -> String {
+        switch target {
+        case .attendance: "calendar.badge.checkmark"
+        case .profile: "slider.horizontal.3"
+        }
+    }
+
+    private func hint(_ target: PaySetupActions.Target) -> String {
+        switch target {
+        case .attendance: "이 달 근무일 확인 화면을 열어요"
+        case .profile(let section): "복무 설정의 \(section.title) 항목으로 바로 가요"
         }
     }
 }
