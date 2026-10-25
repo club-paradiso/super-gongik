@@ -581,18 +581,42 @@ private struct InventoryStrip: View {
     @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
-        let layout = typeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: SGSpacing.xs))
-            : AnyLayout(HStackLayout(spacing: SGSpacing.sm))
-        layout {
+        // Large text: the title alone (no decorative eyebrow) over a two-column
+        // grid, so the strip takes about half the height of a stacked list
+        // while every value still reads in full.
+        if typeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: SGSpacing.xs) {
+                Text("한눈에 보기").font(SGTypography.label).foregroundStyle(.sg(SGColor.heroForeground))
+                LazyVGrid(columns: [GridItem(.flexible(), alignment: .topLeading), GridItem(.flexible(), alignment: .topLeading)],
+                          alignment: .leading, spacing: SGSpacing.xs) {
+                    items
+                }
+            }
+            .padding(SGSpacing.md)
+            .background { SGHeroBackground(celebrate: false) }
+            .clipShape(RoundedRectangle(cornerRadius: SGRadius.card, style: .continuous))
+            .environment(\.colorScheme, .dark)
+            .accessibilityElement(children: .combine)
+        } else {
+            strip
+        }
+    }
+
+    @ViewBuilder
+    private var items: some View {
+        item("남은 연가", leave.kind == "READY" ? (leave.remaining ?? "—") : "확인 필요")
+        if let next { item("다음 이정표", next) }
+        item("소집해제", headline)
+    }
+
+    private var strip: some View {
+        HStack(spacing: SGSpacing.sm) {
             VStack(alignment: .leading, spacing: 0) {
                 SGWorldEyebrow("CIVIC INVENTORY", tint: SGColor.heroForeground3)
                 Text("한눈에 보기").font(SGTypography.label).foregroundStyle(.sg(SGColor.heroForeground))
             }
-            if !typeSize.isAccessibilitySize { Spacer(minLength: SGSpacing.xs) }
-            item("남은 연가", leave.kind == "READY" ? (leave.remaining ?? "—") : "확인 필요")
-            if let next { item("다음 이정표", next) }
-            item("소집해제", headline)
+            Spacer(minLength: SGSpacing.xs)
+            items
         }
         .padding(SGSpacing.md)
         .background { SGHeroBackground(celebrate: false) }
@@ -605,6 +629,7 @@ private struct InventoryStrip: View {
         VStack(alignment: typeSize.isAccessibilitySize ? .leading : .trailing, spacing: 0) {
             Text(title).font(SGTypography.micro).foregroundStyle(.sg(SGColor.heroForeground3))
             Text(value).font(SGTypography.bodyStrong).monospacedDigit().foregroundStyle(.sg(SGColor.heroAccent))
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }

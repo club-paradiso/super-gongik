@@ -415,18 +415,21 @@ private struct TrailPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SGSpacing.sm) {
-            HStack(spacing: SGSpacing.xs) {
-                SGWorldEyebrow("JOURNEY TRAIL", tint: SGColor.heroForeground3)
-                Text("복무 이정표")
-                    .font(SGTypography.micro)
-                    .foregroundStyle(.sg(SGColor.heroForeground2))
-                Spacer(minLength: SGSpacing.xs)
-                if let next = trail.next {
-                    Text("다음 \(next)")
+            // "다음 50% · 19일 후" is the panel's one number worth reading:
+            // it never truncates. At large sizes it takes its own line, and
+            // the decorative JOURNEY TRAIL eyebrow is dropped before anything
+            // else is squeezed (it read as "다음 D-50…" at accessibility sizes).
+            if typeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: SGSpacing.xxs) {
+                    Text("복무 이정표")
                         .font(SGTypography.micro)
-                        .foregroundStyle(.sg(SGColor.heroAccent))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                        .foregroundStyle(.sg(SGColor.heroForeground2))
+                    if let next = trail.next { nextLabel(next) }
+                }
+            } else {
+                ViewThatFits(in: .horizontal) {
+                    header(eyebrow: true)
+                    header(eyebrow: false)
                 }
             }
             if typeSize.isAccessibilitySize {
@@ -449,6 +452,7 @@ private struct TrailPanel: View {
             .strokeBorder(theme == .warrior ? SGGlow.gold.opacity(0.35) : Color.white.opacity(0.08)))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("복무 이정표")
+        .accessibilityHint(trail.next.map { "다음 \($0)" } ?? "")
         .accessibilityValue(trail.nodes.map { node in
             switch node.state {
             case .passed: "\(node.title) 지남"
@@ -456,6 +460,25 @@ private struct TrailPanel: View {
             case .upcoming: "\(node.title) 예정"
             }
         }.joined(separator: ", "))
+    }
+
+    private func header(eyebrow: Bool) -> some View {
+        HStack(spacing: SGSpacing.xs) {
+            if eyebrow { SGWorldEyebrow("JOURNEY TRAIL", tint: SGColor.heroForeground3) }
+            Text("복무 이정표")
+                .font(SGTypography.micro)
+                .foregroundStyle(.sg(SGColor.heroForeground2))
+                .fixedSize()
+            Spacer(minLength: SGSpacing.xs)
+            if let next = trail.next { nextLabel(next).fixedSize() }
+        }
+    }
+
+    private func nextLabel(_ next: String) -> some View {
+        Text("다음 \(next)")
+            .font(SGTypography.micro)
+            .foregroundStyle(.sg(SGColor.heroAccent))
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     private var track: some View {
