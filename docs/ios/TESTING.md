@@ -23,13 +23,13 @@ job, which creates its own iPhone 16 simulator (see § Simulator screenshot QA).
 
 ## Results on `main` `794e489` (2026-10-25, Xcode 26.3, iPhone 16 simulator iOS 26.3)
 
-| Suite                                  | Command                                                                     | Result                                   |
-| -------------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------- |
-| native-core                            | `pnpm --filter @super-gongik/native-core test`                              | 4 files, 43 tests pass                   |
-| domain                                 | `pnpm --filter @super-gongik/domain test`                                   | 16 files, 233 tests pass (one timing test in `sync-engine.test.ts` exceeds 5 s while an `xcodebuild` runs on the same machine; passes alone) |
-| `swift test --jobs 2`                  | SuperGongikKit                                                              | 54 tests, 12 suites pass                 |
-| `xcodebuild test-without-building`     | `SuperGongikTests`, unsigned Debug, QA bundle id                            | 20 tests, 8 suites pass                  |
-| GitHub Actions                         | run `39975299371` on the same commit                                        | 5 jobs success                           |
+| Suite                              | Command                                          | Result                                                                                                                                       |
+| ---------------------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| native-core                        | `pnpm --filter @super-gongik/native-core test`   | 4 files, 43 tests pass                                                                                                                       |
+| domain                             | `pnpm --filter @super-gongik/domain test`        | 16 files, 233 tests pass (one timing test in `sync-engine.test.ts` exceeds 5 s while an `xcodebuild` runs on the same machine; passes alone) |
+| `swift test --jobs 2`              | SuperGongikKit                                   | 54 tests, 12 suites pass                                                                                                                     |
+| `xcodebuild test-without-building` | `SuperGongikTests`, unsigned Debug, QA bundle id | 20 tests, 8 suites pass                                                                                                                      |
+| GitHub Actions                     | run `39975299371` on the same commit             | 5 jobs success                                                                                                                               |
 
 Older results below are kept for the history of the branch they were run on;
 they are not evidence for the current `main`.
