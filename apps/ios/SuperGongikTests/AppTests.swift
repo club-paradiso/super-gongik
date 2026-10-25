@@ -272,3 +272,83 @@ struct DutyActivityTests {
         #expect(DutyActivityController.offDuty("오후 6시", now: morning) == nil)
     }
 }
+
+@Suite("기록 편집 저장 실패 안내")
+struct EventEditorFeedbackTests {
+    private func event(_ id: String, _ start: String, _ end: String, deleted: Bool = false) throws -> ServiceEvent {
+        try JSONDecoder().decode(ServiceEvent.self, from: Data("""
+        {"id":"\(id)","eventType":"ANNUAL_LEAVE","startDate":"\(start)","endDate":"\(end)",
+         "timing":{"kind":"ALL_DAY","dayCount":1},"title":null,"note":null,
+         "deletedAt":\(deleted ? "\"2026-10-20T00:00:00Z\"" : "null"),"updatedAt":"2026-10-01T00:00:00Z","source":{"kind":"MANUAL"}}
+        """.utf8))
+    }
+
+    private func form(_ start: String, _ end: String, mode: String = "ALL_DAY") throws -> EventFormState {
+        try JSONDecoder().decode(EventFormState.self, from: Data("""
+        {"eventType":"ANNUAL_LEAVE","mode":"\(mode)","startDate":"\(start)","endDate":"\(end)","dayCount":"1",
+         "dayCountTouched":false,"half":"AM","startTime":"","endTime":"","hours":"","minutes":"",
+         "durationTouched":false,"sickLeaveCategory":"","title":"","note":""}
+        """.utf8))
+    }
+
+    @Test("each shared validation field lands under the section that holds it")
+    func areas() {
+        func issue(_ field: String?) -> EventIssue { EventIssue(code: "X", message: "", field: field) }
+        #expect(EventEditorFeedback.area(of: issue("startDate")) == .dates)
+        #expect(EventEditorFeedback.area(of: issue("endDate")) == .dates)
+        #expect(EventEditorFeedback.area(of: issue("dayCount")) == .dates)
+        #expect(EventEditorFeedback.area(of: issue("durationMinutes")) == .timing)
+        #expect(EventEditorFeedback.area(of: issue("timing")) == .timing)
+        #expect(EventEditorFeedback.area(of: issue("sickLeaveCategory")) == .type)
+        #expect(EventEditorFeedback.area(of: issue(nil)) == .other)
+    }
+
+    @Test("the summary counts, and VoiceOver hears the first reason")
+    func summary() {
+        let one = [EventIssue(code: "LEAVE_OVERLAP", message: "2026-10-25에 이미 연가 기록이 있어요.", field: "startDate")]
+        #expect(EventEditorFeedback.summary(one) == "저장하지 못했어요. 아래 항목을 확인해 주세요.")
+        #expect(EventEditorFeedback.announcement(one) == "저장하지 못했어요. 아래 항목을 확인해 주세요. 2026-10-25에 이미 연가 기록이 있어요.")
+        let two = one + [EventIssue(code: "INVALID_RANGE", message: "종료일이 시작일보다 앞서요.", field: "endDate")]
+        #expect(EventEditorFeedback.summary(two) == "저장하지 못했어요. 확인할 항목이 2개 있어요.")
+        #expect(EventEditorFeedback.isConflict(one[0]) && !EventEditorFeedback.isConflict(two[1]))
+    }
+
+    @Test("conflict links match the validator rather than just a calendar date")
+    func slotAndTypeFilters() throws {
+        func stored(_ id: String, _ kind: String, _ half: String? = nil, type: String = "ANNUAL_LEAVE") throws -> ServiceEvent {
+            let timing = kind == "HALF_DAY"
+                ? #"{"kind":"HALF_DAY","half":"\#(half ?? "AM")"}"#
+                : #"{"kind":"ALL_DAY","dayCount":1}"#
+            return try JSONDecoder().decode(ServiceEvent.self, from: Data("""
+            {"id":"\(id)","eventType":"\(type)","startDate":"2026-10-25","endDate":"2026-10-25",
+             "timing":\(timing),"updatedAt":"2026-10-25T00:00:00Z","source":{"kind":"MANUAL"}}
+            """.utf8))
+        }
+        let morning = try stored("am", "HALF_DAY", "AM")
+        let afternoon = try stored("pm", "HALF_DAY", "PM")
+        let unrelated = try stored("other", "ALL_DAY", type: "EDUCATION")
+        let overlap = [EventIssue(code: "LEAVE_OVERLAP", message: "", field: "startDate")]
+        #expect(EventEditorFeedback.conflicts(with: try form("2026-10-25", "2026-10-25", mode: "HALF_DAY"),
+            excluding: nil, in: [morning, afternoon, unrelated], issues: overlap).map(\.id) == ["am"])
+        #expect(EventEditorFeedback.conflicts(with: try form("2026-10-25", "2026-10-25"),
+            excluding: nil, in: [morning, afternoon, unrelated], issues: overlap).map(\.id) == ["am", "pm"])
+        let warnings = [EventIssue(code: "LEAVE_OVERLAP_UNRESOLVED", message: "", field: "startDate")]
+        #expect(EventEditorFeedback.conflicts(with: try form("2026-10-25", "2026-10-25"),
+            excluding: nil, in: [morning, afternoon], issues: warnings).isEmpty)
+    }
+
+    @Test("a duplicate names the stored record it collides with, never itself or a deleted one")
+    func conflicts() throws {
+        let events = [try event("a", "2026-10-25", "2026-10-25"), try event("b", "2026-10-27", "2026-10-29"),
+                      try event("gone", "2026-10-25", "2026-10-25", deleted: true)]
+        #expect(EventEditorFeedback.conflicts(with: try form("2026-10-25", "2026-10-25"), excluding: nil, in: events).map(\.id) == ["a"])
+        #expect(EventEditorFeedback.conflicts(with: try form("2026-10-25", "2026-10-25"), excluding: "a", in: events).isEmpty)
+        // A range that touches two records reports both, oldest first.
+        #expect(EventEditorFeedback.conflicts(with: try form("2026-10-24", "2026-10-28"), excluding: nil, in: events).map(\.id) == ["a", "b"])
+        // A time-based record uses its start date only, whatever endDate still holds.
+        #expect(EventEditorFeedback.conflicts(with: try form("2026-10-27", "2026-10-20", mode: "PARTIAL"), excluding: nil, in: events).map(\.id) == ["b"])
+        // An unparsable date cannot conflict with anything.
+        #expect(EventEditorFeedback.conflicts(with: try form("", "2026-10-25"), excluding: nil, in: events).isEmpty)
+    }
+}
+
