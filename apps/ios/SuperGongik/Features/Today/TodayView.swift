@@ -255,17 +255,22 @@ private struct JourneyHero: View {
     /// chapter name.
     private var topRow: some View {
         HStack(spacing: SGSpacing.xs) {
-            HStack(spacing: 6) {
-                SGPulseDot(SGGlow.gold)
-                SGWorldEyebrow(worldTag, tint: SGColor.heroAccent)
+            // The chapter pill only carries the English world tag, so the
+            // standard theme (Korean only) leaves it out; the eyebrow under
+            // it already says what the number means.
+            if theme.showsWorldLanguage {
+                HStack(spacing: 6) {
+                    SGPulseDot(SGGlow.gold)
+                    SGWorldEyebrow(worldTag, tint: SGColor.heroAccent)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(Color.white.opacity(0.14), in: Capsule())
+                .overlay {
+                    if theme == .warrior { Capsule().strokeBorder(SGGlow.gold.opacity(0.45)) }
+                }
+                .accessibilityHidden(true)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(Color.white.opacity(0.14), in: Capsule())
-            .overlay {
-                if theme == .warrior { Capsule().strokeBorder(SGGlow.gold.opacity(0.45)) }
-            }
-            .accessibilityHidden(true)
             Spacer(minLength: SGSpacing.xs)
             HStack(spacing: 5) {
                 StitchIcon("verified_user", size: 14)

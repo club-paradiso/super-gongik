@@ -24,15 +24,17 @@ public enum SGTheme: String, CaseIterable, Identifiable, Sendable {
 
     public var summary: String {
         switch self {
-        case .standard: "차분한 기본 화면"
+        case .standard: "한글만 쓰는 차분한 기본 화면"
         case .warrior: "RPG 여정 분위기의 색과 장식"
         }
     }
 
-    /// World-language eyebrows are decorative and, as in Stitch, appear in
-    /// both themes (owner decision 2026-10-15). They never replace a Korean
+    /// World-language eyebrows (JOURNEY, SUPPLY …) are decorative. They
+    /// appear only in Warrior: the standard theme shows Korean labels alone
+    /// so each screen has less to read (owner decision 2026-10-27, replacing
+    /// the 2026-10-15 "both themes" choice). They never replace a Korean
     /// label and VoiceOver skips them.
-    public var showsWorldLanguage: Bool { true }
+    public var showsWorldLanguage: Bool { self == .warrior }
 
     /// Layout-affecting ornaments (the section banner bar). Color-only
     /// ornaments use tokens that are transparent in the standard theme instead.
@@ -91,6 +93,7 @@ public struct SGWorldTag: View {
     let text: String
     let tint: SGToken
     let fill: SGToken
+    @Environment(\.sgTheme) private var theme
 
     public init(_ text: String, tint: SGToken = SGColor.accent, fill: SGToken = SGColor.surfaceInteractive) {
         self.text = text
@@ -99,19 +102,21 @@ public struct SGWorldTag: View {
     }
 
     public var body: some View {
-        ViewThatFits(in: .horizontal) {
-            Text(text)
-                .font(SGTypography.eyebrow)
-                .tracking(0.8)
-                .foregroundStyle(.sg(tint))
-                .lineLimit(1)
-                .fixedSize()
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(.sg(fill), in: RoundedRectangle(cornerRadius: 4, style: .continuous))
-            Color.clear.frame(width: 0, height: 0)
+        if theme.showsWorldLanguage {
+            ViewThatFits(in: .horizontal) {
+                Text(text)
+                    .font(SGTypography.eyebrow)
+                    .tracking(0.8)
+                    .foregroundStyle(.sg(tint))
+                    .lineLimit(1)
+                    .fixedSize()
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(.sg(fill), in: RoundedRectangle(cornerRadius: 4, style: .continuous))
+                Color.clear.frame(width: 0, height: 0)
+            }
+            .layoutPriority(-1)
+            .accessibilityHidden(true)
         }
-        .layoutPriority(-1)
-        .accessibilityHidden(true)
     }
 }
