@@ -184,8 +184,10 @@ jobs:
     name: iOS · app tests and simulator screenshot QA
     runs-on: macos-15
     # The screenshot matrix alone takes 41-48 minutes on main, so 60 left no
-    # headroom and a slower runner cancelled the job mid-matrix.
-    timeout-minutes: 90
+    # headroom and a slower runner cancelled the job mid-matrix. On PR #88 the
+    # iPhone 16 Plus simulator took ~56 minutes to come up and the matrix
+    # finished (all 33 captured) seconds after the 90-minute limit, twice.
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v5
       - name: Toolchain (newest Xcode on the runner)
