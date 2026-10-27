@@ -40,7 +40,10 @@ import {
   parseDelimitedText,
   type ImportPreview,
 } from "@super-gongik/importer";
-import { findAttendanceMonth } from "@super-gongik/rules";
+import {
+  findAttendanceMonth,
+  suggestedHolidayNonWorkingDays,
+} from "@super-gongik/rules";
 import {
   DECISION_LABELS,
   buildImportCommit,
@@ -288,6 +291,7 @@ export function createNativeRuntime() {
           compensation.serviceDays?.missing.includes("MONTH_RECONFIRMATION") ??
           false,
         dayKindLabels: DAY_KIND_LABELS,
+        holidays: suggestedHolidayNonWorkingDays(days),
       });
     },
 

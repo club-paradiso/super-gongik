@@ -27,6 +27,7 @@ import {
 import {
   currentPayStepOrdinal,
   findAttendanceMonth,
+  suggestedHolidayNonWorkingDays,
   type MonthlyCompensationEvaluation,
   type PayBandSchedule,
 } from "@super-gongik/rules";
@@ -597,8 +598,20 @@ function AttendanceEditor({
   store: UserDataStore;
 }) {
   const days = evaluation.serviceDays?.days ?? [];
+  const holidaySuggestion = suggestedHolidayNonWorkingDays(days);
+  const holidayNames = new Map(
+    holidaySuggestion.holidays.map((holiday) => [holiday.date, holiday.name]),
+  );
+  // A month the user has not saved yet starts with the official holidays
+  // already marked. Nothing is counted until the user saves.
+  const prefilledHolidays = existing
+    ? []
+    : holidaySuggestion.holidays.map((holiday) => holiday.date);
   const [nonWorking, setNonWorking] = useState<Set<DateOnly>>(
-    new Set(existing?.nonWorkingDates ?? []),
+    new Set(existing?.nonWorkingDates ?? prefilledHolidays),
+  );
+  const unmarkedHolidays = holidaySuggestion.holidays.filter(
+    (holiday) => !nonWorking.has(holiday.date),
   );
   // Partial decisions are kept locally; only days with both answers are saved.
   const [decisions, setDecisions] = useState<
@@ -628,6 +641,14 @@ function AttendanceEditor({
       const next = new Set(current);
       if (next.has(date)) next.delete(date);
       else next.add(date);
+      return next;
+    });
+  }
+
+  function markHolidays() {
+    setNonWorking((current) => {
+      const next = new Set(current);
+      for (const holiday of unmarkedHolidays) next.add(holiday.date);
       return next;
     });
   }
@@ -685,12 +706,25 @@ function AttendanceEditor({
     <section className="attendance-editor">
       <h2>이 달 근무일 확인</h2>
       <p className="field-hint">
-        급여 계산에서는 공휴일을 자동으로 빼지 않아요. 쉬는 날을 직접 표시하고
-        저장해야 중식비·교통비 일수를 세요.
+        {holidayHint(holidaySuggestion, prefilledHolidays.length)} 기관 휴무일이
+        더 있으면 표시하고, 저장해야 중식비·교통비 일수를 세요.
         {status?.missing.includes("MONTH_RECONFIRMATION")
           ? " 확인한 뒤 기록이 바뀌어 다시 저장해야 해요."
           : ""}
       </p>
+      {unmarkedHolidays.length ? (
+        <div className="holiday-offer">
+          <p>
+            쉬는 날로 표시하지 않은 공휴일이 {unmarkedHolidays.length}일 있어요:{" "}
+            {unmarkedHolidays
+              .map((holiday) => `${dayLabel(holiday.date)} ${holiday.name}`)
+              .join(", ")}
+          </p>
+          <Button onClick={markHolidays} type="button" variant="outline">
+            공휴일 쉬는 날로 표시
+          </Button>
+        </div>
+      ) : null}
       {status ? (
         <p className="attendance-summary">
           <span>
@@ -720,7 +754,14 @@ function AttendanceEditor({
                 type="checkbox"
               />
               <span className="num">{dayLabel(day.date)}</span>
-              <small>{DAY_KIND_LABELS[day.kind]}</small>
+              <small
+                className={
+                  holidayNames.has(day.date) ? "day-toggle__holiday" : undefined
+                }
+              >
+                {shortHolidayName(holidayNames.get(day.date)) ??
+                  DAY_KIND_LABELS[day.kind]}
+              </small>
             </label>
           ))}
         </div>
@@ -875,4 +916,22 @@ function AttendanceEditor({
       ) : null}
     </section>
   );
+}
+
+function holidayHint(
+  suggestion: ReturnType<typeof suggestedHolidayNonWorkingDays>,
+  prefilled: number,
+): string {
+  if (!suggestion.covered)
+    return "이 달은 공휴일 자료가 없어 쉬는 날을 직접 표시해야 해요.";
+  if (!suggestion.holidays.length)
+    return "이 달 근무 요일에는 관공서 공휴일이 없어요.";
+  if (prefilled)
+    return `관공서 공휴일 ${prefilled}일을 쉬는 날로 미리 표시했어요.`;
+  return "관공서 공휴일은 이름으로 표시돼 있어요.";
+}
+
+/** "대체공휴일(개천절)" → "대체공휴일" so the name fits a day tile. */
+function shortHolidayName(name: string | undefined): string | undefined {
+  return name?.replace(/\(.*\)$/, "");
 }
