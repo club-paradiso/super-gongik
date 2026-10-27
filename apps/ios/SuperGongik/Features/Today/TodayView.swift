@@ -17,6 +17,7 @@ struct TodayView: View {
     let openTab: (AppTab) -> Void
     @State private var editorDate: CivilDate?
     @State private var editorType: String?
+    @State private var editorPatch: [String: JSONValue] = [:]
     @State private var showingLedger: Bool
     @State private var milestones: [ServiceMilestoneItem] = []
 
@@ -41,11 +42,15 @@ struct TodayView: View {
                                     trail: JourneyTrail(milestones, hero: home.hero, today: model.today))
                         VStack(alignment: .leading, spacing: SGSpacing.lg) {
                             if !home.completed {
-                                Launchpad(
+                                QuickRecordTray(
                                     readOnly: model.isReadOnly,
-                                    useLeave: { editorType = "ANNUAL_LEAVE"; editorDate = model.today },
-                                    openPay: { openTab(.pay) },
-                                    addRecord: { editorType = nil; editorDate = model.today })
+                                    records: QuickRecord.all(workdayStart: profile.workdayStartTime,
+                                                             workdayEnd: profile.workdayEndTime),
+                                    open: { record in
+                                        editorType = record?.type
+                                        editorPatch = record?.patch ?? [:]
+                                        editorDate = model.today
+                                    })
                                     .padding(.top, -SGSpacing.sm)
                             }
                             // What is happening today or next comes before the
@@ -94,7 +99,7 @@ struct TodayView: View {
             .navigationTitle("홈")
             .navigationDestination(isPresented: $showingLedger) { LeaveView() }
             .sheet(item: $editorDate) { date in
-                EventEditorSheet(event: nil, initialDate: date, initialType: editorType)
+                EventEditorSheet(event: nil, initialDate: date, initialType: editorType, initialPatch: editorPatch)
             }
         }
     }
@@ -675,122 +680,130 @@ struct MilestoneRoute: Equatable {
     }
 }
 
-// MARK: Launchpad
+// MARK: Quick record
 
-/// Stitch "QUICK ACTION LAUNCHPAD": a white tray overlapping the hero with
-/// the primary action on navy, a secondary action and a square one. Stitch's
-/// "휴가 신청서 작성" files nothing with an institution here, so it is the
-/// app's own 연가 사용 record; the square is 근무기록 추가.
-private struct Launchpad: View {
+/// 홈 빠른 기록: the records a 사회복무요원 actually files, one tap each,
+/// already set to today and to the right unit. The editor still opens so
+/// the date, half or times can be checked before saving; nothing is saved
+/// from here. Times come from the confirmed workday (내 정보 › 근무 시각)
+/// and stay empty when it is unknown — the app does not guess them.
+struct QuickRecord: Identifiable, Equatable {
+    let id: String
+    let title: String
+    let hint: String
+    let category: SGEventCategory
+    let type: String
+    let patch: [String: JSONValue]
+
+    static func all(workdayStart: String?, workdayEnd: String?) -> [QuickRecord] {
+        var late: [String: JSONValue] = ["mode": .string("PARTIAL")]
+        if let workdayStart { late["startTime"] = .string(workdayStart) }
+        var early: [String: JSONValue] = ["mode": .string("PARTIAL")]
+        if let workdayEnd { early["endTime"] = .string(workdayEnd) }
+        return [
+            QuickRecord(id: "annual", title: "연가", hint: "종일", category: .leave,
+                        type: "ANNUAL_LEAVE", patch: [:]),
+            QuickRecord(id: "half", title: "반가", hint: "오전·오후", category: .leave,
+                        type: "ANNUAL_LEAVE", patch: ["mode": .string("HALF_DAY")]),
+            QuickRecord(id: "sick", title: "병가", hint: "종일", category: .sick,
+                        type: "SICK_LEAVE", patch: [:]),
+            QuickRecord(id: "late", title: "지각", hint: "허가지각", category: .attendance,
+                        type: "LATE_ARRIVAL", patch: late),
+            QuickRecord(id: "early", title: "조퇴", hint: "허가조퇴", category: .attendance,
+                        type: "EARLY_LEAVE", patch: early),
+            QuickRecord(id: "outing", title: "외출", hint: "허가외출", category: .attendance,
+                        type: "OUTING", patch: ["mode": .string("PARTIAL")]),
+        ]
+    }
+
+    static func == (lhs: QuickRecord, rhs: QuickRecord) -> Bool { lhs.id == rhs.id }
+}
+
+/// The white tray under the hero: six one-tap records and "다른 기록".
+/// Replaces the earlier 연가 사용 / 급여 명세 / 근무기록 추가 row: 급여 stays
+/// one tap away in the tab bar and the 이번 달 급여 tile.
+private struct QuickRecordTray: View {
     let readOnly: Bool
-    let useLeave: () -> Void
-    let openPay: () -> Void
-    let addRecord: () -> Void
+    let records: [QuickRecord]
+    let open: (QuickRecord?) -> Void
     @Environment(\.dynamicTypeSize) private var typeSize
 
+    private var columns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: SGSpacing.xs),
+              count: typeSize.isAccessibilitySize ? 2 : 3)
+    }
+
     var body: some View {
-        Group {
-            if typeSize.isAccessibilitySize {
-                VStack(spacing: SGSpacing.xs) {
-                    primary
-                    secondary
-                    record(square: false)
+        VStack(alignment: .leading, spacing: SGSpacing.xs) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("오늘 기록하기")
+                    .font(SGTypography.label)
+                    .foregroundStyle(.sg(SGColor.textPrimary))
+                    .accessibilityAddTraits(.isHeader)
+                Spacer(minLength: SGSpacing.xs)
+                Button { open(nil) } label: {
+                    HStack(spacing: 4) {
+                        Text("다른 기록")
+                        StitchIcon("edit_calendar", size: 14)
+                    }
+                    .font(SGTypography.caption)
+                    .foregroundStyle(.sg(SGColor.accent))
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
                 }
-            } else {
-                HStack(spacing: SGSpacing.xs) {
-                    primary
-                    secondary
-                    record(square: true)
+                .buttonStyle(.plain)
+                .disabled(readOnly)
+                .accessibilityLabel("다른 기록 추가")
+            }
+            LazyVGrid(columns: columns, spacing: SGSpacing.xs) {
+                ForEach(records) { record in
+                    Button { open(record) } label: { QuickRecordLabel(record: record) }
+                        .buttonStyle(QuickRecordButtonStyle(category: record.category))
+                        .disabled(readOnly)
+                        .accessibilityLabel("\(record.title) 기록")
+                        .accessibilityHint("오늘 날짜로 \(record.title) 기록 화면을 열어요")
                 }
             }
         }
-        .padding(SGSpacing.xs)
+        .padding(.horizontal, SGSpacing.sm)
+        .padding(.top, SGSpacing.xxs)
+        .padding(.bottom, SGSpacing.sm)
         .background(.sg(SGColor.surface), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .sgShadow(.card)
         .sgWarriorFrame(cornerRadius: 18, emphasis: 1.2)
     }
-
-    private var primary: some View {
-        Button(action: useLeave) {
-            LaunchLabel(title: "연가 사용", world: "LEAVE DISPATCH", symbol: "flight_takeoff",
-                        tint: SGColor.heroAccent, titleTint: nil)
-        }
-        .buttonStyle(LaunchButtonStyle(fill: SGColor.heroBackground, foreground: .white, gilded: true))
-        .disabled(readOnly)
-    }
-
-    private var secondary: some View {
-        Button(action: openPay) {
-            LaunchLabel(title: "급여 명세", world: "SUPPLY LEDGER", symbol: "payments",
-                        tint: SGColor.accent, titleTint: SGColor.textPrimary)
-        }
-        .buttonStyle(LaunchButtonStyle(fill: SGColor.surfaceInteractive, foreground: nil))
-    }
-
-    @ViewBuilder
-    private func record(square: Bool) -> some View {
-        Button(action: addRecord) {
-            if square {
-                StitchIcon("edit_calendar", size: 20)
-                    .foregroundStyle(.sg(SGColor.accent))
-                    .frame(width: 52)
-            } else {
-                LaunchLabel(title: "근무기록 추가", world: "QUEST LOG", symbol: "edit_calendar",
-                            tint: SGColor.accent, titleTint: SGColor.textPrimary)
-            }
-        }
-        .buttonStyle(LaunchButtonStyle(fill: SGColor.selectedBackground, foreground: nil, flexible: !square))
-        .disabled(readOnly)
-        .accessibilityLabel("근무기록 추가")
-    }
 }
 
-private struct LaunchLabel: View {
-    let title: String
-    let world: String
-    let symbol: String
-    let tint: SGToken
-    let titleTint: SGToken?
+private struct QuickRecordLabel: View {
+    let record: QuickRecord
 
     var body: some View {
-        HStack(spacing: SGSpacing.xs) {
-            StitchIcon(symbol, size: 18).foregroundStyle(.sg(tint))
-            VStack(alignment: .leading, spacing: 1) {
-                Text(title)
-                    .font(SGTypography.font(14, .bold, relativeTo: .subheadline))
-                    .foregroundStyle(titleTint.map { AnyShapeStyle(.sg($0)) } ?? AnyShapeStyle(.white))
+        VStack(spacing: 2) {
+            HStack(spacing: 5) {
+                SGCategoryMark(record.category, size: 7)
+                Text(record.title)
+                    .font(SGTypography.bodyStrong)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                SGWorldEyebrow(world, tint: titleTint == nil ? SGColor.heroForeground3 : SGColor.textTertiary)
             }
+            Text(record.hint)
+                .font(SGTypography.font(11, .medium, relativeTo: .caption2))
+                .opacity(0.8)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
         }
+        .frame(maxWidth: .infinity, minHeight: 52)
     }
 }
 
-private struct LaunchButtonStyle: ButtonStyle {
-    let fill: SGToken
-    let foreground: Color?
-    var flexible = true
-    /// Warrior: gold edge and glow on the primary action.
-    var gilded = false
+private struct QuickRecordButtonStyle: ButtonStyle {
+    let category: SGEventCategory
     @Environment(\.isEnabled) private var isEnabled
-    @Environment(\.sgTheme) private var theme
 
     func makeBody(configuration: Configuration) -> some View {
-        let gold = gilded && theme == .warrior
         configuration.label
-            .padding(.horizontal, flexible ? SGSpacing.sm : 0)
-            .frame(maxWidth: flexible ? .infinity : nil, minHeight: 52)
-            .background(.sg(fill), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
-            .overlay {
-                if gold {
-                    RoundedRectangle(cornerRadius: 13, style: .continuous)
-                        .strokeBorder(LinearGradient(colors: [SGGlow.gold, SGGlow.gold.opacity(0.25)],
-                                                     startPoint: .top, endPoint: .bottom))
-                }
-            }
-            .shadow(color: SGGlow.gold.opacity(gold ? 0.35 : 0), radius: 10)
-            .opacity(isEnabled ? (configuration.isPressed ? 0.85 : 1) : 0.45)
+            .foregroundStyle(.sg(category.chipForeground))
+            .background(.sg(category.chipBackground), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .opacity(isEnabled ? (configuration.isPressed ? 0.8 : 1) : 0.45)
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .contentShape(Rectangle())
     }
