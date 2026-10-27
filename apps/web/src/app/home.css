@@ -344,6 +344,14 @@
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
 }
 
+/* An odd last card would sit alone in half a row; let it take the full row
+   whenever the grid wraps to two columns. */
+@media (max-width: 559px) {
+  .workday-stats__grid > .stat-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
 .stat-card {
   display: flex;
   flex-direction: column;

@@ -30,6 +30,17 @@ struct AttendanceEditorView: View {
         let roundingPolicy: String?
     }
 
+    struct Holiday: Decodable, Sendable, Hashable {
+        let date: CivilDate
+        let name: String
+    }
+
+    /// 관공서 공휴일 on the month's scheduled days (shared rules helper).
+    struct HolidaySuggestion: Decodable, Sendable {
+        let covered: Bool
+        let holidays: [Holiday]
+    }
+
     struct Editor: Decodable, Sendable {
         let existing: Existing?
         let days: [Day]
@@ -40,6 +51,7 @@ struct AttendanceEditorView: View {
         let transportEligibleDays: Double?
         let needsReconfirmation: Bool
         let dayKindLabels: [String: String]
+        let holidays: HolidaySuggestion?
     }
 
     let month: CivilDate
@@ -54,6 +66,8 @@ struct AttendanceEditorView: View {
     @State private var nonPayableConfirmed = false
     @State private var rounding = ""
     @State private var message: (SGTone, String)?
+    /// Holidays marked for the user when the month had no saved answers.
+    @State private var prefilledHolidays = 0
 
     private var monthText: String { String(format: "%04d-%02d", month.year, month.month) }
 
@@ -65,8 +79,21 @@ struct AttendanceEditorView: View {
                         LabeledContent("중식비 대상", value: editor.mealEligibleDays.map { "\(Int($0))일" } ?? "?일")
                         LabeledContent("교통비 대상", value: editor.transportEligibleDays.map { "\(Int($0))일" } ?? "?일")
                     } footer: {
-                        Text("급여 계산에서는 공휴일을 자동으로 빼지 않아요. 쉬는 날을 직접 표시하고 저장해야 중식비·교통비 일수를 세요."
+                        Text(holidayHint(editor) + " 기관 휴무일이 더 있으면 표시하고, 저장해야 중식비·교통비 일수를 세요."
                              + (editor.needsReconfirmation ? " 확인한 뒤 기록이 바뀌어 다시 저장해야 해요." : ""))
+                    }
+
+                    let unmarked = (editor.holidays?.holidays ?? []).filter { !nonWorking.contains($0.date) }
+                    if !unmarked.isEmpty {
+                        Section {
+                            Button("공휴일 쉬는 날로 표시") {
+                                for holiday in unmarked { nonWorking.insert(holiday.date) }
+                                Task { await reload() }
+                            }
+                        } footer: {
+                            Text("쉬는 날로 표시하지 않은 공휴일이 \(unmarked.count)일 있어요: "
+                                 + unmarked.map { "\($0.date.month)/\($0.date.day) \($0.name)" }.joined(separator: ", "))
+                        }
                     }
 
                     Section("근무 요일 중 쉬는 날 (공휴일·기관 휴무)") {
@@ -167,6 +194,12 @@ struct AttendanceEditorView: View {
                 nonPayableConfirmed = existing.nonPayableDatesConfirmed ?? false
                 rounding = existing.roundingPolicy ?? ""
                 await reload()
+            } else if let holidays = editor?.holidays?.holidays, !holidays.isEmpty {
+                // An unsaved month starts with the official holidays marked;
+                // nothing is counted until the user saves.
+                nonWorking = Set(holidays.map(\.date))
+                prefilledHolidays = holidays.count
+                await reload()
             }
         }
     }
@@ -175,9 +208,23 @@ struct AttendanceEditorView: View {
         HStack {
             Text("\(day.date.month)/\(day.date.day) (\(Formatters.weekdays[day.date.weekday]))").monospacedDigit()
             Spacer()
-            Text(editor.dayKindLabels[day.kind] ?? day.kind)
-                .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+            if let holiday = editor.holidays?.holidays.first(where: { $0.date == day.date }) {
+                Text(holiday.name)
+                    .font(SGTypography.caption.weight(.semibold)).foregroundStyle(.sg(SGColor.warning))
+            } else {
+                Text(editor.dayKindLabels[day.kind] ?? day.kind)
+                    .font(SGTypography.caption).foregroundStyle(.sg(SGColor.textTertiary))
+            }
         }
+    }
+
+    private func holidayHint(_ editor: Editor) -> String {
+        guard let suggestion = editor.holidays, suggestion.covered else {
+            return "이 달은 공휴일 자료가 없어 쉬는 날을 직접 표시해야 해요."
+        }
+        if suggestion.holidays.isEmpty { return "이 달 근무 요일에는 관공서 공휴일이 없어요." }
+        if prefilledHolidays > 0 { return "관공서 공휴일 \(prefilledHolidays)일을 쉬는 날로 미리 표시했어요." }
+        return "관공서 공휴일은 이름으로 표시돼 있어요."
     }
 
     private func choice(_ title: String, _ date: CivilDate, _ field: WritableKeyPath<Override, Bool?>) -> some View {

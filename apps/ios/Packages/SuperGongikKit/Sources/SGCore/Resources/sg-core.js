@@ -17972,6 +17972,41 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 	function isPublicHolidayYearCovered(year) {
 		return PUBLIC_HOLIDAY_YEARS.includes(year);
 	}
+	/** Day kinds that can be a scheduled working day for meal/transport pay. */
+	const SCHEDULED_KINDS = /* @__PURE__ */ new Set([
+		"WORKED",
+		"NEEDS_DECISION",
+		"FULL_DAY_LEAVE",
+		"FULL_DAY_ABSENCE"
+	]);
+	/**
+	* 관공서 공휴일 that fall on the user's scheduled working days. These are
+	* offered to the user as non-working days for a month's 중식비·교통비
+	* count; pay still waits until the user saves (confirms) the month.
+	*
+	* `covered` is false when the month's year is not in the holiday file, so a
+	* caller can tell "no holidays" apart from "no data".
+	*/
+	function suggestedHolidayNonWorkingDays(days) {
+		const holidays = [];
+		let covered = days.length > 0;
+		for (const day of days) {
+			if (!isPublicHolidayYearCovered(Number(day.date.slice(0, 4)))) {
+				covered = false;
+				continue;
+			}
+			if (!SCHEDULED_KINDS.has(day.kind)) continue;
+			const name = publicHolidayName(day.date);
+			if (name) holidays.push({
+				date: day.date,
+				name
+			});
+		}
+		return {
+			covered,
+			holidays
+		};
+	}
 
 //#endregion
 //#region ../rules/src/service-workdays.ts
@@ -21397,7 +21432,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 					mealEligibleDays: compensation.serviceDays?.mealEligibleDays ?? null,
 					transportEligibleDays: compensation.serviceDays?.transportEligibleDays ?? null,
 					needsReconfirmation: compensation.serviceDays?.missing.includes("MONTH_RECONFIRMATION") ?? false,
-					dayKindLabels: DAY_KIND_LABELS
+					dayKindLabels: DAY_KIND_LABELS,
+					holidays: suggestedHolidayNonWorkingDays(days)
 				});
 			},
 			/** Save the editor state exactly as the web editor does. */
