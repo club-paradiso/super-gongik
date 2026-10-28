@@ -41,7 +41,7 @@ struct AppHeader: View {
     /// to the default text size. Larger sizes drop them as a whole: a
     /// ViewThatFits here collapsed even when there was room (it sits next to
     /// a Spacer), and a fixed label pushed the header past the screen edge.
-    private var roomForWorld: Bool { typeSize <= .large }
+    private var roomForWorld: Bool { theme.showsWorldLanguage && typeSize <= .large }
 
     /// Stitch status line: "ACTIVE // DUTY_SYNC" while serving. The Korean
     /// state stays first; the world label follows it.

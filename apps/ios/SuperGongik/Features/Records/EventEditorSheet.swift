@@ -20,6 +20,10 @@ struct EventEditorSheet: View {
     let initialDate: CivilDate
     /// A new record's type when a button already names it (홈 "연가 사용").
     var initialType: String? = nil
+    /// Extra starting fields for a new record (홈 빠른 기록: 반가 → mode
+    /// HALF_DAY, 지각 → PARTIAL with the workday start). Applied through the
+    /// shared `eventFormPatch`, so coercions match a manual edit.
+    var initialPatch: [String: JSONValue] = [:]
 
     @State private var form: EventFormState?
     @State private var evaluation: EventFormEvaluation?
@@ -372,9 +376,10 @@ struct EventEditorSheet: View {
     private func load() async {
         guard let runtime = model.core else { return }
         form = try? await runtime.eventFormInitial(eventId: event?.id, date: initialDate)
-        if event == nil, let initialType, let current = form, let json = try? JSONValue.from(current),
-           let typed = await model.pure("eventFormPatch", [json, .object(["eventType": .string(initialType)])],
-                                        as: EventFormState.self) {
+        var patch = initialPatch
+        if let initialType { patch["eventType"] = .string(initialType) }
+        if event == nil, !patch.isEmpty, let current = form, let json = try? JSONValue.from(current),
+           let typed = await model.pure("eventFormPatch", [json, .object(patch)], as: EventFormState.self) {
             form = typed
         }
         original = form

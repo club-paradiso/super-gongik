@@ -55,7 +55,7 @@ Spec and QA record: page 55 "Warrior — Spec & QA" (`125:8485`). Component revi
 
 ### Stitch · Civic Codex (page 52, rows "Civic Codex 1" … "7-8") — 2026-10-13/14
 
-Direction B from page 40 (`49:290`), drawn per [STITCH-IMPLEMENTATION-PLAN.md](./STITCH-IMPLEMENTATION-PLAN.md). Since PR #68 (2026-10-15) every frame uses the app's own chrome from page 51: `AppHeader` (`241:663`, Profile=Off on 내 정보) and the bottom bar `StitchTabBar · 4` (`241:626`), built from the Material Symbols in `Stitch Icon / …` (`239:542`, the asset catalog's `ms.*` SVGs). `AppTabBar · 4` (`201:610`) is no longer used here. World labels show in both themes: `theme/world-language` is true for Standard too.
+Direction B from page 40 (`49:290`), drawn per [STITCH-IMPLEMENTATION-PLAN.md](./STITCH-IMPLEMENTATION-PLAN.md). Since PR #68 (2026-10-15) every frame uses the app's own chrome from page 51: `AppHeader` (`241:663`, Profile=Off on 내 정보) and the bottom bar `StitchTabBar · 4` (`241:626`), built from the Material Symbols in `Stitch Icon / …` (`239:542`, the asset catalog's `ms.*` SVGs). `AppTabBar · 4` (`201:610`) is no longer used here. World labels show in Warrior only since 2026-10-27 (owner decision; Standard is Korean only). The Figma variable `theme/world-language` for Standard has not been updated yet.
 
 | Phase                | Figma (page 52)                                                                    | SwiftUI                                                                                                       | Status |
 | -------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------ |

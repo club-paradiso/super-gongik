@@ -128,7 +128,7 @@ private struct StitchTabBar: View {
                             .font(SGTypography.font(13, selected ? .bold : .semibold, relativeTo: .caption))
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
-                        if !typeSize.isAccessibilitySize {
+                        if theme.showsWorldLanguage && !typeSize.isAccessibilitySize {
                             // Whole word or nothing, and never wider than the
                             // item: a fixed-size label here once made the bar
                             // wider than the screen at larger text sizes,
