@@ -2,6 +2,7 @@
 
 - Updated: 2026-10-15 · Figma file `hy0KYmsJxVzj2JwJtbfIpS` · see [FIGMA-SOURCE-OF-TRUTH.md](./FIGMA-SOURCE-OF-TRUTH.md)
 - Status dates: every `MATCH`/`REFINE` below was judged in the sync it names (2026-10-14 for 내 정보; earlier for the rest). A status is not re-verified by later commits; the audit of `794e489` (2026-10-25, docs/design/STITCH-REAL-FIDELITY-AUDIT-2026-10.md) compared only the home against the Stitch `master_synthesis` image. Pixel parity of every screen is unverified.
+- 2026-11-08: the Civic Codex 홈 frames (`202:*`) predate PR #70/#88; see [IOS-FIGMA-FUNCTIONAL-AUDIT-2026-11.md](./IOS-FIGMA-FUNCTIONAL-AUDIT-2026-11.md). Rendered Figma ↔ app comparison: CI job `ios-ui-flows` (`figma-reference/`).
 - Status: `MATCH` Figma = code · `REFINE` code or Figma adjusted in this sync / small gap noted · `MERGE` Stitch idea folded into a canonical screen · `DEPRECATE` reference only, not built · `FUTURE` needs core/domain work first · `MISSING_IN_CODE` · `MISSING_IN_FIGMA`
 
 ## 1. Canonical production screens (page 52)
