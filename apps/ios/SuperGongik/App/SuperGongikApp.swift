@@ -47,7 +47,6 @@ struct SuperGongikApp: App {
                 }
                 .environment(\.sgTheme, theme)
                 .preferredColorScheme(Self.debugColorScheme)
-                .modifier(DebugReduceMotion())
                 .onChange(of: theme) { WidgetReloader.reload() }
                 .onChange(of: lock.isCovered || lock.isLocked, initial: true) { _, visible in
                     coverWindow.update(visible: visible, lock: lock, theme: theme)
@@ -65,19 +64,3 @@ struct SuperGongikApp: App {
     }
 }
 
-/// DEBUG-only: `-SGReduceMotion YES` renders every view as if Reduce Motion
-/// were on, so screenshot comparisons are not disturbed by the Warrior drift,
-/// stars and sweeps, and the resting state is what gets checked.
-private struct DebugReduceMotion: ViewModifier {
-    func body(content: Content) -> some View {
-        #if DEBUG
-        if UserDefaults.standard.bool(forKey: "SGReduceMotion") {
-            content.environment(\.accessibilityReduceMotion, true)
-        } else {
-            content
-        }
-        #else
-        content
-        #endif
-    }
-}

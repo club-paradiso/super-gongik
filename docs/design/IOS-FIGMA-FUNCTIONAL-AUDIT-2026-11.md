@@ -107,5 +107,5 @@ None of these are covered by simulator results:
 - file sharing and exporters
 - OAuth sign-in (Google / Kakao / NAVER / Apple)
 - VoiceOver traversal
-- the system Reduce Motion setting (CI uses the environment override)
+- the Reduce Motion setting (SwiftUI cannot force it in CI; Warrior effects animate in the captures)
 - iPad readability

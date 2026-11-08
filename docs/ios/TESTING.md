@@ -107,7 +107,7 @@ The matrix covers:
 Still not covered by automation:
 
 - VoiceOver traversal on a device;
-- a visual Reduce Motion pass on a device (CI forces `-SGReduceMotion` in the Figma captures, which is the environment value, not the system setting);
+- a visual Reduce Motion pass (SwiftUI's `accessibilityReduceMotion` is read-only, so CI cannot force it; the code removes interpolation through `SGMotion`, unit-level only);
 - widget rendering on a home screen;
 - iPad.
 
@@ -131,7 +131,6 @@ Every launch uses DEBUG-only hooks, so the date, data and appearance are fixed:
 | `-SGSeedFixture figma`      | creates the Figma page 52 sample through the core commands: 소집 2025-03-18, 소집해제 예정 2027-01-14, records on 3/6, 3/11, 3/14, 3/20 and 3/30 |
 | `-SGResetStore YES`         | starts from an empty local store                                                                                                                 |
 | `-SGColorScheme light/dark` | sets the appearance                                                                                                                              |
-| `-SGReduceMotion YES`       | Warrior effects stay still, so captures are repeatable                                                                                           |
 | `-SGTheme`                  | selects the theme                                                                                                                                |
 | `-SGInitialTab`             | opens a tab                                                                                                                                      |
 

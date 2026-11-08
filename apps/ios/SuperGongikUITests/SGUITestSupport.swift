@@ -8,7 +8,7 @@ import XCTest
 /// - `-SGSeedFixture figma`: the Figma page 52 sample (소집 2025-03-18,
 ///   소집해제 예정 2027-01-14, March 2026 records)
 /// - `-SGToday 2026-03-14`: the date the Figma frames are drawn on
-/// - `-SGTheme`, `-SGColorScheme`, `-SGReduceMotion`, `-SGInitialTab`
+/// - `-SGTheme`, `-SGColorScheme`, `-SGInitialTab`
 @MainActor
 enum SGLaunch {
     static let figmaToday = "2026-03-14"
@@ -20,8 +20,7 @@ enum SGLaunch {
                     scheme: String = "light",
                     tab: String? = nil) -> XCUIApplication {
         let app = XCUIApplication()
-        var arguments = ["-SGToday", today, "-SGTheme", theme, "-SGColorScheme", scheme,
-                         "-SGReduceMotion", "YES"]
+        var arguments = ["-SGToday", today, "-SGTheme", theme, "-SGColorScheme", scheme]
         if reset { arguments += ["-SGResetStore", "YES"] }
         if fixture { arguments += ["-SGSeedFixture", "figma"] }
         if let tab { arguments += ["-SGInitialTab", tab] }

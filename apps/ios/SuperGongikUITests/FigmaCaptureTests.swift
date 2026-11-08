@@ -5,8 +5,9 @@ import XCTest
 ///
 /// Each screen is captured top first, then in fixed-distance scroll steps, in
 /// the theme × appearance pairs that Figma draws (standard light, Warrior
-/// light, Warrior dark) plus standard dark. Reduce Motion is forced so the
-/// Warrior effects rest. PNGs go to `$SG_SHOT_DIR` when it is set (CI passes
+/// light, Warrior dark) plus standard dark. SwiftUI's Reduce Motion value is
+/// read-only, so the Warrior effects (drift, stars) still animate: expect
+/// small differences there between runs. PNGs go to `$SG_SHOT_DIR` when it is set (CI passes
 /// `TEST_RUNNER_SG_SHOT_DIR`) and are always attached to the test result.
 ///
 /// Not a pass/fail check of the design: the comparison report classifies the

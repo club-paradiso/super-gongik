@@ -181,7 +181,7 @@ def main() -> int:
         "# Figma ↔ iOS comparison (first viewport)",
         "",
         "Figma file `hy0KYmsJxVzj2JwJtbfIpS`, page 52. App: iOS Simulator, `-SGToday 2026-03-14 -SGSeedFixture figma`,",
-        "Reduce Motion on. Status bar and bottom-bar zone masked. Similarity is a coarse triage signal, not a verdict;",
+        "Warrior effects animate (Reduce Motion cannot be forced). Status bar and bottom-bar zone masked. Similarity is a coarse triage signal, not a verdict;",
         "read it together with the known deviations (owner decisions newer than the Figma frames).",
         "",
         "| Case | Figma node | Status | Similarity | Changed px | Triage | Baseline Δ | Known deviations |",
