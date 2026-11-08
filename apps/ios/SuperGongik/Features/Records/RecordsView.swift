@@ -394,13 +394,12 @@ private struct DayCell: View {
                 .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                 .foregroundStyle(.sg(isSelected ? SGColor.onAccent : dayColor))
                 .frame(width: 32, height: 32)
-                // Stitch: rounded tiles. Selected is filled, today is outlined,
-                // and a day with records is tinted with its first category.
+                // Figma 204:3938: selected is filled and today is outlined;
+                // records show only as the category dots below. The tint used
+                // to repeat the dots and blur the selected/today states.
                 .background {
                     if isSelected {
                         tile.fill(.sg(SGColor.accent))
-                    } else if let first = categories.first {
-                        tile.fill(.sg(first.mark)).opacity(0.16)
                     }
                 }
                 .overlay {

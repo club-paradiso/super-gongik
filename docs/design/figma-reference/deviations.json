@@ -3,16 +3,19 @@
     "Figma 202:* predates PR #70 (2026-10-20, owner-approved Stitch master_synthesis): the app has the full-bleed hero, journey trail and 2x2 ledger; Figma still draws the compact navy card + 3 milestone chips. STITCH-REAL-FIDELITY-AUDIT-2026-10.md: 'redraw it from A, not from C'.",
     "PR #88 (2026-10-28): 오늘 기록하기 quick-record tray under the hero; not in Figma.",
     "PR #88: world-language labels (TIME TO DISCHARGE, LEAVE LEDGER, JOURNEY ...) are Warrior-only; the Figma Standard Light frame still shows them.",
-    "Figma sample pay 1,284,500원 / 1년차 3일 사용 are sample numbers; the app shows the core's values for the same fixture."
+    "Figma sample pay 1,284,500원 / 1년차 3일 사용 are sample numbers; the app shows the core's values for the same fixture.",
+    "2026-11-08: the 남은 연가 tile gained Figma's remaining bar; the full-width card was not adopted (PR #70 2x2 ledger)."
   ],
   "calendar": [
     "월간/목록 segmented control and the + / ... title buttons exist in code; SCREEN-MAP.md records them as not drawn in Figma.",
     "Summary counts records (연가 기록 N건), not days: decided in Stitch phase 2.",
-    "Neighbouring-month days (muted) and Sunday red / Saturday blue follow Stitch calendar_quest_log; the Figma frame omits them."
+    "Neighbouring-month days (muted) and Sunday red / Saturday blue follow Stitch calendar_quest_log; the Figma frame omits them.",
+    "2026-11-08: the tile tint was removed to match Figma (dots + legend only)."
   ],
   "pay": [
     "Pay screen order depends on the core: with unresolved inputs the app shows 계산에 필요한 정보 above the itemised ledger; Figma draws the 'Base only' state with 중식비 resolved.",
-    "SUPPLY // yyyy.mm eyebrow is Warrior-only (PR #88)."
+    "SUPPLY // yyyy.mm eyebrow is Warrior-only (PR #88).",
+    "2026-11-08: 근무일 확인 moved directly under the estimate card, as in Figma."
   ],
   "profile": [
     "Rows carry Material glyphs (PR #67/#68); SCREEN-MAP.md records the Figma frames as not redrawn for them.",

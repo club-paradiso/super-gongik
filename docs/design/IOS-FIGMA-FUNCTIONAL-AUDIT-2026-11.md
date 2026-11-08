@@ -109,3 +109,12 @@ None of these are covered by simulator results:
 - VoiceOver traversal
 - the Reduce Motion setting (SwiftUI cannot force it in CI; Warrior effects animate in the captures)
 - iPad readability
+
+## 7. Figma elements adopted (owner request 2026-11-08: "take what evaluates well")
+
+| Figma                                                     | Change in the app                                                              | Verdict                                                                                                     |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| 급여 `206:4205`: 근무일 확인 right under the estimate     | `PayView`: the button moved above 계산에 필요한 정보                           | adopted: the routine monthly action was below the fold                                                      |
+| 캘린더 `204:3938`: records as dots under the day          | `RecordsView.DayCell`: category tint on the tile removed; dots and legend kept | adopted: the tint repeated the dots and blurred selected/today                                              |
+| 홈 `202:3614`: full-width 남은 연가 card with a bar       | `TodayView.LedgerGrid`: remaining-leave bar inside the 2×2 tile                | partly: the bar is adopted; the full-width card is not, because the 2×2 ledger is the PR #70 owner decision |
+| 홈 `202:*` compact hero, English world labels in Standard | none                                                                           | rejected: reverts PR #70/#88                                                                                |

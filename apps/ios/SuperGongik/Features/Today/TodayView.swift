@@ -883,7 +883,10 @@ private struct LedgerGrid: View {
             }
         } footer: {
             if leave.kind == "READY", let granted {
-                TileFooter(leading: "부여 \(granted)", trailing: TodayView.remainingFraction(projection.ledger)
+                let fraction = TodayView.remainingFraction(projection.ledger)
+                // Figma 202:3614's remaining/granted bar, inside the PR #70 tile.
+                if let fraction { LeaveRemainingBar(fraction: fraction) }
+                TileFooter(leading: "부여 \(granted)", trailing: fraction
                     .map { "\(Int(($0 * 100).rounded()))% 남음" })
             } else {
                 TileFooter(leading: leave.caption, trailing: nil)
@@ -1076,6 +1079,24 @@ private struct TileValue: View {
         }
         .foregroundStyle(.sg(emphasis == .value ? SGColor.accentSecondary
                              : emphasis == .muted ? SGColor.textTertiary : SGColor.warning))
+    }
+}
+
+/// Share of granted leave still left (Figma 202:3614 "남은 연가" bar). The
+/// number beside it carries the value; the bar is decoration for VoiceOver.
+private struct LeaveRemainingBar: View {
+    let fraction: Double
+
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule().fill(.sg(SGColor.selectedBackground))
+                Capsule().fill(.sg(SGColor.accent))
+                    .frame(width: proxy.size.width * min(1, max(0, fraction)))
+            }
+        }
+        .frame(height: 6)
+        .accessibilityHidden(true)
     }
 }
 

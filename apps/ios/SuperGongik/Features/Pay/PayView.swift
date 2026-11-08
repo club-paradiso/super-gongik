@@ -45,6 +45,16 @@ struct PayView: View {
                     }
                     if let money = shownMoney {
                         SummaryCard(money: money, isCurrentMonth: isCurrentMonth)
+                        // Figma 206:4205: the monthly 근무일 확인 sits right under
+                        // the estimate. It is the routine action of this screen;
+                        // below the 계산에 필요한 정보 card it was off screen.
+                        Button {
+                            showingAttendance = true
+                        } label: {
+                            Label("\(month.month)월 근무일 확인", systemImage: "calendar.badge.checkmark")
+                        }
+                        .buttonStyle(SGSecondaryButtonStyle())
+                        .disabled(model.isReadOnly)
                         if !money.compensation.unresolved.isEmpty {
                             UnresolvedCard(items: money.compensation.unresolved,
                                            actions: PaySetupActions.actions(for: money.compensation),
@@ -57,13 +67,6 @@ struct PayView: View {
                                 profileSheet = ProfileSheet(focus: nil)
                             }
                         }
-                        Button {
-                            showingAttendance = true
-                        } label: {
-                            Label("\(month.month)월 근무일 확인", systemImage: "calendar.badge.checkmark")
-                        }
-                        .buttonStyle(SGSecondaryButtonStyle())
-                        .disabled(model.isReadOnly)
                         ComponentsSection(components: money.compensation.components)
                         PayBandsCard(schedule: money.schedule, today: model.today)
                         AssumptionsCard(items: (money.compensation.assumptions ?? []) + (money.compensation.warnings ?? []),
