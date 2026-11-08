@@ -9,8 +9,8 @@ import SwiftUI
 /// 칭호"); the app needs none, so it asks for none.
 struct OnboardingView: View {
     @Environment(AppModel.self) private var model
-    @State private var callUp = Formatters.date(from: SeoulClock.today(at: .now))
-    @State private var discharge = Formatters.date(from: SeoulClock.today(at: .now).adding(months: 21))
+    @State private var callUp = Formatters.date(from: AppClock.today())
+    @State private var discharge = Formatters.date(from: AppClock.today().adding(months: 21))
     @State private var dischargeTouched = false
     @State private var category = ""
     @State private var issues: [EventIssue] = []

@@ -70,9 +70,8 @@ struct TodayView: View {
                             if home.hero.phase == "IN_SERVICE" {
                                 JourneyNote(hero: home.hero)
                             }
-                            if let error = model.lastWriteError {
-                                SGNotice(.warning, title: error)
-                            }
+                            ProjectionStaleNotice()
+                            WriteErrorNotice()
                         }
                         .padding(.horizontal, SGSpacing.gutter)
                         .padding(.bottom, SGSpacing.xl)
@@ -89,7 +88,7 @@ struct TodayView: View {
                         #endif
                     }
                 } else {
-                    SGLoadingState()
+                    ProjectionPlaceholder()
                 }
             }
             .background(.sg(SGColor.background))

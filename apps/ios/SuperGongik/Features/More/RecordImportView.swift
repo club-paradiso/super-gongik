@@ -219,7 +219,24 @@ struct RecordImportView: View {
 
     private func load(_ picked: Swift.Result<URL, Error>) async {
         notice = nil
-        guard case .success(let url) = picked, let runtime = model.core else { return }
+        let url: URL
+        switch picked {
+        case .success(let picked): url = picked
+        case .failure(let error):
+            // A cancel is not an error; anything else is said out loud.
+            if (error as NSError).code != NSUserCancelledError {
+                notice = (.danger, "파일을 열지 못했어요. 다시 골라 주세요.")
+            }
+            return
+        }
+        guard let runtime = model.core else { return }
+        // A new file replaces the old preview before anything else: a failed
+        // second file used to leave the first file's rows committable under
+        // the second file's error.
+        result = nil
+        rawPreview = nil
+        accepted = []
+        acceptedSnapshots = []
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
         guard let data = try? Data(contentsOf: url), data.count <= 10 * 1024 * 1024 else {

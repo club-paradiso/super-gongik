@@ -67,8 +67,20 @@ final class ReminderScheduler {
         let pending = await center.pendingNotificationRequests()
         center.removePendingNotificationRequests(withIdentifiers: pending.map(\.identifier).filter { $0.hasPrefix(Self.identifierPrefix) })
         guard let projection, projection.profile != nil else { return }
-        for request in Self.plan(projection: projection, enabled: enabled, now: now,
-                                 lastBackup: UserDefaults.standard.object(forKey: "SGLastBackupAt") as? Date) {
+        let defaults = UserDefaults.standard
+        var backupBase = defaults.object(forKey: "SGLastBackupAt") as? Date
+        if backupBase == nil, enabled.contains(.backup) {
+            // Never backed up: count 30 days from when the reminder was first
+            // planned. `now` here moved the due date on every write and every
+            // day, so the reminder never fired.
+            if let since = defaults.object(forKey: "SGBackupReminderSince") as? Date {
+                backupBase = since
+            } else {
+                defaults.set(now, forKey: "SGBackupReminderSince")
+                backupBase = now
+            }
+        }
+        for request in Self.plan(projection: projection, enabled: enabled, now: now, lastBackup: backupBase) {
             try? await center.add(request)
         }
     }
@@ -106,7 +118,7 @@ final class ReminderScheduler {
                 let fire = max(due, now.addingTimeInterval(60))
                 let content = UNMutableNotificationContent()
                 content.title = "백업한 지 30일이 지났어요"
-                content.body = "기기를 잃어버려도 기록을 지킬 수 있게 더보기에서 백업 파일을 만들어 두세요."
+                content.body = "기기를 잃어버려도 기록을 지킬 수 있게 내 정보에서 백업 파일을 만들어 두세요."
                 content.threadIdentifier = "backup"
                 requests.append(UNNotificationRequest(
                     identifier: "\(identifierPrefix)backup", content: content, trigger: calendarTrigger(fire)))

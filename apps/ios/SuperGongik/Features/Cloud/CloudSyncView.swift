@@ -22,6 +22,7 @@ struct CloudSyncView: View {
     @State private var confirmAccountDeletion = false
     @State private var typed = ""
     @State private var note: String?
+    @State private var pendingBackupDelete: String?
 
     struct IdentifiedText: Identifiable {
         let id = UUID()
@@ -73,6 +74,19 @@ struct CloudSyncView: View {
         }
         .sgGroupedChrome()
         .navigationTitle("클라우드 동기화")
+        .confirmationDialog("이 클라우드 백업을 지울까요?", isPresented: Binding(
+            get: { pendingBackupDelete != nil }, set: { if !$0 { pendingBackupDelete = nil } }
+        ), titleVisibility: .visible, presenting: pendingBackupDelete) { id in
+            Button("지우기", role: .destructive) {
+                Task {
+                    await cloud.deleteBackup(id)
+                    await reloadBackups()
+                }
+            }
+            Button("취소", role: .cancel) {}
+        } message: { _ in
+            Text("지운 클라우드 백업은 되돌릴 수 없어요. 이 기기의 기록은 그대로 있어요.")
+        }
         .navigationBarTitleDisplayMode(.inline)
         .disabled(cloud.busy)
         .overlay { if cloud.busy { ProgressView().controlSize(.large) } }
@@ -173,6 +187,9 @@ struct CloudSyncView: View {
                             if result?["kind"]?.stringValue == "STALE_PREVIEW" {
                                 note = "확인한 뒤 기록이 바뀌었어요. 다시 확인해 주세요."
                                 await loadPreview()
+                            } else if result == nil {
+                                // Keep the preview so the user can try again.
+                                note = "동기화를 켜지 못했어요. 다시 시도해 주세요."
                             } else {
                                 self.preview = nil
                                 self.previewText = nil
@@ -257,11 +274,9 @@ struct CloudSyncView: View {
                         }
                     }
                     .buttonStyle(.borderless)
+                    // A cloud backup cannot be brought back: ask first.
                     Button(role: .destructive) {
-                        Task {
-                            if let id = backup["id"]?.stringValue { await cloud.deleteBackup(id) }
-                            await reloadBackups()
-                        }
+                        pendingBackupDelete = backup["id"]?.stringValue
                     } label: { Image(systemName: "trash") }
                         .buttonStyle(.borderless)
                         .accessibilityLabel("이 클라우드 백업 지우기")

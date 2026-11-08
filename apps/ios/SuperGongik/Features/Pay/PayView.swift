@@ -14,7 +14,7 @@ import SwiftUI
 struct PayView: View {
     @Environment(AppModel.self) private var model
     let openTab: (AppTab) -> Void
-    @State private var month: CivilDate = SeoulClock.today(at: .now)
+    @State private var month: CivilDate = AppClock.today()
     @State private var load = LoadCycle<MoneyMonth>()
     @State private var retries = 0
     @State private var profileSheet: ProfileSheet?
@@ -119,7 +119,11 @@ struct PayView: View {
     private var monthSwitcher: some View {
         HStack(spacing: SGSpacing.xxs) {
             tile("chevron.left", label: "이전 달") { shift(-1) }
-            Text("\(month.month)월").font(SGTypography.title3).monospacedDigit()
+            // The year shows once the month leaves this year: stepping from
+            // December to January looked identical in the standard theme.
+            Text(month.year == model.today.year ? "\(month.month)월" : "\(month.year)년 \(month.month)월")
+                .font(SGTypography.title3).monospacedDigit()
+                .lineLimit(1).minimumScaleFactor(0.7)
                 .padding(.horizontal, SGSpacing.xxs)
                 .accessibilityLabel(Formatters.month(month))
             tile("chevron.right", label: "다음 달") { shift(1) }
@@ -297,6 +301,9 @@ private struct ComponentTile: View {
         switch component.status {
         case "CALCULATED", "SUGGESTED": component.monthlyAmount.map(Formatters.won) ?? "—"
         case "NEEDS_INPUT": "입력 필요"
+        // The rules hold this amount back until a fact is confirmed (e.g. 이전
+        // 복무 인정 기간). It used to render as a bare "—".
+        case "GATED": "확인 필요"
         case "UNSUPPORTED": "계산하지 않음"
         default: "—"
         }
@@ -315,7 +322,7 @@ private struct ComponentTile: View {
             Text(component.label).font(SGTypography.micro).foregroundStyle(.sg(SGColor.heroForeground3))
             Text(value).font(SGTypography.bodyStrong).monospacedDigit()
                 .lineLimit(1).minimumScaleFactor(0.7)
-                .foregroundStyle(.sg(component.status == "NEEDS_INPUT" ? SGColor.heroAccent : SGColor.heroForeground))
+                .foregroundStyle(.sg(component.status == "NEEDS_INPUT" || component.status == "GATED" ? SGColor.heroAccent : SGColor.heroForeground))
             if let detail {
                 Text(detail).font(SGTypography.micro).foregroundStyle(.sg(SGColor.heroForeground3))
             }
@@ -441,7 +448,7 @@ private struct ComponentsSection: View {
         switch status {
         case "CALCULATED": .success
         case "SUGGESTED": .info
-        case "NEEDS_INPUT": .warning
+        case "NEEDS_INPUT", "GATED": .warning
         default: .neutral
         }
     }
@@ -452,7 +459,10 @@ private struct ComponentsSection: View {
         case "NEEDS_INPUT": ("입력 필요", .warning)
         case "UNSUPPORTED": ("계산하지 않음", .neutral)
         case "SUGGESTED": ("제안값", .info)
-        default: (status, .neutral)
+        // Raw status codes (e.g. "GATED") were shown in English.
+        case "GATED": ("확인 필요", .warning)
+        case "CALCULATED": ("계산됨", .success)
+        default: ("확인 필요", .neutral)
         }
         Label(text, systemImage: tone.symbol)
             .font(SGTypography.micro)

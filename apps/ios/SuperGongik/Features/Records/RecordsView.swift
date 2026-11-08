@@ -16,11 +16,14 @@ struct RecordsView: View {
     var openTab: (AppTab) -> Void = { _ in }
     @State private var mode: Mode = .month
     @State private var showingLedger = false
-    @State private var month: CivilDate = SeoulClock.today(at: .now)
-    @State private var selected: CivilDate = SeoulClock.today(at: .now)
+    @State private var month: CivilDate = AppClock.today()
+    @State private var selected: CivilDate = AppClock.today()
     @State private var editing: EditorTarget?
     @State private var filter: SGEventCategory?
     @State private var undo: ServiceEvent?
+    /// A delete or restore the core refused (e.g. 되돌리기 onto a day that has
+    /// a new overlapping 연가). These used to fail with no message.
+    @State private var actionError: String?
     @State private var milestones: [ServiceMilestoneItem] = []
 
     struct EditorTarget: Identifiable {
@@ -86,6 +89,14 @@ struct RecordsView: View {
             .navigationTitle("캘린더")
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showingLedger) { LeaveView() }
+            // A new day (midnight, or back from the background): follow it
+            // when the user was looking at today, as the 오늘 outline does.
+            .onChange(of: model.today) { old, new in
+                if selected == old {
+                    selected = new
+                    month = CivilDate(year: new.year, month: new.month, day: 1)!
+                }
+            }
             .task(id: model.projection?.profile?.period) {
                 if let period = model.projection?.profile?.period {
                     milestones = await model.serviceMilestones(period)
@@ -95,7 +106,22 @@ struct RecordsView: View {
                 EventEditorSheet(event: target.event, initialDate: target.date)
             }
             .safeAreaInset(edge: .bottom) {
-                if let undo {
+                if let actionError {
+                    HStack(alignment: .top, spacing: SGSpacing.xs) {
+                        SGNotice(.warning, title: actionError)
+                        Button { self.actionError = nil } label: {
+                            Image(systemName: "xmark")
+                                .frame(width: SGSpacing.minimumHitTarget, height: SGSpacing.minimumHitTarget)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("알림 닫기")
+                    }
+                    .padding(SGSpacing.xs)
+                    .background(.sg(SGColor.background), in: RoundedRectangle(cornerRadius: SGRadius.card, style: .continuous))
+                    .padding(.horizontal, SGSpacing.gutter)
+                    .padding(.bottom, SGSpacing.xs)
+                } else if let undo {
                     UndoBar(label: model.label(for: undo.eventType)) {
                         Task { await restore(undo) }
                     } onDismiss: {
@@ -191,18 +217,32 @@ struct RecordsView: View {
     }
 
     private func delete(_ event: ServiceEvent) {
+        guard !model.isReadOnly else {
+            actionError = ErrorCopy.readOnly
+            return
+        }
         Task {
-            if await model.run("deleteServiceEvent", [.string(event.id)]).isEmpty {
-                withAnimation { undo = event }
-                try? await Task.sleep(for: .seconds(6))
-                if undo?.id == event.id { withAnimation { undo = nil } }
+            let issues = await model.run("deleteServiceEvent", [.string(event.id)])
+            guard issues.isEmpty else {
+                actionError = issues.first?.message ?? ErrorCopy.saveFailed
+                return
             }
+            actionError = nil
+            withAnimation { undo = event }
+            try? await Task.sleep(for: .seconds(6))
+            if undo?.id == event.id { withAnimation { undo = nil } }
         }
     }
 
     private func restore(_ event: ServiceEvent) async {
         let issues = await model.run("restoreServiceEvent", [.string(event.id)])
-        if issues.isEmpty { withAnimation { undo = nil } }
+        if issues.isEmpty {
+            actionError = nil
+            withAnimation { undo = nil }
+        } else {
+            withAnimation { undo = nil }
+            actionError = issues.first?.message ?? ErrorCopy.saveFailed
+        }
     }
 }
 
@@ -347,6 +387,11 @@ private struct DayCell: View {
             Text("\(date.day)")
                 .font(SGTypography.font(15, isToday ? .heavy : .medium, relativeTo: .body))
                 .monospacedDigit()
+                // The tile is 32 pt: past xxxLarge two-digit days truncated to
+                // "…" (AX3–AX5). The grid keeps seven columns on a 375 pt phone.
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                 .foregroundStyle(.sg(isSelected ? SGColor.onAccent : dayColor))
                 .frame(width: 32, height: 32)
                 // Stitch: rounded tiles. Selected is filled, today is outlined,

@@ -25,9 +25,14 @@ final class AppModel {
     private(set) var snapshot: StoreSnapshot?
     private(set) var projection: Projection?
     private(set) var taxonomy: EventTaxonomy?
-    private(set) var today: CivilDate = SeoulClock.today(at: .now)
-    /// Last write failure, as Korean copy. Cleared on the next success.
+    private(set) var today: CivilDate = AppClock.today()
+    /// Last write failure, as Korean copy. Cleared on the next success or
+    /// when the user dismisses it.
     private(set) var lastWriteError: String?
+    /// True when the core could not build today's projection. The screens
+    /// keep the last good projection (if any) and offer a retry instead of an
+    /// endless spinner.
+    private(set) var projectionFailed = false
 
     @ObservationIgnored private var runtime: CoreRuntime?
     @ObservationIgnored private var storage: FileKeyValueStore?
@@ -50,6 +55,13 @@ final class AppModel {
             let services = cloud.services
             let (runtime, storage) = try await Task.detached(priority: .userInitiated) {
                 let storage = try FileKeyValueStore.applicationStore()
+                #if DEBUG
+                // UI tests: `-SGResetStore YES` starts from an empty store so
+                // each test seeds its own fixture. Never compiled into release.
+                if UserDefaults.standard.bool(forKey: "SGResetStore") {
+                    for key in try storage.keys() { try storage.remove(key) }
+                }
+                #endif
                 return (try CoreRuntime(storage: storage, cloud: services), storage)
             }.value
             self.runtime = runtime
@@ -74,7 +86,7 @@ final class AppModel {
     /// foreground; a day may have passed.
     func sceneBecameActive() async {
         await cloud.foreground()
-        let now = SeoulClock.today(at: .now)
+        let now = AppClock.today()
         if now != today {
             today = now
             await reproject()
@@ -109,12 +121,18 @@ final class AppModel {
         guard let runtime, snapshot?.isReady == true else { return }
         do {
             projection = try await runtime.project(today: today)
+            projectionFailed = false
         } catch {
+            // Keep the last good projection on screen; a nil projection made
+            // 홈 and 연가 내역 spin forever with no message or retry.
             AppLog.error("projection failed: \(error)")
-            projection = nil
+            projectionFailed = true
         }
         WidgetSnapshotWriter.write(projection: projection, today: today)
         await reminders.reschedule(projection: projection)
+        if !projectionFailed {
+            await DutyActivityController.refresh(profile: projection?.profile, hero: projection?.home?.hero)
+        }
     }
 
     /// Runs a store command. Returns the validation issues the core reported
@@ -122,20 +140,43 @@ final class AppModel {
     @discardableResult
     func run(_ command: String, _ arguments: [JSONValue]) async -> [EventIssue] {
         guard let runtime else { return [EventIssue(code: "UNAVAILABLE", message: ErrorCopy.startup, field: nil)] }
+        let outcome: RunOutcome
         do {
-            let outcome = try await runtime.run(command, arguments)
-            await publish(try await runtime.snapshot())
-            if outcome.ok {
-                lastWriteError = nil
-                return []
-            }
-            return outcome.errors ?? [EventIssue(code: "UNKNOWN", message: ErrorCopy.saveFailed, field: nil)]
+            outcome = try await runtime.run(command, arguments)
         } catch {
             AppLog.error("command \(command) failed: \(error)")
             lastWriteError = ErrorCopy.saveFailed
             return [EventIssue(code: "CORE", message: ErrorCopy.saveFailed, field: nil)]
         }
+        // The command has finished (committed or refused). A failure to read
+        // the new snapshot must not be reported as a failed save: the record
+        // is stored, and "저장하지 못했어요" made users save it a second time.
+        await refreshSnapshot()
+        if outcome.ok {
+            lastWriteError = nil
+            return []
+        }
+        return outcome.errors ?? [EventIssue(code: "UNKNOWN", message: ErrorCopy.saveFailed, field: nil)]
     }
+
+    /// Re-reads the store after a write. On failure the previous snapshot
+    /// stays and the projection is marked failed so the screens offer a retry.
+    private func refreshSnapshot() async {
+        guard let runtime else { return }
+        do {
+            await publish(try await runtime.snapshot())
+        } catch {
+            AppLog.error("snapshot after write failed: \(error)")
+            projectionFailed = true
+        }
+    }
+
+    /// Retry after `projectionFailed`: re-read the store and project again.
+    func retryProjection() async {
+        await refreshSnapshot()
+    }
+
+    func dismissWriteError() { lastWriteError = nil }
 
     /// Patch profile fields; fields the app does not model are kept.
     @discardableResult
@@ -170,6 +211,7 @@ final class AppModel {
             let outcome = try await runtime.wipeAll()
             await publish(try await runtime.snapshot())
             WidgetSnapshotWriter.clear()
+            await DutyActivityController.end()
             await cloud.afterLocalWipe()
             return outcome.ok
         } catch {

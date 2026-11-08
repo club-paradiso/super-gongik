@@ -44,7 +44,16 @@ struct RootView: View {
                 StartupFailureView(message: message)
             case .ready:
                 if model.profile == nil {
+                    // A corrupt or newer-version store opens as an empty
+                    // document, so the user lands here: the notice (and the
+                    // "읽지 못한 원본 저장" export) must be visible before they
+                    // start over. It used to exist only inside the tabs.
                     OnboardingView()
+                        .safeAreaInset(edge: .top, spacing: 0) {
+                            StorageNoticeBanner()
+                                .frame(maxWidth: .infinity)
+                                .background(.sg(SGColor.background), ignoresSafeAreaEdges: .top)
+                        }
                 } else {
                     MainTabs(tab: $tab)
                 }

@@ -137,8 +137,18 @@ final class CloudModel {
         busy = true
         message = nil
         defer { busy = false }
-        let result = try? await action()
+        let result: T?
+        do {
+            result = try await action()
+        } catch {
+            // Errors used to be dropped here, so e.g. 동기화 켜기 looked done.
+            AppLog.error("cloud action failed: \(error)")
+            result = nil
+        }
         await refresh()
+        if result == nil, message == nil {
+            message = "요청을 끝내지 못했어요. 네트워크 연결을 확인하고 다시 시도해 주세요. 이 기기의 기록은 그대로 있어요."
+        }
         await onStoreChange?()
         return result
     }

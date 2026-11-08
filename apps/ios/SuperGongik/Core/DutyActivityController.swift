@@ -22,13 +22,42 @@ enum DutyActivityController {
         return date
     }
 
-    static func start(profile: ServiceProfile, hero: HomeModel.Hero) async -> Bool {
-        await end()
-        let state = DutyActivityAttributes.ContentState(
+    private static func contentState(profile: ServiceProfile, hero: HomeModel.Hero) -> DutyActivityAttributes.ContentState {
+        DutyActivityAttributes.ContentState(
             offDuty: offDuty(profile.workdayEndTime), headline: hero.headline,
             percent: hero.percent, percentLabel: hero.percentLabel)
-        let attributes = DutyActivityAttributes(
-            dischargeLine: profile.expectedDischargeDate.description.replacingOccurrences(of: "-", with: ".") + " 소집해제")
+    }
+
+    private static func dischargeLine(_ profile: ServiceProfile) -> String {
+        profile.expectedDischargeDate.description.replacingOccurrences(of: "-", with: ".") + " 소집해제"
+    }
+
+    /// Keeps a running activity in step with the projection: a new day, a
+    /// changed profile or a wiped store. It used to keep yesterday's D-day
+    /// and stay on the lock screen after 데이터 지우기.
+    static func refresh(profile: ServiceProfile?, hero: HomeModel.Hero?) async {
+        let running = Activity<DutyActivityAttributes>.activities
+        guard !running.isEmpty else { return }
+        guard let profile, let hero else {
+            await end()
+            return
+        }
+        if running.contains(where: { $0.attributes.dischargeLine != dischargeLine(profile) }) {
+            // Attributes are fixed for an activity's life: start a new one.
+            _ = await start(profile: profile, hero: hero)
+            return
+        }
+        let next = contentState(profile: profile, hero: hero)
+        let stale = next.offDuty ?? SeoulClock.nextMidnight(after: .now)
+        for activity in running {
+            await activity.update(ActivityContent(state: next, staleDate: stale))
+        }
+    }
+
+    static func start(profile: ServiceProfile, hero: HomeModel.Hero) async -> Bool {
+        await end()
+        let state = contentState(profile: profile, hero: hero)
+        let attributes = DutyActivityAttributes(dischargeLine: dischargeLine(profile))
         let stale = state.offDuty ?? SeoulClock.nextMidnight(after: .now)
         do {
             _ = try Activity.request(attributes: attributes,

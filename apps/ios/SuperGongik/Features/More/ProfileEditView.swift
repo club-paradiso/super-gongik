@@ -139,9 +139,18 @@ struct ProfileEditView: View {
         ("", "아직 모르겠어요"),
     ]
 
+    private static let issuesAnchor = "profile-issues"
+
     var body: some View {
         ScrollViewReader { proxy in
             form
+                // A refused save scrolls to its message (it is the last
+                // section, below the fold, so 저장 used to look dead).
+                .onChange(of: issues) { _, new in
+                    guard !new.isEmpty else { return }
+                    withAnimation(.easeInOut) { proxy.scrollTo(Self.issuesAnchor, anchor: .top) }
+                    UIAccessibility.post(notification: .announcement, argument: new.map(\.message).joined(separator: " "))
+                }
                 .onChange(of: loaded) {
                     guard loaded, let focus else { return }
                     Task {
@@ -239,6 +248,7 @@ struct ProfileEditView: View {
 
                 if !issues.isEmpty {
                     SwiftUI.Section { ForEach(issues, id: \.self) { SGNotice(.danger, title: $0.message) } }
+                        .id(Self.issuesAnchor)
                         .listRowBackground(Color.clear)
                 }
             }
@@ -271,11 +281,20 @@ struct ProfileEditView: View {
         .task(id: draft.institution) {
             await lookupInstitution()
         }
+        // Choosing 주간 출퇴근 suggests Mon–Fri on screen, where the user sees
+        // and can change it before saving; loading the form never does.
+        .onChange(of: draft.workPattern) { _, pattern in
+            if loaded, pattern == "WEEKDAY_DAYTIME", draft.weekdays.isEmpty, original?.workPattern != pattern {
+                draft.weekdays = [1, 2, 3, 4, 5]
+            }
+        }
         .task(id: draft.region) {
             fare = draft.region.isEmpty ? nil
                 : await model.pure("regionalFareSuggestion", [.string(draft.region)], as: FareSuggestion?.self) ?? nil
-            // Fill the suggested fare, but never over an amount the user typed.
-            if let fare, draft.commute.isEmpty || draft.commute == lastFareApplied {
+            // Fill the suggested fare, but never over an amount the user typed,
+            // and only after the user changed the region: opening the form
+            // must not change the draft (it made 닫기 ask to discard).
+            if let fare, draft.region != original?.region, draft.commute.isEmpty || draft.commute == lastFareApplied {
                 draft.commute = String(Int(fare.dailyRoundTripFare))
                 lastFareApplied = draft.commute
             }
@@ -474,7 +493,10 @@ struct ProfileEditView: View {
         let result = await model.pure("suggestInstitutionRates", [.string(name), .number(Double(year))], as: InstitutionRates.self)
         guard !Task.isCancelled else { return }
         rates = result
-        guard let result, result.status == "MATCHED" else { return }
+        // Amounts are filled only after the user changed the institution;
+        // opening the form shows the match but leaves the draft as stored
+        // (a declined meal override used to come back on every open).
+        guard let result, result.status == "MATCHED", draft.institution != original?.institution else { return }
         var filled = false
         if draft.meal.isEmpty, let meal = result.meal, meal.applicable, meal.amount > 9000 {
             draft.meal = String(Int(meal.amount)); customMeal = true; filled = true
@@ -574,7 +596,10 @@ struct ProfileEditView: View {
         draft.startTime = profile.workdayStartTime ?? ""
         draft.endTime = profile.workdayEndTime ?? ""
         draft.workPattern = profile.workPattern ?? ""
-        draft.weekdays = Set(profile.workWeekdays ?? (profile.workPattern == "WEEKDAY_DAYTIME" ? [1, 2, 3, 4, 5] : []))
+        // Only what is stored. Mon–Fri used to be filled in here and then
+        // saved with any other change, so 중식비·교통비 day counts resolved from
+        // weekdays the user never entered (the core treats null as missing).
+        draft.weekdays = Set(profile.workWeekdays ?? [])
         draft.priorCredit = profile.priorServiceCredit ?? ""
         draft.priorBasis = profile.priorServiceBasis ?? ""
         draft.priorMonths = profile.priorServiceCreditedMonths.map(String.init) ?? ""
@@ -592,6 +617,13 @@ struct ProfileEditView: View {
         let hours = Int(draft.workHours) ?? 0, minutes = Int(draft.workMinutes) ?? 0
         let workday: JSONValue = draft.workHours.isEmpty && draft.workMinutes.isEmpty ? .null : .number(Double(hours * 60 + minutes))
         let hasPrior = draft.priorCredit == "HAS_PRIOR_SERVICE"
+        // The core's refusal is generic ("입력한 날짜와 금액을 다시 확인해
+        // 주세요"); this one names the field.
+        if Formatters.civilDate(from: draft.discharge) <= Formatters.civilDate(from: draft.callUp) {
+            issues = [EventIssue(code: "DISCHARGE_NOT_AFTER_CALL_UP",
+                                 message: "소집해제 예정일은 소집일보다 뒤여야 해요.", field: "expectedDischargeDate")]
+            return
+        }
         issues = await model.editProfile([
             "callUpDate": .string(Formatters.civilDate(from: draft.callUp).description),
             "expectedDischargeDate": .string(Formatters.civilDate(from: draft.discharge).description),
@@ -601,7 +633,7 @@ struct ProfileEditView: View {
             "workdayStartTime": optionalString(draft.startTime),
             "workdayEndTime": optionalString(draft.endTime),
             "workPattern": optionalString(draft.workPattern),
-            "workWeekdays": draft.workPattern == "WEEKDAY_DAYTIME"
+            "workWeekdays": draft.workPattern == "WEEKDAY_DAYTIME" && !draft.weekdays.isEmpty
                 ? .array(draft.weekdays.sorted().map { .number(Double($0)) }) : .null,
             "priorServiceCredit": optionalString(draft.priorCredit),
             "priorServiceBasis": hasPrior ? optionalString(draft.priorBasis) : .null,

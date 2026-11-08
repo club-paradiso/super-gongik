@@ -155,6 +155,22 @@ targets:
       base:
         GENERATE_INFOPLIST_FILE: YES
         PRODUCT_BUNDLE_IDENTIFIER: $(SG_BUNDLE_ID).tests
+  SuperGongikUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: SuperGongikUITests
+    dependencies:
+      - target: SuperGongik
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: $(SG_BUNDLE_ID).uitests
+        TEST_TARGET_NAME: SuperGongik
+        # XCUITest drives a separate process; Swift 5 mode keeps XCTest's
+        # nonisolated lifecycle simple. The app itself stays Swift 6.
+        SWIFT_VERSION: "5.0"
+        SWIFT_STRICT_CONCURRENCY: minimal
 schemes:
   SuperGongik:
     build:
@@ -164,6 +180,19 @@ schemes:
     test:
       targets:
         - SuperGongikTests
+      gatherCoverageData: false
+    run:
+      config: Debug
+  # UI flows and Figma captures on the Simulator (CI job `ios-ui-flows`).
+  # Separate from the SuperGongik scheme so the unit-test job stays fast.
+  SuperGongikUI:
+    build:
+      targets:
+        SuperGongik: all
+        SuperGongikUITests: [test]
+    test:
+      targets:
+        - SuperGongikUITests
       gatherCoverageData: false
     run:
       config: Debug
