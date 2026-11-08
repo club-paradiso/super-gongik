@@ -36,20 +36,23 @@ enum DutyActivityController {
     /// changed profile or a wiped store. It used to keep yesterday's D-day
     /// and stay on the lock screen after 데이터 지우기.
     static func refresh(profile: ServiceProfile?, hero: HomeModel.Hero?) async {
-        let running = Activity<DutyActivityAttributes>.activities
-        guard !running.isEmpty else { return }
+        guard isRunning else { return }
         guard let profile, let hero else {
             await end()
             return
         }
-        if running.contains(where: { $0.attributes.dischargeLine != dischargeLine(profile) }) {
+        let line = dischargeLine(profile)
+        let lines = Activity<DutyActivityAttributes>.activities.map(\.attributes.dischargeLine)
+        if lines.contains(where: { $0 != line }) {
             // Attributes are fixed for an activity's life: start a new one.
             _ = await start(profile: profile, hero: hero)
             return
         }
         let next = contentState(profile: profile, hero: hero)
         let stale = next.offDuty ?? SeoulClock.nextMidnight(after: .now)
-        for activity in running {
+        // Read the list inside the loop, as `end()` does: each element is
+        // then its own region and can be sent to `update` (Swift 6).
+        for activity in Activity<DutyActivityAttributes>.activities {
             await activity.update(ActivityContent(state: next, staleDate: stale))
         }
     }
