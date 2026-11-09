@@ -17257,7 +17257,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		let base;
 		let serviceMonthOrdinal = null;
 		let equivalentRank = null;
-		const baseComponent = (status, explanation, monthlyAmount = null) => ({
+		const baseComponent = (status, explanation, monthlyAmount = null, gate = null) => ({
 			key: "BASE_PAY",
 			label: "기본 보수",
 			status,
@@ -17266,7 +17266,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			eligibleDays: null,
 			rateSource: null,
 			basis: baseBasis,
-			explanation
+			explanation,
+			gate
 		});
 		let credit = 0;
 		let creditIssue = null;
@@ -17274,20 +17275,23 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			credit = null;
 			creditIssue = {
 				status: "NEEDS_INPUT",
-				text: "이전 복무 경력(병역법 시행령 제62조제2항) 여부를 알려 주셔야 보수 등급을 정할 수 있어요."
+				text: "이전 복무 경력(병역법 시행령 제62조제2항) 여부를 알려 주셔야 보수 등급을 정할 수 있어요.",
+				gate: null
 			};
 		} else if (profile.priorServiceCredit === "HAS_PRIOR_SERVICE") {
 			if (profile.priorServiceCreditHasPartialMonth) {
 				credit = null;
 				creditIssue = {
 					status: "GATED",
-					text: "인정 기간이 개월 단위로 떨어지지 않으면 보수 구간 합산 방법이 원문에 없어 계산하지 않아요."
+					text: "인정 기간이 개월 단위로 떨어지지 않으면 보수 구간 합산 방법이 원문에 없어 계산하지 않아요.",
+					gate: "PRIOR_SERVICE_PARTIAL_MONTH"
 				};
 			} else if (profile.priorServiceBasis === null || profile.priorServiceCreditedMonths === null) {
 				credit = null;
 				creditIssue = {
 					status: "NEEDS_INPUT",
-					text: "제62조제2항의 해당 호와 복무기관이 확인한 인정 개월 수를 입력해야 해요."
+					text: "제62조제2항의 해당 호와 복무기관이 확인한 인정 개월 수를 입력해야 해요.",
+					gate: null
 				};
 			} else credit = profile.priorServiceCreditedMonths;
 		}
@@ -17309,7 +17313,7 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 		const needsAdjustedBasePay = partialMonth || exactNonPayableDates.length > 0;
 		let basePayAdjustment = null;
 		if (creditIssue) {
-			base = baseComponent(creditIssue.status, creditIssue.text);
+			base = baseComponent(creditIssue.status, creditIssue.text, null, creditIssue.gate);
 			unresolved.push(creditIssue.text);
 		} else {
 			serviceMonthOrdinal = callUpMonthOrdinal + (credit ?? 0);
@@ -17340,12 +17344,12 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			};
 			if (hasUnresolvedNonPayableSignal) {
 				const text = derivedConflict ? "기록에서 자동 도출한 미지급 날짜가 기관 확인 목록에 빠져 있어요. 기록과 기관 기준을 다시 확인해야 기본 보수를 계산할 수 있어요." : derivedNonPayable.unresolved.length > 0 && !exactDatesConfirmed ? `기록만으로 기본 보수 미지급 날짜를 전부 확정할 수 없어요. ${derivedNonPayable.unresolved[0]}` : "이 달에 미지급 사유가 있었다는 기존 기록은 있지만 정확한 날짜가 없어요. 기본 보수 미지급 날짜를 모두 확인해야 계산할 수 있어요.";
-				base = baseComponent("GATED", text);
+				base = baseComponent("GATED", text, null, "NON_PAYABLE_DATES");
 				unresolved.push(text);
 			} else if (needsAdjustedBasePay && !supportsTenWonTruncation(roundingPolicy)) {
 				const prorationStructure = `월 보수 ÷ 그 달 일수(${daysInMonth(month)}일) × 지급대상 달력일수(휴일도 포함)`;
 				const text = roundingPolicy === "INSTITUTION_OTHER_OR_UNKNOWN" ? `${prorationStructure} 구조까지는 확인됐지만, 지급기관이 국고금 관리법 제47조의 10원 미만 절사와 다른 회계 기준을 쓴다고 확인됐어요. 그 기관의 정확한 끝수 처리 기준을 지원하기 전에는 최종 기본 보수를 계산하지 않아요.` : `${prorationStructure} 구조까지는 확인됐어요. 소집·소집해제 달 또는 미지급일이 있는 달은 지급기관의 끝수 처리 기준도 확인해야 하므로, 국고금 관리법 제47조 적용 또는 기관의 10원 미만 절사 적용이 명시적으로 확인된 경우에만 자동 계산해요.`;
-				base = baseComponent("GATED", text);
+				base = baseComponent("GATED", text, null, "ROUNDING_POLICY");
 				unresolved.push(text);
 			} else if (needsAdjustedBasePay && monthlyBasePay !== null) {
 				const raw = monthlyBasePay / daysInMonth(month) * payableCalendarDays;
@@ -17397,7 +17401,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			dailyRate: mealRate,
 			rateSource: mealRateSource,
 			eligibleDays: null,
-			explanation: serviceDays.explanation
+			explanation: serviceDays.explanation,
+			gate: null
 		};
 		else if (meal.status !== "SUPPORTED") {
 			const text = `입력한 기관 중식비가 병무청 ${bundle.version}년 최소기준 ${mealMinimum.toLocaleString("ko-KR")}원보다 낮아요. 기관 금액을 다시 확인하거나 비워 두세요.`;
@@ -17408,7 +17413,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				dailyRate: null,
 				rateSource: null,
 				eligibleDays: serviceDays.mealEligibleDays,
-				explanation: text
+				explanation: text,
+				gate: null
 			};
 			unresolved.push(`중식비: ${text}`);
 		} else if (serviceDays.status !== "READY") mealComponent = {
@@ -17418,7 +17424,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			dailyRate: mealRate,
 			rateSource: mealRateSource,
 			eligibleDays: null,
-			explanation: serviceDays.explanation
+			explanation: serviceDays.explanation,
+			gate: null
 		};
 		else {
 			const rateText = mealRateSource === "OFFICIAL_MINIMUM" ? `병무청 ${bundle.version}년 최소기준 1일 ${mealMinimum.toLocaleString("ko-KR")}원` : `기관 입력 1일 ${mealRate?.toLocaleString("ko-KR")}원`;
@@ -17429,7 +17436,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				dailyRate: mealRate,
 				rateSource: mealRateSource,
 				eligibleDays: serviceDays.mealEligibleDays,
-				explanation: `${rateText} × 중식비 대상 ${serviceDays.mealEligibleDays}일이에요.`
+				explanation: `${rateText} × 중식비 대상 ${serviceDays.mealEligibleDays}일이에요.`,
+				gate: null
 			};
 			assumptions.push(...meal.assumptions);
 		}
@@ -17449,7 +17457,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			eligibleDays: null,
 			rateSource: fare === null ? null : "USER_INPUT",
 			basis: bundle.transport.legalBasis,
-			explanation: serviceDays.explanation
+			explanation: serviceDays.explanation,
+			gate: null
 		};
 		else if (transport.status !== "SUPPORTED") {
 			const text = "1일 교통비를 입력해야 해요. 병무청 기준은 시내버스 왕복 현금요금(환승·지하철 장거리 등 추가비용은 교통카드 실비)이라 경로마다 달라요. 도보 출퇴근도 같은 기준이에요.";
@@ -17462,7 +17471,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				eligibleDays: serviceDays.transportEligibleDays,
 				rateSource: null,
 				basis: bundle.transport.legalBasis,
-				explanation: text
+				explanation: text,
+				gate: null
 			};
 			unresolved.push(`교통비: ${text}`);
 		} else if (serviceDays.status !== "READY") transportComponent = {
@@ -17474,7 +17484,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 			eligibleDays: null,
 			rateSource: fare === null ? null : "USER_INPUT",
 			basis: bundle.transport.legalBasis,
-			explanation: serviceDays.explanation
+			explanation: serviceDays.explanation,
+			gate: null
 		};
 		else {
 			transportComponent = {
@@ -17486,7 +17497,8 @@ Set the \`cycles\` parameter to \`"ref"\` to resolve cyclical schemas with defs.
 				eligibleDays: serviceDays.transportEligibleDays,
 				rateSource: fare === null ? null : "USER_INPUT",
 				basis: bundle.transport.legalBasis,
-				explanation: `사용자 입력 1일 ${fare?.toLocaleString("ko-KR")}원 × 교통비 대상 ${serviceDays.transportEligibleDays}일이에요.`
+				explanation: `사용자 입력 1일 ${fare?.toLocaleString("ko-KR")}원 × 교통비 대상 ${serviceDays.transportEligibleDays}일이에요.`,
+				gate: null
 			};
 			assumptions.push(...transport.assumptions);
 		}

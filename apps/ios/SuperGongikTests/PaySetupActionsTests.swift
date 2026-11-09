@@ -15,10 +15,11 @@ struct PaySetupActionsTests {
         """.utf8))
     }
 
-    private func component(_ key: String, _ status: String, rate: Double? = nil, explanation: String = "") -> String {
+    private func component(_ key: String, _ status: String, rate: Double? = nil, gate: String? = nil) -> String {
         """
         {"key":"\(key)","label":"\(key)","status":"\(status)","monthlyAmount":null,
-         "dailyRate":\(rate.map { String($0) } ?? "null"),"eligibleDays":null,"rateSource":null,"basis":"b","explanation":"\(explanation)"}
+         "dailyRate":\(rate.map { String($0) } ?? "null"),"eligibleDays":null,"rateSource":null,"basis":"b","explanation":"e",
+         "gate":\(gate.map { "\"\($0)\"" } ?? "null")}
         """
     }
 
@@ -50,12 +51,26 @@ struct PaySetupActionsTests {
         #expect(PaySetupActions.actions(for: try compensation(components: "[]", serviceDays: days("UNSUPPORTED", missing: []))).map(\.target) == [.profile(.workPattern)])
     }
 
-    @Test("base pay gates: a partial credited month goes to the profile, non-payable dates to the month")
+    @Test("base pay gates route on the gate code, not the Korean explanation")
     func basePayGates() throws {
-        let partial = try compensation(components: "[\(component("BASE_PAY", "GATED", explanation: "인정 기간이 개월 단위로 떨어지지 않으면 계산하지 않아요."))]")
-        #expect(PaySetupActions.actions(for: partial).map(\.target) == [.profile(.priorService)])
-        let dates = try compensation(components: "[\(component("BASE_PAY", "GATED", explanation: "기본 보수 미지급 날짜를 모두 확인해야 계산할 수 있어요."))]")
-        #expect(PaySetupActions.actions(for: dates).map(\.target) == [.attendance])
+        func targets(_ gate: String?) throws -> [PaySetupActions.Target] {
+            PaySetupActions.actions(for: try compensation(components: "[\(component("BASE_PAY", "GATED", gate: gate))]")).map(\.target)
+        }
+        #expect(try targets("PRIOR_SERVICE_PARTIAL_MONTH") == [.profile(.priorService)])
+        #expect(try targets("NON_PAYABLE_DATES") == [.attendance])
+        #expect(try targets("ROUNDING_POLICY") == [.attendance])
+        // An unknown or missing reason opens nothing rather than a guessed form.
+        #expect(try targets("SOMETHING_NEW").isEmpty)
+        #expect(try targets(nil).isEmpty)
+    }
+
+    @Test("a component without a gate key still decodes (older snapshots)")
+    func gateKeyOptional() throws {
+        let money = try compensation(components: """
+        [{"key":"BASE_PAY","label":"l","status":"CALCULATED","monthlyAmount":1,"dailyRate":null,"eligibleDays":null,
+          "rateSource":null,"basis":"b","explanation":"e"}]
+        """)
+        #expect(money.components.first?.gate == nil)
     }
 
     @Test("a complete month has no shortcuts, and duplicates collapse")
