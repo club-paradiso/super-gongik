@@ -85,6 +85,8 @@ private struct MainTabs: View {
                 if opened.contains(item) || item == tab {
                     content(for: item)
                         .environment(\.tabReselect, reselects[item, default: 0])
+                        // Hidden tabs stay alive; their looping effects rest.
+                        .environment(\.sgMotionPaused, item != tab)
                         .opacity(item == tab ? 1 : 0)
                         .allowsHitTesting(item == tab)
                         .accessibilityHidden(item != tab)

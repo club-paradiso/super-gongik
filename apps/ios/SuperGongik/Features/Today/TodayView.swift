@@ -342,6 +342,7 @@ private struct HeroSky: View {
     let celebrate: Bool
     @Environment(\.sgTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.sgMotionPaused) private var paused
     @State private var drift = false
 
     var body: some View {
@@ -374,11 +375,24 @@ private struct HeroSky: View {
                 SGStarfield()
             }
         }
-        .onAppear {
-            guard warrior, !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 18).repeatForever(autoreverses: true)) { drift = true }
+        .onAppear { if warrior && !reduceMotion && !paused { startDrift() } }
+        // Hidden tab: rest the drift; resume when 홈 is shown again.
+        .onChange(of: paused) { _, now in
+            if now {
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction) { drift = false }
+            } else if warrior && !reduceMotion {
+                startDrift()
+            }
         }
         .accessibilityHidden(true)
+    }
+}
+
+extension HeroSky {
+    private func startDrift() {
+        withAnimation(.easeInOut(duration: 18).repeatForever(autoreverses: true)) { drift = true }
     }
 }
 
@@ -602,16 +616,17 @@ private struct TrailPanel: View {
     }
 }
 
-/// Second-level progress. `TimelineView` only produces entries while the
-/// view is on screen and the app is active, so nothing ticks in the
-/// background. With Reduce Motion the value still updates every second
-/// (accuracy matters); only interpolation is off, as on the web.
+/// Second-level progress. The schedule ticks once a second and is paused
+/// while 홈 is a hidden tab (tabs stay alive under an opacity-0 layer, so
+/// "on screen" alone did not stop it). With Reduce Motion the value still
+/// updates every second (accuracy matters); only interpolation is off.
 private struct LiveReadout: View {
     let period: ServicePeriod
     let dot: Color
+    @Environment(\.sgMotionPaused) private var paused
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 1)) { context in
+        TimelineView(.animation(minimumInterval: 1, paused: paused)) { context in
             let live = LiveServiceProgress.calculate(period, now: context.date)
             let percent = live.formattedPercentage()
             VStack(spacing: 2) {
