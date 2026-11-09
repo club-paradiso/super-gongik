@@ -19,6 +19,8 @@ struct PayView: View {
     @State private var retries = 0
     @State private var profileSheet: ProfileSheet?
     @State private var showingAttendance = false
+    @State private var scroll = ScrollPosition(edge: .top)
+    @Environment(\.tabReselect) private var reselect
 
     /// The profile sheet, opened at the section a missing input names.
     struct ProfileSheet: Identifiable {
@@ -81,9 +83,12 @@ struct PayView: View {
                 .frame(maxWidth: SGLayout.readableWidth)
                 .frame(maxWidth: .infinity)
             }
+            .scrollPosition($scroll)
             .background(.sg(SGColor.background))
             .sgScreenChrome()
             .navigationTitle("급여")
+            // Tapping 급여 again: back to the top.
+            .onChange(of: reselect) { withAnimation { scroll.scrollTo(edge: .top) } }
             .toolbar(.hidden, for: .navigationBar)
             .task(id: TaskKey(month: monthText, revision: model.document?.documentRevision ?? 0, today: model.today, retries: retries)) {
                 await loadMonth()

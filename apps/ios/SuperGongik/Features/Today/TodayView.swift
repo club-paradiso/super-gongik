@@ -22,6 +22,8 @@ struct TodayView: View {
     @State private var milestones: [ServiceMilestoneItem] = []
     /// A record opened from the 홈 agenda (same editor as 캘린더).
     @State private var editingEvent: ServiceEvent?
+    @State private var scroll = ScrollPosition(edge: .top)
+    @Environment(\.tabReselect) private var reselect
 
     init(openTab: @escaping (AppTab) -> Void, showsLedgerInitially: Bool = false) {
         self.openTab = openTab
@@ -94,12 +96,17 @@ struct TodayView: View {
                     ProjectionPlaceholder()
                 }
             }
+            .scrollPosition($scroll)
             .background(.sg(SGColor.background))
             .sgScreenChrome()
             // The app header replaces the navigation bar on 홈 (Stitch).
             .toolbar(.hidden, for: .navigationBar)
             .navigationTitle("홈")
             .navigationDestination(isPresented: $showingLedger) { LeaveView() }
+            // Tapping 홈 again: close 연가 내역 first, then back to the top.
+            .onChange(of: reselect) {
+                if showingLedger { showingLedger = false } else { withAnimation { scroll.scrollTo(edge: .top) } }
+            }
             .sheet(item: $editorDate) { date in
                 EventEditorSheet(event: nil, initialDate: date, initialType: editorType, initialPatch: editorPatch)
             }

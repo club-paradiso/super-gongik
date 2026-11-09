@@ -113,6 +113,34 @@ final class InteractionTests: XCTestCase {
         XCTAssertTrue(app.navigationBars["기록 수정"].waitForExistence(timeout: 10), "the agenda row did not open the editor")
     }
 
+    /// Tapping the selected 홈 item again scrolls back to the top.
+    func testRetapTabScrollsToTop() {
+        let app = SGLaunch.app()
+        app.launch()
+        app.waitUntilReady()
+        let tray = app.staticTexts["오늘 기록하기"]
+        XCTAssertTrue(tray.waitForExistence(timeout: 10))
+        for _ in 0..<4 { app.swipeUp(velocity: .fast) }
+        sleep(1)
+        XCTAssertFalse(tray.isHittable, "the quick-record tray should be scrolled off screen")
+        app.tab("홈").tap()
+        let back = XCTNSPredicateExpectation(predicate: NSPredicate(format: "hittable == true"), object: tray)
+        XCTAssertEqual(XCTWaiter.wait(for: [back], timeout: 5), .completed, "re-tapping 홈 did not scroll to the top")
+    }
+
+    /// With 연가 내역 pushed on 홈, tapping 홈 again returns to 홈.
+    func testRetapTabPopsPushedScreen() {
+        let app = SGLaunch.app()
+        app.launch()
+        app.waitUntilReady()
+        let leaveTile = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "남은 연가")).firstMatch
+        app.reveal(leaveTile)
+        leaveTile.tap()
+        XCTAssertTrue(app.navigationBars["연가 내역"].waitForExistence(timeout: 10), "연가 내역 did not open")
+        app.tab("홈").tap()
+        XCTAssertTrue(app.navigationBars["연가 내역"].sgWaitGone(timeout: 5), "re-tapping 홈 did not close 연가 내역")
+    }
+
     // MARK: Pay
 
     /// The month switcher moves the pay month both ways.

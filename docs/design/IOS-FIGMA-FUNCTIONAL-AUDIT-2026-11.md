@@ -79,7 +79,6 @@ Every tappable control was traced: action → state → AppModel → core → st
 ## 5. Open items (not fixed in this PR)
 
 - **P2** — Tabs:
-  - re-tapping the active tab does not pop to root or scroll to top;
   - hidden tabs keep their `TimelineView` and animations running.
 - **P2** — Pull-down on an edited sheet is blocked but does not ask; only 닫기 asks.
 - **P2** — `PaySetupActions` still matches on Korean explanation text (`인정 기간`). It needs a structured gate reason from the core.

@@ -24,6 +24,8 @@ struct RecordsView: View {
     /// A delete or restore the core refused (e.g. 되돌리기 onto a day that has
     /// a new overlapping 연가). These used to fail with no message.
     @State private var actionError: String?
+    @State private var scroll = ScrollPosition(edge: .top)
+    @Environment(\.tabReselect) private var reselect
     @State private var milestones: [ServiceMilestoneItem] = []
 
     struct EditorTarget: Identifiable {
@@ -84,11 +86,16 @@ struct RecordsView: View {
                 .frame(maxWidth: SGLayout.readableWidth)
                 .frame(maxWidth: .infinity)
             }
+            .scrollPosition($scroll)
             .background(.sg(SGColor.background))
             .sgScreenChrome()
             .navigationTitle("캘린더")
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showingLedger) { LeaveView() }
+            // Tapping 캘린더 again: close 연가 내역 first, then back to the top.
+            .onChange(of: reselect) {
+                if showingLedger { showingLedger = false } else { withAnimation { scroll.scrollTo(edge: .top) } }
+            }
             // A new day (midnight, or back from the background): follow it
             // when the user was looking at today, as the 오늘 outline does.
             .onChange(of: model.today) { old, new in

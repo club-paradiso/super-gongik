@@ -145,6 +145,8 @@ Interaction tests (`InteractionTests.swift`):
 | `testQuickRecordPersistsAcrossRelaunch` | a quick record is still listed after the app is terminated and relaunched      |
 | `testEditedEditorAsksBeforeClosing`     | closing an edited editor asks first                                            |
 | `testHomeAgendaRowOpensEditor`          | tapping a 홈 agenda row opens that record in the editor                        |
+| `testRetapTabScrollsToTop`              | tapping the selected 홈 item again scrolls back to the top                     |
+| `testRetapTabPopsPushedScreen`          | with 연가 내역 pushed, tapping 홈 again returns to 홈                          |
 | `testPayMonthSwitcher`                  | 급여 moves to the next and the previous month                                  |
 
 Figma comparison:
