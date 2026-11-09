@@ -100,6 +100,19 @@ final class InteractionTests: XCTestCase {
         XCTAssertTrue(app.containing("저장하지 않고 닫을까요").waitForExistence(timeout: 5), "closing an edited editor did not ask")
     }
 
+    /// A 홈 agenda row opens that record in the editor (기록 수정), as the
+    /// same row does in 캘린더. The fixture has 연가 today (2026-03-14).
+    func testHomeAgendaRowOpensEditor() {
+        let app = SGLaunch.app()
+        app.launch()
+        app.waitUntilReady()
+        let row = app.buttons.matching(identifier: "home.agenda.row").firstMatch
+        app.reveal(row)
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "no agenda row on 홈")
+        row.tap()
+        XCTAssertTrue(app.navigationBars["기록 수정"].waitForExistence(timeout: 10), "the agenda row did not open the editor")
+    }
+
     // MARK: Pay
 
     /// The month switcher moves the pay month both ways.

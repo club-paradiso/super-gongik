@@ -20,6 +20,8 @@ struct TodayView: View {
     @State private var editorPatch: [String: JSONValue] = [:]
     @State private var showingLedger: Bool
     @State private var milestones: [ServiceMilestoneItem] = []
+    /// A record opened from the 홈 agenda (same editor as 캘린더).
+    @State private var editingEvent: ServiceEvent?
 
     init(openTab: @escaping (AppTab) -> Void, showsLedgerInitially: Bool = false) {
         self.openTab = openTab
@@ -56,7 +58,8 @@ struct TodayView: View {
                             // What is happening today or next comes before the
                             // status ledger: after the actions, the agenda is the
                             // first thing a day-to-day visit needs (IOS-06).
-                            AgendaSection(home: home, projection: projection, openCalendar: { openTab(.calendar) })
+                            AgendaSection(home: home, projection: projection, openCalendar: { openTab(.calendar) },
+                                          openEvent: { editingEvent = $0 })
                                 .padding(.top, home.completed ? SGSpacing.md : 0)
                             if !home.completed {
                                 LedgerGrid(home: home, projection: projection,
@@ -99,6 +102,9 @@ struct TodayView: View {
             .navigationDestination(isPresented: $showingLedger) { LeaveView() }
             .sheet(item: $editorDate) { date in
                 EventEditorSheet(event: nil, initialDate: date, initialType: editorType, initialPatch: editorPatch)
+            }
+            .sheet(item: $editingEvent) { event in
+                EventEditorSheet(event: event, initialDate: event.startDate)
             }
         }
     }
@@ -1131,6 +1137,7 @@ private struct AgendaSection: View {
     let home: HomeModel
     let projection: Projection
     let openCalendar: () -> Void
+    let openEvent: (ServiceEvent) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: SGSpacing.sm) {
@@ -1164,12 +1171,20 @@ private struct AgendaSection: View {
                 .sgShadow(.small)
             } else {
                 ForEach(items) { item in
-                    AgendaRow(item: item, display: projection.eventDisplay?[item.event.id])
-                        .padding(.horizontal, SGSpacing.sm)
-                        .padding(.vertical, SGSpacing.xxs)
-                        .background(.sg(SGColor.surface), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .sgShadow(.small)
-                        .sgWarriorFrame(cornerRadius: 14, emphasis: 0.6)
+                    // Tapping a row opens the record, as the same row does in
+                    // 캘린더; on 홈 the only way used to be 전체보기.
+                    Button { openEvent(item.event) } label: {
+                        AgendaRow(item: item, display: projection.eventDisplay?[item.event.id])
+                            .padding(.horizontal, SGSpacing.sm)
+                            .padding(.vertical, SGSpacing.xxs)
+                            .background(.sg(SGColor.surface), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    }
+                    .buttonStyle(SGPressableStyle())
+                    .accessibilityHint("기록 수정")
+                    .accessibilityIdentifier("home.agenda.row")
+                    .sgShadow(.small)
+                    .sgWarriorFrame(cornerRadius: 14, emphasis: 0.6)
                 }
             }
         }

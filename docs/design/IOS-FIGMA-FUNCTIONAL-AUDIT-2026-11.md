@@ -78,7 +78,6 @@ Every tappable control was traced: action → state → AppModel → core → st
 
 ## 5. Open items (not fixed in this PR)
 
-- **P2** — 홈 agenda rows can't be tapped (in 캘린더 they open the editor).
 - **P2** — Tabs:
   - re-tapping the active tab does not pop to root or scroll to top;
   - hidden tabs keep their `TimelineView` and animations running.

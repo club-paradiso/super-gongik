@@ -144,6 +144,7 @@ Interaction tests (`InteractionTests.swift`):
 | `testDuplicateAnnualLeaveIsRefused`     | a duplicate 연가 is refused with the core's message, and the editor stays open |
 | `testQuickRecordPersistsAcrossRelaunch` | a quick record is still listed after the app is terminated and relaunched      |
 | `testEditedEditorAsksBeforeClosing`     | closing an edited editor asks first                                            |
+| `testHomeAgendaRowOpensEditor`          | tapping a 홈 agenda row opens that record in the editor                        |
 | `testPayMonthSwitcher`                  | 급여 moves to the next and the previous month                                  |
 
 Figma comparison:
