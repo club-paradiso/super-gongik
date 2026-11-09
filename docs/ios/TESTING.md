@@ -147,6 +147,7 @@ Interaction tests (`InteractionTests.swift`):
 | `testHomeAgendaRowOpensEditor`          | tapping a 홈 agenda row opens that record in the editor                        |
 | `testRetapTabScrollsToTop`              | tapping the selected 홈 item again scrolls back to the top                     |
 | `testRetapTabPopsPushedScreen`          | with 연가 내역 pushed, tapping 홈 again returns to 홈                          |
+| `testPullingDownEditedEditorAsks`       | pulling an edited editor down asks before closing                              |
 | `testPayMonthSwitcher`                  | 급여 moves to the next and the previous month                                  |
 
 Figma comparison:

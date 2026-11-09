@@ -78,7 +78,6 @@ Every tappable control was traced: action → state → AppModel → core → st
 
 ## 5. Open items (not fixed in this PR)
 
-- **P2** — Pull-down on an edited sheet is blocked but does not ask; only 닫기 asks.
 - **P2** — `PaySetupActions` still matches on Korean explanation text (`인정 기간`). It needs a structured gate reason from the core.
 - **P2** — 9,000원 meal minimum is hard-coded in `ProfileEditView`. The rules version it per year.
 - **P2** — Widgets reload on every reprojection, and a failed projection clears them.

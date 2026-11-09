@@ -246,6 +246,8 @@ struct AttendanceEditorView: View {
             original = answers
         }
         .interactiveDismissDisabled(hasUnsavedChanges)
+        // Pulling down an edited sheet asks, like 닫기 (it used to only bounce).
+        .onSheetDismissAttempt { if hasUnsavedChanges { confirmingDiscard = true } }
         .discardChangesDialog(isPresented: $confirmingDiscard) { dismiss() }
     }
 

@@ -141,6 +141,25 @@ final class InteractionTests: XCTestCase {
         XCTAssertTrue(app.navigationBars["연가 내역"].sgWaitGone(timeout: 5), "re-tapping 홈 did not close 연가 내역")
     }
 
+    /// Pulling an edited editor down asks before closing (it used to only
+    /// bounce back); the draft stays open behind the question.
+    func testPullingDownEditedEditorAsks() {
+        let app = SGLaunch.app(today: "2026-03-16")
+        app.launch()
+        app.waitUntilReady()
+        app.buttons["연가 기록"].tap()
+        let bar = app.navigationBars["기록 추가"]
+        XCTAssertTrue(bar.waitForExistence(timeout: 10))
+        let note = app.textFields.firstMatch.exists ? app.textFields.firstMatch : app.textViews.firstMatch
+        app.reveal(note)
+        note.tap()
+        note.typeText("메모")
+        let start = bar.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        let end = start.withOffset(CGVector(dx: 0, dy: 600))
+        start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .fast, thenHoldForDuration: 0)
+        XCTAssertTrue(app.containing("저장하지 않고 닫을까요").waitForExistence(timeout: 5), "pulling down an edited editor did not ask")
+    }
+
     // MARK: Pay
 
     /// The month switcher moves the pay month both ways.

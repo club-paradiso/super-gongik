@@ -270,6 +270,8 @@ struct ProfileEditView: View {
         // Pulling the sheet down with unsaved edits is blocked so 닫기 can ask;
         // without edits it closes as before (IOS-08).
         .interactiveDismissDisabled(hasUnsavedChanges)
+        // Pulling down an edited sheet asks, like 닫기 (it used to only bounce).
+        .onSheetDismissAttempt { if hasUnsavedChanges { confirmingDiscard = true } }
         .discardChangesDialog(isPresented: $confirmingDiscard) { dismiss() }
         .task {
             guard !loaded else { return }
