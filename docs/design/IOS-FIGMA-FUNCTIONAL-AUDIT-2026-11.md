@@ -118,3 +118,15 @@ None of these are covered by simulator results:
 | 캘린더 `204:3938`: records as dots under the day          | `RecordsView.DayCell`: category tint on the tile removed; dots and legend kept | adopted: the tint repeated the dots and blurred selected/today                                              |
 | 홈 `202:3614`: full-width 남은 연가 card with a bar       | `TodayView.LedgerGrid`: remaining-leave bar inside the 2×2 tile                | partly: the bar is adopted; the full-width card is not, because the 2×2 ledger is the PR #70 owner decision |
 | 홈 `202:*` compact hero, English world labels in Standard | none                                                                           | rejected: reverts PR #70/#88                                                                                |
+
+## 8. Figma redrawn to the app (2026-11-08)
+
+| Change in Figma                                                                                                                                     | Nodes                                                               |
+| --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| 홈 redrawn from the app: full-bleed hero with journey trail, 오늘 기록하기, 다가오는 일정, 2×2 복무 현황 with the remaining-leave bar, journey note | `249:4430` Light, `250:4512` Warrior Light, `250:4672` Warrior Dark |
+| Pre-PR #70 home frames moved to page 99 (renamed "superseded")                                                                                      | `202:3614`, `202:3847`, `202:3956`                                  |
+| `theme/world-language` set to false for Standard (PR #88): English labels gone from every Standard frame, Warrior unchanged                         | `VariableID:118:19`                                                 |
+| 캘린더: 월간/목록 control, + / … buttons, 연가·병가 기록 N건 labels                                                                                 | `204:3938`, `204:4256`, `204:4469`                                  |
+| 급여: "이번 달 예상 보수"                                                                                                                           | `206:4205`, `206:4424`, `206:4539`                                  |
+
+Not redrawn: 내 정보 row glyphs, the app's hero artwork (Figma uses the BrandMark image), Sunday/Saturday day colours. The CI references in `figma-reference/` were re-exported after the redraw.
