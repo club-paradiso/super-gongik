@@ -129,4 +129,6 @@ None of these are covered by simulator results:
 | 캘린더: 월간/목록 control, + / … buttons, 연가·병가 기록 N건 labels                                                                                 | `204:3938`, `204:4256`, `204:4469`                                  |
 | 급여: "이번 달 예상 보수"                                                                                                                           | `206:4205`, `206:4424`, `206:4539`                                  |
 
-Not redrawn: 내 정보 row glyphs, the app's hero artwork (Figma uses the BrandMark image), Sunday/Saturday day colours. The CI references in `figma-reference/` were re-exported after the redraw.
+내 정보 (`207:4469`, `207:4633`, `207:4728`) was rebuilt the same day to the app's PR #84 grouping (복무 / 실질 복무일수 / 설정 / 정보) with row icons; the icons are new components on page 51 (`Icon / slider.horizontal.3`, `sparkles.rectangle.stack`, `timer`, `externaldrive`, `lock.shield`, `book.closed`, `info.circle`, `hammer`, `number`), outline stand-ins for the SF Symbols.
+
+Not redrawn: the app's hero artwork (Figma uses the BrandMark image), Sunday/Saturday day colours. The CI references in `figma-reference/` were re-exported after the redraw.

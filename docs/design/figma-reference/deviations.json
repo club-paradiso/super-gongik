@@ -13,8 +13,8 @@
     "Figma sample says 복무 11개월 차; the core computes 13개월 차 for the fixture dates."
   ],
   "profile": [
-    "Rows carry Material glyphs in the app (PR #67/#68); not redrawn in Figma yet.",
-    "Figma sample shows 소집일 2025.03.18 in the card and 2025.9.23 in the row (inconsistent sample)."
+    "2026-11-08: Figma 내 정보 rebuilt to the app's PR #84 grouping (복무 / 실질 복무일수 / 설정 / 정보) with row icons. Icons are outline stand-ins for the SF Symbols (components 'Icon / <symbol>' on page 51); expect small glyph differences.",
+    "The CharacterCard shows the app's hero values; the Figma card was aligned to the fixture (54.1%, 361일)."
   ],
   "onboarding": []
 }
