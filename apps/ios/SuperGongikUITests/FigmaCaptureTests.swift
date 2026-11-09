@@ -58,6 +58,30 @@ final class FigmaCaptureTests: XCTestCase {
         }
     }
 
+    /// 온보딩 steps 1–4 (Figma 208:4628 … 208:4721) on an empty store, dated
+    /// 2026-10-13 like the frames. Standard Light only: Figma draws no
+    /// other onboarding look. One capture per step (each fits one screen).
+    func testCaptureOnboarding() throws {
+        let directory = ProcessInfo.processInfo.environment["SG_SHOT_DIR"].map { URL(fileURLWithPath: $0) }
+        if let directory {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        }
+        for step in 1...4 {
+            let app = SGLaunch.app(today: "2026-10-13", fixture: false, extra: ["-SGOnboardingStep", String(step)])
+            app.launch()
+            XCTAssertTrue(app.staticTexts["\(step)/4단계"].waitForExistence(timeout: 30), "onboarding step \(step) did not open")
+            sleep(2)
+            let png = XCUIScreen.main.screenshot().pngRepresentation
+            let name = "onboarding\(step)-standard-light-0.png"
+            let attachment = XCTAttachment(data: png, uniformTypeIdentifier: "public.png")
+            attachment.name = name
+            attachment.lifetime = .keepAlways
+            add(attachment)
+            if let directory { try png.write(to: directory.appendingPathComponent(name)) }
+            app.terminate()
+        }
+    }
+
     /// A slow, fixed drag (about 45 % of the screen) with a hold at the end,
     /// so there is no momentum and each step lands at the same offset.
     private func scrollOneStep(_ app: XCUIApplication) {

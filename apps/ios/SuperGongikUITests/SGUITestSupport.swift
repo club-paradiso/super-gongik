@@ -18,12 +18,14 @@ enum SGLaunch {
                     fixture: Bool = true,
                     theme: String = "standard",
                     scheme: String = "light",
-                    tab: String? = nil) -> XCUIApplication {
+                    tab: String? = nil,
+                    extra: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
         var arguments = ["-SGToday", today, "-SGTheme", theme, "-SGColorScheme", scheme]
         if reset { arguments += ["-SGResetStore", "YES"] }
         if fixture { arguments += ["-SGSeedFixture", "figma"] }
         if let tab { arguments += ["-SGInitialTab", tab] }
+        arguments += extra
         app.launchArguments = arguments
         return app
     }

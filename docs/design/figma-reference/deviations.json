@@ -16,5 +16,10 @@
     "2026-11-08: Figma 내 정보 rebuilt to the app's PR #84 grouping (복무 / 실질 복무일수 / 설정 / 정보) with row icons. Icons are outline stand-ins for the SF Symbols (components 'Icon / <symbol>' on page 51); expect small glyph differences.",
     "The CharacterCard shows the app's hero values; the Figma card was aligned to the fixture (54.1%, 361일)."
   ],
-  "onboarding": []
+  "onboarding": [
+    "Captured with -SGToday 2026-10-13 (the date the Figma frames show) and an empty store; steps opened with -SGOnboardingStep 1–4.",
+    "Step 3: Figma draws 행정 selected; the app starts with nothing chosen (나중에 정할게요), so the checkmark row differs.",
+    "Step 4 in the app shows the category the user picked; with nothing picked the 복무 분야 row reads differently from Figma's 행정.",
+    "Steps 2–4: the app shows an 이전 단계 (chevron) button beside the step label; the Figma frames do not draw it."
+  ]
 }

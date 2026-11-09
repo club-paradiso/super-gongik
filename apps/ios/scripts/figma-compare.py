@@ -54,7 +54,7 @@ STATUS_BAR = 54
 BOTTOM_BAR = 96
 CHANGED_THRESHOLD = 40
 
-FIGMA_NAME = re.compile(r"^(?P<case>[a-z]+-[a-z]+-[a-z]+)__(?P<node>\d+-\d+)\.png$")
+FIGMA_NAME = re.compile(r"^(?P<case>[a-z0-9]+-[a-z]+-[a-z]+)__(?P<node>\d+-\d+)\.png$")
 
 
 def load_rgb(path: Path) -> Image.Image:
@@ -140,7 +140,7 @@ def main() -> int:
         if not match:
             continue
         case, node = match["case"], match["node"].replace("-", ":")
-        screen = case.split("-")[0]
+        screen = re.sub(r"\d+$", "", case.split("-")[0])  # onboarding1 → onboarding
         app_segments = segments(args.app, case)
         row = {"case": case, "figma_node": node, "screen": screen,
                "known_deviations": deviations.get(screen, [])}

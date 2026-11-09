@@ -151,7 +151,7 @@ Interaction tests (`InteractionTests.swift`):
 
 Figma comparison:
 
-- `FigmaCaptureTests.swift` captures 홈, 캘린더, 급여 and 내 정보 in four combinations: standard light, Warrior light, Warrior dark and standard dark. Each screen is captured at the top and then in fixed scroll steps.
+- `FigmaCaptureTests.swift` captures 온보딩 steps 1–4 (standard light, empty store, `-SGToday 2026-10-13`, `-SGOnboardingStep N`) and 홈, 캘린더, 급여 and 내 정보 in four combinations: standard light, Warrior light, Warrior dark and standard dark. Each screen is captured at the top and then in fixed scroll steps.
 - `apps/ios/scripts/figma-compare.py` compares those captures with `docs/design/figma-reference/*.png` and writes:
   - `<case>-compare.png`: Figma, app and difference, first viewport only. The status bar and the bottom-bar zone are masked.
   - `<case>-sheet.png`: the full Figma frame beside every capture.
