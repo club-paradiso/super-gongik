@@ -107,9 +107,59 @@ The matrix covers:
 Still not covered by automation:
 
 - VoiceOver traversal on a device;
-- a visual Reduce Motion pass (the code removes interpolation through `SGMotion`, which is unit-level only);
+- a visual Reduce Motion pass (SwiftUI's `accessibilityReduceMotion` is read-only, so CI cannot force it; the code removes interpolation through `SGMotion`, unit-level only);
 - widget rendering on a home screen;
 - iPad.
+
+## UI flows and Figma comparison (CI)
+
+CI job `ios-ui-flows` (since PR #89) runs scheme `SuperGongikUI` (target `SuperGongikUITests`) through `apps/ios/scripts/ui-flows.sh`. It uses one fresh simulator per device, with the status bar pinned to 9:41.
+
+| Device        | Width                      | What runs                            |
+| ------------- | -------------------------- | ------------------------------------ |
+| iPhone 16     | 393 pt (Figma frame width) | interaction tests and Figma captures |
+| iPhone 16e    | 390 pt                     | Figma captures only                  |
+| iPhone 16 Pro | 402 pt                     | Figma captures only                  |
+
+If the runner image does not have a device type, that row writes `SKIPPED` and does not count as a pass.
+
+Every launch uses DEBUG-only hooks, so the date, data and appearance are fixed:
+
+| Hook                        | Effect                                                                                                                                           |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `-SGToday 2026-03-14`       | `AppClock` returns this date as "today" (the date drawn in the Figma frames)                                                                     |
+| `-SGSeedFixture figma`      | creates the Figma page 52 sample through the core commands: 소집 2025-03-18, 소집해제 예정 2027-01-14, records on 3/6, 3/11, 3/14, 3/20 and 3/30 |
+| `-SGResetStore YES`         | starts from an empty local store                                                                                                                 |
+| `-SGColorScheme light/dark` | sets the appearance                                                                                                                              |
+| `-SGTheme`                  | selects the theme                                                                                                                                |
+| `-SGInitialTab`             | opens a tab                                                                                                                                      |
+
+Interaction tests (`InteractionTests.swift`):
+
+| Test                                    | What it checks                                                                 |
+| --------------------------------------- | ------------------------------------------------------------------------------ |
+| `testTabsSwitchAndKeepOneTabBar`        | every tab opens its screen, is marked selected, and no second tab bar appears  |
+| `testHeaderProfileButtonOpensProfile`   | the header profile button opens 내 정보                                        |
+| `testCalendarMonthSurvivesTabSwitch`    | the calendar keeps its month across a tab switch                               |
+| `testDuplicateAnnualLeaveIsRefused`     | a duplicate 연가 is refused with the core's message, and the editor stays open |
+| `testQuickRecordPersistsAcrossRelaunch` | a quick record is still listed after the app is terminated and relaunched      |
+| `testEditedEditorAsksBeforeClosing`     | closing an edited editor asks first                                            |
+| `testHomeAgendaRowOpensEditor`          | tapping a 홈 agenda row opens that record in the editor                        |
+| `testRetapTabScrollsToTop`              | tapping the selected 홈 item again scrolls back to the top                     |
+| `testRetapTabPopsPushedScreen`          | with 연가 내역 pushed, tapping 홈 again returns to 홈                          |
+| `testPullingDownEditedEditorAsks`       | pulling an edited editor down asks before closing                              |
+| `testPayMonthSwitcher`                  | 급여 moves to the next and the previous month                                  |
+
+Figma comparison:
+
+- `FigmaCaptureTests.swift` captures 온보딩 steps 1–4 (standard light, empty store, `-SGToday 2026-10-13`, `-SGOnboardingStep N`) and 홈, 캘린더, 급여 and 내 정보 in four combinations: standard light, Warrior light, Warrior dark and standard dark. Each screen is captured at the top and then in fixed scroll steps.
+- `apps/ios/scripts/figma-compare.py` compares those captures with `docs/design/figma-reference/*.png` and writes:
+  - `<case>-compare.png`: Figma, app and difference, first viewport only. The status bar and the bottom-bar zone are masked.
+  - `<case>-sheet.png`: the full Figma frame beside every capture.
+  - `report.md`: similarity, changed pixels and the known deviations. It is also appended to the job summary.
+- Artifact: `ios-figma-compare-<device>-<sha>`. The `xcresult` is uploaded only when a test fails.
+- Similarity is a triage signal, not a verdict. `deviations.json` lists the owner decisions that are newer than the Figma frames.
+- No baseline is ever updated automatically. `--baseline <dir>` adds before/after sheets when approved captures are supplied.
 
 ## Real-device checklist
 

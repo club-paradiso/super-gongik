@@ -352,6 +352,10 @@ public struct MonthlyCompensation: Decodable, Sendable {
         public let rateSource: String?
         public let basis: String
         public let explanation: String
+        /// Why a GATED component is gated (`CompensationGate` in
+        /// packages/rules): PRIOR_SERVICE_PARTIAL_MONTH, NON_PAYABLE_DATES or
+        /// ROUNDING_POLICY. nil for every other status.
+        public let gate: String?
         public var id: String { key }
     }
 

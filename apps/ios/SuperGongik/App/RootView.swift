@@ -44,7 +44,16 @@ struct RootView: View {
                 StartupFailureView(message: message)
             case .ready:
                 if model.profile == nil {
+                    // A corrupt or newer-version store opens as an empty
+                    // document, so the user lands here: the notice (and the
+                    // "읽지 못한 원본 저장" export) must be visible before they
+                    // start over. It used to exist only inside the tabs.
                     OnboardingView()
+                        .safeAreaInset(edge: .top, spacing: 0) {
+                            StorageNoticeBanner()
+                                .frame(maxWidth: .infinity)
+                                .background(.sg(SGColor.background), ignoresSafeAreaEdges: .top)
+                        }
                 } else {
                     MainTabs(tab: $tab)
                 }
@@ -62,6 +71,8 @@ private struct MainTabs: View {
     /// Tabs opened at least once. A tab is built on its first visit and then
     /// kept alive (scroll position, pushed screens), as a TabView would.
     @State private var opened: Set<AppTab> = []
+    /// Re-taps of the selected bar item, per tab (see `tabReselect`).
+    @State private var reselects: [AppTab: Int] = [:]
 
     var body: some View {
         // Stitch draws its own bottom bar (glyph, Korean label, world label).
@@ -73,13 +84,18 @@ private struct MainTabs: View {
             ForEach([AppTab.home, .calendar, .pay, .profile], id: \.self) { item in
                 if opened.contains(item) || item == tab {
                     content(for: item)
+                        .environment(\.tabReselect, reselects[item, default: 0])
+                        // Hidden tabs stay alive; their looping effects rest.
+                        .environment(\.sgMotionPaused, item != tab)
                         .opacity(item == tab ? 1 : 0)
                         .allowsHitTesting(item == tab)
                         .accessibilityHidden(item != tab)
                 }
             }
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) { StitchTabBar(selection: $tab) }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            StitchTabBar(selection: $tab) { reselects[$0, default: 0] += 1 }
+        }
         .safeAreaInset(edge: .top, spacing: 0) {
             // Every tab hides its navigation bar behind the Stitch app header,
             // so content scrolls under the status bar; this canvas strip keeps
@@ -107,6 +123,8 @@ private struct MainTabs: View {
 /// CHARACTER); the current one sits on a soft navy plate.
 private struct StitchTabBar: View {
     @Binding var selection: AppTab
+    /// The selected item was tapped again (pop to root, then scroll to top).
+    var onReselect: (AppTab) -> Void = { _ in }
     @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(\.sgTheme) private var theme
 
@@ -121,7 +139,9 @@ private struct StitchTabBar: View {
         HStack(spacing: SGSpacing.xxs) {
             ForEach(Self.items, id: \.0) { item in
                 let selected = selection == item.0
-                Button { selection = item.0 } label: {
+                Button {
+                    if selection == item.0 { onReselect(item.0) } else { selection = item.0 }
+                } label: {
                     VStack(spacing: 2) {
                         StitchIcon(item.3, size: 22, filled: selected)
                         Text(item.1)

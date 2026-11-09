@@ -23,6 +23,13 @@ struct MoreView: View {
     @State private var showingCloud = Self.debugOpenCloud
     @State private var showingCard = Self.debugFlag("SGOpenMemorialCard")
     @State private var showingWidgetStyle = Self.debugFlag("SGOpenWidgetStyle")
+    @Environment(\.tabReselect) private var reselect
+    /// False while a screen is pushed over the list (a NavigationLink row).
+    @State private var rootVisible = true
+    /// Bumped to rebuild the stack at its root: the rows push with
+    /// destination NavigationLinks, which cannot be popped one by one.
+    @State private var stackID = 0
+    private static let topID = "more.top"
 
     /// DEBUG-only screenshot hook: `-SGOpenMemorialCard YES`.
     private static func debugFlag(_ key: String) -> Bool {
@@ -44,6 +51,7 @@ struct MoreView: View {
 
     var body: some View {
         NavigationStack {
+            ScrollViewReader { proxy in
             List {
                 Group {
                     // Stitch: the app header and the screen title replace the
@@ -53,6 +61,7 @@ struct MoreView: View {
                             AppHeader(hero: model.projection?.home?.hero)
                             ScreenTitle(title: "내 정보", world: "CHARACTER")
                         }
+                        .id(Self.topID)
                     }
                     .listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets())
@@ -169,7 +178,23 @@ struct MoreView: View {
             .sheet(isPresented: $showingProfile) {
                 NavigationStack { ProfileEditView() }
             }
+            .onAppear { rootVisible = true }
+            .onDisappear { rootVisible = false }
+            // Tapping 내 정보 again: back to the list first, then to its top.
+            .onChange(of: reselect) {
+                if showingCloud || showingCard || showingWidgetStyle {
+                    showingCloud = false
+                    showingCard = false
+                    showingWidgetStyle = false
+                } else if !rootVisible {
+                    stackID += 1
+                } else {
+                    withAnimation { proxy.scrollTo(Self.topID, anchor: .top) }
+                }
+            }
+            }
         }
+        .id(stackID)
     }
 }
 

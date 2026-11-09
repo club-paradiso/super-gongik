@@ -39,6 +39,13 @@ struct EventEditorSheet: View {
     @State private var original: EventFormState?
     @State private var saved = false
     @State private var confirmingDiscard = false
+    /// The draft could not be built (e.g. the record was removed by a sync
+    /// while this sheet was opening). Shown instead of an endless spinner.
+    @State private var loadFailed = false
+    /// Form patches run one after another on the latest draft. Each used to
+    /// capture the draft before its round trip, so quick Stepper taps or a
+    /// note typed during a picker patch could be lost.
+    @State private var patchChain: Task<Void, Never>?
 
     private static let feedbackAnchor = "event-editor-feedback"
 
@@ -47,6 +54,12 @@ struct EventEditorSheet: View {
             Group {
                 if let form {
                     content(form)
+                } else if loadFailed {
+                    ContentUnavailableView {
+                        Label("기록을 열지 못했어요", systemImage: "exclamationmark.triangle")
+                    } description: {
+                        Text("이 기록이 지워졌거나 다른 기기에서 바뀌었을 수 있어요. 닫고 다시 열어 주세요.")
+                    }
                 } else {
                     ProgressView()
                 }
@@ -75,6 +88,8 @@ struct EventEditorSheet: View {
         // Pulling the sheet down with unsaved edits is blocked so 닫기 can ask;
         // without edits it closes as before (IOS-08).
         .interactiveDismissDisabled(hasUnsavedChanges)
+        // Pulling down an edited sheet asks, like 닫기 (it used to only bounce).
+        .onSheetDismissAttempt { if hasUnsavedChanges { confirmingDiscard = true } }
         .discardChangesDialog(isPresented: $confirmingDiscard) { dismiss() }
         .task { await load() }
     }
@@ -228,6 +243,7 @@ struct EventEditorSheet: View {
                         Section {
                             Button("이 기록 삭제", role: .destructive) { confirmingDelete = true }
                                 .frame(maxWidth: .infinity)
+                                .disabled(model.isReadOnly || saving)
                                 .confirmationDialog("이 기록을 삭제할까요?", isPresented: $confirmingDelete, titleVisibility: .visible) {
                                     Button("삭제", role: .destructive) { Task { await delete(event) } }
                                 } message: {
@@ -344,7 +360,16 @@ struct EventEditorSheet: View {
     private func datePicker(_ title: String, _ keyPath: WritableKeyPath<EventFormState, String>) -> some View {
         DatePicker(title, selection: Binding(
             get: { Formatters.date(from: CivilDate(form?[keyPath: keyPath] ?? "") ?? model.today) },
-            set: { apply([Self.key(keyPath): .string(Formatters.civilDate(from: $0).description)]) }
+            set: { picked in
+                let value = Formatters.civilDate(from: picked)
+                var patch: [String: JSONValue] = [Self.key(keyPath): .string(value.description)]
+                // Moving 시작일 past 종료일 moves 종료일 with it, instead of a
+                // refused save (END_BEFORE_START) the user only sees on 저장.
+                if keyPath == \.startDate, let end = CivilDate(form?.endDate ?? ""), value > end {
+                    patch["endDate"] = .string(value.description)
+                }
+                apply(patch)
+            }
         ), displayedComponents: .date)
         .environment(\.calendar, .seoul)
         .environment(\.timeZone, SeoulClock.timeZone)
@@ -374,8 +399,17 @@ struct EventEditorSheet: View {
     // MARK: Core calls
 
     private func load() async {
-        guard let runtime = model.core else { return }
-        form = try? await runtime.eventFormInitial(eventId: event?.id, date: initialDate)
+        guard let runtime = model.core else {
+            loadFailed = true
+            return
+        }
+        do {
+            form = try await runtime.eventFormInitial(eventId: event?.id, date: initialDate)
+        } catch {
+            AppLog.error("event form initial failed: \(error)")
+            loadFailed = true
+            return
+        }
         var patch = initialPatch
         if let initialType { patch["eventType"] = .string(initialType) }
         if event == nil, !patch.isEmpty, let current = form, let json = try? JSONValue.from(current),
@@ -387,9 +421,12 @@ struct EventEditorSheet: View {
     }
 
     private func apply(_ patch: [String: JSONValue]) {
-        guard let current = form, let currentJSON = try? JSONValue.from(current) else { return }
+        guard form != nil else { return }
         submitErrors = []
-        Task {
+        let previous = patchChain
+        patchChain = Task {
+            await previous?.value
+            guard let current = form, let currentJSON = try? JSONValue.from(current) else { return }
             if let next = await model.pure("eventFormPatch", [currentJSON, .object(patch)], as: EventFormState.self) {
                 form = next
                 await evaluate()
@@ -417,6 +454,13 @@ struct EventEditorSheet: View {
     }
 
     private func save() async {
+        // One save at a time: a quick double tap could create the record twice.
+        guard !saving else { return }
+        saving = true
+        defer { saving = false }
+        // Finish pending field patches and validate the draft as it is now.
+        await patchChain?.value
+        await evaluate()
         guard let evaluation else { return }
         if !evaluation.validation.errors.isEmpty {
             refuse(evaluation.validation.errors)
@@ -429,8 +473,6 @@ struct EventEditorSheet: View {
                                  argument: "확인이 필요해요. " + evaluation.validation.warnings.map(\.message).joined(separator: " "))
             return
         }
-        saving = true
-        defer { saving = false }
         let issues: [EventIssue]
         if let event {
             issues = await model.run("updateServiceEvent", [.string(event.id), evaluation.draft])
@@ -454,9 +496,12 @@ struct EventEditorSheet: View {
     }
 
     private func delete(_ event: ServiceEvent) async {
-        if await model.run("deleteServiceEvent", [.string(event.id)]).isEmpty {
+        let issues = await model.run("deleteServiceEvent", [.string(event.id)])
+        if issues.isEmpty {
             saved = true
             dismiss()
+        } else {
+            refuse(issues)
         }
     }
 }

@@ -93,7 +93,7 @@ jobs:
         run: supabase/tests/run-db-tests.sh
       - name: Install PostgREST
         run: |
-          curl -fsSL -o "$RUNNER_TEMP/postgrest.tar.xz" \
+          curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors -o "$RUNNER_TEMP/postgrest.tar.xz" \
             "https://github.com/PostgREST/postgrest/releases/download/${POSTGREST_VERSION}/postgrest-${POSTGREST_VERSION}-linux-static-x64.tar.xz"
           echo "${POSTGREST_SHA256}  $RUNNER_TEMP/postgrest.tar.xz" | sha256sum -c -
           tar -xJf "$RUNNER_TEMP/postgrest.tar.xz" -C "$RUNNER_TEMP"
@@ -233,3 +233,71 @@ jobs:
           name: ios-screenshots-${{ github.sha }}
           path: ${{ runner.temp }}/screenshots
           if-no-files-found: warn
+
+  ios-ui-flows:
+    name: iOS · UI flows and Figma comparison (${{ matrix.device }})
+    runs-on: macos-15
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # 393 pt: the Figma frame width. Interaction tests + captures.
+          - device: iPhone 16
+            mode: all
+          # 390 pt and 402 pt: captures only (layout at the other widths).
+          - device: iPhone 16e
+            mode: captures-only
+          - device: iPhone 16 Pro
+            mode: captures-only
+    steps:
+      - uses: actions/checkout@v5
+      - name: Toolchain (newest Xcode on the runner)
+        run: |
+          newest="$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)"
+          if [ -n "$newest" ]; then sudo xcode-select -s "$newest/Contents/Developer"; fi
+          xcodebuild -version
+      - name: Generate the Xcode project
+        working-directory: apps/ios
+        run: |
+          brew install xcodegen
+          xcodegen generate
+      - name: UI tests on the Simulator (fixed date, Figma sample data)
+        id: uitests
+        working-directory: apps/ios
+        run: DERIVED_DATA="$RUNNER_TEMP/DerivedData-ui" scripts/ui-flows.sh "${{ matrix.device }}" "$RUNNER_TEMP/ui" "${{ matrix.mode }}"
+      - name: Figma comparison (Figma | App | Difference)
+        if: always()
+        run: |
+          python3 -m pip install --quiet --break-system-packages pillow || python3 -m pip install --quiet pillow
+          python3 apps/ios/scripts/figma-compare.py --figma docs/design/figma-reference \
+            --app "$RUNNER_TEMP/ui/captures" --out "$RUNNER_TEMP/ui/compare"
+          { echo "### ${{ matrix.device }}"; cat "$RUNNER_TEMP/ui/compare/report.md"; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Print comparison thumbnails (for reviewers without artifact access)
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/thumbs"
+          for f in "$RUNNER_TEMP"/ui/compare/*-compare.png "$RUNNER_TEMP"/ui/captures/*-[123].png; do
+            [ -e "$f" ] || continue
+            t="$RUNNER_TEMP/thumbs/$(basename "${f%.png}").jpg"
+            sips -Z 900 -s format jpeg -s formatOptions 55 "$f" --out "$t" >/dev/null
+            echo "QAIMG $(basename "$f") $(base64 -i "$t" | tr -d '\n')"
+          done
+      - name: Upload captures, comparison and test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-figma-compare-${{ matrix.device }}-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/ui/captures
+            ${{ runner.temp }}/ui/compare
+            ${{ runner.temp }}/ui/skipped.txt
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload the test result bundle on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ui-xcresult-${{ matrix.device }}-${{ github.sha }}
+          path: ${{ runner.temp }}/ui/UITests.xcresult
+          retention-days: 7

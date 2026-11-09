@@ -68,6 +68,33 @@ struct AttendanceEditorView: View {
     @State private var message: (SGTone, String)?
     /// Holidays marked for the user when the month had no saved answers.
     @State private var prefilledHolidays = 0
+    /// The editor could not be built: show why and a retry, not a spinner.
+    @State private var loadFailed = false
+    /// Only the newest `reload()` may write `editor` (each toggle starts one;
+    /// an older answer arriving last used to overwrite the day counts).
+    @State private var reloadGeneration = 0
+    /// The answers as loaded or last saved; closing with others asks first.
+    @State private var original: Answers?
+
+    private struct Answers: Equatable {
+        var nonWorking: Set<CivilDate>
+        var decisions: [CivilDate: Override]
+        var hadAbsence: Bool
+        var nonPayable: Set<CivilDate>
+        var nonPayableConfirmed: Bool
+        var rounding: String
+    }
+
+    private var answers: Answers {
+        Answers(nonWorking: nonWorking, decisions: decisions, hadAbsence: hadAbsence,
+                nonPayable: nonPayable, nonPayableConfirmed: nonPayableConfirmed, rounding: rounding)
+    }
+
+    @State private var confirmingDiscard = false
+
+    private var hasUnsavedChanges: Bool {
+        EditorDismissGuard.needsConfirmation(original: original, current: answers, saved: false)
+    }
 
     private var monthText: String { String(format: "%04d-%02d", month.year, month.month) }
 
@@ -167,6 +194,17 @@ struct AttendanceEditorView: View {
                         Section { SGNotice(message.0, title: message.1) }
                             .listRowBackground(Color.clear).listRowInsets(EdgeInsets())
                     }
+                } else if loadFailed {
+                    Section {
+                        SGNotice(.warning, title: "이 달 근무일을 불러오지 못했어요.",
+                                 message: "저장한 기록은 그대로 있어요. 다시 시도해 주세요.")
+                        Button("다시 시도") {
+                            Task {
+                                loadFailed = false
+                                await reload()
+                            }
+                        }
+                    }
                 } else {
                     ProgressView()
                 }
@@ -177,7 +215,9 @@ struct AttendanceEditorView: View {
         .navigationTitle("\(month.month)월 근무일 확인")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .cancellationAction) { Button("닫기") { dismiss() } }
+            ToolbarItem(placement: .cancellationAction) {
+                Button("닫기") { if hasUnsavedChanges { confirmingDiscard = true } else { dismiss() } }
+            }
             ToolbarItem(placement: .confirmationAction) {
                 Button("저장") { Task { await save() } }.disabled(editor == nil || model.isReadOnly)
             }
@@ -201,7 +241,14 @@ struct AttendanceEditorView: View {
                 prefilledHolidays = holidays.count
                 await reload()
             }
+            // The suggested holidays are part of the starting point, so
+            // opening and closing does not ask; the user's own edits do.
+            original = answers
         }
+        .interactiveDismissDisabled(hasUnsavedChanges)
+        // Pulling down an edited sheet asks, like 닫기 (it used to only bounce).
+        .onSheetDismissAttempt { if hasUnsavedChanges { confirmingDiscard = true } }
+        .discardChangesDialog(isPresented: $confirmingDiscard) { dismiss() }
     }
 
     private func dayLabel(_ day: Day, _ editor: Editor) -> some View {
@@ -249,13 +296,22 @@ struct AttendanceEditorView: View {
     }
 
     private func reload() async {
-        guard let runtime = model.core else { return }
+        guard let runtime = model.core else {
+            loadFailed = editor == nil
+            return
+        }
+        reloadGeneration += 1
+        let generation = reloadGeneration
         do {
             let nonWorkingJSON = JSONValue.array(nonWorking.map { .string($0.description) }).jsonText
             let data = try await runtime.callJSON("attendanceEditor", [monthText, nonWorkingJSON, model.today.description])
-            editor = try JSONDecoder().decode(Editor.self, from: data)
+            let next = try JSONDecoder().decode(Editor.self, from: data)
+            guard generation == reloadGeneration else { return }
+            editor = next
+            loadFailed = false
         } catch {
             AppLog.error("attendance editor failed: \(error)")
+            if generation == reloadGeneration, editor == nil { loadFailed = true }
         }
     }
 
@@ -276,6 +332,7 @@ struct AttendanceEditorView: View {
             await model.reloadAfterExternalWrite()
             if outcome.ok {
                 message = (.success, "이 달 근무일 확인을 저장했어요.")
+                original = answers
                 await reload()
             } else {
                 message = (.danger, outcome.errors?.first?.message ?? "저장하지 못했어요.")

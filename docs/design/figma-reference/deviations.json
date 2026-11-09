@@ -1,0 +1,25 @@
+{
+  "home": [
+    "2026-11-08: Figma 홈 redrawn from the app (249:4430, 250:4512, 250:4672): full-bleed hero, journey trail, 오늘 기록하기, agenda, 2x2 ledger with the remaining-leave bar, journey note. The pre-PR #70 frames are on page 99.",
+    "The hero art in Figma is the BrandMark image (the app's CardArt artwork is not in the file); expect a difference inside the hero.",
+    "Sample values follow the Figma fixture (D-306, 54.1%, 361/667 days); 남은 연가 is drawn in the confirmed (확정) state, the fixture has no confirmed grant, so the app shows 확인 필요 there."
+  ],
+  "calendar": [
+    "2026-11-08: 월간/목록, + and … buttons and record-count labels (연가 기록 N건) added to Figma; dots only, as in the app.",
+    "Sunday red / Saturday blue and muted neighbouring-month days are in the app but not drawn in Figma."
+  ],
+  "pay": [
+    "Pay screen order depends on the core: with unresolved inputs the app shows 계산에 필요한 정보 after 근무일 확인; Figma draws the 'Base only' state with 중식비 resolved.",
+    "Figma sample says 복무 11개월 차; the core computes 13개월 차 for the fixture dates."
+  ],
+  "profile": [
+    "2026-11-08: Figma 내 정보 rebuilt to the app's PR #84 grouping (복무 / 실질 복무일수 / 설정 / 정보) with row icons. Icons are outline stand-ins for the SF Symbols (components 'Icon / <symbol>' on page 51); expect small glyph differences.",
+    "The CharacterCard shows the app's hero values; the Figma card was aligned to the fixture (54.1%, 361일)."
+  ],
+  "onboarding": [
+    "Captured with -SGToday 2026-10-13 (the date the Figma frames show) and an empty store; steps opened with -SGOnboardingStep 1–4.",
+    "Step 3: Figma draws 행정 selected; the app starts with nothing chosen (나중에 정할게요), so the checkmark row differs.",
+    "Step 4 in the app shows the category the user picked; with nothing picked the 복무 분야 row reads differently from Figma's 행정.",
+    "Steps 2–4: the app shows an 이전 단계 (chevron) button beside the step label; the Figma frames do not draw it."
+  ]
+}

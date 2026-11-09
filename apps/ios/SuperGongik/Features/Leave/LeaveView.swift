@@ -11,7 +11,12 @@ struct LeaveView: View {
     @Environment(AppModel.self) private var model
     @State private var confirming: LeaveLedger.Credit?
     @State private var addingCorrection = false
-    @State private var message: String?
+    /// Outcome of the last action on this screen, with its tone: a refused
+    /// action used to show the core's error in a green success notice.
+    @State private var message: (text: String, ok: Bool)?
+    @State private var pendingDelete: LeaveAdjustment?
+    @State private var confirmingReconcile = false
+    @State private var working = false
 
     /// 연가 내역 is no longer a tab (Stitch Civic Codex: 홈 · 캘린더 · 급여 ·
     /// 내 정보). It is pushed from the 홈 leave card and from 캘린더, inside
@@ -26,10 +31,17 @@ struct LeaveView: View {
                             ForEach(ledger.warnings, id: \.self) { SGNotice(.warning, title: $0) }
                         }
                     }
-                    if let message { SGNotice(.success, title: message) }
+                    ProjectionStaleNotice()
                     CreditsCard(ledger: ledger, text: text, onConfirm: { confirming = $0 })
-                    ReconciliationCard(ledger: ledger, text: text, onApply: applyReconciliation)
-                    CorrectionsCard(adjustments: corrections, onAdd: { addingCorrection = true }, onDelete: deleteAdjustment)
+                    // Next to the cards whose actions it reports.
+                    if let message {
+                        SGNotice(message.ok ? .success : .warning, title: message.text)
+                    }
+                    ReconciliationCard(ledger: ledger, text: text, onApply: { confirmingReconcile = true })
+                        .disabled(working)
+                    CorrectionsCard(adjustments: corrections, onAdd: { addingCorrection = true },
+                                    onDelete: { pendingDelete = $0 })
+                        .disabled(working)
                     UsageCard(ledger: ledger, text: text)
                     AssumptionsCard(items: ledger.assumptions + (ledger.reconciliation.assumptions ?? []))
                 }
@@ -38,17 +50,33 @@ struct LeaveView: View {
                 .frame(maxWidth: SGLayout.readableWidth)
                 .frame(maxWidth: .infinity)
             } else {
-                SGLoadingState()
+                ProjectionPlaceholder()
             }
         }
         .background(.sg(SGColor.background))
         .sgScreenChrome()
         .navigationTitle("연가 내역")
         .sheet(item: $confirming) { credit in
-            ConfirmCreditSheet(credit: credit) { message = "\(credit.label) 부여 일수를 저장했어요." }
+            ConfirmCreditSheet(credit: credit) { message = (text: "\(credit.label) 부여 일수를 저장했어요.", ok: true) }
         }
         .sheet(isPresented: $addingCorrection) {
-            CorrectionSheet { message = "보정을 저장했어요." }
+            CorrectionSheet { message = (text: "보정을 저장했어요.", ok: true) }
+        }
+        // Both change 남은 연가; a deleted correction cannot be restored from
+        // the app, so each asks first (one tap used to apply it at once).
+        .confirmationDialog("기관 기록에 맞춰 보정할까요?", isPresented: $confirmingReconcile, titleVisibility: .visible) {
+            Button("보정 추가") { applyReconciliation() }
+            Button("취소", role: .cancel) {}
+        } message: {
+            Text("기관 자료와의 차이만큼 보정 기록을 하나 더해요. 나중에 보정 카드에서 지울 수 있어요.")
+        }
+        .confirmationDialog("이 보정을 지울까요?", isPresented: Binding(
+            get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } }
+        ), titleVisibility: .visible, presenting: pendingDelete) { adjustment in
+            Button("지우기", role: .destructive) { deleteAdjustment(adjustment) }
+            Button("취소", role: .cancel) {}
+        } message: { _ in
+            Text("남은 연가가 다시 계산돼요. 지운 보정은 되돌릴 수 없어요.")
         }
     }
 
@@ -61,22 +89,27 @@ struct LeaveView: View {
     /// as the web ledger panel records it.
     private func applyReconciliation() {
         guard let ledger = model.projection?.ledger, let difference = ledger.reconciliation.difference,
-              let comparedAt = ledger.reconciliation.comparedAt else { return }
+              let comparedAt = ledger.reconciliation.comparedAt, !working else { return }
+        working = true
         Task {
+            defer { working = false }
             let issues = await model.run("addLeaveCorrection", [.object([
                 "effectiveDate": .string(comparedAt.description),
                 "halfDays": .number(Double(difference.halfDays)),
                 "minutes": .number(Double(difference.minutes)),
                 "reason": .string("기관 자료(\(comparedAt) 기준)에 맞춤"),
             ])])
-            message = issues.isEmpty ? "기관 기록에 맞춰 보정했어요." : issues.first?.message
+            message = issues.isEmpty ? (text: "기관 기록에 맞춰 보정했어요.", ok: true) : (text: issues.first?.message ?? ErrorCopy.saveFailed, ok: false)
         }
     }
 
     private func deleteAdjustment(_ adjustment: LeaveAdjustment) {
+        guard !working else { return }
+        working = true
         Task {
+            defer { working = false }
             let issues = await model.run("deleteLeaveAdjustment", [.string(adjustment.id)])
-            message = issues.isEmpty ? "보정을 지웠어요." : issues.first?.message
+            message = issues.isEmpty ? (text: "보정을 지웠어요.", ok: true) : (text: issues.first?.message ?? ErrorCopy.saveFailed, ok: false)
         }
     }
 }

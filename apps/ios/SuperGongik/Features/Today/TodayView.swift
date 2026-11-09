@@ -20,6 +20,10 @@ struct TodayView: View {
     @State private var editorPatch: [String: JSONValue] = [:]
     @State private var showingLedger: Bool
     @State private var milestones: [ServiceMilestoneItem] = []
+    /// A record opened from the 홈 agenda (same editor as 캘린더).
+    @State private var editingEvent: ServiceEvent?
+    @State private var scroll = ScrollPosition(edge: .top)
+    @Environment(\.tabReselect) private var reselect
 
     init(openTab: @escaping (AppTab) -> Void, showsLedgerInitially: Bool = false) {
         self.openTab = openTab
@@ -56,7 +60,8 @@ struct TodayView: View {
                             // What is happening today or next comes before the
                             // status ledger: after the actions, the agenda is the
                             // first thing a day-to-day visit needs (IOS-06).
-                            AgendaSection(home: home, projection: projection, openCalendar: { openTab(.calendar) })
+                            AgendaSection(home: home, projection: projection, openCalendar: { openTab(.calendar) },
+                                          openEvent: { editingEvent = $0 })
                                 .padding(.top, home.completed ? SGSpacing.md : 0)
                             if !home.completed {
                                 LedgerGrid(home: home, projection: projection,
@@ -70,9 +75,8 @@ struct TodayView: View {
                             if home.hero.phase == "IN_SERVICE" {
                                 JourneyNote(hero: home.hero)
                             }
-                            if let error = model.lastWriteError {
-                                SGNotice(.warning, title: error)
-                            }
+                            ProjectionStaleNotice()
+                            WriteErrorNotice()
                         }
                         .padding(.horizontal, SGSpacing.gutter)
                         .padding(.bottom, SGSpacing.xl)
@@ -89,17 +93,25 @@ struct TodayView: View {
                         #endif
                     }
                 } else {
-                    SGLoadingState()
+                    ProjectionPlaceholder()
                 }
             }
+            .scrollPosition($scroll)
             .background(.sg(SGColor.background))
             .sgScreenChrome()
             // The app header replaces the navigation bar on 홈 (Stitch).
             .toolbar(.hidden, for: .navigationBar)
             .navigationTitle("홈")
             .navigationDestination(isPresented: $showingLedger) { LeaveView() }
+            // Tapping 홈 again: close 연가 내역 first, then back to the top.
+            .onChange(of: reselect) {
+                if showingLedger { showingLedger = false } else { withAnimation { scroll.scrollTo(edge: .top) } }
+            }
             .sheet(item: $editorDate) { date in
                 EventEditorSheet(event: nil, initialDate: date, initialType: editorType, initialPatch: editorPatch)
+            }
+            .sheet(item: $editingEvent) { event in
+                EventEditorSheet(event: event, initialDate: event.startDate)
             }
         }
     }
@@ -330,6 +342,7 @@ private struct HeroSky: View {
     let celebrate: Bool
     @Environment(\.sgTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.sgMotionPaused) private var paused
     @State private var drift = false
 
     var body: some View {
@@ -362,11 +375,24 @@ private struct HeroSky: View {
                 SGStarfield()
             }
         }
-        .onAppear {
-            guard warrior, !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 18).repeatForever(autoreverses: true)) { drift = true }
+        .onAppear { if warrior && !reduceMotion && !paused { startDrift() } }
+        // Hidden tab: rest the drift; resume when 홈 is shown again.
+        .onChange(of: paused) { _, now in
+            if now {
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction) { drift = false }
+            } else if warrior && !reduceMotion {
+                startDrift()
+            }
         }
         .accessibilityHidden(true)
+    }
+}
+
+extension HeroSky {
+    private func startDrift() {
+        withAnimation(.easeInOut(duration: 18).repeatForever(autoreverses: true)) { drift = true }
     }
 }
 
@@ -590,16 +616,17 @@ private struct TrailPanel: View {
     }
 }
 
-/// Second-level progress. `TimelineView` only produces entries while the
-/// view is on screen and the app is active, so nothing ticks in the
-/// background. With Reduce Motion the value still updates every second
-/// (accuracy matters); only interpolation is off, as on the web.
+/// Second-level progress. The schedule ticks once a second and is paused
+/// while 홈 is a hidden tab (tabs stay alive under an opacity-0 layer, so
+/// "on screen" alone did not stop it). With Reduce Motion the value still
+/// updates every second (accuracy matters); only interpolation is off.
 private struct LiveReadout: View {
     let period: ServicePeriod
     let dot: Color
+    @Environment(\.sgMotionPaused) private var paused
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 1)) { context in
+        TimelineView(.animation(minimumInterval: 1, paused: paused)) { context in
             let live = LiveServiceProgress.calculate(period, now: context.date)
             let percent = live.formattedPercentage()
             VStack(spacing: 2) {
@@ -884,7 +911,10 @@ private struct LedgerGrid: View {
             }
         } footer: {
             if leave.kind == "READY", let granted {
-                TileFooter(leading: "부여 \(granted)", trailing: TodayView.remainingFraction(projection.ledger)
+                let fraction = TodayView.remainingFraction(projection.ledger)
+                // Figma 202:3614's remaining/granted bar, inside the PR #70 tile.
+                if let fraction { LeaveRemainingBar(fraction: fraction) }
+                TileFooter(leading: "부여 \(granted)", trailing: fraction
                     .map { "\(Int(($0 * 100).rounded()))% 남음" })
             } else {
                 TileFooter(leading: leave.caption, trailing: nil)
@@ -1080,6 +1110,24 @@ private struct TileValue: View {
     }
 }
 
+/// Share of granted leave still left (Figma 202:3614 "남은 연가" bar). The
+/// number beside it carries the value; the bar is decoration for VoiceOver.
+private struct LeaveRemainingBar: View {
+    let fraction: Double
+
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule().fill(.sg(SGColor.selectedBackground))
+                Capsule().fill(.sg(SGColor.accent))
+                    .frame(width: proxy.size.width * min(1, max(0, fraction)))
+            }
+        }
+        .frame(height: 6)
+        .accessibilityHidden(true)
+    }
+}
+
 private struct TileFooter: View {
     let leading: String
     let trailing: String?
@@ -1111,6 +1159,7 @@ private struct AgendaSection: View {
     let home: HomeModel
     let projection: Projection
     let openCalendar: () -> Void
+    let openEvent: (ServiceEvent) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: SGSpacing.sm) {
@@ -1144,12 +1193,20 @@ private struct AgendaSection: View {
                 .sgShadow(.small)
             } else {
                 ForEach(items) { item in
-                    AgendaRow(item: item, display: projection.eventDisplay?[item.event.id])
-                        .padding(.horizontal, SGSpacing.sm)
-                        .padding(.vertical, SGSpacing.xxs)
-                        .background(.sg(SGColor.surface), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .sgShadow(.small)
-                        .sgWarriorFrame(cornerRadius: 14, emphasis: 0.6)
+                    // Tapping a row opens the record, as the same row does in
+                    // 캘린더; on 홈 the only way used to be 전체보기.
+                    Button { openEvent(item.event) } label: {
+                        AgendaRow(item: item, display: projection.eventDisplay?[item.event.id])
+                            .padding(.horizontal, SGSpacing.sm)
+                            .padding(.vertical, SGSpacing.xxs)
+                            .background(.sg(SGColor.surface), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    }
+                    .buttonStyle(SGPressableStyle())
+                    .accessibilityHint("기록 수정")
+                    .accessibilityIdentifier("home.agenda.row")
+                    .sgShadow(.small)
+                    .sgWarriorFrame(cornerRadius: 14, emphasis: 0.6)
                 }
             }
         }

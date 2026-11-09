@@ -10,6 +10,29 @@ import SwiftUI
 // state. The standard theme draws none of them except the live dot's ping,
 // which Stitch uses in its light screens too.
 
+/// True while the view is in a tab that is not on screen (the app keeps
+/// every opened tab alive under an opacity-0 layer). Every looping effect
+/// rests then, exactly as with Reduce Motion, and resumes when the tab
+/// returns, so hidden tabs do not keep animating.
+private struct SGMotionPausedKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+public extension EnvironmentValues {
+    var sgMotionPaused: Bool {
+        get { self[SGMotionPausedKey.self] }
+        set { self[SGMotionPausedKey.self] = newValue }
+    }
+}
+
+/// Sets `value` with no animation, which also ends a repeating one.
+@MainActor
+func sgSetWithoutAnimation(_ body: () -> Void) {
+    var transaction = Transaction()
+    transaction.disablesAnimations = true
+    withTransaction(transaction, body)
+}
+
 /// Stitch gold, as a plain color for glows (shadows need a `Color`).
 public enum SGGlow {
     public static let gold = RGB(0xFDCF7C).color
@@ -25,7 +48,10 @@ public struct SGPulseDot: View {
     let color: Color
     let size: CGFloat
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.sgMotionPaused) private var paused
     @State private var ping = false
+
+    private var still: Bool { reduceMotion || paused }
 
     public init(_ color: Color, size: CGFloat = 7) {
         self.color = color
@@ -38,7 +64,7 @@ public struct SGPulseDot: View {
             .frame(width: size, height: size)
             .shadow(color: color.opacity(0.8), radius: 3)
             .background {
-                if !reduceMotion {
+                if !still {
                     Circle()
                         .fill(color)
                         .frame(width: size, height: size)
@@ -46,11 +72,15 @@ public struct SGPulseDot: View {
                         .opacity(ping ? 0 : 0.55)
                 }
             }
-            .onAppear {
-                guard !reduceMotion else { return }
-                withAnimation(.easeOut(duration: 1.6).repeatForever(autoreverses: false)) { ping = true }
+            .onAppear { if !still { start() } }
+            .onChange(of: still) { _, now in
+                if now { sgSetWithoutAnimation { ping = false } } else { start() }
             }
             .accessibilityHidden(true)
+    }
+
+    private func start() {
+        withAnimation(.easeOut(duration: 1.6).repeatForever(autoreverses: false)) { ping = true }
     }
 }
 
@@ -101,19 +131,27 @@ public struct SGBreathingGlow: ViewModifier {
     let radius: CGFloat
     @Environment(\.sgTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.sgMotionPaused) private var paused
     @State private var high = false
 
     public func body(content: Content) -> some View {
+        let still = reduceMotion || paused
         if theme == .warrior {
             content
                 .shadow(color: color.opacity(high ? 0.85 : 0.45), radius: high ? radius * 1.6 : radius)
-                .onAppear {
-                    guard !reduceMotion else { return }
-                    withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) { high = true }
+                .onAppear { if !still { breathe() } }
+                .onChange(of: still) { _, now in
+                    if now { sgSetWithoutAnimation { high = false } } else { breathe() }
                 }
         } else {
             content
         }
+    }
+}
+
+extension SGBreathingGlow {
+    private func breathe() {
+        withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) { high = true }
     }
 }
 
@@ -129,10 +167,11 @@ public struct SGShimmer: ViewModifier {
     let period: Double
     @Environment(\.sgTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.sgMotionPaused) private var paused
     @State private var phase: CGFloat = -1
 
     public func body(content: Content) -> some View {
-        if theme == .warrior && !reduceMotion {
+        if theme == .warrior && !reduceMotion && !paused {
             content
                 .overlay {
                     GeometryReader { proxy in
@@ -150,6 +189,8 @@ public struct SGShimmer: ViewModifier {
                         phase = 1
                     }
                 }
+                // Removed while paused: start from the left edge on return.
+                .onDisappear { sgSetWithoutAnimation { phase = -1 } }
         } else {
             content
         }
@@ -172,11 +213,13 @@ public struct SGStarfield: View {
         (0.48, 0.20, 1.2, 1.4), (0.79, 0.27, 1.6, 0.7), (0.04, 0.30, 1.4, 1.9), (0.93, 0.33, 1.2, 2.6),
     ]
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.sgMotionPaused) private var paused
     @State private var lit = false
 
     public init() {}
 
     public var body: some View {
+        let still = reduceMotion || paused
         GeometryReader { proxy in
             ForEach(Array(Self.stars.enumerated()), id: \.offset) { _, star in
                 Circle()
@@ -184,13 +227,19 @@ public struct SGStarfield: View {
                     .frame(width: star.size, height: star.size)
                     .shadow(color: SGGlow.gold.opacity(0.9), radius: star.size * 1.5)
                     .position(x: proxy.size.width * star.x, y: proxy.size.height * star.y)
-                    .opacity(reduceMotion ? 0.6 : (lit ? 1 : 0.15))
-                    .animation(reduceMotion ? nil
+                    .opacity(still ? 0.6 : (lit ? 1 : 0.15))
+                    .animation(still ? nil
                                : .easeInOut(duration: 1.8).repeatForever(autoreverses: true).delay(star.delay),
                                value: lit)
             }
         }
         .onAppear { lit = true }
+        // Back on screen: flip `lit` so the twinkle animation starts again.
+        .onChange(of: still) { _, now in
+            guard !now else { return }
+            lit = false
+            Task { @MainActor in lit = true }
+        }
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }

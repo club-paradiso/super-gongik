@@ -148,3 +148,31 @@ struct PrivacyCoverView: View {
         .accessibilityElement(children: .contain)
     }
 }
+
+/// Shows `PrivacyCoverView` in its own window above everything, sheets and
+/// alerts included. The SwiftUI overlay on the root view sits under modal
+/// sheets, so with 앱 잠금 on, an open 복무 설정 or 근무일 확인 sheet stayed
+/// visible and usable over the lock, and in the app-switcher snapshot.
+@MainActor
+final class PrivacyCoverWindow {
+    private var window: UIWindow?
+
+    func update(visible: Bool, lock: PrivacyLock, theme: SGTheme) {
+        guard visible else {
+            window?.isHidden = true
+            window = nil
+            return
+        }
+        guard window == nil,
+              let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first
+        else { return }
+        let host = UIHostingController(rootView: PrivacyCoverView()
+            .environment(lock)
+            .environment(\.sgTheme, theme))
+        let window = UIWindow(windowScene: scene)
+        window.windowLevel = .alert + 1
+        window.rootViewController = host
+        window.isHidden = false
+        self.window = window
+    }
+}

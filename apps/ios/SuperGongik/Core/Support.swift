@@ -19,7 +19,27 @@ enum ErrorCopy {
     static let saveFailed = "저장하지 못했어요. 바뀐 내용은 없어요. 다시 시도해 주세요."
     static let readOnly = "새 버전 앱에서 저장한 데이터라 이 버전에서는 바꿀 수 없어요. 앱을 업데이트해 주세요."
     static let payUnavailable = "급여 계산을 불러오지 못했어요. 기록은 그대로 있어요. 다시 시도해 주세요."
+    static let projectionFailed = "오늘 화면을 계산하지 못했어요."
+    static let projectionFailedDetail = "이 기기에 저장된 기록은 그대로 있어요. 다시 불러와도 같으면 앱을 다시 열어 주세요."
+    static let projectionStale = "최신 내용을 불러오지 못했어요. 마지막으로 계산한 화면을 보여 드려요."
     static let payStale = "최신 계산을 불러오지 못했어요. 마지막으로 계산한 결과를 보여 드려요."
+}
+
+/// "Today" for the app (Asia/Seoul). DEBUG builds accept `-SGToday 2026-03-14`
+/// so screenshot QA and UI tests render the same date as the Figma sample
+/// frames (page 52 draws 2026-03-14, D-306); release builds always use the
+/// device clock.
+enum AppClock {
+    static func today(at instant: Date = .now) -> CivilDate {
+        #if DEBUG
+        if let pinned = pinnedToday { return pinned }
+        #endif
+        return SeoulClock.today(at: instant)
+    }
+
+    #if DEBUG
+    static let pinnedToday: CivilDate? = UserDefaults.standard.string(forKey: "SGToday").flatMap { CivilDate($0) }
+    #endif
 }
 
 enum Formatters {

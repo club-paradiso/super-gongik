@@ -1,9 +1,9 @@
 import SGCore
 
 /// Where each missing input of a month's compensation is entered, derived
-/// from the shared evaluation's structured fields — component keys and
-/// statuses and `serviceDays.missing` codes — never from its Korean text, so
-/// the shortcuts stay right when wording changes. The evaluation itself and
+/// from the shared evaluation's structured fields — component keys, statuses
+/// and gate codes, and `serviceDays.missing` codes — never from its Korean
+/// text, so the shortcuts stay right when wording changes. The evaluation itself and
 /// its gates are untouched: these only open the right form.
 enum PaySetupActions {
     enum Target: Hashable {
@@ -45,12 +45,13 @@ enum PaySetupActions {
             case ("BASE_PAY", "NEEDS_INPUT"):
                 add(.profile(.priorService), "이전 복무 경력 입력")
             case ("BASE_PAY", "GATED"):
-                // A partial credited month gates on the profile; non-payable
-                // dates and the rounding policy gate on the month confirmation.
-                if component.explanation.contains("인정 기간") {
-                    add(.profile(.priorService), "이전 복무 인정 기간 확인")
-                } else {
-                    add(.attendance, "미지급 날짜·끝수 처리 확인")
+                switch component.gate {
+                case "PRIOR_SERVICE_PARTIAL_MONTH": add(.profile(.priorService), "이전 복무 인정 기간 확인")
+                case "NON_PAYABLE_DATES": add(.attendance, "미지급 날짜 확인")
+                case "ROUNDING_POLICY": add(.attendance, "끝수 처리 기준 확인")
+                // An unknown reason gets no shortcut rather than a guessed
+                // form; the screen still shows the evaluation's explanation.
+                default: break
                 }
             case ("MEAL", "NEEDS_INPUT") where component.dailyRate == nil:
                 add(.profile(.meal), "기관 중식비 확인")

@@ -216,6 +216,7 @@ describe("prior-service credit (병역법 시행령 제62조②)", () => {
     expect(result.components[0]).toMatchObject({
       status: "GATED",
       monthlyAmount: null,
+      gate: "PRIOR_SERVICE_PARTIAL_MONTH",
     });
   });
 });
@@ -235,8 +236,13 @@ describe("call-up and discharge months stay gated (제41조⑤, rounding unresol
     expect(result.components[0]).toMatchObject({
       status: "GATED",
       monthlyAmount: null,
+      gate: "ROUNDING_POLICY",
     });
     expect(result.total).toBeNull();
+    // gate is set exactly on GATED components (clients route on it).
+    for (const component of result.components) {
+      expect(component.gate !== null).toBe(component.status === "GATED");
+    }
   });
 
   it("pins the month's divisor and holiday-inclusive calendar-day semantics", () => {
@@ -306,6 +312,7 @@ describe("call-up and discharge months stay gated (제41조⑤, rounding unresol
     expect(result.components[0]).toMatchObject({
       status: "GATED",
       monthlyAmount: null,
+      gate: "ROUNDING_POLICY",
     });
     expect(result.components[0]?.explanation).toContain("다른 회계 기준");
   });
@@ -756,6 +763,7 @@ describe("monthly total", () => {
       rateSource: "OFFICIAL_MINIMUM",
       eligibleDays: 22,
       monthlyAmount: 9000 * 22,
+      gate: null,
     });
     expect(result.total).toBe(1_200_000 + 9000 * 22 + 2800 * 22);
   });
@@ -790,6 +798,7 @@ describe("monthly total", () => {
     expect(result.components[0]).toMatchObject({
       status: "GATED",
       monthlyAmount: null,
+      gate: "NON_PAYABLE_DATES",
     });
     expect(result.total).toBeNull();
   });

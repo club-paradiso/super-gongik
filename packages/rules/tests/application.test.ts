@@ -106,6 +106,7 @@ describe("monthly compensation gating", () => {
     expect(result.components[0]).toMatchObject({
       status: "CALCULATED",
       monthlyAmount: 1_200_000,
+      gate: null,
     });
     // The MMA 2026 minimum is known, but the month's days are not confirmed.
     expect(result.components[1]).toMatchObject({
