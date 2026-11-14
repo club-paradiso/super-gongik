@@ -1,25 +1,42 @@
 // Boot, lights, grade timeline and the frame entry point.
 // window.__renderFrame(n) renders frame n (t = n / FPS) from nothing but n: any order, any machine.
-import * as THREE from 'three';
-import { FPS, DUR, FRAMES, T, stormAt, flashAt, whiteAt, fadeAt, fringeAt, shotAt } from './timeline.js';
-import { keyed, track, win, pulse, sstep, clamp } from './util.js';
-import { buildWorld, SUN_DIR, BLAST_AT } from './world.js';
-import { buildDragon, throatAt } from './dragon.js';
-import { buildAgent } from './agent.js';
-import { buildFx } from './fx.js';
-import { buildPost } from './post.js';
-import { cameraAt } from './camera.js';
+import * as THREE from "three";
+import {
+  FPS,
+  DUR,
+  FRAMES,
+  T,
+  stormAt,
+  flashAt,
+  whiteAt,
+  fadeAt,
+  fringeAt,
+  shotAt,
+} from "./timeline.js";
+import { keyed, track, win, pulse, sstep, clamp } from "./util.js";
+import { buildWorld, SUN_DIR, BLAST_AT } from "./world.js";
+import { buildDragon, throatAt } from "./dragon.js";
+import { buildAgent } from "./agent.js";
+import { buildFx } from "./fx.js";
+import { buildPost } from "./post.js";
+import { cameraAt } from "./camera.js";
 
 const qs = new URLSearchParams(location.search);
-const W = +(qs.get('w') || 1280), H = +(qs.get('h') || 536);
-const SAMPLES = +(qs.get('msaa') ?? 4);
+const W = +(qs.get("w") || 1280),
+  H = +(qs.get("h") || 536);
+const SAMPLES = +(qs.get("msaa") ?? 4);
 
-const canvas = document.createElement('canvas');
+const canvas = document.createElement("canvas");
 canvas.width = W;
 canvas.height = H;
-canvas.style.width = '100%';
+canvas.style.width = "100%";
 document.body.appendChild(canvas);
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: false,
+  preserveDrawingBuffer: true,
+  powerPreference: "high-performance",
+});
 renderer.setPixelRatio(1);
 renderer.setSize(W, H, false);
 renderer.shadowMap.enabled = true;
@@ -36,11 +53,20 @@ const sun = new THREE.DirectionalLight(new THREE.Color(1.0, 0.6, 0.36), 3.4);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 const sc = sun.shadow.camera;
-sc.left = -48; sc.right = 48; sc.top = 48; sc.bottom = -48; sc.near = 1; sc.far = 400;
+sc.left = -48;
+sc.right = 48;
+sc.top = 48;
+sc.bottom = -48;
+sc.near = 1;
+sc.far = 400;
 sun.shadow.bias = -0.0015;
 sun.shadow.normalBias = 0.12;
 scene.add(sun, sun.target);
-const hemi = new THREE.HemisphereLight(new THREE.Color(0.36, 0.3, 0.62), new THREE.Color(0.28, 0.13, 0.08), 0.9);
+const hemi = new THREE.HemisphereLight(
+  new THREE.Color(0.36, 0.3, 0.62),
+  new THREE.Color(0.28, 0.13, 0.08),
+  0.9,
+);
 scene.add(hemi);
 const storm = new THREE.DirectionalLight(new THREE.Color(0.6, 0.7, 1.0), 0);
 storm.position.set(-40, 120, -200);
@@ -57,10 +83,10 @@ const fx = buildFx(scene, world, dragon, agent);
 const post = buildPost(renderer, W, H, SAMPLES);
 
 // ---------- titles (Latin only: the render machine has no CJK font) ----------
-const titleCanvas = document.createElement('canvas');
+const titleCanvas = document.createElement("canvas");
 titleCanvas.width = W;
 titleCanvas.height = H;
-const tctx = titleCanvas.getContext('2d');
+const tctx = titleCanvas.getContext("2d");
 const titleTex = new THREE.CanvasTexture(titleCanvas);
 titleTex.colorSpace = THREE.NoColorSpace;
 post.comp.tTitle.value = titleTex;
@@ -71,10 +97,10 @@ const drawTitle = (which) => {
   tctx.clearRect(0, 0, W, H);
   if (which === 0) return;
   const s = H / 536;
-  tctx.textAlign = 'center';
-  tctx.textBaseline = 'middle';
-  tctx.fillStyle = 'rgba(255,240,226,1)';
-  tctx.shadowColor = 'rgba(0,0,0,0.6)';
+  tctx.textAlign = "center";
+  tctx.textBaseline = "middle";
+  tctx.fillStyle = "rgba(255,240,226,1)";
+  tctx.shadowColor = "rgba(0,0,0,0.6)";
   tctx.shadowBlur = 18 * s;
   const spaced = (txt, x, y, sp) => {
     const chars = [...txt];
@@ -88,10 +114,17 @@ const drawTitle = (which) => {
   };
   tctx.font = `bold ${Math.round(54 * s)}px "DejaVu Serif", serif`;
   const tx = which === 1 ? W / 2 : W * 0.3;
-  spaced('SUPER-GONGIK', tx, which === 1 ? H * 0.42 : H * 0.46, 14 * s);
+  spaced("SUPER-GONGIK", tx, which === 1 ? H * 0.42 : H * 0.46, 14 * s);
   tctx.font = `${Math.round(15 * s)}px "DejaVu Sans", sans-serif`;
-  tctx.fillStyle = 'rgba(255,214,170,0.95)';
-  spaced(which === 1 ? 'SOCIAL SERVICE AGENT  vs  THE WHITE DRAGON' : 'END OF SHIFT  ·  18:00', tx, which === 1 ? H * 0.53 : H * 0.57, 5 * s);
+  tctx.fillStyle = "rgba(255,214,170,0.95)";
+  spaced(
+    which === 1
+      ? "SOCIAL SERVICE AGENT  vs  THE WHITE DRAGON"
+      : "END OF SHIFT  ·  18:00",
+    tx,
+    which === 1 ? H * 0.53 : H * 0.57,
+    5 * s,
+  );
   titleTex.needsUpdate = true;
 };
 
@@ -112,7 +145,16 @@ const GRADE = track([
   [80, 1.05, 1.08, 1.08, 0.97, 0.9, 1.0],
   [90, 1.0, 1.05, 1.08, 0.97, 0.9, 1.0],
 ]);
-const fogDensity = keyed([[0, 0.0018], [10, 0.0028], [26, 0.0026], [32, 0.002], [69, 0.002], [70, 0.004], [74, 0.0026], [80, 0.0018]]);
+const fogDensity = keyed([
+  [0, 0.0018],
+  [10, 0.0028],
+  [26, 0.0026],
+  [32, 0.002],
+  [69, 0.002],
+  [70, 0.004],
+  [74, 0.0026],
+  [80, 0.0018],
+]);
 
 const sunScr = new THREE.Vector3();
 const sunV = new THREE.Vector3();
@@ -126,8 +168,15 @@ function renderAt(n) {
   world.update(t, camera);
   fx.update(t, camera, H / (2 * Math.tan((camera.fov * Math.PI) / 360)));
   // light rig
-  const st = stormAt(t), fl = flashAt(t);
-  const focus = shot.name === 'emerge' || shot.name === 'cloud' || shot.name === 'flyby' || shot.name === 'dive' ? dragon.st.chest : new THREE.Vector3(0, 0, -10);
+  const st = stormAt(t),
+    fl = flashAt(t);
+  const focus =
+    shot.name === "emerge" ||
+    shot.name === "cloud" ||
+    shot.name === "flyby" ||
+    shot.name === "dive"
+      ? dragon.st.chest
+      : new THREE.Vector3(0, 0, -10);
   sun.target.position.copy(focus);
   sun.position.copy(focus).addScaledVector(SUN_DIR, 150);
   sun.intensity = 3.4 * (1 - 0.7 * st);
@@ -153,29 +202,44 @@ function renderAt(n) {
   const bk = t - T.BLAST;
   if (bk > 0 && bk < 1.0) {
     const p = BLAST_AT.clone().project(camera);
-    c.uRing.value.set(p.x * 0.5 + 0.5, p.y * 0.5 + 0.5, bk * 1.4, (1 - bk) * (p.z < 1 ? 1 : 0));
+    c.uRing.value.set(
+      p.x * 0.5 + 0.5,
+      p.y * 0.5 + 0.5,
+      bk * 1.4,
+      (1 - bk) * (p.z < 1 ? 1 : 0),
+    );
   } else c.uRing.value.set(0, 0, 0, 0);
   // titles
-  const tw1 = win(t, 5.0, 8.6, 0.9, 0.9), tw2 = win(t, T.TITLE2, DUR, 1.0, 0.01);
+  const tw1 = win(t, 5.0, 8.6, 0.9, 0.9),
+    tw2 = win(t, T.TITLE2, DUR, 1.0, 0.01);
   drawTitle(tw1 > 0 ? 1 : tw2 > 0 ? 2 : 0);
-  c.uTitle.value = Math.max(tw1, tw2 * (1 - sstep(T.OUT + 0.4, DUR, t) * 0) );
+  c.uTitle.value = Math.max(tw1, tw2 * (1 - sstep(T.OUT + 0.4, DUR, t) * 0));
   // sun shafts: only when the sun is in front of the lens
   sunScr.copy(camera.position).addScaledVector(SUN_DIR, 1000).project(camera);
   const inFront = sunScr.z < 1 ? 1 : 0;
-  const onScreen = inFront * sstep(1.6, 0.9, Math.max(Math.abs(sunScr.x), Math.abs(sunScr.y)));
-  post.render(scene, camera, new THREE.Vector2(sunScr.x * 0.5 + 0.5, sunScr.y * 0.5 + 0.5), onScreen * ray * (1 - 0.8 * st));
+  const onScreen =
+    inFront * sstep(1.6, 0.9, Math.max(Math.abs(sunScr.x), Math.abs(sunScr.y)));
+  post.render(
+    scene,
+    camera,
+    new THREE.Vector2(sunScr.x * 0.5 + 0.5, sunScr.y * 0.5 + 0.5),
+    onScreen * ray * (1 - 0.8 * st),
+  );
   return { t, shot: shot.name };
 }
 
 // QA statistics on a small copy of the frame
-const statC = document.createElement('canvas');
+const statC = document.createElement("canvas");
 statC.width = 64;
 statC.height = 27;
-const statX = statC.getContext('2d', { willReadFrequently: true });
+const statX = statC.getContext("2d", { willReadFrequently: true });
 function stats() {
   statX.drawImage(canvas, 0, 0, 64, 27);
   const d = statX.getImageData(0, 0, 64, 27).data;
-  let s = 0, s2 = 0, n = 0, clip = 0;
+  let s = 0,
+    s2 = 0,
+    n = 0,
+    clip = 0;
   for (let i = 0; i < d.length; i += 4) {
     const l = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
     s += l;
@@ -184,18 +248,33 @@ function stats() {
     if (l > 250) clip++;
   }
   const mean = s / n;
-  return { mean, std: Math.sqrt(Math.max(0, s2 / n - mean * mean)), clip: clip / n };
+  return {
+    mean,
+    std: Math.sqrt(Math.max(0, s2 / n - mean * mean)),
+    clip: clip / n,
+  };
 }
 
 window.__renderFrame = (n, opts = {}) => {
   const r = renderAt(n);
   const out = { ...r, n };
   if (opts.stats) out.stats = stats();
-  if (opts.jpeg) out.data = canvas.toDataURL('image/jpeg', opts.quality || 0.94);
-  if (opts.png) out.data = canvas.toDataURL('image/png');
+  if (opts.jpeg)
+    out.data = canvas.toDataURL("image/jpeg", opts.quality || 0.94);
+  if (opts.png) out.data = canvas.toDataURL("image/png");
   return out;
 };
-window.__dbg = { THREE, scene, dragon, agent, fx, world, post, camera, renderer };
+window.__dbg = {
+  THREE,
+  scene,
+  dragon,
+  agent,
+  fx,
+  world,
+  post,
+  camera,
+  renderer,
+};
 window.__INFO = { W, H, FPS, DUR, FRAMES, T, three: THREE.REVISION };
 // warm up: compile every program once
 renderAt(0);
@@ -204,12 +283,12 @@ renderAt(Math.round(T.BLAST * FPS + 3));
 window.__READY = true;
 
 // live preview: ?play
-if (qs.has('play')) {
-  const t0 = performance.now() - (+(qs.get('t') || 0)) * 1000;
+if (qs.has("play")) {
+  const t0 = performance.now() - +(qs.get("t") || 0) * 1000;
   const loop = () => {
     const t = ((performance.now() - t0) / 1000) % DUR;
     renderAt(Math.floor(t * FPS));
     requestAnimationFrame(loop);
   };
   loop();
-} else if (qs.has('f')) renderAt(+qs.get('f'));
+} else if (qs.has("f")) renderAt(+qs.get("f"));

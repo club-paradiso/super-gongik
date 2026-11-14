@@ -8,13 +8,13 @@ models, images, sound files, generative-video APIs or AI-produced frames anywher
 This folder is **not** part of the pnpm workspace (`pnpm-workspace.yaml` lists only `apps/*` and
 `packages/*`) and touches nothing in `apps/` or `packages/`. The production app is unchanged.
 
-| | |
-|---|---|
-| Engine | three.js r170 (WebGL 2), custom GLSL, no other runtime dependency |
-| Length | 90.000 s, 30 fps, 2,700 frames, 32 shots |
-| Picture | 2.39:1 rendered at 1920×804, letterboxed into 1920×1080 H.264 |
-| Sound | 48 kHz stereo, synthesised offline in Node from the same beat sheet |
-| Determinism | every frame is a pure function of its frame number |
+|             |                                                                     |
+| ----------- | ------------------------------------------------------------------- |
+| Engine      | three.js r170 (WebGL 2), custom GLSL, no other runtime dependency   |
+| Length      | 90.000 s, 30 fps, 2,700 frames, 32 shots                            |
+| Picture     | 2.39:1 rendered at 1920×804, letterboxed into 1920×1080 H.264       |
+| Sound       | 48 kHz stereo, synthesised offline in Node from the same beat sheet |
+| Determinism | every frame is a pure function of its frame number                  |
 
 ## Commands
 
@@ -36,31 +36,31 @@ container this was built in); it is not a dependency of this package. FFmpeg mus
 
 ## The film
 
-| t (s) | Beat | What happens |
-|---|---|---|
-| 0.0 | OPEN | Aerial over the sea at sunset toward the headland |
-| 4.5 | AGENT | The agent walks to the edge of the plaza (title 5.0–8.6) |
-| 9.0 | OMEN | Wind, the cloud bank darkens, lightning (10.25, 11.05, 12.6, 13.15, 15.7) |
-| 16.0 | DESCENT | The white dragon breaks out of the cloud and glides in |
-| 22.0 | LAND | It lands on the cliff edge: dust, shock ring |
-| 23.6–26.4 | ROAR | Wings raised, jaw open, camera shake, lamps flicker |
-| 28.5 | EYE | Extreme close-up, the pupil narrows |
-| 31.0 | DRAW | The agent draws the seal-hammer (an oversized official seal); it ignites |
-| 33.5 | CHARGE | He runs at the dragon |
-| 36.6 | TAIL | The dragon spins; its tail shatters basalt columns; he slides under it |
-| 40.4 | CLAW | Claw strike, parried: sparks |
-| 42.2 | KNOCK | Head strike, he is knocked back |
-| 44.0–50.5 | BREATH | Inhale (throat glows), frost-fire beam; the seal projects a ward; the deflected beam fells a lamp (48.6) and blasts columns (49.6) |
-| 52.4 | TAKEOFF | Downdraft, the dragon climbs over him and circles the headland |
-| 58–64 | RUN / DIVE | He sprints to the column stair as the dragon dives in from the sea |
-| 64–66.5 | COLUMNS | He runs up the columns |
-| 66.5–69 | LEAP | Slow-motion leap, hammer raised |
-| 69.0 | SLAM | The seal lands on the dragon's brow: white-out, shock shell, ground ring; the blast topples the stair, the wall, the bench and two lamps |
-| 70.5 | RECOIL | The dragon is flung out over the sea; he lands |
-| 73–77 | SETTLE | Dust settles, the dragon glides back and lands softly |
-| 77 | BOW | The dragon lowers its head; a red seal mark glows on its brow |
-| 81 | DEPART | It rises into the sunset |
-| 85–90 | END | He shoulders the hammer and tips his cap; "END OF SHIFT · 18:00"; fade |
+| t (s)     | Beat       | What happens                                                                                                                             |
+| --------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| 0.0       | OPEN       | Aerial over the sea at sunset toward the headland                                                                                        |
+| 4.5       | AGENT      | The agent walks to the edge of the plaza (title 5.0–8.6)                                                                                 |
+| 9.0       | OMEN       | Wind, the cloud bank darkens, lightning (10.25, 11.05, 12.6, 13.15, 15.7)                                                                |
+| 16.0      | DESCENT    | The white dragon breaks out of the cloud and glides in                                                                                   |
+| 22.0      | LAND       | It lands on the cliff edge: dust, shock ring                                                                                             |
+| 23.6–26.4 | ROAR       | Wings raised, jaw open, camera shake, lamps flicker                                                                                      |
+| 28.5      | EYE        | Extreme close-up, the pupil narrows                                                                                                      |
+| 31.0      | DRAW       | The agent draws the seal-hammer (an oversized official seal); it ignites                                                                 |
+| 33.5      | CHARGE     | He runs at the dragon                                                                                                                    |
+| 36.6      | TAIL       | The dragon spins; its tail shatters basalt columns; he slides under it                                                                   |
+| 40.4      | CLAW       | Claw strike, parried: sparks                                                                                                             |
+| 42.2      | KNOCK      | Head strike, he is knocked back                                                                                                          |
+| 44.0–50.5 | BREATH     | Inhale (throat glows), frost-fire beam; the seal projects a ward; the deflected beam fells a lamp (48.6) and blasts columns (49.6)       |
+| 52.4      | TAKEOFF    | Downdraft, the dragon climbs over him and circles the headland                                                                           |
+| 58–64     | RUN / DIVE | He sprints to the column stair as the dragon dives in from the sea                                                                       |
+| 64–66.5   | COLUMNS    | He runs up the columns                                                                                                                   |
+| 66.5–69   | LEAP       | Slow-motion leap, hammer raised                                                                                                          |
+| 69.0      | SLAM       | The seal lands on the dragon's brow: white-out, shock shell, ground ring; the blast topples the stair, the wall, the bench and two lamps |
+| 70.5      | RECOIL     | The dragon is flung out over the sea; he lands                                                                                           |
+| 73–77     | SETTLE     | Dust settles, the dragon glides back and lands softly                                                                                    |
+| 77        | BOW        | The dragon lowers its head; a red seal mark glows on its brow                                                                            |
+| 81        | DEPART     | It rises into the sunset                                                                                                                 |
+| 85–90     | END        | He shoulders the hammer and tips his cap; "END OF SHIFT · 18:00"; fade                                                                   |
 
 The beat sheet lives in `src/timeline.js` (`T`, `SHOTS`, envelopes for shake, flash, storm, wind,
 white-out, fade, fringe). Picture, effects and score all read it.
@@ -97,9 +97,9 @@ film across independent browser processes, and it is checked by `qa.mjs`.
 
 ### The dragon (`src/dragon.js`)
 
-- **Two spine generators, blended.** *Path mode*: the head follows a keyed flight path; the body is
+- **Two spine generators, blended.** _Path mode_: the head follows a keyed flight path; the body is
   the last 34 m of that path (arclength table precomputed at 60 Hz), with a travelling swim wave and
-  banking from lateral acceleration. *Local mode*: a root transform (position, yaw, pitch, roll)
+  banking from lateral acceleration. _Local mode_: a root transform (position, yaw, pitch, roll)
   carries a body shape blended from a pose library (`stand`, `roar`, `tailSwing`, `rearClaw`,
   `strike`, `inhale`, `breath`, `takeoff`, `reel`, `hover`, `bow`, ...). Control points are resampled
   at fixed arclength so the body never stretches.
@@ -137,15 +137,15 @@ architecture. Its repository has **no licence file** (only three.js's MIT licenc
 library), so none of its source was copied. This is a new implementation; the ideas that informed
 it, and where this one differs:
 
-| Area | Crimson Loong | This film |
-|---|---|---|
-| Rendering | Scripts concatenated into one HTML file; HDR target, AO, bloom, sun shafts through haze, grade, lens extras | ES modules + importmap; HDR MSAA, 5-level bloom, radial sun shafts, ACES + lift/gamma/gain, fringe, shock ring, grain. No AO pass |
-| Geometry | SDF sculpting kit + surface-nets mesher; displaced parametric rock; architecture, flora, water with planar mirror | Primitives, wedges and tapered tubes; heightfield terrain with columnar-basalt shading; analytic sea with sky reflection. No SDF mesher, no planar mirror |
-| Dragons | Body as the last metres of the head's rail, swim wave, impulses, aim; plate-scale shader; seat zones on rock | Same rail idea for flight, plus a separate pose-library generator for ground acting and a blend between them; wings with membranes (Crimson's loongs are wingless); IK legs |
-| Animation | Everything a pure function of film time; tables built once at load | Same principle; closed-form debris instead of tables |
-| Camera | One continuous 90 s crane on monotone-cubic keys | A 32-shot edit, each shot a function of the actors' state |
-| Audio | Synthesised in a Web Worker in the page, played live | Synthesised offline in Node to WAV, muxed into the MP4 |
-| Capture | Headless Chrome daemon on a real GPU, JPEG/PNG stills, WAV export | Headless Chromium on SwiftShader, parallel workers piping JPEGs into FFmpeg segments, concat + mux |
+| Area      | Crimson Loong                                                                                                     | This film                                                                                                                                                                   |
+| --------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Rendering | Scripts concatenated into one HTML file; HDR target, AO, bloom, sun shafts through haze, grade, lens extras       | ES modules + importmap; HDR MSAA, 5-level bloom, radial sun shafts, ACES + lift/gamma/gain, fringe, shock ring, grain. No AO pass                                           |
+| Geometry  | SDF sculpting kit + surface-nets mesher; displaced parametric rock; architecture, flora, water with planar mirror | Primitives, wedges and tapered tubes; heightfield terrain with columnar-basalt shading; analytic sea with sky reflection. No SDF mesher, no planar mirror                   |
+| Dragons   | Body as the last metres of the head's rail, swim wave, impulses, aim; plate-scale shader; seat zones on rock      | Same rail idea for flight, plus a separate pose-library generator for ground acting and a blend between them; wings with membranes (Crimson's loongs are wingless); IK legs |
+| Animation | Everything a pure function of film time; tables built once at load                                                | Same principle; closed-form debris instead of tables                                                                                                                        |
+| Camera    | One continuous 90 s crane on monotone-cubic keys                                                                  | A 32-shot edit, each shot a function of the actors' state                                                                                                                   |
+| Audio     | Synthesised in a Web Worker in the page, played live                                                              | Synthesised offline in Node to WAV, muxed into the MP4                                                                                                                      |
+| Capture   | Headless Chrome daemon on a real GPU, JPEG/PNG stills, WAV export                                                 | Headless Chromium on SwiftShader, parallel workers piping JPEGs into FFmpeg segments, concat + mux                                                                          |
 
 ## QA
 

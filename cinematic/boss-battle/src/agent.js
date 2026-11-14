@@ -2,13 +2,13 @@
 // (navy cap, blue short-sleeve work shirt, Korean-flag chest patch, round shoulder emblem, dark navy
 // trousers, black boots) plus a name tag. He carries an oversized official seal on a handle: the seal-hammer.
 // Animation: a joint hierarchy driven by a pose library, procedural run/walk cycles and a keyed root path.
-import * as THREE from 'three';
-import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { T } from './timeline.js';
-import { track, keyed, sstep, clamp, lerp, win, pulse, TAU } from './util.js';
-import { extend } from './shaderkit.js';
-import { groundH } from './world.js';
-import { SEAL_TEX } from './dragon.js';
+import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { T } from "./timeline.js";
+import { track, keyed, sstep, clamp, lerp, win, pulse, TAU } from "./util.js";
+import { extend } from "./shaderkit.js";
+import { groundH } from "./world.js";
+import { SEAL_TEX } from "./dragon.js";
 
 // ---------- colours (sampled from docs/design/app-icon V3) ----------
 const C = {
@@ -24,30 +24,33 @@ const C = {
 
 function flagTexture() {
   // Taegukgi drawn procedurally: white field, red/blue taegeuk, four trigrams
-  const W = 300, H = 200;
-  const c = document.createElement('canvas');
+  const W = 300,
+    H = 200;
+  const c = document.createElement("canvas");
   c.width = W;
   c.height = H;
-  const g = c.getContext('2d');
-  g.fillStyle = '#ffffff';
+  const g = c.getContext("2d");
+  g.fillStyle = "#ffffff";
   g.fillRect(0, 0, W, H);
-  const cx = W / 2, cy = H / 2, r = H / 4;
+  const cx = W / 2,
+    cy = H / 2,
+    r = H / 4;
   g.save();
   g.translate(cx, cy);
   g.rotate(Math.atan2(2, 3));
-  g.fillStyle = '#cd2e3a';
+  g.fillStyle = "#cd2e3a";
   g.beginPath();
   g.arc(0, 0, r, Math.PI, 0);
   g.fill();
-  g.fillStyle = '#0047a0';
+  g.fillStyle = "#0047a0";
   g.beginPath();
   g.arc(0, 0, r, 0, Math.PI);
   g.fill();
-  g.fillStyle = '#cd2e3a';
+  g.fillStyle = "#cd2e3a";
   g.beginPath();
   g.arc(-r / 2, 0, r / 2, 0, Math.PI * 2);
   g.fill();
-  g.fillStyle = '#0047a0';
+  g.fillStyle = "#0047a0";
   g.beginPath();
   g.arc(r / 2, 0, r / 2, 0, Math.PI * 2);
   g.fill();
@@ -59,13 +62,15 @@ function flagTexture() {
     [1, -1, [0, 1, 0]], // gam (top-right)
     [-1, 1, [1, 0, 1]], // ri (bottom-left)
   ];
-  g.fillStyle = '#000';
+  g.fillStyle = "#000";
   for (const [sx, sy, pat] of tri) {
     g.save();
     const ang = Math.atan2(sy * 2, sx * 3);
     g.translate(cx, cy);
     g.rotate(ang);
-    const bw = H / 12, bl = H / 4, gap = H / 24;
+    const bw = H / 12,
+      bl = H / 4,
+      gap = H / 24;
     pat.forEach((solid, i) => {
       const d = r + H / 8 + i * (bw + gap);
       if (solid) g.fillRect(d, -bl / 2, bw, bl);
@@ -81,20 +86,20 @@ function flagTexture() {
   return t;
 }
 function emblemTexture() {
-  const c = document.createElement('canvas');
+  const c = document.createElement("canvas");
   c.width = c.height = 128;
-  const g = c.getContext('2d');
-  g.fillStyle = '#16213f';
+  const g = c.getContext("2d");
+  g.fillStyle = "#16213f";
   g.beginPath();
   g.arc(64, 64, 62, 0, TAU);
   g.fill();
-  g.strokeStyle = '#d8b25a';
+  g.strokeStyle = "#d8b25a";
   g.lineWidth = 6;
   g.beginPath();
   g.arc(64, 64, 52, 0, TAU);
   g.stroke();
   // a stylised dragon-and-shield mark (original): S curve inside a shield
-  g.fillStyle = '#d8b25a';
+  g.fillStyle = "#d8b25a";
   g.beginPath();
   g.moveTo(64, 26);
   g.lineTo(94, 38);
@@ -102,7 +107,7 @@ function emblemTexture() {
   g.quadraticCurveTo(34, 84, 34, 38);
   g.closePath();
   g.fill();
-  g.strokeStyle = '#16213f';
+  g.strokeStyle = "#16213f";
   g.lineWidth = 8;
   g.beginPath();
   g.moveTo(78, 44);
@@ -113,17 +118,17 @@ function emblemTexture() {
   return t;
 }
 function nameTagTexture() {
-  const c = document.createElement('canvas');
+  const c = document.createElement("canvas");
   c.width = 256;
   c.height = 64;
-  const g = c.getContext('2d');
-  g.fillStyle = '#111';
+  const g = c.getContext("2d");
+  g.fillStyle = "#111";
   g.fillRect(0, 0, 256, 64);
-  g.fillStyle = '#eee';
-  g.font = 'bold 34px DejaVu Sans, sans-serif';
-  g.textAlign = 'center';
-  g.textBaseline = 'middle';
-  g.fillText('SOCIAL SERVICE', 128, 34);
+  g.fillStyle = "#eee";
+  g.font = "bold 34px DejaVu Sans, sans-serif";
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  g.fillText("SOCIAL SERVICE", 128, 34);
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   return t;
@@ -142,17 +147,42 @@ export function buildAgent(scene) {
     shirtDark: fabric(C.shirtDark),
     trousers: fabric(C.trousers),
     cap: fabric(C.cap, 90),
-    boots: new THREE.MeshStandardMaterial({ color: C.boots, roughness: 0.35, metalness: 0.1 }),
+    boots: new THREE.MeshStandardMaterial({
+      color: C.boots,
+      roughness: 0.35,
+      metalness: 0.1,
+    }),
     skin: new THREE.MeshStandardMaterial({ color: C.skin, roughness: 0.6 }),
     hair: new THREE.MeshStandardMaterial({ color: C.hair, roughness: 0.75 }),
-    belt: new THREE.MeshStandardMaterial({ color: C.belt, roughness: 0.4, metalness: 0.3 }),
-    buckle: new THREE.MeshStandardMaterial({ color: 0xb8b8c0, roughness: 0.25, metalness: 1 }),
-    gold: new THREE.MeshStandardMaterial({ color: 0xd2a84a, roughness: 0.3, metalness: 1 }),
+    belt: new THREE.MeshStandardMaterial({
+      color: C.belt,
+      roughness: 0.4,
+      metalness: 0.3,
+    }),
+    buckle: new THREE.MeshStandardMaterial({
+      color: 0xb8b8c0,
+      roughness: 0.25,
+      metalness: 1,
+    }),
+    gold: new THREE.MeshStandardMaterial({
+      color: 0xd2a84a,
+      roughness: 0.3,
+      metalness: 1,
+    }),
     eye: new THREE.MeshStandardMaterial({ color: 0x0b0a0c, roughness: 0.15 }),
     eyeW: new THREE.MeshStandardMaterial({ color: 0xe9e3dc, roughness: 0.3 }),
-    flag: new THREE.MeshStandardMaterial({ map: flagTexture(), roughness: 0.7 }),
-    emblem: new THREE.MeshStandardMaterial({ map: emblemTexture(), roughness: 0.6 }),
-    tag: new THREE.MeshStandardMaterial({ map: nameTagTexture(), roughness: 0.4 }),
+    flag: new THREE.MeshStandardMaterial({
+      map: flagTexture(),
+      roughness: 0.7,
+    }),
+    emblem: new THREE.MeshStandardMaterial({
+      map: emblemTexture(),
+      roughness: 0.6,
+    }),
+    tag: new THREE.MeshStandardMaterial({
+      map: nameTagTexture(),
+      roughness: 0.4,
+    }),
   };
   const mesh = (geo, mat, parent, x = 0, y = 0, z = 0) => {
     const m = new THREE.Mesh(geo, mat);
@@ -186,48 +216,164 @@ export function buildAgent(scene) {
   torso.scale.set(1, 1, 1);
   // collar, placket, pockets
   for (const s of [1, -1]) {
-    const col = mesh(rbox(0.12, 0.05, 0.1, 0.02), M.shirtDark, chest, 0.06 * s, 0.29, 0.07);
+    const col = mesh(
+      rbox(0.12, 0.05, 0.1, 0.02),
+      M.shirtDark,
+      chest,
+      0.06 * s,
+      0.29,
+      0.07,
+    );
     col.rotation.set(0.5, 0, -0.5 * s);
-    mesh(rbox(0.11, 0.12, 0.02, 0.01), M.shirtDark, chest, 0.1 * s, 0.13, 0.126);
+    mesh(
+      rbox(0.11, 0.12, 0.02, 0.01),
+      M.shirtDark,
+      chest,
+      0.1 * s,
+      0.13,
+      0.126,
+    );
   }
   mesh(rbox(0.025, 0.36, 0.01, 0.005), M.shirtDark, chest, 0, 0.08, 0.128);
   // Korean flag on the wearer's left chest, name tag on the right
-  const flag = mesh(new THREE.PlaneGeometry(0.09, 0.06), M.flag, chest, 0.1, 0.215, 0.1265);
+  const flag = mesh(
+    new THREE.PlaneGeometry(0.09, 0.06),
+    M.flag,
+    chest,
+    0.1,
+    0.215,
+    0.1265,
+  );
   flag.castShadow = false;
-  const tag = mesh(new THREE.PlaneGeometry(0.1, 0.025), M.tag, chest, -0.1, 0.215, 0.1265);
+  const tag = mesh(
+    new THREE.PlaneGeometry(0.1, 0.025),
+    M.tag,
+    chest,
+    -0.1,
+    0.215,
+    0.1265,
+  );
   tag.castShadow = false;
   const neck = joint(chest, 0, 0.3, 0);
   mesh(cap(0.055, 0.06), M.skin, neck, 0, 0.04, 0);
   const head = joint(neck, 0, 0.1, 0);
-  const skull = mesh(new THREE.SphereGeometry(0.105, 24, 18), M.skin, head, 0, 0.1, 0.0);
+  const skull = mesh(
+    new THREE.SphereGeometry(0.105, 24, 18),
+    M.skin,
+    head,
+    0,
+    0.1,
+    0.0,
+  );
   skull.scale.set(0.95, 1.12, 1.05);
   const jawM = mesh(rbox(0.15, 0.08, 0.13, 0.04), M.skin, head, 0, 0.03, 0.025);
   jawM.rotation.x = 0.15;
-  mesh(new THREE.SphereGeometry(0.02, 8, 6), M.skin, head, 0, 0.08, 0.115).scale.set(0.8, 1.3, 1);
+  mesh(
+    new THREE.SphereGeometry(0.02, 8, 6),
+    M.skin,
+    head,
+    0,
+    0.08,
+    0.115,
+  ).scale.set(0.8, 1.3, 1);
   // mouth
-  mesh(rbox(0.045, 0.008, 0.01, 0.003), new THREE.MeshStandardMaterial({ color: 0x7a4a3c, roughness: 0.6 }), head, 0, 0.048, 0.112);
+  mesh(
+    rbox(0.045, 0.008, 0.01, 0.003),
+    new THREE.MeshStandardMaterial({ color: 0x7a4a3c, roughness: 0.6 }),
+    head,
+    0,
+    0.048,
+    0.112,
+  );
   for (const s of [1, -1]) {
-    mesh(new THREE.SphereGeometry(0.018, 10, 8), M.eyeW, head, 0.038 * s, 0.115, 0.09).scale.set(1.2, 0.7, 0.6);
-    mesh(new THREE.SphereGeometry(0.011, 8, 6), M.eye, head, 0.038 * s, 0.115, 0.1);
-    const brow = mesh(rbox(0.04, 0.008, 0.01, 0.003), M.hair, head, 0.04 * s, 0.14, 0.098);
+    mesh(
+      new THREE.SphereGeometry(0.018, 10, 8),
+      M.eyeW,
+      head,
+      0.038 * s,
+      0.115,
+      0.09,
+    ).scale.set(1.2, 0.7, 0.6);
+    mesh(
+      new THREE.SphereGeometry(0.011, 8, 6),
+      M.eye,
+      head,
+      0.038 * s,
+      0.115,
+      0.1,
+    );
+    const brow = mesh(
+      rbox(0.04, 0.008, 0.01, 0.003),
+      M.hair,
+      head,
+      0.04 * s,
+      0.14,
+      0.098,
+    );
     brow.rotation.z = -0.15 * s;
-    mesh(new THREE.SphereGeometry(0.025, 8, 6), M.skin, head, 0.103 * s, 0.1, 0).scale.set(0.4, 1, 0.7);
+    mesh(
+      new THREE.SphereGeometry(0.025, 8, 6),
+      M.skin,
+      head,
+      0.103 * s,
+      0.1,
+      0,
+    ).scale.set(0.4, 1, 0.7);
   }
   // hair (short, visible under the cap)
-  const hair = mesh(new THREE.SphereGeometry(0.11, 20, 12, 0, TAU, 0, 1.8), M.hair, head, 0, 0.115, -0.012);
+  const hair = mesh(
+    new THREE.SphereGeometry(0.11, 20, 12, 0, TAU, 0, 1.8),
+    M.hair,
+    head,
+    0,
+    0.115,
+    -0.012,
+  );
   hair.scale.set(0.98, 1.0, 1.06);
   // cap: crown, band, brim, badge
   const capG = joint(head, 0, 0.175, 0.005);
-  const crown = mesh(new THREE.SphereGeometry(0.118, 24, 12, 0, TAU, 0, Math.PI / 2), M.cap, capG, 0, 0, 0);
+  const crown = mesh(
+    new THREE.SphereGeometry(0.118, 24, 12, 0, TAU, 0, Math.PI / 2),
+    M.cap,
+    capG,
+    0,
+    0,
+    0,
+  );
   crown.scale.set(1, 0.72, 1.08);
-  mesh(new THREE.CylinderGeometry(0.119, 0.119, 0.04, 24, 1, true), M.cap, capG, 0, -0.012, 0).scale.set(1, 1, 1.08);
+  mesh(
+    new THREE.CylinderGeometry(0.119, 0.119, 0.04, 24, 1, true),
+    M.cap,
+    capG,
+    0,
+    -0.012,
+    0,
+  ).scale.set(1, 1, 1.08);
   const brimShape = new THREE.Shape();
   brimShape.absarc(0, 0, 0.12, Math.PI * 0.05, Math.PI * 0.95, false);
   brimShape.lineTo(0, -0.02);
-  const brim = mesh(new THREE.ExtrudeGeometry(brimShape, { depth: 0.008, bevelEnabled: false, curveSegments: 16 }), M.cap, capG, 0, -0.028, 0.07);
+  const brim = mesh(
+    new THREE.ExtrudeGeometry(brimShape, {
+      depth: 0.008,
+      bevelEnabled: false,
+      curveSegments: 16,
+    }),
+    M.cap,
+    capG,
+    0,
+    -0.028,
+    0.07,
+  );
   brim.rotation.x = Math.PI / 2 - 0.12;
   brim.scale.set(1.25, 0.95, 1);
-  mesh(new THREE.CircleGeometry(0.022, 16), M.gold, capG, 0, 0.035, 0.124).rotation.x = -0.35;
+  mesh(
+    new THREE.CircleGeometry(0.022, 16),
+    M.gold,
+    capG,
+    0,
+    0.035,
+    0.124,
+  ).rotation.x = -0.35;
   A.capG = capG;
 
   // arms
@@ -236,22 +382,44 @@ export function buildAgent(scene) {
     mesh(new THREE.SphereGeometry(0.075, 12, 10), M.shirt, sh, 0, 0, 0);
     const upper = mesh(cap(0.058, 0.18), M.shirt, sh, 0, -0.12, 0);
     // rolled short sleeve opening
-    mesh(new THREE.CylinderGeometry(0.066, 0.066, 0.04, 14), M.shirtDark, sh, 0, -0.2, 0);
+    mesh(
+      new THREE.CylinderGeometry(0.066, 0.066, 0.04, 14),
+      M.shirtDark,
+      sh,
+      0,
+      -0.2,
+      0,
+    );
     mesh(cap(0.045, 0.1), M.skin, sh, 0, -0.24, 0);
     if (s > 0) {
       // round emblem on the left sleeve
-      const em = mesh(new THREE.CircleGeometry(0.035, 20), M.emblem, sh, 0.06, -0.09, 0.0);
+      const em = mesh(
+        new THREE.CircleGeometry(0.035, 20),
+        M.emblem,
+        sh,
+        0.06,
+        -0.09,
+        0.0,
+      );
       em.rotation.y = Math.PI / 2;
     }
     const el = joint(sh, 0, -0.29, 0);
     mesh(cap(0.044, 0.19), M.skin, el, 0, -0.13, 0);
     const wr = joint(el, 0, -0.26, 0);
-    const hand = mesh(rbox(0.075, 0.1, 0.035, 0.015), M.skin, wr, 0, -0.05, 0.005);
+    const hand = mesh(
+      rbox(0.075, 0.1, 0.035, 0.015),
+      M.skin,
+      wr,
+      0,
+      -0.05,
+      0.005,
+    );
     const thumb = mesh(cap(0.014, 0.03), M.skin, wr, -0.035 * s, -0.035, 0.025);
     thumb.rotation.z = 0.6 * s;
     return { sh, el, wr, hand };
   };
-  const L = arm(1), R = arm(-1);
+  const L = arm(1),
+    R = arm(-1);
   // legs
   const leg = (s) => {
     const hp = joint(hips, 0.095 * s, -0.06, 0);
@@ -264,17 +432,53 @@ export function buildAgent(scene) {
     mesh(rbox(0.115, 0.02, 0.28, 0.008), M.belt, an, 0, -0.105, 0.05);
     return { hp, kn, an };
   };
-  const LL = leg(1), RL = leg(-1);
+  const LL = leg(1),
+    RL = leg(-1);
 
   // ---------- the seal-hammer ----------
   const hammer = new THREE.Group();
-  const wood = new THREE.MeshStandardMaterial({ color: 0x3b2418, roughness: 0.55 });
-  mesh(new THREE.CylinderGeometry(0.022, 0.026, 1.05, 10), wood, hammer, 0, 0.42, 0);
-  mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.06, 10), M.gold, hammer, 0, -0.08, 0);
-  mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.04, 10), M.gold, hammer, 0, 0.93, 0);
-  const lacquer = new THREE.MeshStandardMaterial({ color: 0x7a0f12, roughness: 0.3, metalness: 0.2 });
+  const wood = new THREE.MeshStandardMaterial({
+    color: 0x3b2418,
+    roughness: 0.55,
+  });
+  mesh(
+    new THREE.CylinderGeometry(0.022, 0.026, 1.05, 10),
+    wood,
+    hammer,
+    0,
+    0.42,
+    0,
+  );
+  mesh(
+    new THREE.CylinderGeometry(0.03, 0.03, 0.06, 10),
+    M.gold,
+    hammer,
+    0,
+    -0.08,
+    0,
+  );
+  mesh(
+    new THREE.CylinderGeometry(0.03, 0.03, 0.04, 10),
+    M.gold,
+    hammer,
+    0,
+    0.93,
+    0,
+  );
+  const lacquer = new THREE.MeshStandardMaterial({
+    color: 0x7a0f12,
+    roughness: 0.3,
+    metalness: 0.2,
+  });
   const hHead = joint(hammer, 0, 1.02, 0);
-  const sealBody = mesh(new RoundedBoxGeometry(0.42, 0.24, 0.24, 3, 0.04), lacquer, hHead, 0, 0, 0);
+  const sealBody = mesh(
+    new RoundedBoxGeometry(0.42, 0.24, 0.24, 3, 0.04),
+    lacquer,
+    hHead,
+    0,
+    0,
+    0,
+  );
   mesh(new THREE.BoxGeometry(0.44, 0.03, 0.26), M.gold, hHead, 0, 0.0, 0);
   // the seal face (on +x end) glows
   const sealU = { uTex: { value: SEAL_TEX() }, uGlow: { value: 0 } };
@@ -293,8 +497,21 @@ export function buildAgent(scene) {
   face.rotation.y = Math.PI / 2;
   face.castShadow = false;
   // glowing rim
-  const rimMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(3, 0.4, 0.2), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
-  const rim = mesh(new THREE.TorusGeometry(0.15, 0.012, 8, 32), rimMat, hHead, 0.212, 0, 0);
+  const rimMat = new THREE.MeshBasicMaterial({
+    color: new THREE.Color(3, 0.4, 0.2),
+    transparent: true,
+    opacity: 0,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+  const rim = mesh(
+    new THREE.TorusGeometry(0.15, 0.012, 8, 32),
+    rimMat,
+    hHead,
+    0.212,
+    0,
+    0,
+  );
   rim.rotation.y = Math.PI / 2;
   rim.castShadow = false;
   A.hammer = hammer;
@@ -343,46 +560,67 @@ export function buildAgent(scene) {
   ]);
   // stance / clip timeline [t, clip, blendIn]
   const TL = [
-    [0, 'idle', 0.1],
-    [4.4, 'walk', 0.4],
-    [8.4, 'idle', 0.6],
-    [9.6, 'lookUp', 1.2],
-    [16.5, 'idle', 1.0],
-    [19.5, 'brace', 0.6],
-    [23.6, 'braceWind', 0.3],
-    [26.6, 'idle', 0.8],
-    [31.0, 'draw', 0.4],
-    [32.2, 'ready', 0.6],
-    [33.5, 'run', 0.3],
-    [36.9, 'slide', 0.2],
-    [37.7, 'ready', 0.5],
-    [39.7, 'parry', 0.35],
-    [41.2, 'ready', 0.5],
-    [42.15, 'knocked', 0.1],
-    [43.3, 'ready', 0.5],
-    [44.4, 'ward', 0.45],
-    [48.3, 'deflect', 0.3],
-    [50.4, 'ready', 0.8],
-    [52.6, 'lookUp', 0.8],
-    [57.7, 'run', 0.4],
-    [64.0, 'climb', 0.2],
-    [66.4, 'leap', 0.15],
-    [68.3, 'swing', 0.4],
-    [69.05, 'smash', 0.1],
-    [69.6, 'fall', 0.3],
-    [70.55, 'land', 0.08],
-    [72.6, 'idleHammer', 1.0],
-    [77.8, 'walk', 0.4],
-    [79.6, 'reach', 0.6],
-    [81.0, 'lookUp', 0.8],
-    [85.6, 'idleHammer', 0.8],
-    [86.6, 'capTip', 0.5],
-    [88.0, 'idleHammer', 0.8],
+    [0, "idle", 0.1],
+    [4.4, "walk", 0.4],
+    [8.4, "idle", 0.6],
+    [9.6, "lookUp", 1.2],
+    [16.5, "idle", 1.0],
+    [19.5, "brace", 0.6],
+    [23.6, "braceWind", 0.3],
+    [26.6, "idle", 0.8],
+    [31.0, "draw", 0.4],
+    [32.2, "ready", 0.6],
+    [33.5, "run", 0.3],
+    [36.9, "slide", 0.2],
+    [37.7, "ready", 0.5],
+    [39.7, "parry", 0.35],
+    [41.2, "ready", 0.5],
+    [42.15, "knocked", 0.1],
+    [43.3, "ready", 0.5],
+    [44.4, "ward", 0.45],
+    [48.3, "deflect", 0.3],
+    [50.4, "ready", 0.8],
+    [52.6, "lookUp", 0.8],
+    [57.7, "run", 0.4],
+    [64.0, "climb", 0.2],
+    [66.4, "leap", 0.15],
+    [68.3, "swing", 0.4],
+    [69.05, "smash", 0.1],
+    [69.6, "fall", 0.3],
+    [70.55, "land", 0.08],
+    [72.6, "idleHammer", 1.0],
+    [77.8, "walk", 0.4],
+    [79.6, "reach", 0.6],
+    [81.0, "lookUp", 0.8],
+    [85.6, "idleHammer", 0.8],
+    [86.6, "capTip", 0.5],
+    [88.0, "idleHammer", 0.8],
   ];
-  const Z = () => ({ hips: [0, 0, 0], spine: [0, 0, 0], chest: [0, 0, 0], neck: [0, 0, 0], head: [0, 0, 0], lSh: [0, 0, 0.12], lEl: [0, 0, 0], lWr: [0, 0, 0], rSh: [0, 0, -0.12], rEl: [0, 0, 0], rWr: [0, 0, 0], lHp: [0, 0, 0], lKn: [0, 0, 0], lAn: [0, 0, 0], rHp: [0, 0, 0], rKn: [0, 0, 0], rAn: [0, 0, 0], drop: 0, hammer: 'back' });
+  const Z = () => ({
+    hips: [0, 0, 0],
+    spine: [0, 0, 0],
+    chest: [0, 0, 0],
+    neck: [0, 0, 0],
+    head: [0, 0, 0],
+    lSh: [0, 0, 0.12],
+    lEl: [0, 0, 0],
+    lWr: [0, 0, 0],
+    rSh: [0, 0, -0.12],
+    rEl: [0, 0, 0],
+    rWr: [0, 0, 0],
+    lHp: [0, 0, 0],
+    lKn: [0, 0, 0],
+    lAn: [0, 0, 0],
+    rHp: [0, 0, 0],
+    rKn: [0, 0, 0],
+    rAn: [0, 0, 0],
+    drop: 0,
+    hammer: "back",
+  });
   const pose = (o) => Object.assign(Z(), o);
   const runCycle = (ph, amp = 1) => {
-    const s = Math.sin(ph), c = Math.cos(ph);
+    const s = Math.sin(ph),
+      c = Math.cos(ph);
     return pose({
       hips: [0.08 * amp, 0.12 * s * amp, 0],
       spine: [0.12 * amp, 0, 0],
@@ -402,7 +640,8 @@ export function buildAgent(scene) {
     });
   };
   const walkCycle = (ph) => {
-    const s = Math.sin(ph), c = Math.cos(ph);
+    const s = Math.sin(ph),
+      c = Math.cos(ph);
     return pose({
       hips: [0, 0.06 * s, 0],
       chest: [0, -0.08 * s, 0],
@@ -418,48 +657,337 @@ export function buildAgent(scene) {
     });
   };
   const CLIPS = {
-    idle: (t) => pose({ chest: [0.02 * Math.sin(t * 1.4), 0, 0], lSh: [0, 0, 0.1], rSh: [0, 0, -0.1], lEl: [-0.15, 0, 0], rEl: [-0.15, 0, 0], lHp: [0, 0, 0.05], rHp: [0, 0, -0.05] }),
-    idleHammer: (t) => pose({ chest: [0.02 * Math.sin(t * 1.4), 0, 0], lSh: [0, 0, 0.1], lEl: [-0.15, 0, 0], rSh: [-0.15, 0, -0.18], rEl: [-2.15, 0, 0], rWr: [0.1, 0, 0], lHp: [0, 0, 0.06], rHp: [0, 0, -0.06], hammer: 'hand' }),
+    idle: (t) =>
+      pose({
+        chest: [0.02 * Math.sin(t * 1.4), 0, 0],
+        lSh: [0, 0, 0.1],
+        rSh: [0, 0, -0.1],
+        lEl: [-0.15, 0, 0],
+        rEl: [-0.15, 0, 0],
+        lHp: [0, 0, 0.05],
+        rHp: [0, 0, -0.05],
+      }),
+    idleHammer: (t) =>
+      pose({
+        chest: [0.02 * Math.sin(t * 1.4), 0, 0],
+        lSh: [0, 0, 0.1],
+        lEl: [-0.15, 0, 0],
+        rSh: [-0.15, 0, -0.18],
+        rEl: [-2.15, 0, 0],
+        rWr: [0.1, 0, 0],
+        lHp: [0, 0, 0.06],
+        rHp: [0, 0, -0.06],
+        hammer: "hand",
+      }),
     walk: (t) => walkCycle(t * 2 * Math.PI * 0.95),
-    lookUp: (t) => pose({ neck: [-0.35, 0, 0], head: [-0.35, 0, 0], chest: [-0.08, 0, 0], lSh: [0, 0, 0.12], rSh: [0, 0, -0.12], lHp: [0, 0, 0.06], rHp: [0, 0, -0.06], hammer: t > T.DRAW ? 'hand' : 'back', rEl: t > T.DRAW ? [-0.4, 0, 0] : [0, 0, 0] }),
-    brace: () => pose({ hips: [0, 0.3, 0], spine: [0.1, 0, 0], chest: [0.05, -0.2, 0], head: [-0.1, 0.2, 0], lHp: [-0.35, 0, 0.18], lKn: [0.45, 0, 0], rHp: [0.2, 0, -0.2], rKn: [0.25, 0, 0], lSh: [-0.3, 0, 0.25], lEl: [-0.8, 0, 0], rSh: [0.2, 0, -0.3], rEl: [-0.4, 0, 0], drop: 0.08 }),
-    braceWind: (t) => pose({ hips: [0, 0.3, 0], spine: [0.25, 0, 0], chest: [0.2, -0.15, 0], head: [0.1, 0.25, 0], lHp: [-0.5, 0, 0.2], lKn: [0.7, 0, 0], rHp: [0.35, 0, -0.2], rKn: [0.35, 0, 0], lSh: [-1.6, 0, 0.3], lEl: [-1.4, 0, 0], lWr: [0.0, 0, 0], rSh: [0.2, 0, -0.35], rEl: [-0.3, 0, 0], drop: 0.14 + 0.01 * Math.sin(t * 30) }),
+    lookUp: (t) =>
+      pose({
+        neck: [-0.35, 0, 0],
+        head: [-0.35, 0, 0],
+        chest: [-0.08, 0, 0],
+        lSh: [0, 0, 0.12],
+        rSh: [0, 0, -0.12],
+        lHp: [0, 0, 0.06],
+        rHp: [0, 0, -0.06],
+        hammer: t > T.DRAW ? "hand" : "back",
+        rEl: t > T.DRAW ? [-0.4, 0, 0] : [0, 0, 0],
+      }),
+    brace: () =>
+      pose({
+        hips: [0, 0.3, 0],
+        spine: [0.1, 0, 0],
+        chest: [0.05, -0.2, 0],
+        head: [-0.1, 0.2, 0],
+        lHp: [-0.35, 0, 0.18],
+        lKn: [0.45, 0, 0],
+        rHp: [0.2, 0, -0.2],
+        rKn: [0.25, 0, 0],
+        lSh: [-0.3, 0, 0.25],
+        lEl: [-0.8, 0, 0],
+        rSh: [0.2, 0, -0.3],
+        rEl: [-0.4, 0, 0],
+        drop: 0.08,
+      }),
+    braceWind: (t) =>
+      pose({
+        hips: [0, 0.3, 0],
+        spine: [0.25, 0, 0],
+        chest: [0.2, -0.15, 0],
+        head: [0.1, 0.25, 0],
+        lHp: [-0.5, 0, 0.2],
+        lKn: [0.7, 0, 0],
+        rHp: [0.35, 0, -0.2],
+        rKn: [0.35, 0, 0],
+        lSh: [-1.6, 0, 0.3],
+        lEl: [-1.4, 0, 0],
+        lWr: [0.0, 0, 0],
+        rSh: [0.2, 0, -0.35],
+        rEl: [-0.3, 0, 0],
+        drop: 0.14 + 0.01 * Math.sin(t * 30),
+      }),
     draw: (t) => {
       const k = sstep(T.DRAW, T.DRAW + 0.9, t);
-      return pose({ hips: [0, 0.2 * k, 0], chest: [0.05, -0.3 + 0.4 * k, 0], rSh: [lerp(-2.6, -1.2, k), 0, lerp(-0.4, -0.5, k)], rEl: [lerp(-1.6, -0.6, k), 0, 0], lSh: [-0.3, 0, 0.3], lEl: [-0.5, 0, 0], lHp: [-0.2, 0, 0.12], lKn: [0.3, 0, 0], rHp: [0.15, 0, -0.12], rKn: [0.2, 0, 0], drop: 0.05, hammer: t > T.DRAW + 0.35 ? 'hand' : 'back' });
+      return pose({
+        hips: [0, 0.2 * k, 0],
+        chest: [0.05, -0.3 + 0.4 * k, 0],
+        rSh: [lerp(-2.6, -1.2, k), 0, lerp(-0.4, -0.5, k)],
+        rEl: [lerp(-1.6, -0.6, k), 0, 0],
+        lSh: [-0.3, 0, 0.3],
+        lEl: [-0.5, 0, 0],
+        lHp: [-0.2, 0, 0.12],
+        lKn: [0.3, 0, 0],
+        rHp: [0.15, 0, -0.12],
+        rKn: [0.2, 0, 0],
+        drop: 0.05,
+        hammer: t > T.DRAW + 0.35 ? "hand" : "back",
+      });
     },
-    ready: (t) => pose({ hips: [0, 0.35, 0], spine: [0.12, 0, 0], chest: [0.05, -0.15, 0], head: [-0.05, 0.12, 0], lHp: [-0.4, 0, 0.2], lKn: [0.6, 0, 0], lAn: [0.15, 0, 0], rHp: [0.25, 0, -0.2], rKn: [0.45, 0, 0], lSh: [-0.6, 0, 0.35], lEl: [-1.1, 0, 0], rSh: [-0.5, 0.2, -0.3], rEl: [-1.3, 0, 0], rWr: [0.3, 0, 0], drop: 0.12 + 0.01 * Math.sin(t * 2.5), hammer: 'hand' }),
-    run: (t) => Object.assign(runCycle(t * 2 * Math.PI * 1.55), { hammer: t > T.DRAW ? 'hand' : 'back', rSh: [-0.6 + 0.3 * Math.sin(t * 9.7), 0, -0.25], rEl: [-1.5, 0, 0] }),
-    slide: () => pose({ hips: [-0.5, 0.2, 0.15], spine: [0.2, 0, 0], chest: [0.35, 0, 0], head: [-0.3, 0, 0], lHp: [-1.5, 0, 0.1], lKn: [0.1, 0, 0], rHp: [-0.3, 0, -0.1], rKn: [1.9, 0, 0], lSh: [-0.6, 0, 0.9], lEl: [-0.3, 0, 0], rSh: [-1.5, 0, -0.5], rEl: [-0.5, 0, 0], drop: 0.62, hammer: 'hand' }),
+    ready: (t) =>
+      pose({
+        hips: [0, 0.35, 0],
+        spine: [0.12, 0, 0],
+        chest: [0.05, -0.15, 0],
+        head: [-0.05, 0.12, 0],
+        lHp: [-0.4, 0, 0.2],
+        lKn: [0.6, 0, 0],
+        lAn: [0.15, 0, 0],
+        rHp: [0.25, 0, -0.2],
+        rKn: [0.45, 0, 0],
+        lSh: [-0.6, 0, 0.35],
+        lEl: [-1.1, 0, 0],
+        rSh: [-0.5, 0.2, -0.3],
+        rEl: [-1.3, 0, 0],
+        rWr: [0.3, 0, 0],
+        drop: 0.12 + 0.01 * Math.sin(t * 2.5),
+        hammer: "hand",
+      }),
+    run: (t) =>
+      Object.assign(runCycle(t * 2 * Math.PI * 1.55), {
+        hammer: t > T.DRAW ? "hand" : "back",
+        rSh: [-0.6 + 0.3 * Math.sin(t * 9.7), 0, -0.25],
+        rEl: [-1.5, 0, 0],
+      }),
+    slide: () =>
+      pose({
+        hips: [-0.5, 0.2, 0.15],
+        spine: [0.2, 0, 0],
+        chest: [0.35, 0, 0],
+        head: [-0.3, 0, 0],
+        lHp: [-1.5, 0, 0.1],
+        lKn: [0.1, 0, 0],
+        rHp: [-0.3, 0, -0.1],
+        rKn: [1.9, 0, 0],
+        lSh: [-0.6, 0, 0.9],
+        lEl: [-0.3, 0, 0],
+        rSh: [-1.5, 0, -0.5],
+        rEl: [-0.5, 0, 0],
+        drop: 0.62,
+        hammer: "hand",
+      }),
     parry: (t) => {
       const k = sstep(39.7, 40.35, t);
-      return pose({ hips: [0, 0.3, 0], spine: [0.05, 0, 0], chest: [-0.1, -0.1, 0], head: [-0.35, 0, 0], lHp: [-0.5, 0, 0.25], lKn: [0.8, 0, 0], rHp: [0.4, 0, -0.25], rKn: [0.6, 0, 0], rSh: [lerp(-1.2, -2.9, k), 0, -0.2], rEl: [lerp(-1.2, -0.3, k), 0, 0], rWr: [0.6, 0, 0], lSh: [lerp(-0.8, -2.7, k), 0, 0.25], lEl: [-0.5, 0, 0], drop: 0.18 + 0.12 * pulse(t, 40.4, 0.02, 0.3), hammer: 'hand' });
+      return pose({
+        hips: [0, 0.3, 0],
+        spine: [0.05, 0, 0],
+        chest: [-0.1, -0.1, 0],
+        head: [-0.35, 0, 0],
+        lHp: [-0.5, 0, 0.25],
+        lKn: [0.8, 0, 0],
+        rHp: [0.4, 0, -0.25],
+        rKn: [0.6, 0, 0],
+        rSh: [lerp(-1.2, -2.9, k), 0, -0.2],
+        rEl: [lerp(-1.2, -0.3, k), 0, 0],
+        rWr: [0.6, 0, 0],
+        lSh: [lerp(-0.8, -2.7, k), 0, 0.25],
+        lEl: [-0.5, 0, 0],
+        drop: 0.18 + 0.12 * pulse(t, 40.4, 0.02, 0.3),
+        hammer: "hand",
+      });
     },
     knocked: (t) => {
       const k = sstep(42.15, 42.7, t);
-      return pose({ hips: [-0.2, 0.1, 0], spine: [0.3, 0, 0], chest: [0.3 - 0.4 * pulse(t, 42.2, 0.03, 0.3), 0, 0], head: [0.3, 0, 0], lHp: [-1.0, 0, 0.3], lKn: [1.5, 0, 0], rHp: [0.5, 0, -0.3], rKn: [1.2, 0, 0], lSh: [-0.8, 0, 1.1], lEl: [-0.4, 0, 0], rSh: [-1.0, 0, -0.6], rEl: [-1.2, 0, 0], drop: 0.35 + 0.1 * k, hammer: 'hand' });
+      return pose({
+        hips: [-0.2, 0.1, 0],
+        spine: [0.3, 0, 0],
+        chest: [0.3 - 0.4 * pulse(t, 42.2, 0.03, 0.3), 0, 0],
+        head: [0.3, 0, 0],
+        lHp: [-1.0, 0, 0.3],
+        lKn: [1.5, 0, 0],
+        rHp: [0.5, 0, -0.3],
+        rKn: [1.2, 0, 0],
+        lSh: [-0.8, 0, 1.1],
+        lEl: [-0.4, 0, 0],
+        rSh: [-1.0, 0, -0.6],
+        rEl: [-1.2, 0, 0],
+        drop: 0.35 + 0.1 * k,
+        hammer: "hand",
+      });
     },
-    ward: (t) => pose({ hips: [0, 0.2, 0], spine: [0.15, 0, 0], chest: [0.1, 0.0, 0], head: [-0.1, 0, 0], lHp: [-0.6, 0, 0.25], lKn: [0.85, 0, 0], lAn: [0.2, 0, 0], rHp: [0.5, 0, -0.25], rKn: [0.5, 0, 0], rSh: [-1.55, 0, -0.1], rEl: [-0.35, 0, 0], rWr: [-1.4, 0, 0], lSh: [-1.45, 0, 0.15], lEl: [-0.4, 0, 0], drop: 0.2 + 0.02 * Math.sin(t * 40) * win(t, 45, 50.5), hammer: 'hand' }),
-    deflect: (t) => pose({ hips: [0, -0.1, 0], spine: [0.15, 0, 0], chest: [0.1, -0.45, 0.1], head: [-0.1, 0.3, 0], lHp: [-0.6, 0, 0.3], lKn: [0.9, 0, 0], rHp: [0.5, 0, -0.25], rKn: [0.55, 0, 0], rSh: [-1.5, 0.3, -0.2], rEl: [-0.4, 0, 0], rWr: [-1.4, 0, 0.5], lSh: [-1.4, 0, 0.1], lEl: [-0.4, 0, 0], drop: 0.24 + 0.02 * Math.sin(t * 40), hammer: 'hand' }),
-    climb: (t) => Object.assign(runCycle(t * 2 * Math.PI * 1.7, 1.15), { hammer: 'hand', rSh: [-0.9, 0, -0.25], rEl: [-1.6, 0, 0] }),
+    ward: (t) =>
+      pose({
+        hips: [0, 0.2, 0],
+        spine: [0.15, 0, 0],
+        chest: [0.1, 0.0, 0],
+        head: [-0.1, 0, 0],
+        lHp: [-0.6, 0, 0.25],
+        lKn: [0.85, 0, 0],
+        lAn: [0.2, 0, 0],
+        rHp: [0.5, 0, -0.25],
+        rKn: [0.5, 0, 0],
+        rSh: [-1.55, 0, -0.1],
+        rEl: [-0.35, 0, 0],
+        rWr: [-1.4, 0, 0],
+        lSh: [-1.45, 0, 0.15],
+        lEl: [-0.4, 0, 0],
+        drop: 0.2 + 0.02 * Math.sin(t * 40) * win(t, 45, 50.5),
+        hammer: "hand",
+      }),
+    deflect: (t) =>
+      pose({
+        hips: [0, -0.1, 0],
+        spine: [0.15, 0, 0],
+        chest: [0.1, -0.45, 0.1],
+        head: [-0.1, 0.3, 0],
+        lHp: [-0.6, 0, 0.3],
+        lKn: [0.9, 0, 0],
+        rHp: [0.5, 0, -0.25],
+        rKn: [0.55, 0, 0],
+        rSh: [-1.5, 0.3, -0.2],
+        rEl: [-0.4, 0, 0],
+        rWr: [-1.4, 0, 0.5],
+        lSh: [-1.4, 0, 0.1],
+        lEl: [-0.4, 0, 0],
+        drop: 0.24 + 0.02 * Math.sin(t * 40),
+        hammer: "hand",
+      }),
+    climb: (t) =>
+      Object.assign(runCycle(t * 2 * Math.PI * 1.7, 1.15), {
+        hammer: "hand",
+        rSh: [-0.9, 0, -0.25],
+        rEl: [-1.6, 0, 0],
+      }),
     leap: (t) => {
       const k = sstep(66.4, 67.2, t);
-      return pose({ hips: [-0.3 * k, 0, 0], spine: [-0.1, 0, 0], chest: [-0.2 * k, 0, 0], head: [-0.2, 0, 0], lHp: [-1.6 * k, 0, 0.1], lKn: [2.0 * k, 0, 0], rHp: [lerp(-0.5, 0.3, k), 0, -0.1], rKn: [lerp(0.4, 0.6, k), 0, 0], rSh: [-2.7 * k - 0.4, 0, -0.3], rEl: [-0.8, 0, 0], lSh: [-1.8 * k, 0, 0.5], lEl: [-0.5, 0, 0], hammer: 'hand' });
+      return pose({
+        hips: [-0.3 * k, 0, 0],
+        spine: [-0.1, 0, 0],
+        chest: [-0.2 * k, 0, 0],
+        head: [-0.2, 0, 0],
+        lHp: [-1.6 * k, 0, 0.1],
+        lKn: [2.0 * k, 0, 0],
+        rHp: [lerp(-0.5, 0.3, k), 0, -0.1],
+        rKn: [lerp(0.4, 0.6, k), 0, 0],
+        rSh: [-2.7 * k - 0.4, 0, -0.3],
+        rEl: [-0.8, 0, 0],
+        lSh: [-1.8 * k, 0, 0.5],
+        lEl: [-0.5, 0, 0],
+        hammer: "hand",
+      });
     },
     swing: (t) => {
       const k = sstep(68.3, 68.95, t);
-      return pose({ hips: [-0.3 + 0.2 * k, 0, 0], spine: [lerp(-0.4, 0.2, k), 0, 0], chest: [lerp(-0.5, 0.45, k), 0, 0], head: [lerp(-0.3, 0.1, k), 0, 0], lHp: [-1.5, 0, 0.15], lKn: [1.8, 0, 0], rHp: [lerp(0.4, -0.6, k), 0, -0.1], rKn: [lerp(0.6, 1.2, k), 0, 0], rSh: [lerp(-3.4, -1.4, k), 0, -0.2], rEl: [lerp(-0.9, -0.1, k), 0, 0], rWr: [lerp(-0.6, -1.3, k), 0, 0], lSh: [lerp(-3.2, -1.3, k), 0, 0.2], lEl: [lerp(-0.6, -0.1, k), 0, 0], lWr: [0, 0, 0], hammer: 'hand' });
+      return pose({
+        hips: [-0.3 + 0.2 * k, 0, 0],
+        spine: [lerp(-0.4, 0.2, k), 0, 0],
+        chest: [lerp(-0.5, 0.45, k), 0, 0],
+        head: [lerp(-0.3, 0.1, k), 0, 0],
+        lHp: [-1.5, 0, 0.15],
+        lKn: [1.8, 0, 0],
+        rHp: [lerp(0.4, -0.6, k), 0, -0.1],
+        rKn: [lerp(0.6, 1.2, k), 0, 0],
+        rSh: [lerp(-3.4, -1.4, k), 0, -0.2],
+        rEl: [lerp(-0.9, -0.1, k), 0, 0],
+        rWr: [lerp(-0.6, -1.3, k), 0, 0],
+        lSh: [lerp(-3.2, -1.3, k), 0, 0.2],
+        lEl: [lerp(-0.6, -0.1, k), 0, 0],
+        lWr: [0, 0, 0],
+        hammer: "hand",
+      });
     },
-    smash: () => pose({ hips: [-0.1, 0, 0], spine: [0.3, 0, 0], chest: [0.5, 0, 0], head: [0.15, 0, 0], lHp: [-1.4, 0, 0.15], lKn: [1.7, 0, 0], rHp: [-0.6, 0, -0.1], rKn: [1.2, 0, 0], rSh: [-1.25, 0, -0.2], rEl: [-0.05, 0, 0], rWr: [-1.35, 0, 0], lSh: [-1.2, 0, 0.2], lEl: [-0.1, 0, 0], hammer: 'hand' }),
-    fall: (t) => pose({ hips: [0.3, 0, 0], spine: [-0.2, 0, 0], chest: [-0.2, 0, 0], head: [0.2, 0, 0], lHp: [-0.9, 0, 0.3], lKn: [1.4, 0, 0], rHp: [-0.5, 0, -0.3], rKn: [1.0, 0, 0], rSh: [-2.0, 0, -0.5], rEl: [-0.6, 0, 0], lSh: [-0.4, 0, 1.4], lEl: [-0.3, 0, 0], hammer: 'hand' }),
+    smash: () =>
+      pose({
+        hips: [-0.1, 0, 0],
+        spine: [0.3, 0, 0],
+        chest: [0.5, 0, 0],
+        head: [0.15, 0, 0],
+        lHp: [-1.4, 0, 0.15],
+        lKn: [1.7, 0, 0],
+        rHp: [-0.6, 0, -0.1],
+        rKn: [1.2, 0, 0],
+        rSh: [-1.25, 0, -0.2],
+        rEl: [-0.05, 0, 0],
+        rWr: [-1.35, 0, 0],
+        lSh: [-1.2, 0, 0.2],
+        lEl: [-0.1, 0, 0],
+        hammer: "hand",
+      }),
+    fall: (t) =>
+      pose({
+        hips: [0.3, 0, 0],
+        spine: [-0.2, 0, 0],
+        chest: [-0.2, 0, 0],
+        head: [0.2, 0, 0],
+        lHp: [-0.9, 0, 0.3],
+        lKn: [1.4, 0, 0],
+        rHp: [-0.5, 0, -0.3],
+        rKn: [1.0, 0, 0],
+        rSh: [-2.0, 0, -0.5],
+        rEl: [-0.6, 0, 0],
+        lSh: [-0.4, 0, 1.4],
+        lEl: [-0.3, 0, 0],
+        hammer: "hand",
+      }),
     land: (t) => {
-      const k = sstep(70.55, 70.75, t), up = sstep(71.8, 72.6, t);
-      return pose({ hips: [-0.15 * (1 - up), 0.15, 0], spine: [0.5 * (1 - up), 0, 0], chest: [0.4 * (1 - up), 0, 0], head: [-0.5 * (1 - up), 0, 0], lHp: [lerp(-1.5, -0.2, up), 0, 0.15], lKn: [lerp(2.3, 0.3, up), 0, 0], lAn: [0.4 * (1 - up), 0, 0], rHp: [lerp(0.6, 0.1, up), 0, -0.1], rKn: [lerp(2.4, 0.2, up), 0, 0], rAn: [-0.8 * (1 - up), 0, 0], lSh: [lerp(-0.6, -0.1, up), 0, lerp(0.15, 0.1, up)], lEl: [-0.1, 0, 0], lWr: [0.2, 0, 0], rSh: [lerp(-0.3, -0.25, up), 0, lerp(-0.6, -0.15, up)], rEl: [lerp(-0.4, -1.2, up), 0, 0], drop: lerp(0.62 * k, 0, up), hammer: 'hand' });
+      const k = sstep(70.55, 70.75, t),
+        up = sstep(71.8, 72.6, t);
+      return pose({
+        hips: [-0.15 * (1 - up), 0.15, 0],
+        spine: [0.5 * (1 - up), 0, 0],
+        chest: [0.4 * (1 - up), 0, 0],
+        head: [-0.5 * (1 - up), 0, 0],
+        lHp: [lerp(-1.5, -0.2, up), 0, 0.15],
+        lKn: [lerp(2.3, 0.3, up), 0, 0],
+        lAn: [0.4 * (1 - up), 0, 0],
+        rHp: [lerp(0.6, 0.1, up), 0, -0.1],
+        rKn: [lerp(2.4, 0.2, up), 0, 0],
+        rAn: [-0.8 * (1 - up), 0, 0],
+        lSh: [lerp(-0.6, -0.1, up), 0, lerp(0.15, 0.1, up)],
+        lEl: [-0.1, 0, 0],
+        lWr: [0.2, 0, 0],
+        rSh: [lerp(-0.3, -0.25, up), 0, lerp(-0.6, -0.15, up)],
+        rEl: [lerp(-0.4, -1.2, up), 0, 0],
+        drop: lerp(0.62 * k, 0, up),
+        hammer: "hand",
+      });
     },
-    reach: (t) => pose({ chest: [0.08, 0, 0], head: [0.05, 0, 0], lSh: [-1.3, 0, 0.1], lEl: [-0.3, 0, 0], lWr: [0.4, 0, 0], rSh: [-0.2, 0, -0.15], rEl: [-1.1, 0, 0], lHp: [-0.2, 0, 0.06], lKn: [0.1, 0, 0], rHp: [0.1, 0, -0.06], hammer: 'hand' }),
+    reach: (t) =>
+      pose({
+        chest: [0.08, 0, 0],
+        head: [0.05, 0, 0],
+        lSh: [-1.3, 0, 0.1],
+        lEl: [-0.3, 0, 0],
+        lWr: [0.4, 0, 0],
+        rSh: [-0.2, 0, -0.15],
+        rEl: [-1.1, 0, 0],
+        lHp: [-0.2, 0, 0.06],
+        lKn: [0.1, 0, 0],
+        rHp: [0.1, 0, -0.06],
+        hammer: "hand",
+      }),
     capTip: (t) => {
       const k = win(t, 86.6, 88.0, 0.5, 0.5);
-      return pose({ chest: [0.02, 0.1, 0], head: [-0.05 + 0.08 * k, 0.15, 0], lSh: [lerp(0, -2.4, k), 0, lerp(0.1, 0.55, k)], lEl: [lerp(-0.15, -2.3, k), 0, 0], lWr: [0.3 * k, 0, 0], rSh: [-0.15, 0, -0.18], rEl: [-2.15, 0, 0], lHp: [0, 0, 0.06], rHp: [0, 0, -0.06], hammer: 'hand' });
+      return pose({
+        chest: [0.02, 0.1, 0],
+        head: [-0.05 + 0.08 * k, 0.15, 0],
+        lSh: [lerp(0, -2.4, k), 0, lerp(0.1, 0.55, k)],
+        lEl: [lerp(-0.15, -2.3, k), 0, 0],
+        lWr: [0.3 * k, 0, 0],
+        rSh: [-0.15, 0, -0.18],
+        rEl: [-2.15, 0, 0],
+        lHp: [0, 0, 0.06],
+        rHp: [0, 0, -0.06],
+        hammer: "hand",
+      });
     },
   };
   const clipAt = (t) => {
@@ -472,28 +1000,59 @@ export function buildAgent(scene) {
     const k = sstep(t0, t0 + bl, t);
     const out = {};
     for (const key in cur) {
-      if (Array.isArray(cur[key])) out[key] = cur[key].map((v, n) => lerp(prev[key][n], v, k));
-      else if (typeof cur[key] === 'number') out[key] = lerp(prev[key], cur[key], k);
+      if (Array.isArray(cur[key]))
+        out[key] = cur[key].map((v, n) => lerp(prev[key][n], v, k));
+      else if (typeof cur[key] === "number")
+        out[key] = lerp(prev[key], cur[key], k);
       else out[key] = k < 0.5 ? prev[key] : cur[key];
     }
     return out;
   };
-  const J = { hips, spine, chest, neck, head, lSh: L.sh, lEl: L.el, lWr: L.wr, rSh: R.sh, rEl: R.el, rWr: R.wr, lHp: LL.hp, lKn: LL.kn, lAn: LL.an, rHp: RL.hp, rKn: RL.kn, rAn: RL.an };
-  const glowAt = (t) => sstep(T.DRAW + 0.5, T.DRAW + 1.2, t) * (0.5 + 0.5 * win(t, 39.6, 41.2) + 0.9 * win(t, 44.4, 50.6, 0.4, 0.5) + 2.5 * win(t, 66.4, 69.4, 1.2, 0.2)) * (1 - 0.6 * sstep(72, 76, t));
+  const J = {
+    hips,
+    spine,
+    chest,
+    neck,
+    head,
+    lSh: L.sh,
+    lEl: L.el,
+    lWr: L.wr,
+    rSh: R.sh,
+    rEl: R.el,
+    rWr: R.wr,
+    lHp: LL.hp,
+    lKn: LL.kn,
+    lAn: LL.an,
+    rHp: RL.hp,
+    rKn: RL.kn,
+    rAn: RL.an,
+  };
+  const glowAt = (t) =>
+    sstep(T.DRAW + 0.5, T.DRAW + 1.2, t) *
+    (0.5 +
+      0.5 * win(t, 39.6, 41.2) +
+      0.9 * win(t, 44.4, 50.6, 0.4, 0.5) +
+      2.5 * win(t, 66.4, 69.4, 1.2, 0.2)) *
+    (1 - 0.6 * sstep(72, 76, t));
   A.glowAt = glowAt;
 
   A.update = (t) => {
     const [x, y, z, yaw] = ROOT(t);
     const c = clipAt(t);
-    root.position.set(x, Math.max(y, 0) + groundH(x, z) * (y < 0.01 ? 1 : 0), z);
+    root.position.set(
+      x,
+      Math.max(y, 0) + groundH(x, z) * (y < 0.01 ? 1 : 0),
+      z,
+    );
     root.rotation.set(0, yaw, 0);
-    for (const k in J) J[k].rotation.set(c[k][0], c[k][1], c[k][2], 'YXZ');
+    for (const k in J) J[k].rotation.set(c[k][0], c[k][1], c[k][2], "YXZ");
     hips.position.y = 0.98 - c.drop;
     // cap brim flutter in the wind
-    capG.rotation.x = -0.02 * win(t, T.ROAR, T.ROAR_END) * (1 + Math.sin(t * 40));
-    const slot = c.hammer === 'hand' ? handSlot : backSlot;
+    capG.rotation.x =
+      -0.02 * win(t, T.ROAR, T.ROAR_END) * (1 + Math.sin(t * 40));
+    const slot = c.hammer === "hand" ? handSlot : backSlot;
     if (hammer.parent !== slot) slot.add(hammer);
-    if (c.hammer === 'hand') {
+    if (c.hammer === "hand") {
       // grip in the fist: the handle runs through the palm along the hand's forward axis
       hammer.rotation.set(Math.PI / 2, 0, 0);
       hammer.position.set(0, 0, -0.08);
@@ -510,7 +1069,9 @@ export function buildAgent(scene) {
     A.st.chest = new THREE.Vector3(0, 0.1, 0).applyMatrix4(chest.matrixWorld);
     A.st.face = new THREE.Vector3(0, 0.11, 0.1).applyMatrix4(head.matrixWorld);
     A.st.seal = new THREE.Vector3(0.21, 0, 0).applyMatrix4(hHead.matrixWorld);
-    A.st.sealN = new THREE.Vector3(1, 0, 0).transformDirection(hHead.matrixWorld);
+    A.st.sealN = new THREE.Vector3(1, 0, 0).transformDirection(
+      hHead.matrixWorld,
+    );
     A.st.root = root.position.clone();
     A.st.fwd = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw));
     A.st.glow = g;

@@ -1,22 +1,38 @@
 // Post: HDR scene (MSAA, half float) -> bloom (5-level) -> sun shafts (radial march over the bright
 // pass) -> grade (exposure, ACES fit, lift/gamma/gain, saturation) -> lens (chromatic fringe, shock
 // ring, vignette, deterministic grain) -> titles -> sRGB.
-import * as THREE from 'three';
+import * as THREE from "three";
 
 const VS = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }`;
 
 export function buildPost(renderer, W, H, samples = 4) {
   const P = {};
-  const hf = { type: THREE.HalfFloatType, depthBuffer: false, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter };
-  const rtScene = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType, samples, depthBuffer: true });
+  const hf = {
+    type: THREE.HalfFloatType,
+    depthBuffer: false,
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+  };
+  const rtScene = new THREE.WebGLRenderTarget(W, H, {
+    type: THREE.HalfFloatType,
+    samples,
+    depthBuffer: true,
+  });
   const levels = [];
-  let w = W >> 1, h = H >> 1;
+  let w = W >> 1,
+    h = H >> 1;
   for (let i = 0; i < 5; i++) {
-    levels.push([new THREE.WebGLRenderTarget(w, h, hf), new THREE.WebGLRenderTarget(w, h, hf)]);
+    levels.push([
+      new THREE.WebGLRenderTarget(w, h, hf),
+      new THREE.WebGLRenderTarget(w, h, hf),
+    ]);
     w = Math.max(1, w >> 1);
     h = Math.max(1, h >> 1);
   }
-  const rtRays = [new THREE.WebGLRenderTarget(W >> 2, H >> 2, hf), new THREE.WebGLRenderTarget(W >> 2, H >> 2, hf)];
+  const rtRays = [
+    new THREE.WebGLRenderTarget(W >> 2, H >> 2, hf),
+    new THREE.WebGLRenderTarget(W >> 2, H >> 2, hf),
+  ];
   const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2));
   quad.frustumCulled = false;
@@ -27,7 +43,14 @@ export function buildPost(renderer, W, H, samples = 4) {
     renderer.setRenderTarget(target);
     renderer.render(sc, cam);
   };
-  const mk = (fs, uniforms) => new THREE.ShaderMaterial({ vertexShader: VS, fragmentShader: fs, uniforms, depthTest: false, depthWrite: false });
+  const mk = (fs, uniforms) =>
+    new THREE.ShaderMaterial({
+      vertexShader: VS,
+      fragmentShader: fs,
+      uniforms,
+      depthTest: false,
+      depthWrite: false,
+    });
 
   const bright = mk(
     `uniform sampler2D tSrc; uniform float uTh; varying vec2 vUv;
@@ -57,7 +80,11 @@ export function buildPost(renderer, W, H, samples = 4) {
      void main(){ vec2 d = (vUv - uSun) / 48. * 0.9; vec2 p = vUv; vec3 acc = vec3(0.); float w = 1.;
        for (int i = 0; i < 48; i++){ p -= d; vec3 s = texture2D(tSrc, clamp(p, 0., 1.)).rgb; acc += s * w; w *= 0.955; }
        gl_FragColor = vec4(acc / 48. * uOn, 1.); }`,
-    { tSrc: { value: null }, uSun: { value: new THREE.Vector2() }, uOn: { value: 0 } },
+    {
+      tSrc: { value: null },
+      uSun: { value: new THREE.Vector2() },
+      uOn: { value: 0 },
+    },
   );
   const comp = mk(
     /* glsl */ `

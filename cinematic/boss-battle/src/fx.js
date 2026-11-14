@@ -1,10 +1,10 @@
 // Effects. Every particle's position, size and colour is evaluated in the vertex shader from film
 // time and per-particle seeds, so the effects are stateless and frame-exact like everything else.
-import * as THREE from 'three';
-import { NOISE } from './glsl.js';
-import { T, STRIKES, flashAt, stormAt, windAt } from './timeline.js';
-import { rng, win, pulse, sstep, clamp, lerp, keyed, track } from './util.js';
-import { SUN_DIR, BLAST_AT, groundH } from './world.js';
+import * as THREE from "three";
+import { NOISE } from "./glsl.js";
+import { T, STRIKES, flashAt, stormAt, windAt } from "./timeline.js";
+import { rng, win, pulse, sstep, clamp, lerp, keyed, track } from "./util.js";
+import { SUN_DIR, BLAST_AT, groundH } from "./world.js";
 
 const SPRITE = /* glsl */ `
   float soft(vec2 pc){ float r = length(pc - 0.5) * 2.; return smoothstep(1., 0.0, r); }
@@ -15,22 +15,36 @@ const SPRITE = /* glsl */ `
 function burstSystem(events, perEvent, additive, seed) {
   const R = rng(seed);
   const n = events.reduce((a, e) => a + Math.round(perEvent * (e.n || 1)), 0);
-  const ev = new Float32Array(n * 4), pr = new Float32Array(n * 4), sd = new Float32Array(n * 4);
+  const ev = new Float32Array(n * 4),
+    pr = new Float32Array(n * 4),
+    sd = new Float32Array(n * 4);
   let k = 0;
   for (const e of events) {
     const m = Math.round(perEvent * (e.n || 1));
     for (let i = 0; i < m; i++, k++) {
       ev.set([e.p.x, e.p.y, e.p.z, e.t + R() * (e.spread || 0.05)], k * 4);
-      pr.set([e.s || 1, e.kind || 0, e.dir ? e.dir.x : 0, e.dir ? e.dir.z : 0], k * 4);
+      pr.set(
+        [e.s || 1, e.kind || 0, e.dir ? e.dir.x : 0, e.dir ? e.dir.z : 0],
+        k * 4,
+      );
       sd.set([R(), R(), R(), R()], k * 4);
     }
   }
   const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * 3), 3));
-  g.setAttribute('aEv', new THREE.BufferAttribute(ev, 4));
-  g.setAttribute('aPr', new THREE.BufferAttribute(pr, 4));
-  g.setAttribute('aSd', new THREE.BufferAttribute(sd, 4));
-  const u = { uTime: { value: 0 }, uPx: { value: 800 }, uSunDir: { value: SUN_DIR.clone() }, uStorm: { value: 0 }, uSlow: { value: 0 } };
+  g.setAttribute(
+    "position",
+    new THREE.BufferAttribute(new Float32Array(n * 3), 3),
+  );
+  g.setAttribute("aEv", new THREE.BufferAttribute(ev, 4));
+  g.setAttribute("aPr", new THREE.BufferAttribute(pr, 4));
+  g.setAttribute("aSd", new THREE.BufferAttribute(sd, 4));
+  const u = {
+    uTime: { value: 0 },
+    uPx: { value: 800 },
+    uSunDir: { value: SUN_DIR.clone() },
+    uStorm: { value: 0 },
+    uSlow: { value: 0 },
+  };
   const mat = new THREE.ShaderMaterial({
     uniforms: u,
     transparent: true,
@@ -113,14 +127,37 @@ export function buildFx(scene, world, dragon, agent) {
   // ---------- events ----------
   const dust = [];
   const sparks = [];
-  for (const b of world.bursts) dust.push({ p: b.p, t: b.t, s: b.s * 0.8, kind: 0, n: 0.4 });
+  for (const b of world.bursts)
+    dust.push({ p: b.p, t: b.t, s: b.s * 0.8, kind: 0, n: 0.4 });
   // big set pieces
   dust.push({ p: V(-2, 0.3, -21), t: T.LAND, s: 2.4, kind: 0, n: 3 });
   dust.push({ p: V(2, 0.3, -21), t: T.LAND + 0.05, s: 2.4, kind: 0, n: 3 });
-  dust.push({ p: V(0, 0.4, -27), t: T.ROAR + 0.4, s: 2.2, kind: 0, n: 1.2, spread: 2.0 });
-  for (let i = 0; i < 6; i++) dust.push({ p: V(lerp(-1.6, -3.0, i / 5), 0.2, lerp(-11, -14.4, i / 5)), t: 36.95 + i * 0.1, s: 0.7, kind: 0, n: 0.6 });
+  dust.push({
+    p: V(0, 0.4, -27),
+    t: T.ROAR + 0.4,
+    s: 2.2,
+    kind: 0,
+    n: 1.2,
+    spread: 2.0,
+  });
+  for (let i = 0; i < 6; i++)
+    dust.push({
+      p: V(lerp(-1.6, -3.0, i / 5), 0.2, lerp(-11, -14.4, i / 5)),
+      t: 36.95 + i * 0.1,
+      s: 0.7,
+      kind: 0,
+      n: 0.6,
+    });
   dust.push({ p: V(-3, 0.3, -14.8), t: T.CLAW, s: 1.2, kind: 0, n: 1.2 });
-  for (let i = 0; i < 7; i++) dust.push({ p: V(lerp(-2.6, -1.5, i / 6), 0.2, lerp(-13.6, -7.2, i / 6)), t: 42.2 + i * 0.12, s: 0.8, kind: 0, n: 0.7, dir: V(0, 0, 0.5) });
+  for (let i = 0; i < 7; i++)
+    dust.push({
+      p: V(lerp(-2.6, -1.5, i / 6), 0.2, lerp(-13.6, -7.2, i / 6)),
+      t: 42.2 + i * 0.12,
+      s: 0.8,
+      kind: 0,
+      n: 0.7,
+      dir: V(0, 0, 0.5),
+    });
   dust.push({ p: V(0, 0.3, -25), t: T.TAKEOFF + 0.25, s: 3.4, kind: 0, n: 4 });
   dust.push({ p: V(0, 0.3, -14), t: T.BLAST + 0.12, s: 4.5, kind: 0, n: 6 });
   dust.push({ p: V(0.8, 0.2, -9.2), t: 70.55, s: 1.6, kind: 0, n: 1.5 });
@@ -129,26 +166,49 @@ export function buildFx(scene, world, dragon, agent) {
   sparks.push({ p: V(-2.95, 2.0, -14.5), t: T.CLAW, s: 1, kind: 1, n: 3 });
   sparks.push({ p: V(-2.3, 1.8, -13.0), t: T.KNOCK, s: 0.8, kind: 1, n: 2 });
   sparks.push({ p: V(-12, 4.5, -16), t: T.LAMP_HIT, s: 0.7, kind: 1, n: 2 });
-  sparks.push({ p: V(-12, 0.4, -16), t: T.LAMP_HIT + 0.85, s: 0.5, kind: 1, n: 1 });
+  sparks.push({
+    p: V(-12, 0.4, -16),
+    t: T.LAMP_HIT + 0.85,
+    s: 0.5,
+    kind: 1,
+    n: 1,
+  });
   sparks.push({ p: V(0, 13, -13), t: T.SLAM, s: 1.5, kind: 1, n: 4 });
   sparks.push({ p: V(0, 13, -13), t: T.SLAM, s: 1.0, kind: 2, n: 9 });
-  sparks.push({ p: V(-1.5, 1.2, -7.8), t: T.BREATH + 0.2, s: 0.9, kind: 1, n: 2, spread: 5 });
+  sparks.push({
+    p: V(-1.5, 1.2, -7.8),
+    t: T.BREATH + 0.2,
+    s: 0.9,
+    kind: 1,
+    n: 2,
+    spread: 5,
+  });
   dust.push({ p: V(-10, 0.4, -12), t: T.TAIL + 0.28, s: 1.2, kind: 3, n: 2 });
   dust.push({ p: V(11, 1, -16), t: T.PILLAR_HIT, s: 1.2, kind: 3, n: 2 });
-    const dustSys = burstSystem(dust, 60, false, 11);
+  const dustSys = burstSystem(dust, 60, false, 11);
   const sparkSys = burstSystem(sparks, 120, true, 12);
   scene.add(dustSys.pts, sparkSys.pts);
   F.sys = [dustSys, sparkSys];
 
   // ---------- ambient embers & motes ----------
   {
-    const N = 2500, R = rng(21);
+    const N = 2500,
+      R = rng(21);
     const sd = new Float32Array(N * 4);
     for (let i = 0; i < N * 4; i++) sd[i] = R();
     const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 3), 3));
-    g.setAttribute('aSd', new THREE.BufferAttribute(sd, 4));
-    const u = { uTime: { value: 0 }, uPx: { value: 800 }, uCam: { value: new THREE.Vector3() }, uEmber: { value: 0 }, uWind: { value: 0 } };
+    g.setAttribute(
+      "position",
+      new THREE.BufferAttribute(new Float32Array(N * 3), 3),
+    );
+    g.setAttribute("aSd", new THREE.BufferAttribute(sd, 4));
+    const u = {
+      uTime: { value: 0 },
+      uPx: { value: 800 },
+      uCam: { value: new THREE.Vector3() },
+      uEmber: { value: 0 },
+      uWind: { value: 0 },
+    };
     const mat = new THREE.ShaderMaterial({
       uniforms: u,
       transparent: true,
@@ -179,16 +239,26 @@ export function buildFx(scene, world, dragon, agent) {
 
   // ---------- breath: particle stream + beam core ----------
   const breathU = {
-    uTime: { value: 0 }, uPx: { value: 800 }, uA: { value: new THREE.Vector3() }, uB: { value: new THREE.Vector3() }, uN: { value: new THREE.Vector3(0, 0, 1) },
-    uD: { value: new THREE.Vector3() }, uDefl: { value: 0 }, uOn: { value: 0 },
+    uTime: { value: 0 },
+    uPx: { value: 800 },
+    uA: { value: new THREE.Vector3() },
+    uB: { value: new THREE.Vector3() },
+    uN: { value: new THREE.Vector3(0, 0, 1) },
+    uD: { value: new THREE.Vector3() },
+    uDefl: { value: 0 },
+    uOn: { value: 0 },
   };
   {
-    const N = 4500, R = rng(31);
+    const N = 4500,
+      R = rng(31);
     const sd = new Float32Array(N * 4);
     for (let i = 0; i < N * 4; i++) sd[i] = R();
     const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 3), 3));
-    g.setAttribute('aSd', new THREE.BufferAttribute(sd, 4));
+    g.setAttribute(
+      "position",
+      new THREE.BufferAttribute(new Float32Array(N * 3), 3),
+    );
+    g.setAttribute("aSd", new THREE.BufferAttribute(sd, 4));
     const mat = new THREE.ShaderMaterial({
       uniforms: breathU,
       transparent: true,
@@ -238,7 +308,11 @@ export function buildFx(scene, world, dragon, agent) {
   // beam cores (main + deflected): unit cylinder along +y, scaled/oriented per frame
   const beamMat = (col) =>
     new THREE.ShaderMaterial({
-      uniforms: { uTime: { value: 0 }, uOn: { value: 0 }, uCol: { value: col } },
+      uniforms: {
+        uTime: { value: 0 },
+        uOn: { value: 0 },
+        uCol: { value: col },
+      },
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
@@ -254,9 +328,19 @@ export function buildFx(scene, world, dragon, agent) {
           gl_FragColor = vec4(c * a, 1.);
         }`,
     });
-  const beamGeo = new THREE.CylinderGeometry(1, 1, 1, 24, 16, true).translate(0, 0.5, 0);
-  const beam = new THREE.Mesh(beamGeo, beamMat(new THREE.Vector3(0.35, 0.9, 1.8)));
-  const beam2 = new THREE.Mesh(beamGeo, beamMat(new THREE.Vector3(0.3, 0.8, 1.7)));
+  const beamGeo = new THREE.CylinderGeometry(1, 1, 1, 24, 16, true).translate(
+    0,
+    0.5,
+    0,
+  );
+  const beam = new THREE.Mesh(
+    beamGeo,
+    beamMat(new THREE.Vector3(0.35, 0.9, 1.8)),
+  );
+  const beam2 = new THREE.Mesh(
+    beamGeo,
+    beamMat(new THREE.Vector3(0.3, 0.8, 1.7)),
+  );
   beam.frustumCulled = beam2.frustumCulled = false;
   scene.add(beam, beam2);
 
@@ -327,21 +411,42 @@ export function buildFx(scene, world, dragon, agent) {
   const bolts = [];
   {
     const R = rng(41);
-    const boltMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(4, 4.4, 6), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, side: THREE.DoubleSide });
+    const boltMat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(4, 4.4, 6),
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      fog: false,
+      side: THREE.DoubleSide,
+    });
     STRIKES.forEach((st, bi) => {
       const pts = [];
-      const x0 = -80 + R() * 160, z0 = -260 - R() * 120;
-      const top = V(x0, 110 + R() * 20, z0), bot = V(x0 + (R() - 0.5) * 60, bi % 2 ? -30 : 40 + R() * 20, z0 + (R() - 0.5) * 40);
+      const x0 = -80 + R() * 160,
+        z0 = -260 - R() * 120;
+      const top = V(x0, 110 + R() * 20, z0),
+        bot = V(
+          x0 + (R() - 0.5) * 60,
+          bi % 2 ? -30 : 40 + R() * 20,
+          z0 + (R() - 0.5) * 40,
+        );
       const subdiv = (a, b, d, lvl) => {
         if (lvl === 0) {
           pts.push([a, b]);
           return;
         }
-        const m = a.clone().lerp(b, 0.5).add(V((R() - 0.5) * d, (R() - 0.5) * d * 0.3, (R() - 0.5) * d * 0.5));
+        const m = a
+          .clone()
+          .lerp(b, 0.5)
+          .add(
+            V((R() - 0.5) * d, (R() - 0.5) * d * 0.3, (R() - 0.5) * d * 0.5),
+          );
         subdiv(a, m, d * 0.55, lvl - 1);
         subdiv(m, b, d * 0.55, lvl - 1);
         if (lvl > 3 && R() < 0.35) {
-          const br = m.clone().add(V((R() - 0.5) * d * 1.4, -d * 0.8, (R() - 0.5) * d));
+          const br = m
+            .clone()
+            .add(V((R() - 0.5) * d * 1.4, -d * 0.8, (R() - 0.5) * d));
           subdiv(m, br, d * 0.4, lvl - 2);
         }
       };
@@ -349,10 +454,29 @@ export function buildFx(scene, world, dragon, agent) {
       const pos = [];
       for (const [a, b] of pts) {
         const w = 0.7;
-        pos.push(a.x - w, a.y, a.z, a.x + w, a.y, a.z, b.x + w, b.y, b.z, a.x - w, a.y, a.z, b.x + w, b.y, b.z, b.x - w, b.y, b.z);
+        pos.push(
+          a.x - w,
+          a.y,
+          a.z,
+          a.x + w,
+          a.y,
+          a.z,
+          b.x + w,
+          b.y,
+          b.z,
+          a.x - w,
+          a.y,
+          a.z,
+          b.x + w,
+          b.y,
+          b.z,
+          b.x - w,
+          b.y,
+          b.z,
+        );
       }
       const g = new THREE.BufferGeometry();
-      g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
       const m = new THREE.Mesh(g, boltMat.clone());
       m.frustumCulled = false;
       scene.add(m);
@@ -362,21 +486,32 @@ export function buildFx(scene, world, dragon, agent) {
 
   // ---------- cloud bank the dragon breaks out of ----------
   {
-    const N = 110, R = rng(51);
+    const N = 110,
+      R = rng(51);
     const g = new THREE.PlaneGeometry(1, 1);
     const ig = new THREE.InstancedBufferGeometry().copy(g);
     const off = new Float32Array(N * 4);
     const centers = [];
     for (let i = 0; i < N; i++) {
-      const p = V(-50 + (R() - 0.5) * 220, 66 + R() * 46, -215 + (R() - 0.5) * 90);
+      const p = V(
+        -50 + (R() - 0.5) * 220,
+        66 + R() * 46,
+        -215 + (R() - 0.5) * 90,
+      );
       const s = 26 + R() * 34;
       centers.push({ p, s, r: R() });
     }
-    ig.setAttribute('aOff', new THREE.InstancedBufferAttribute(off, 4));
+    ig.setAttribute("aOff", new THREE.InstancedBufferAttribute(off, 4));
     const rnd = new Float32Array(N);
-    ig.setAttribute('aR', new THREE.InstancedBufferAttribute(rnd, 1));
+    ig.setAttribute("aR", new THREE.InstancedBufferAttribute(rnd, 1));
     ig.instanceCount = N;
-    const u = { uTime: { value: 0 }, uSunDir: { value: SUN_DIR.clone() }, uStorm: { value: 0 }, uFlash: { value: 0 }, uFade: { value: 1 } };
+    const u = {
+      uTime: { value: 0 },
+      uSunDir: { value: SUN_DIR.clone() },
+      uStorm: { value: 0 },
+      uFlash: { value: 0 },
+      uFade: { value: 1 },
+    };
     const mat = new THREE.ShaderMaterial({
       uniforms: u,
       transparent: true,
@@ -409,13 +544,37 @@ export function buildFx(scene, world, dragon, agent) {
   }
 
   // ---------- lights driven by effects ----------
-  const beamLight = new THREE.PointLight(new THREE.Color(0.45, 0.8, 1.0), 0, 40, 1.6);
-  const sealLight = new THREE.PointLight(new THREE.Color(1.0, 0.3, 0.15), 0, 12, 2);
+  const beamLight = new THREE.PointLight(
+    new THREE.Color(0.45, 0.8, 1.0),
+    0,
+    40,
+    1.6,
+  );
+  const sealLight = new THREE.PointLight(
+    new THREE.Color(1.0, 0.3, 0.15),
+    0,
+    12,
+    2,
+  );
   scene.add(beamLight, sealLight);
   F.lights = { beamLight, sealLight };
 
-  const wardTarget = keyed([[0, 0], [48.3, 0], [48.5, 1], [48.95, 1], [49.25, 0], [49.3, 0]]);
-  const DEFL = track([[45, -12, 4.2, -16], [48.3, -12, 4.2, -16], [48.9, -12, 3.6, -16], [49.3, 4, 2.5, -18], [49.6, 10.5, 2.5, -16.5], [50.5, 13, 2.0, -15]]);
+  const wardTarget = keyed([
+    [0, 0],
+    [48.3, 0],
+    [48.5, 1],
+    [48.95, 1],
+    [49.25, 0],
+    [49.3, 0],
+  ]);
+  const DEFL = track([
+    [45, -12, 4.2, -16],
+    [48.3, -12, 4.2, -16],
+    [48.9, -12, 3.6, -16],
+    [49.3, 4, 2.5, -18],
+    [49.6, 10.5, 2.5, -16.5],
+    [50.5, 13, 2.0, -15],
+  ]);
   const deflOn = (t) => win(t, 48.25, 50.3, 0.15, 0.3);
   F.update = (t, camera, px) => {
     for (const s of F.sys) {
@@ -426,7 +585,10 @@ export function buildFx(scene, world, dragon, agent) {
     F.amb.uPx.value = px;
     F.amb.uCam.value.copy(camera.position);
     F.amb.uWind.value = windAt(t) * 0.5;
-    F.amb.uEmber.value = 0.25 + 0.75 * sstep(T.BREATH, T.BREATH + 2, t) + 0.8 * sstep(T.BLAST, T.BLAST + 1, t);
+    F.amb.uEmber.value =
+      0.25 +
+      0.75 * sstep(T.BREATH, T.BREATH + 2, t) +
+      0.8 * sstep(T.BLAST, T.BLAST + 1, t);
 
     // breath
     const on = win(t, T.BREATH, T.BREATH_END, 0.12, 0.35);
@@ -468,10 +630,12 @@ export function buildFx(scene, world, dragon, agent) {
     wardU.uHit.value = on;
     wardU.uTime.value = t;
     beamLight.position.copy(wardP).addScaledVector(wardN, 1.0);
-    beamLight.intensity = on * (25 + 8 * Math.sin(t * 50)) + 10 * dragon.st.throat;
+    beamLight.intensity =
+      on * (25 + 8 * Math.sin(t * 50)) + 10 * dragon.st.throat;
     // seal light: hammer glow, huge at the slam
     sealLight.position.copy(agent.st.seal);
-    sealLight.intensity = agent.st.glow * 0.35 + 900 * pulse(t, T.SLAM, 0.02, 0.35);
+    sealLight.intensity =
+      agent.st.glow * 0.35 + 900 * pulse(t, T.SLAM, 0.02, 0.35);
     sealLight.distance = 12 + 40 * pulse(t, T.SLAM, 0.02, 0.6);
 
     // shock shell and ground ring
@@ -499,7 +663,11 @@ export function buildFx(scene, world, dragon, agent) {
     // lightning
     for (const b of bolts) {
       const d = t - b.t;
-      const e = d >= 0 && d < 0.6 ? Math.exp(-d / 0.05) + (d > 0.1 ? 0.7 * Math.exp(-(d - 0.1) / 0.04) : 0) : 0;
+      const e =
+        d >= 0 && d < 0.6
+          ? Math.exp(-d / 0.05) +
+            (d > 0.1 ? 0.7 * Math.exp(-(d - 0.1) / 0.04) : 0)
+          : 0;
       b.m.material.opacity = Math.min(1, e);
       b.m.visible = e > 0.01;
     }
@@ -510,7 +678,9 @@ export function buildFx(scene, world, dragon, agent) {
     C.u.uStorm.value = stormAt(t);
     C.u.uFlash.value = flashAt(t);
     C.u.uFade.value = 1;
-    const order = C.centers.map((c, i) => [c.p.distanceToSquared(camera.position), i]).sort((a, b) => b[0] - a[0] || a[1] - b[1]);
+    const order = C.centers
+      .map((c, i) => [c.p.distanceToSquared(camera.position), i])
+      .sort((a, b) => b[0] - a[0] || a[1] - b[1]);
     order.forEach(([, i], k) => {
       const c = C.centers[i];
       C.off.set([c.p.x + Math.sin(t * 0.05 + i) * 3, c.p.y, c.p.z, c.s], k * 4);
