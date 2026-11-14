@@ -164,4 +164,29 @@ so expect regressions to need `qa:update` on a new machine; determinism holds pe
 
 ## Limitations and unfinished work
 
-See the bottom of this file after the final render for measured numbers.
+Stated plainly, as of this version:
+
+- **Stylised, not photoreal.** Characters are built from primitives (capsules, rounded boxes, wedges,
+  tapered tubes), not sculpted or rigged meshes. The agent reads as an articulated action figure; his
+  face has no expression rig. The dragon's head is assembled from primitives and close-ups show it.
+- **No skinning.** The agent's limbs are rigid segments with visible joints; the dragon's body is a
+  rebuilt tube (smooth), but its legs and wing bones are capsules.
+- **Animation is keyed, not simulated.** Poses cross-fade; there is no physics, no cloth, no foot
+  IK for the agent (feet can slide a little), and contacts (claw on hammer, seal on brow) are placed by
+  hand from the beat sheet, not by collision.
+- **Destruction is pre-fractured.** Basalt columns break at their natural joints and fly on analytic
+  arcs with two bounces; pieces do not collide with each other, and there is no runtime fracture.
+- **"Volumetric" light is screen-space.** Sun shafts are a radial blur of the bright pass; the breath
+  beam is an additive shaded cylinder plus particles; fog is exponential. No ray-marched volumes, no
+  ambient occlusion, no planar water reflection (the sea reflects the analytic sky only).
+- **Slow motion is authored, not a time remap.** The leap is keyed slower; particles keep real time.
+- **Text is Latin only.** The render container has no Korean font, so the name tag and titles are in
+  English.
+- **Uniform not verified against the official 복제 기준** (see above).
+- **Audio is synthesised and was checked by measurement (waveform, loudness, event alignment), not by
+  listening.** Instrument timbres are basic subtractive/additive synthesis.
+- **Render cost.** On 4 CPU cores with SwiftShader the 1080p render takes about 80 minutes; a real
+  GPU would be far faster. Real-time playback (`?play`) is not tuned for 60 fps.
+- **Regression baselines are machine-specific** (SwiftShader); other drivers need `qa:update`.
+- **CI does not render the film.** `npm run qa` is a local tool; it is not wired into the repo's
+  GitHub Actions.
