@@ -1,0 +1,457 @@
+{
+  "date": "2026-11-14T18:11:53.474Z",
+  "size": [640, 268],
+  "worstSSIM": 1,
+  "results": [
+    {
+      "name": "shots start at 0 and are strictly increasing",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "every shot lasts >= 1.0 s",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "film is exactly 90 s at 30 fps",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "all beats inside the film",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "determinism: repeat + out-of-order renders are byte-identical",
+      "ok": true,
+      "detail": "frame 1395"
+    },
+    {
+      "name": "sanity shot00-sea (t=2.27)",
+      "ok": true,
+      "detail": "mean 107 std 67 clip 0.0%"
+    },
+    {
+      "name": "regression shot00-sea",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot01-agentIntro (t=6.77)",
+      "ok": true,
+      "detail": "mean 145 std 72 clip 0.2%"
+    },
+    {
+      "name": "regression shot01-agentIntro",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot02-storm (t=10.50)",
+      "ok": true,
+      "detail": "mean 126 std 55 clip 0.0%"
+    },
+    {
+      "name": "regression shot02-storm",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot03-faceUp (t=12.77)",
+      "ok": true,
+      "detail": "mean 133 std 48 clip 0.0%"
+    },
+    {
+      "name": "regression shot03-faceUp",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot04-cloud (t=14.77)",
+      "ok": true,
+      "detail": "mean 144 std 29 clip 0.0%"
+    },
+    {
+      "name": "regression shot04-cloud",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot05-emerge (t=17.50)",
+      "ok": true,
+      "detail": "mean 142 std 45 clip 0.4%"
+    },
+    {
+      "name": "regression shot05-emerge",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot06-descend (t=20.63)",
+      "ok": true,
+      "detail": "mean 111 std 47 clip 0.0%"
+    },
+    {
+      "name": "regression shot06-descend",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot07-feet (t=22.87)",
+      "ok": true,
+      "detail": "mean 123 std 54 clip 0.2%"
+    },
+    {
+      "name": "regression shot07-feet",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot08-roar (t=25.00)",
+      "ok": true,
+      "detail": "mean 156 std 42 clip 0.1%"
+    },
+    {
+      "name": "regression shot08-roar",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot09-agentHold (t=27.50)",
+      "ok": true,
+      "detail": "mean 116 std 50 clip 0.0%"
+    },
+    {
+      "name": "regression shot09-agentHold",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot10-eye (t=29.77)",
+      "ok": true,
+      "detail": "mean 166 std 37 clip 0.0%"
+    },
+    {
+      "name": "regression shot10-eye",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot11-draw (t=32.27)",
+      "ok": true,
+      "detail": "mean 126 std 43 clip 0.0%"
+    },
+    {
+      "name": "regression shot11-draw",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot12-charge (t=34.97)",
+      "ok": true,
+      "detail": "mean 137 std 67 clip 0.2%"
+    },
+    {
+      "name": "regression shot12-charge",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot13-tail (t=37.50)",
+      "ok": true,
+      "detail": "mean 126 std 70 clip 0.5%"
+    },
+    {
+      "name": "regression shot13-tail",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot14-look (t=39.30)",
+      "ok": true,
+      "detail": "mean 162 std 44 clip 0.2%"
+    },
+    {
+      "name": "regression shot14-look",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot15-parry (t=41.00)",
+      "ok": true,
+      "detail": "mean 154 std 49 clip 0.0%"
+    },
+    {
+      "name": "regression shot15-parry",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot16-knock (t=43.00)",
+      "ok": true,
+      "detail": "mean 152 std 59 clip 0.2%"
+    },
+    {
+      "name": "regression shot16-knock",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot17-inhale (t=44.50)",
+      "ok": true,
+      "detail": "mean 166 std 49 clip 0.2%"
+    },
+    {
+      "name": "regression shot17-inhale",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot18-breathOTS (t=46.20)",
+      "ok": true,
+      "detail": "mean 161 std 56 clip 0.3%"
+    },
+    {
+      "name": "regression shot18-breathOTS",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot19-breathWide (t=48.97)",
+      "ok": true,
+      "detail": "mean 112 std 68 clip 0.3%"
+    },
+    {
+      "name": "regression shot19-breathWide",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot20-takeoff (t=52.00)",
+      "ok": true,
+      "detail": "mean 143 std 63 clip 0.2%"
+    },
+    {
+      "name": "regression shot20-takeoff",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot21-flyby (t=55.77)",
+      "ok": true,
+      "detail": "mean 131 std 60 clip 0.0%"
+    },
+    {
+      "name": "regression shot21-flyby",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot22-run (t=59.50)",
+      "ok": true,
+      "detail": "mean 156 std 65 clip 0.2%"
+    },
+    {
+      "name": "regression shot22-run",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot23-dive (t=62.50)",
+      "ok": true,
+      "detail": "mean 183 std 45 clip 0.2%"
+    },
+    {
+      "name": "regression shot23-dive",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot24-columns (t=65.27)",
+      "ok": true,
+      "detail": "mean 148 std 63 clip 0.0%"
+    },
+    {
+      "name": "regression shot24-columns",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot25-leap (t=67.77)",
+      "ok": true,
+      "detail": "mean 177 std 50 clip 0.2%"
+    },
+    {
+      "name": "regression shot25-leap",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot26-slam (t=69.70)",
+      "ok": true,
+      "detail": "mean 177 std 48 clip 0.3%"
+    },
+    {
+      "name": "regression shot26-slam",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot27-shockWide (t=71.70)",
+      "ok": true,
+      "detail": "mean 149 std 64 clip 0.1%"
+    },
+    {
+      "name": "regression shot27-shockWide",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot28-settle (t=75.00)",
+      "ok": true,
+      "detail": "mean 174 std 51 clip 0.2%"
+    },
+    {
+      "name": "regression shot28-settle",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot29-bow (t=79.00)",
+      "ok": true,
+      "detail": "mean 132 std 60 clip 0.0%"
+    },
+    {
+      "name": "regression shot29-bow",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot30-depart (t=83.00)",
+      "ok": true,
+      "detail": "mean 161 std 49 clip 0.1%"
+    },
+    {
+      "name": "regression shot30-depart",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity shot31-end (t=87.50)",
+      "ok": true,
+      "detail": "mean 123 std 53 clip 0.2%"
+    },
+    {
+      "name": "regression shot31-end",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity beat-LAND (t=22.30)",
+      "ok": true,
+      "detail": "mean 127 std 52 clip 0.3%"
+    },
+    {
+      "name": "regression beat-LAND",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity beat-TAIL (t=36.97)",
+      "ok": true,
+      "detail": "mean 125 std 72 clip 0.3%"
+    },
+    {
+      "name": "regression beat-TAIL",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity beat-CLAW (t=40.50)",
+      "ok": true,
+      "detail": "mean 176 std 32 clip 0.4%"
+    },
+    {
+      "name": "regression beat-CLAW",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity beat-BREATH (t=47.00)",
+      "ok": true,
+      "detail": "mean 165 std 57 clip 0.4%"
+    },
+    {
+      "name": "regression beat-BREATH",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity beat-LAMP_HIT (t=48.80)",
+      "ok": true,
+      "detail": "mean 115 std 67 clip 0.3%"
+    },
+    {
+      "name": "regression beat-LAMP_HIT",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity beat-LEAP (t=67.50)",
+      "ok": true,
+      "detail": "mean 186 std 46 clip 0.3%"
+    },
+    {
+      "name": "regression beat-LEAP",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity beat-SLAM (t=69.60)",
+      "ok": true,
+      "detail": "mean 189 std 45 clip 0.8%"
+    },
+    {
+      "name": "regression beat-SLAM",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "sanity beat-DEPART (t=83.00)",
+      "ok": true,
+      "detail": "mean 161 std 49 clip 0.1%"
+    },
+    {
+      "name": "regression beat-DEPART",
+      "ok": true,
+      "detail": "SSIM 1.0000"
+    },
+    {
+      "name": "no page errors or WebGL errors",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "score length is 90 s",
+      "ok": true,
+      "detail": "90.000 s"
+    },
+    {
+      "name": "score: the slam lands on its frame (post/pre energy)",
+      "ok": true,
+      "detail": "ratio 15.0"
+    },
+    {
+      "name": "score: the landing hit lands on its frame",
+      "ok": true,
+      "detail": "ratio 3.7"
+    },
+    {
+      "name": "score loudness in [-20, -10] LUFS, true peak < 0 dBFS",
+      "ok": true,
+      "detail": "I -14.6 LUFS, peak -0.3 dBFS"
+    }
+  ]
+}
