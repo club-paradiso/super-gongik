@@ -105,17 +105,20 @@ for (const f of frames) {
     `mean ${s.mean.toFixed(0)} std ${s.std.toFixed(0)} clip ${(s.clip * 100).toFixed(1)}%`,
   );
   const bfile = path.join(BASE, f.name + ".jpg");
+  // encode the current frame exactly as the baseline was, so an unchanged frame scores SSIM 1.0
+  const cjpg = file.replace(/\.png$/, ".jpg");
+  execFileSync("ffmpeg", [
+    "-loglevel",
+    "error",
+    "-y",
+    "-i",
+    file,
+    "-q:v",
+    "2",
+    cjpg,
+  ]);
   if (UPDATE || !fs.existsSync(bfile)) {
-    execFileSync("ffmpeg", [
-      "-loglevel",
-      "error",
-      "-y",
-      "-i",
-      file,
-      "-q:v",
-      "2",
-      bfile,
-    ]);
+    fs.copyFileSync(cjpg, bfile);
     continue;
   }
   const o = spawnSync(
@@ -123,7 +126,7 @@ for (const f of frames) {
     [
       "-hide_banner",
       "-i",
-      file,
+      cjpg,
       "-i",
       bfile,
       "-lavfi",
@@ -137,7 +140,7 @@ for (const f of frames) {
   const m = /All:([0-9.]+)/.exec(o.stderr);
   const ssim = m ? +m[1] : 0;
   worst = Math.min(worst, ssim);
-  check(`regression ${f.name}`, ssim >= 0.97, `SSIM ${ssim.toFixed(4)}`);
+  check(`regression ${f.name}`, ssim >= 0.98, `SSIM ${ssim.toFixed(4)}`);
 }
 const pageErrors = logs.filter((l) => /PAGEERROR|error/i.test(l));
 check(

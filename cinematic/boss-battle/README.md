@@ -16,6 +16,17 @@ This folder is **not** part of the pnpm workspace (`pnpm-workspace.yaml` lists o
 | Sound       | 48 kHz stereo, synthesised offline in Node from the same beat sheet |
 | Determinism | every frame is a pure function of its frame number                  |
 
+![One frame every 4.5 s from the final render](docs/contact-sheet.jpg)
+
+## Measured results (this version)
+
+- `npm run render`: 1920×1080 H.264 (CRF 16) + AAC 256k, 90.000 s, 2,700 frames, 0 page errors,
+  2,700 distinct frame hashes; 3,748 s on 4 CPU cores (SwiftShader, 3 workers, 1.39 s/frame).
+  Master file 555 MB; a CRF 22 copy is 110 MB.
+- `npm run qa`: 90/90 checks passed; regression SSIM 1.0 on every frame; slam energy ratio 15.0,
+  landing 3.7; score −14.6 LUFS integrated, −0.3 dBFS true peak.
+- The MP4 is not committed (size); `out/` is git-ignored. Re-render with `npm run render`.
+
 ## Commands
 
 ```bash
@@ -154,7 +165,7 @@ it, and where this one differs:
 1. Timeline invariants (shot order, minimum shot length, 90 s × 30 fps, beats inside the film).
 2. Determinism: a frame rendered, then after jumps across the film, then again must be byte-identical.
 3. Sanity on one frame per shot plus eight key beats: not black, not blown out, not flat.
-4. Visual regression: SSIM ≥ 0.97 against `qa/baselines/*.jpg`.
+4. Visual regression: SSIM ≥ 0.98 against `qa/baselines/*.jpg` (the current frame is JPEG-encoded the same way, so an unchanged frame scores 1.0).
 5. No page or WebGL errors.
 6. Score: exactly 90 s, the slam and the landing hits land on their frames (energy ratio), loudness
    in [−20, −10] LUFS with true peak below 0 dBFS.
@@ -185,7 +196,7 @@ Stated plainly, as of this version:
 - **Uniform not verified against the official 복제 기준** (see above).
 - **Audio is synthesised and was checked by measurement (waveform, loudness, event alignment), not by
   listening.** Instrument timbres are basic subtractive/additive synthesis.
-- **Render cost.** On 4 CPU cores with SwiftShader the 1080p render takes about 80 minutes; a real
+- **Render cost.** On 4 CPU cores with SwiftShader the 1080p render took 62 minutes; a real
   GPU would be far faster. Real-time playback (`?play`) is not tuned for 60 fps.
 - **Regression baselines are machine-specific** (SwiftShader); other drivers need `qa:update`.
 - **CI does not render the film.** `npm run qa` is a local tool; it is not wired into the repo's
