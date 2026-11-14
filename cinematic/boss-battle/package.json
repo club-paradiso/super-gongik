@@ -1,0 +1,22 @@
+{
+  "name": "super-gongik-boss-cinematic",
+  "version": "1.0.0",
+  "description": "90-second procedural WebGL boss cinematic (isolated from the production app)",
+  "scripts": {
+    "preview": "node tools/preview.mjs",
+    "score": "node audio/score.mjs out/score.wav",
+    "render": "node tools/render.mjs --w 1920 --h 804 --workers 3 --msaa 4",
+    "render:draft": "node tools/render.mjs --w 640 --h 268 --workers 3 --msaa 0 --crf 22 --out out/draft.mp4",
+    "qa": "node tools/qa.mjs",
+    "qa:update": "node tools/qa.mjs --update",
+    "sheet": "node tools/sheet.mjs out/sheet.jpg"
+  },
+  "dependencies": {
+    "three": "0.170.0"
+  },
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  }
+}
