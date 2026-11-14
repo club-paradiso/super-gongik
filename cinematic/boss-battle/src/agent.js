@@ -592,9 +592,9 @@ export function buildAgent(scene) {
     [77.8, "walk", 0.4],
     [79.6, "reach", 0.6],
     [81.0, "lookUp", 0.8],
-    [85.6, "idleHammer", 0.8],
+    [85.3, "restHammer", 0.6],
     [86.6, "capTip", 0.5],
-    [88.0, "idleHammer", 0.8],
+    [88.0, "restHammer", 0.8],
   ];
   const Z = () => ({
     hips: [0, 0, 0],
@@ -982,13 +982,28 @@ export function buildAgent(scene) {
         lSh: [lerp(0, -2.4, k), 0, lerp(0.1, 0.55, k)],
         lEl: [lerp(-0.15, -2.3, k), 0, 0],
         lWr: [0.3 * k, 0, 0],
-        rSh: [-0.15, 0, -0.18],
-        rEl: [-2.15, 0, 0],
+        rSh: [-0.12, 0, -0.32],
+        rEl: [-0.25, 0, 0],
+        rWr: [1.3, 0, 0],
         lHp: [0, 0, 0.06],
         rHp: [0, 0, -0.06],
         hammer: "hand",
       });
     },
+    // end of shift: the seal-hammer rests head-down beside the right boot
+    restHammer: (t) =>
+      pose({
+        chest: [0.02 * Math.sin(t * 1.4), 0.1, 0],
+        head: [-0.03, 0.15, 0],
+        lSh: [0, 0, 0.1],
+        lEl: [-0.15, 0, 0],
+        rSh: [-0.12, 0, -0.32],
+        rEl: [-0.25, 0, 0],
+        rWr: [1.3, 0, 0],
+        lHp: [0, 0, 0.06],
+        rHp: [0, 0, -0.06],
+        hammer: "hand",
+      }),
   };
   const clipAt = (t) => {
     let i = 0;

@@ -293,7 +293,7 @@ export function buildFx(scene, world, dragon, agent) {
             c = vec3(0.9, 2.2, 4.0) * max(0., 1. - t2 * 2.5) * 0.25;
           }
           float sz = (0.12 + 0.3 * aSd.w) * uOn * (s < L ? 1. : 0.6);
-          vCol = vec4(c, 0.4 * uOn);
+          vCol = vec4(c, 0.28 * uOn);
           vec4 mv = modelViewMatrix * vec4(p, 1.);
           gl_Position = projectionMatrix * mv;
           gl_PointSize = uOn > 0.001 ? clamp(sz * uPx / -mv.z, 1., 220.) : 0.;

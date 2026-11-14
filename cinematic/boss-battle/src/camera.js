@@ -30,11 +30,22 @@ const SHOT = {
     look: L(V(-12, 30, -100), V(-22, 44, -130), k),
     fov: 52,
   }),
-  faceUp: ({ k, A }) => ({
-    pos: A.face.clone().add(V(0.38, -0.28, lerp(-0.95, -0.85, k))),
-    look: A.face.clone().add(V(0, 0.04, 0)),
-    fov: 34,
-  }),
+  // profile against the storm sky
+  faceUp: ({ k, A }) => {
+    const side = V(-A.fwd.z, 0, A.fwd.x);
+    return {
+      pos: A.face
+        .clone()
+        .addScaledVector(side, lerp(1.15, 1.0, k))
+        .addScaledVector(A.fwd, 0.35)
+        .add(V(0, -0.22, 0)),
+      look: A.face
+        .clone()
+        .addScaledVector(A.fwd, 0.25)
+        .add(V(0, 0.08, 0)),
+      fov: 32,
+    };
+  },
   cloud: ({ k }) => ({
     pos: V(0.5, 2.0, 4),
     look: L(V(-48, 78, -215), V(-55, 76, -205), k),
@@ -116,10 +127,10 @@ const SHOT = {
     look: V(-5, 1.0, -16),
     fov: 56,
   }),
-  look: ({ A, D }) => ({
-    pos: A.root.clone().add(V(1.3, 0.8, 2.4)),
-    look: D.head.clone(),
-    fov: 46,
+  look: ({ k, D }) => ({
+    pos: L(V(7.5, 2.6, -9.5), V(6.8, 2.8, -10.5), k),
+    look: D.head.clone().lerp(V(-3, 1.2, -14.6), 0.35),
+    fov: 48,
   }),
   parry: ({ k }) => ({
     pos: L(V(2.6, 2.1, -10.0), V(2.2, 2.3, -10.6), k),
@@ -139,10 +150,10 @@ const SHOT = {
   breathOTS: ({ A, D, t }) => ({
     pos: A.head
       .clone()
-      .add(V(0.95, 0.35, 2.3))
+      .add(V(2.6, 0.9, 3.8))
       .add(drift(t, 0.05)),
-    look: D.mouth.clone().lerp(A.head, 0.25),
-    fov: 46,
+    look: D.mouth.clone().lerp(A.head, 0.45),
+    fov: 50,
   }),
   breathWide: ({ k }) => ({
     pos: L(V(17, 4.2, -4.5), V(16, 4.6, -6.5), k),
