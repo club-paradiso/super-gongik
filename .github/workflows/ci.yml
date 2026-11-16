@@ -102,7 +102,9 @@ jobs:
 
   webkit:
     name: Release gate · WebKit mobile
-    runs-on: ubuntu-latest
+    # Playwright 1.55.0 WebKit lacks binaries for ubuntu-26.04;
+    # pin a supported runner until Playwright is upgraded.
+    runs-on: ubuntu-24.04
     # Playwright's --with-deps pulls ~70 apt packages; a slow Azure mirror once
     # took 20 minutes on that step alone and cancelled the gate.
     timeout-minutes: 35
